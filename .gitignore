@@ -1,0 +1,8 @@
+.gradle/
+**/build/
+**/target/
+onyxsdk-pen/src/main/jniLibs/
+*.iml
+.idea/
+.DS_Store
+local.properties

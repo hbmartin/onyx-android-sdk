@@ -1,0 +1,56 @@
+name: Build recovered SDK
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  ANDROID_NDK_VERSION: 28.2.13676358
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out recovered source
+        uses: actions/checkout@v7
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Install Android platform and NDK
+        run: sdkmanager "platforms;android-35" "ndk;${ANDROID_NDK_VERSION}"
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+          targets: armv7-linux-androideabi,aarch64-linux-android,i686-linux-android,x86_64-linux-android
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Build, test, and audit recovery
+        run: ./gradlew --no-daemon clean check assembleRecovered
+
+      - name: Upload source-native artifacts and reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: onyxsdk-recovered-complete
+          if-no-files-found: error
+          path: |
+            onyxsdk-*/build/outputs/aar/*.aar
+            onyxsdk-*/build/libs/*.jar
+            recovery-tests/build/reports/tests/
