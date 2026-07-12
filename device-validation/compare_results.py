@@ -46,6 +46,16 @@ def operator_action(record: dict[str, Any]) -> bool:
     return record.get("suite") == "pen" and record.get("caseId") == "mode"
 
 
+def replay_health_outputs(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Dict outputs of replay_health records; malformed output becomes {} (unhealthy)."""
+    outputs = []
+    for record in records:
+        if record.get("caseId") == "replay_health":
+            output = record.get("output")
+            outputs.append(output if isinstance(output, dict) else {})
+    return outputs
+
+
 def keyed(records: list[dict[str, Any]], live: bool) -> dict[tuple[str, str, str, int], dict[str, Any]]:
     counts: Counter[tuple[str, str, str]] = Counter()
     result = {}
@@ -161,14 +171,8 @@ def main() -> None:
     # produced its callback within bounds; an unhealthy side is a defect even
     # when both sides are symmetric (both-unhealthy must not read as match).
     replay_health = None
-    ref_health = [
-        output if isinstance(output := r.get("output"), dict) else {}
-        for r in reference_records if r.get("caseId") == "replay_health"
-    ]
-    rec_health = [
-        output if isinstance(output := r.get("output"), dict) else {}
-        for r in recovered_records if r.get("caseId") == "replay_health"
-    ]
+    ref_health = replay_health_outputs(reference_records)
+    rec_health = replay_health_outputs(recovered_records)
     if ref_health or rec_health:
         healthy = (
             ref_health and rec_health

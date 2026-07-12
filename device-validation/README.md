@@ -40,6 +40,10 @@ surface is additionally pinned by the in-tree unit test
 `RecoveredApiSurfaceRegressionTest`, which runs without any reference JAR.
 The accepted-residual file names each javac-inexpressible difference exactly;
 stale entries or any new unaccepted finding fail the audit.
+`--fail-on` gates at the named severity and everything more severe, so audit
+the pen module with `--fail-on extra_public_surface`: its accepted file lists
+two intentional extra public classes, and under `--fail-on binary_breaking`
+an unexpected new public class would never fail the gate.
 
 The full surface/native audit expects the existing untracked analysis inputs
 `../onyxsdk-pen-native-classes.jar` and `../libneo_pen.so`. They remain external

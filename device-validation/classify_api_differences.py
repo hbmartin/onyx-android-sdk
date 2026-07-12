@@ -534,13 +534,14 @@ def main() -> int:
         name for name, api in candidate_api.items()
         if api.visible and name not in reference_api
     )
-    if extra_classes:
-        counts["extra_public_surface"] += len(extra_classes)
     accepted = load_accepted_residuals(args.accepted_residuals)
     try:
         validate_accepted_residuals(accepted, results, extra_classes)
     except ValueError as error:
         raise SystemExit(str(error)) from error
+    # counts tallies reference classes by primary classification (it sums to
+    # referenceClasses); extra candidate classes are reported separately but
+    # participate in the gate through unaccepted_counts.
     unaccepted_counts: Counter[str] = Counter()
     for class_name, data in results.items():
         classification = unaccepted_classification(class_name, data, accepted)
