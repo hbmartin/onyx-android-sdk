@@ -6,7 +6,6 @@ import android.os.Environment;
 import com.onyx.android.sdk.utils.Debug;
 import com.onyx.android.sdk.utils.FileUtils;
 import com.onyx.android.sdk.utils.StringUtils;
-import hugo.weaving.DebugLog;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -34,7 +33,6 @@ public class WavUtils {
         return path;
     }
 
-    @DebugLog
     public static void copyFromAssets(AssetManager assets, String source, String dest) throws IOException {
         if (a(assets, source, dest)) {
             return;
@@ -49,13 +47,11 @@ public class WavUtils {
         }
     }
 
-    @DebugLog
     private static boolean a(AssetManager assets, String source, String dest) throws IOException {
         File target = new File(dest);
         return target.exists() && target.length() == a(assets, source);
     }
 
-    @DebugLog
     private static long a(AssetManager assets, String source) throws IOException {
         try (InputStream input = assets.open(source)) {
             return input.available();

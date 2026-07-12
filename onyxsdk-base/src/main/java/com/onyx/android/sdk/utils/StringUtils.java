@@ -9,7 +9,6 @@ import java.util.Map;
 import androidx.annotation.Nullable;
 import java.text.Normalizer;
 import java.util.Locale;
-import org.apache.commons.text.StringEscapeUtils;
 import java.net.URLEncoder;
 import java.io.IOException;
 import java.io.Reader;
@@ -811,7 +810,42 @@ public class StringUtils
     }
     
     public static String XMLEscapeHandle(final String content) {
-        return isNotBlank(content) ? StringEscapeUtils.escapeXml10(content) : "";
+        return isNotBlank(content) ? escapeXml10(content) : "";
+    }
+
+    private static String escapeXml10(final String content) {
+        final StringBuilder escaped = new StringBuilder(content.length());
+        for (int offset = 0; offset < content.length();) {
+            final int codePoint = content.codePointAt(offset);
+            offset += Character.charCount(codePoint);
+            if (codePoint != 9 && codePoint != 10 && codePoint != 13
+                    && (codePoint < 32
+                    || codePoint > 55295 && codePoint < 57344
+                    || codePoint > 65533 && codePoint < 65536
+                    || codePoint > 1114111)) {
+                continue;
+            }
+            switch (codePoint) {
+                case '&':
+                    escaped.append("&amp;");
+                    break;
+                case '<':
+                    escaped.append("&lt;");
+                    break;
+                case '>':
+                    escaped.append("&gt;");
+                    break;
+                case '"':
+                    escaped.append("&quot;");
+                    break;
+                case '\'':
+                    escaped.append("&apos;");
+                    break;
+                default:
+                    escaped.appendCodePoint(codePoint);
+            }
+        }
+        return escaped.toString();
     }
     
     public static boolean startsWith(final String str, final String prefix) {

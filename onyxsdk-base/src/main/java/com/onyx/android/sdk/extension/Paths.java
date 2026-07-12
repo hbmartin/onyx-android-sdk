@@ -145,7 +145,7 @@ public final class Paths
             this.deleteFile(dstPath);
         }
         try {
-            org.apache.commons.io.FileUtils.copyFile(this.asFile($this$copyFile), this.asFile(dstPath));
+            com.onyx.android.sdk.commons.io.FileUtils.copyFile(this.asFile($this$copyFile), this.asFile(dstPath));
             return true;
         }
         catch (final Exception ex) {
@@ -183,7 +183,7 @@ public final class Paths
             return CollectionsKt.emptyList();
         }
         Collection collection;
-        if ((collection = org.apache.commons.io.FileUtils.listFiles(this.asFile($this$listFiles), (String[])null, recursive)) == null) {
+        if ((collection = com.onyx.android.sdk.commons.io.FileUtils.listFiles(this.asFile($this$listFiles), (String[])null, recursive)) == null) {
             collection = CollectionsKt.emptyList();
         }
         return collection;

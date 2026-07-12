@@ -54,6 +54,26 @@ class JvmApiContractsTest(unittest.TestCase):
             changed = {**payload, "module": "changed"}
             self.assertIn("current build", contracts.verify_or_update(path, changed, False))
 
+    def test_intentionally_removed_firmware_update_is_excluded(self):
+        api = ClassApi(
+            name="com.onyx.android.sdk.firmware.api.OnyxOTAService",
+            flags=frozenset({"ACC_PUBLIC", "ACC_ABSTRACT", "ACC_INTERFACE"}),
+            declaration=(
+                "public interface com.onyx.android.sdk.firmware.api.OnyxOTAService"
+            ),
+        )
+        method = Member(
+            kind="method",
+            name="firmwareUpdate",
+            descriptor="(Ljava/lang/String;)Lretrofit2/Call;",
+            flags=frozenset({"ACC_PUBLIC", "ACC_ABSTRACT"}),
+        )
+        api.members[method.key] = method
+
+        payload = contracts.canonical_class(api, "onyxsdk-base")
+
+        self.assertEqual([], payload["members"])
+
 
 if __name__ == "__main__":
     unittest.main()

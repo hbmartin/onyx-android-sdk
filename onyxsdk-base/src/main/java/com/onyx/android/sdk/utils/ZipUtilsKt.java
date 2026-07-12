@@ -6,7 +6,7 @@ package com.onyx.android.sdk.utils;
 
 import net.lingala.zip4j.ZipFile;
 import java.io.InputStream;
-import org.apache.commons.io.FileUtils;
+import com.onyx.android.sdk.commons.io.FileUtils;
 import java.io.File;
 import kotlin.jvm.internal.Intrinsics;
 import org.jetbrains.annotations.NotNull;

@@ -6,7 +6,6 @@ package com.onyx.android.sdk.utils;
 
 import java.io.File;
 import com.onyx.android.sdk.api.utils.NetworkUtil;
-import org.apache.commons.codec.binary.Hex;
 import java.nio.charset.StandardCharsets;
 import android.hardware.fingerprint.FingerprintManager;
 import android.media.AudioManager;
@@ -432,12 +431,23 @@ public class DeviceUtils
         final String cpuId;
         String s;
         if (StringUtils.isNotBlank(cpuId = Device.currentDevice().getCpuId())) {
-            s = new String(Hex.encodeHex(cpuId.getBytes(StandardCharsets.UTF_8)));
+            s = encodeHex(cpuId.getBytes(StandardCharsets.UTF_8));
         }
         else {
             s = cpuId;
         }
         return s;
+    }
+
+    private static String encodeHex(final byte[] data) {
+        final char[] digits = "0123456789abcdef".toCharArray();
+        final char[] encoded = new char[data.length * 2];
+        for (int i = 0; i < data.length; i++) {
+            final int value = data[i] & 255;
+            encoded[i * 2] = digits[value >>> 4];
+            encoded[i * 2 + 1] = digits[value & 15];
+        }
+        return new String(encoded);
     }
     
     public static String getDeviceUniqueId(final Context context) {

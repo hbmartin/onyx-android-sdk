@@ -65,6 +65,9 @@ surface is additionally pinned by the in-tree unit test
 `RecoveredApiSurfaceRegressionTest`, which runs without any reference JAR.
 The accepted-residual file names each javac-inexpressible difference exactly;
 stale entries or any new unaccepted finding fail the audit.
+It also records deliberately accepted removals listed in
+[`docs/API_INCOMPATIBILITIES.md`](../docs/API_INCOMPATIBILITIES.md), including
+the removed Retrofit-backed `OnyxOTAService.firmwareUpdate(String)` method.
 `--fail-on` gates at the named severity and everything more severe, so audit
 the pen module with `--fail-on extra_public_surface`: its accepted file lists
 two intentional extra public classes, and under `--fail-on binary_breaking`

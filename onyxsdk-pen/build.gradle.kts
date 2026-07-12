@@ -71,7 +71,6 @@ android {
 
 dependencies {
     api(project(":onyxsdk-base"))
-    api("de.ruedigermoeller:fst:2.56")
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")

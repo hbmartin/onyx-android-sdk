@@ -29,6 +29,13 @@ def generator_template() -> str:
 
 
 class TemplateDriftTest(unittest.TestCase):
+    def test_intentionally_removed_firmware_update_is_excluded(self):
+        generator = GENERATOR.read_text(encoding="utf-8")
+        self.assertIn("EXCLUDED_MEMBERS", generator)
+        self.assertIn("com.onyx.android.sdk.firmware.api.OnyxOTAService", generator)
+        self.assertIn("firmwareUpdate", generator)
+        self.assertIn("(Ljava/lang/String;)Lretrofit2/Call;", generator)
+
     def test_checked_in_test_matches_generator_template(self):
         prefix, placeholder, suffix = generator_template().partition("//BODY//")
         self.assertTrue(placeholder,

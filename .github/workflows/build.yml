@@ -2,6 +2,10 @@ name: Build recovered SDK
 
 on:
   push:
+    branches:
+      - "**"
+    tags:
+      - "v*"
   pull_request:
   workflow_dispatch:
 
@@ -90,3 +94,29 @@ jobs:
       - name: Fuzz touch-reader state transitions
         working-directory: onyxsdk-pen/native/onyx-pen-touch-reader
         run: cargo +nightly-2026-07-02 fuzz run pen_manager -- -runs=10000
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs:
+      - build-and-test
+      - fuzz-touch-reader
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download recovered SDK artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: onyxsdk-recovered-complete
+          path: release-artifacts
+
+      - name: Publish AARs to GitHub Releases
+        uses: softprops/action-gh-release@v3
+        with:
+          working_directory: release-artifacts
+          files: onyxsdk-*/build/outputs/aar/*.aar
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          overwrite_files: true

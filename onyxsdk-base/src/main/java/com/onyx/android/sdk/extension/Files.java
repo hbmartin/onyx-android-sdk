@@ -12,7 +12,7 @@ import kotlin.io.FileAlreadyExistsException;
 import java.util.UUID;
 import com.onyx.android.sdk.base.utils.Debug;
 import java.io.OutputStream;
-import org.apache.commons.io.IOUtils;
+import com.onyx.android.sdk.commons.io.IOUtils;
 import java.io.Closeable;
 import kotlin.io.CloseableKt;
 import java.io.InputStream;
@@ -22,10 +22,9 @@ import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import org.apache.commons.io.function.IOConsumer;
 import java.util.Arrays;
 import kotlin.collections.ArraysKt;
-import org.apache.commons.io.FilenameUtils;
+import com.onyx.android.sdk.commons.io.FilenameUtils;
 import org.jetbrains.annotations.Nullable;
 import java.util.Iterator;
 import java.util.ArrayList;
@@ -128,7 +127,7 @@ public final class Files
             deleteDirectoryQuietly$default(instance, it, null, null, 3, null);
         }
         else {
-            org.apache.commons.io.FileUtils.deleteQuietly(it);
+            com.onyx.android.sdk.commons.io.FileUtils.deleteQuietly(it);
         }
     }
     
@@ -192,7 +191,7 @@ public final class Files
     public final void deleteDirectory(@Nullable final String $this$deleteDirectory) {
         if (!StringKt.isEmpty($this$deleteDirectory) && this.isDirectory($this$deleteDirectory)) {
             try {
-                org.apache.commons.io.FileUtils.deleteDirectory(new File($this$deleteDirectory));
+                com.onyx.android.sdk.commons.io.FileUtils.deleteDirectory(new File($this$deleteDirectory));
             } catch (IOException failure) {
                 Debug.INSTANCE.e(failure);
             }
@@ -259,10 +258,10 @@ public final class Files
             }
         }
         if (com.onyx.android.sdk.extension.ArraysKt.isNotEmpty($this$isNotEmpty)) {
-            final IOConsumer<File> ioConsumer = Files::a;
-            final File[] original = $this$isNotEmpty;
             try {
-                IOConsumer.forAll(ioConsumer, Arrays.copyOf(original, original.length));
+                for (File file : $this$isNotEmpty) {
+                    a(file);
+                }
             } catch (Exception failure) {
                 Debug.INSTANCE.e(failure);
             }
@@ -282,7 +281,7 @@ public final class Files
             value2 = listFiles.length;
         }
         if (Intrinsics.areEqual(value, value2)) {
-            org.apache.commons.io.FileUtils.deleteQuietly($this$deleteDirectoryQuietly);
+            com.onyx.android.sdk.commons.io.FileUtils.deleteQuietly($this$deleteDirectoryQuietly);
         }
     }
     
@@ -460,7 +459,7 @@ public final class Files
         if (inputStream == null || file == null) {
             return 0L;
         }
-        try (OutputStream output = org.apache.commons.io.FileUtils.newOutputStream(file, false)) {
+        try (OutputStream output = new FileOutputStream(file, false)) {
             return IOUtils.copyLarge(inputStream, output);
         }
     }
@@ -533,7 +532,7 @@ public final class Files
             return list;
         }
         try {
-            final Collection listFiles = org.apache.commons.io.FileUtils.listFiles(file, (String[])null, true);
+            final Collection listFiles = com.onyx.android.sdk.commons.io.FileUtils.listFiles(file, (String[])null, true);
             Intrinsics.checkNotNullExpressionValue((Object)listFiles, "listFiles(directory, null, true)");
             return CollectionsKt.toList((Iterable)listFiles);
         }
@@ -937,7 +936,7 @@ public final class Files
             if (!temporaryFile.renameTo(targetFile)) {
                 FileUtils.deleteFile(temporaryFile);
             }
-            String saved = org.apache.commons.io.FileUtils.readFileToString(targetFile, StandardCharsets.UTF_8);
+            String saved = com.onyx.android.sdk.commons.io.FileUtils.readFileToString(targetFile, StandardCharsets.UTF_8);
             if (Intrinsics.areEqual((Object)saved, (Object)content)) {
                 return true;
             }
