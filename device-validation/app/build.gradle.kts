@@ -115,6 +115,9 @@ dependencies {
     implementation("com.jakewharton.hugo.fix:hugo-annotations:1.2.3")
 
     testImplementation("junit:junit:4.13.2")
+    // The mockable android.jar stubs org.json (toString() returns null);
+    // recorder tests that exercise real record writes need the real library.
+    testImplementation("org.json:json:20240303")
 }
 
 tasks.register("verifyInputs") {

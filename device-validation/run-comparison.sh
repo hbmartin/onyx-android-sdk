@@ -127,6 +127,9 @@ stop_event_capture() {
   # toybox setsid forks when the caller already leads a process group, making
   # $! the exited wrapper; sweep any surviving reader by command line. The
   # bracket keeps the sweeping shell's own command line out of the match.
+  # The sweep matches every getevent reading $INPUT_DEVICE, not just ours:
+  # run at most one comparison per device, or the runs kill each other's
+  # captures.
   "${ADB_CMD[@]}" shell "pkill -f 'geteven[t] -lt $INPUT_DEVICE'" 2>/dev/null || true
   "${ADB_CMD[@]}" pull "$DEVICE_EVENT_CAPTURE" "$destination" >/dev/null
   "${ADB_CMD[@]}" shell "rm -f $DEVICE_EVENT_CAPTURE"

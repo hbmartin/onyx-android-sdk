@@ -1925,18 +1925,7 @@ public class FileUtils
             Log.w(a, "readContentOfFile(path) received an empty path");
             return null;
         }
-        try (FileInputStream input = new FileInputStream(new File(path));
-             InputStreamReader streamReader = new InputStreamReader(input);
-             BufferedReader reader = new BufferedReader(streamReader)) {
-            StringBuilder content = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) content.append(line);
-            Log.d(a, "readContentOfFile(path) chars=" + content.length());
-            return content.toString();
-        } catch (Exception error) {
-            Log.w(a, "readContentOfFile(path) failed path=" + path, error);
-            return null;
-        }
+        return readContentOfFile(new File(path));
         /* Preserved original bytecode/decompiler diagnostics:
         // 
         // This method could not be decompiled.

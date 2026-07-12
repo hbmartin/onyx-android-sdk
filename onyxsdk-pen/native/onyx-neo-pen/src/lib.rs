@@ -85,6 +85,9 @@ struct Stamp {
     rows: Option<&'static [u32]>,
 }
 
+// Reference-device pixel snapshots show that the three masked charcoal
+// textures are fully opaque. Their opacity is part of the mask pixels, not
+// the 180/255 solid-fill opacity used by other stamps.
 const CHARCOAL_MOVE_ROWS: &[u32] = &[
     0b0000000000000,
     0b0000000000000,
@@ -542,7 +545,7 @@ impl PenState {
                             real.stamps.push(Stamp {
                                 width: 13,
                                 height: 14,
-                                alpha: 180,
+                                alpha: 255,
                                 rows: Some(CHARCOAL_MOVE_ROWS),
                             });
                         }
@@ -606,11 +609,13 @@ impl PenState {
                         real.stamps.push(Stamp {
                             width: 13,
                             height: 13,
-                            alpha: 180,
+                            alpha: 255,
                             rows: Some(CHARCOAL_UP_ROWS),
                         });
                     }
                     5 => {
+                        // Reference-device differential output anchors charcoal-v2's final
+                        // texture at the stroke origin rather than the latest move point.
                         let point = self.history.first().copied().unwrap_or(end);
                         real.points
                             .extend_from_slice(&[point.x - 4.0, point.y - 4.0]);
@@ -618,7 +623,7 @@ impl PenState {
                         real.stamps.push(Stamp {
                             width: 18,
                             height: 19,
-                            alpha: 180,
+                            alpha: 255,
                             rows: Some(CHARCOAL_V2_UP_ROWS),
                         });
                     }
@@ -782,6 +787,28 @@ fn read_touches(env: &mut JNIEnv, array: JDoubleArray) -> Vec<Touch> {
         .collect()
 }
 
+fn scale_color_alpha(color: i32, stamp_alpha: u8) -> i32 {
+    let alpha = (color as u32 >> 24) * u32::from(stamp_alpha) / 255;
+    ((alpha << 24) | (color as u32 & 0x00ff_ffff)) as i32
+}
+
+fn masked_stamp_pixels(stamp: &Stamp, color: i32) -> Option<Vec<i32>> {
+    let rows = stamp.rows?;
+    let width = stamp.width.max(1) as usize;
+    let height = stamp.height.max(1) as usize;
+    let scaled_color = scale_color_alpha(color, stamp.alpha);
+    let mut pixels = Vec::with_capacity(width * height);
+    for y in 0..height {
+        let row = rows.get(y).copied().unwrap_or(0);
+        for x in 0..width {
+            let bit_shift = width - 1 - x;
+            let active = bit_shift < u32::BITS as usize && row & (1u32 << bit_shift) != 0;
+            pixels.push(if active { scaled_color } else { 0 });
+        }
+    }
+    Some(pixels)
+}
+
 fn create_bitmap<'local>(
     env: &mut JNIEnv<'local>,
     stamp: &Stamp,
@@ -807,17 +834,7 @@ fn create_bitmap<'local>(
             ],
         )?
         .l()?;
-    if let Some(rows) = stamp.rows {
-        let width = stamp.width.max(1) as usize;
-        let height = stamp.height.max(1) as usize;
-        let mut pixels = Vec::with_capacity(width * height);
-        for y in 0..height {
-            let row = rows.get(y).copied().unwrap_or(0);
-            for x in 0..width {
-                let bit = 1u32 << (width - 1 - x);
-                pixels.push(if row & bit == 0 { 0 } else { color });
-            }
-        }
+    if let Some(pixels) = masked_stamp_pixels(stamp, color) {
         let colors: JIntArray = env.new_int_array(pixels.len() as i32)?;
         env.set_int_array_region(&colors, 0, &pixels)?;
         let colors_object = JObject::from(colors);
@@ -837,9 +854,8 @@ fn create_bitmap<'local>(
         )?;
         env.delete_local_ref(colors_object)?;
     } else {
-        let alpha = (color as u32 >> 24) * u32::from(stamp.alpha) / 255;
-        let argb = (alpha << 24) | (color as u32 & 0x00ff_ffff);
-        env.call_method(&bitmap, "eraseColor", "(I)V", &[JValue::Int(argb as i32)])?;
+        let argb = scale_color_alpha(color, stamp.alpha);
+        env.call_method(&bitmap, "eraseColor", "(I)V", &[JValue::Int(argb)])?;
     }
     env.delete_local_ref(config_class)?;
     env.delete_local_ref(config)?;
@@ -1468,6 +1484,44 @@ mod tests {
     }
 
     #[test]
+    fn masked_stamp_pixels_apply_stamp_alpha() {
+        const ROWS: &[u32] = &[0b10];
+        let stamp = Stamp {
+            width: 2,
+            height: 1,
+            alpha: 180,
+            rows: Some(ROWS),
+        };
+
+        assert_eq!(
+            masked_stamp_pixels(&stamp, 0xff12_3456u32 as i32),
+            Some(vec![0xb412_3456u32 as i32, 0]),
+        );
+        assert_eq!(
+            scale_color_alpha(0x8012_3456u32 as i32, 180),
+            0x5a12_3456u32 as i32
+        );
+    }
+
+    #[test]
+    fn masked_stamp_pixels_treat_bits_beyond_u32_as_inactive() {
+        const ROWS: &[u32] = &[u32::MAX];
+        let stamp = Stamp {
+            width: 33,
+            height: 1,
+            alpha: 255,
+            rows: Some(ROWS),
+        };
+
+        let pixels = masked_stamp_pixels(&stamp, 0xff12_3456u32 as i32).unwrap();
+        assert_eq!(pixels.len(), 33);
+        assert_eq!(pixels[0], 0);
+        assert!(pixels[1..]
+            .iter()
+            .all(|pixel| *pixel == 0xff12_3456u32 as i32));
+    }
+
+    #[test]
     fn non_finite_and_absurd_inputs_are_bounded() {
         let mut pen = PenState::new(2, PenConfig::default());
         pen.process(&[touch(0.0, 0.0, 0.5, 1.0)], None, Phase::Down);
@@ -1506,11 +1560,16 @@ mod tests {
         let (second_move, _) = pen.process(&[touch(100.0, 100.0, 0.5, 3.0)], None, Phase::Move);
         assert_eq!(first_move.points[0], -3.0);
         assert_eq!(second_move.points[0], 47.0);
+        assert_eq!(first_move.stamps[0].alpha, 255);
 
         let mut v2 = PenState::new(5, PenConfig::default());
         v2.process(&[touch(0.0, 0.0, 0.5, 1.0)], None, Phase::Down);
         v2.process(&[touch(60.0, 0.0, 0.5, 2.0)], None, Phase::Move);
         let (up, _) = v2.process(&[touch(60.0, 0.0, 0.5, 3.0)], None, Phase::Up);
-        assert_eq!(up.points[0], 56.0);
+        // The BOOX differential pins charcoal-v2's final texture to the
+        // stroke origin, not the most recent move point.
+        assert_eq!(up.points, [-4.0, -4.0]);
+        assert_eq!(up.stamps[0].alpha, 255);
+        assert_eq!(up.stamps[0].rows, Some(CHARCOAL_V2_UP_ROWS));
     }
 }

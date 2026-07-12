@@ -287,12 +287,16 @@ fn reader_loop(env: &mut JNIEnv, object: &JObject, session: i64) {
     rt.input_fd.store(input_fd, Ordering::SeqCst);
     rt.wake_fd.store(wake_fd, Ordering::SeqCst);
     if session <= rt.cancelled_through.load(Ordering::SeqCst) {
+        let input_fd = rt.input_fd.swap(-1, Ordering::SeqCst);
+        let wake_fd = rt.wake_fd.swap(-1, Ordering::SeqCst);
         unsafe {
-            libc::close(input_fd);
-            libc::close(wake_fd);
+            if input_fd >= 0 {
+                libc::close(input_fd);
+            }
+            if wake_fd >= 0 {
+                libc::close(wake_fd);
+            }
         }
-        rt.input_fd.store(-1, Ordering::SeqCst);
-        rt.wake_fd.store(-1, Ordering::SeqCst);
         if rt.debug.load(Ordering::SeqCst) {
             eprintln!("[onyx-touch-reader] cancelled during open session={session}");
         }
@@ -355,12 +359,16 @@ fn reader_loop(env: &mut JNIEnv, object: &JObject, session: i64) {
         }
     }
     rt.running.store(false, Ordering::SeqCst);
+    let input_fd = rt.input_fd.swap(-1, Ordering::SeqCst);
+    let wake_fd = rt.wake_fd.swap(-1, Ordering::SeqCst);
     unsafe {
-        libc::close(input_fd);
-        libc::close(wake_fd);
+        if input_fd >= 0 {
+            libc::close(input_fd);
+        }
+        if wake_fd >= 0 {
+            libc::close(wake_fd);
+        }
     }
-    rt.input_fd.store(-1, Ordering::SeqCst);
-    rt.wake_fd.store(-1, Ordering::SeqCst);
     if rt.debug.load(Ordering::SeqCst) {
         eprintln!("[onyx-touch-reader] exited session={session}");
     }
