@@ -51,12 +51,19 @@ final class SurfaceFlingerStrokeTransport implements StrokeTransport {
 
     private final StrokeTransportConfig config;
     private final StrokeTransport fallback;
+    private final Method serviceLookupMethod;
     private volatile IBinder binder;
     private volatile boolean resolutionAttempted;
 
     SurfaceFlingerStrokeTransport(StrokeTransportConfig config, StrokeTransport fallback) {
+        this(config, fallback, null);
+    }
+
+    SurfaceFlingerStrokeTransport(StrokeTransportConfig config, StrokeTransport fallback,
+                                  Method serviceLookupMethod) {
         this.config = config;
         this.fallback = fallback;
+        this.serviceLookupMethod = serviceLookupMethod;
     }
 
     @Override
@@ -76,7 +83,7 @@ final class SurfaceFlingerStrokeTransport implements StrokeTransport {
 
     @Override
     public boolean isAvailable() {
-        return resolveBinder() != null;
+        return resolveBinder(true) != null;
     }
 
     @Override
@@ -85,12 +92,12 @@ final class SurfaceFlingerStrokeTransport implements StrokeTransport {
     }
 
     @SuppressLint("PrivateApi") // Opt-in path for a firmware-verified hidden service.
-    private IBinder resolveBinder() {
+    IBinder resolveBinder(boolean allowRetry) {
         IBinder current = binder;
         if (current != null && current.isBinderAlive()) {
             return current;
         }
-        if (resolutionAttempted && current == null) {
+        if (resolutionAttempted && !allowRetry) {
             return null;
         }
         synchronized (this) {
@@ -98,10 +105,17 @@ final class SurfaceFlingerStrokeTransport implements StrokeTransport {
             if (current != null && current.isBinderAlive()) {
                 return current;
             }
+            if (resolutionAttempted && !allowRetry) {
+                return null;
+            }
             resolutionAttempted = true;
+            binder = null;
             try {
-                Class<?> serviceManager = Class.forName("android.os.ServiceManager");
-                Method getService = serviceManager.getMethod("getService", String.class);
+                Method getService = serviceLookupMethod;
+                if (getService == null) {
+                    Class<?> serviceManager = Class.forName("android.os.ServiceManager");
+                    getService = serviceManager.getMethod("getService", String.class);
+                }
                 Object service = getService.invoke(null, config.getServiceName());
                 if (service instanceof IBinder) {
                     binder = (IBinder) service;
@@ -115,7 +129,10 @@ final class SurfaceFlingerStrokeTransport implements StrokeTransport {
 
     private float transact(int code, float baseWidth, float x, float y,
                            float pressure, float size, float time, int operation) {
-        IBinder target = resolveBinder();
+        // Retry service lookup only at a stroke boundary. Add/finish calls use
+        // the framework fallback until the next stroke rather than reflecting
+        // through ServiceManager for every point while the service restarts.
+        IBinder target = resolveBinder(operation == 0);
         if (target == null) {
             return fallback(operation, baseWidth, x, y, pressure, size, time);
         }
@@ -144,8 +161,8 @@ final class SurfaceFlingerStrokeTransport implements StrokeTransport {
             return reply.readFloat();
         } catch (RuntimeException | android.os.RemoteException error) {
             Log.w(TAG, "Stroke Binder transaction failed; using framework transport", error);
+            resolutionAttempted = true;
             binder = null;
-            resolutionAttempted = false;
             return fallback(operation, baseWidth, x, y, pressure, size, time);
         } finally {
             reply.recycle();

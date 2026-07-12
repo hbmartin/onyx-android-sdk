@@ -42,22 +42,24 @@ public class NeoPenUtils {
             return new ArrayList();
         }
         ArrayList arrayList = new ArrayList();
-        // The native APIs normalize against NeoPenConfig.maxTouchPressure.
-        // Keep the caller's point list unchanged so rendering is repeatable.
-        ArrayList<TouchPoint> normalizedPoints = new ArrayList<>(points.size());
-        for (TouchPoint point : points) {
-            TouchPoint copy = new TouchPoint(point);
-            copy.pressure = maxTouchPressure > 0.0f ? copy.pressure / maxTouchPressure : 0.0f;
-            normalizedPoints.add(copy);
+        try {
+            // The native APIs normalize against NeoPenConfig.maxTouchPressure.
+            // Keep the caller's point list unchanged so rendering is repeatable.
+            ArrayList<TouchPoint> normalizedPoints = new ArrayList<>(points.size());
+            for (TouchPoint point : points) {
+                TouchPoint copy = new TouchPoint(point);
+                copy.pressure = maxTouchPressure > 0.0f ? copy.pressure / maxTouchPressure : 0.0f;
+                normalizedPoints.add(copy);
+            }
+            readPointResult(neoPenCreate.onPenDown(normalizedPoints.get(0), true), arrayList);
+            if (normalizedPoints.size() > 2) {
+                readPointResult(neoPenCreate.onPenMove(normalizedPoints.subList(1, normalizedPoints.size() - 1), null, true), arrayList);
+            }
+            readPointResult(neoPenCreate.onPenUp(normalizedPoints.get(normalizedPoints.size() - 1), true), arrayList);
+            return arrayList;
+        } finally {
+            neoPenCreate.destroy();
         }
-        readPointResult(neoPenCreate.onPenDown(normalizedPoints.get(0), true), arrayList);
-        if (normalizedPoints.size() > 2) {
-            readPointResult(neoPenCreate.onPenMove(normalizedPoints.subList(1, normalizedPoints.size() - 1), null, true), arrayList);
-        }
-        NeoPen neoPen = neoPenCreate;
-        readPointResult(neoPen.onPenUp(normalizedPoints.get(normalizedPoints.size() - 1), true), arrayList);
-        neoPen.destroy();
-        return arrayList;
     }
 
     /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */

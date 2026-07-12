@@ -70,7 +70,9 @@ def main() -> int:
             parser.error(f"missing JAR: {path}")
 
     try:
-        additions_payload = json.loads(args.accepted_additions.read_text())
+        additions_payload = json.loads(
+            args.accepted_additions.read_text(encoding="utf-8")
+        )
         accepted_extra_classes = set(additions_payload.pop("__extraClasses__", []))
         accepted_additions = {
             class_name: {tuple(member) for member in members}
