@@ -1,18 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  android.graphics.Rect
- *  android.graphics.RectF
- *  android.view.View
- *  androidx.annotation.NonNull
- *  androidx.annotation.Nullable
- *  com.onyx.android.sdk.data.note.TouchPoint
- *  com.onyx.android.sdk.utils.CollectionUtils
- *  com.onyx.android.sdk.utils.Debug
- *  com.onyx.android.sdk.utils.RectUtils
- *  com.onyx.android.sdk.utils.ViewUtils
- */
 package com.onyx.android.sdk.pen.multiview;
 
 import android.graphics.Rect;
@@ -24,502 +9,405 @@ import com.onyx.android.sdk.data.note.TouchPoint;
 import com.onyx.android.sdk.pen.RawInputCallback;
 import com.onyx.android.sdk.pen.TouchHelper;
 import com.onyx.android.sdk.pen.data.TouchPointList;
-import com.onyx.android.sdk.pen.multiview.BaseViewWatcher;
-import com.onyx.android.sdk.pen.multiview.LimitViewInfo;
-import com.onyx.android.sdk.pen.multiview.ViewWatcher;
 import com.onyx.android.sdk.utils.CollectionUtils;
 import com.onyx.android.sdk.utils.Debug;
 import com.onyx.android.sdk.utils.RectUtils;
 import com.onyx.android.sdk.utils.ViewUtils;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/multiview/MultiViewTouchHelper.class */
 public class MultiViewTouchHelper {
     private static boolean g = false;
     private TouchHelper a;
-    private List<LimitViewInfo> b;
     private LimitViewInfo c;
-    private BaseViewWatcher d;
     private int e;
     private int f;
+    private List<LimitViewInfo> b = new ArrayList();
+    private BaseViewWatcher d = new ViewWatcher();
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/multiview/MultiViewTouchHelper$a.class */
+    class a extends RawInputCallback {
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        a() {
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        /* JADX DEBUG: Failed to insert an additional move for type inference into block B:12:0x0025 */
+        /* JADX WARN: Multi-variable type inference failed */
+        /* JADX WARN: Type inference failed for: r0v3, types: [com.onyx.android.sdk.pen.multiview.LimitViewInfo] */
+        /* JADX WARN: Type inference failed for: r0v4, types: [java.lang.Throwable] */
+        /* JADX WARN: Type inference failed for: r0v9, types: [com.onyx.android.sdk.pen.RawInputCallback] */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onBeginRawDrawing(boolean shortcutDrawing, TouchPoint point) {
+            LimitViewInfo limitViewInfoA = MultiViewTouchHelper.this.a(point);
+            if (MultiViewTouchHelper.this.a(limitViewInfoA)) {
+                MultiViewTouchHelper.this.b(limitViewInfoA);
+                TouchPoint touchPointOffSetXY = limitViewInfoA.offSetXY(point);
+                try {
+                    RawInputCallback callback = limitViewInfoA.getCallback();
+                    callback.onBeginRawDrawing(shortcutDrawing, touchPointOffSetXY);
+                } catch (Exception exception) {
+                    Debug.e(exception);
+                }
+                if (MultiViewTouchHelper.g) {
+                    Debug.d(MultiViewTouchHelper.this.getTag(), "onBeginRawDrawing " + limitViewInfoA.toString() + " touchPoint:" + touchPointOffSetXY.toString(), new Object[0]);
+                }
+            }
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        /* JADX DEBUG: Failed to insert an additional move for type inference into block B:12:0x0025 */
+        /* JADX WARN: Multi-variable type inference failed */
+        /* JADX WARN: Type inference failed for: r0v3, types: [com.onyx.android.sdk.pen.multiview.LimitViewInfo] */
+        /* JADX WARN: Type inference failed for: r0v4, types: [java.lang.Throwable] */
+        /* JADX WARN: Type inference failed for: r0v9, types: [com.onyx.android.sdk.pen.RawInputCallback] */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onEndRawDrawing(boolean outLimitRegion, TouchPoint point) {
+            LimitViewInfo limitViewInfo = MultiViewTouchHelper.this.c;
+            MultiViewTouchHelper.this.clearActiveLimitViewInfo(!outLimitRegion);
+            if (MultiViewTouchHelper.this.a(limitViewInfo)) {
+                TouchPoint touchPointOffSetXY = limitViewInfo.offSetXY(point);
+                try {
+                    RawInputCallback callback = limitViewInfo.getCallback();
+                    callback.onEndRawDrawing(outLimitRegion, touchPointOffSetXY);
+                } catch (Exception exception) {
+                    Debug.e(exception);
+                }
+                if (MultiViewTouchHelper.g) {
+                    Debug.d(MultiViewTouchHelper.this.getTag(), "onEndRawDrawing " + limitViewInfo.toString() + " touchPoint:" + touchPointOffSetXY.toString(), new Object[0]);
+                }
+            }
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        /* JADX DEBUG: Failed to insert an additional move for type inference into block B:9:0x001b */
+        /* JADX WARN: Multi-variable type inference failed */
+        /* JADX WARN: Type inference failed for: r0v3, types: [com.onyx.android.sdk.pen.multiview.LimitViewInfo] */
+        /* JADX WARN: Type inference failed for: r0v4, types: [java.lang.Throwable] */
+        /* JADX WARN: Type inference failed for: r0v5, types: [com.onyx.android.sdk.pen.RawInputCallback] */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onRawDrawingTouchPointMoveReceived(TouchPoint point) {
+            LimitViewInfo limitViewInfo = MultiViewTouchHelper.this.c;
+            if (MultiViewTouchHelper.this.a(limitViewInfo)) {
+                TouchPoint touchPointOffSetXY = limitViewInfo.offSetXY(point);
+                try {
+                    RawInputCallback callback = limitViewInfo.getCallback();
+                    callback.onRawDrawingTouchPointMoveReceived(touchPointOffSetXY);
+                } catch (Exception exception) {
+                    Debug.e(exception);
+                }
+            }
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        /* JADX DEBUG: Failed to insert an additional move for type inference into block B:11:0x000b */
+        /* JADX WARN: Multi-variable type inference failed */
+        /* JADX WARN: Type inference failed for: r0v11, types: [com.onyx.android.sdk.pen.RawInputCallback] */
+        /* JADX WARN: Type inference failed for: r0v2, types: [boolean] */
+        /* JADX WARN: Type inference failed for: r0v3, types: [java.lang.Throwable] */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onRawDrawingTouchPointListReceived(TouchPointList pointList) {
+            if (!MultiViewTouchHelper.this.c()) {
+                return;
+            }
+            try {
+                MultiViewTouchHelper.this.c.getCallback().onRawDrawingTouchPointListReceived(pointList);
+            } catch (Exception exception) {
+                Debug.e(exception);
+            }
+            if (MultiViewTouchHelper.g) {
+                Debug.d(MultiViewTouchHelper.this.getTag(), "onRawDrawingTouchPointListReceived " + MultiViewTouchHelper.this.c + ", point list size = " + pointList.size(), new Object[0]);
+            }
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        /* JADX DEBUG: Failed to insert an additional move for type inference into block B:12:0x0025 */
+        /* JADX WARN: Multi-variable type inference failed */
+        /* JADX WARN: Type inference failed for: r0v3, types: [com.onyx.android.sdk.pen.multiview.LimitViewInfo] */
+        /* JADX WARN: Type inference failed for: r0v4, types: [java.lang.Throwable] */
+        /* JADX WARN: Type inference failed for: r0v9, types: [com.onyx.android.sdk.pen.RawInputCallback] */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onBeginRawErasing(boolean shortcutErasing, TouchPoint point) {
+            LimitViewInfo limitViewInfoA = MultiViewTouchHelper.this.a(point);
+            if (MultiViewTouchHelper.this.a(limitViewInfoA)) {
+                MultiViewTouchHelper.this.b(limitViewInfoA);
+                TouchPoint touchPointOffSetXY = limitViewInfoA.offSetXY(point);
+                try {
+                    RawInputCallback callback = limitViewInfoA.getCallback();
+                    callback.onBeginRawErasing(shortcutErasing, touchPointOffSetXY);
+                } catch (Exception exception) {
+                    Debug.e(exception);
+                }
+                if (MultiViewTouchHelper.g) {
+                    Debug.d(MultiViewTouchHelper.this.getTag(), "onBeginRawErasing " + limitViewInfoA.toString() + " point:" + touchPointOffSetXY.toString(), new Object[0]);
+                }
+            }
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        /* JADX DEBUG: Failed to insert an additional move for type inference into block B:12:0x0025 */
+        /* JADX WARN: Multi-variable type inference failed */
+        /* JADX WARN: Type inference failed for: r0v3, types: [com.onyx.android.sdk.pen.multiview.LimitViewInfo] */
+        /* JADX WARN: Type inference failed for: r0v4, types: [java.lang.Throwable] */
+        /* JADX WARN: Type inference failed for: r0v9, types: [com.onyx.android.sdk.pen.RawInputCallback] */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onEndRawErasing(boolean outLimitRegion, TouchPoint point) {
+            LimitViewInfo limitViewInfo = MultiViewTouchHelper.this.c;
+            MultiViewTouchHelper.this.clearActiveLimitViewInfo(!outLimitRegion);
+            if (MultiViewTouchHelper.this.a(limitViewInfo)) {
+                TouchPoint touchPointOffSetXY = limitViewInfo.offSetXY(point);
+                try {
+                    RawInputCallback callback = limitViewInfo.getCallback();
+                    callback.onEndRawErasing(outLimitRegion, touchPointOffSetXY);
+                } catch (Exception exception) {
+                    Debug.e(exception);
+                }
+                if (MultiViewTouchHelper.g) {
+                    Debug.d(MultiViewTouchHelper.this.getTag(), "onEndRawErasing " + limitViewInfo.toString() + " point:" + touchPointOffSetXY.toString(), new Object[0]);
+                }
+            }
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        /* JADX DEBUG: Failed to insert an additional move for type inference into block B:9:0x001b */
+        /* JADX WARN: Multi-variable type inference failed */
+        /* JADX WARN: Type inference failed for: r0v3, types: [com.onyx.android.sdk.pen.multiview.LimitViewInfo] */
+        /* JADX WARN: Type inference failed for: r0v4, types: [java.lang.Throwable] */
+        /* JADX WARN: Type inference failed for: r0v5, types: [com.onyx.android.sdk.pen.RawInputCallback] */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onRawErasingTouchPointMoveReceived(TouchPoint point) {
+            LimitViewInfo limitViewInfo = MultiViewTouchHelper.this.c;
+            if (MultiViewTouchHelper.this.a(limitViewInfo)) {
+                TouchPoint touchPointOffSetXY = limitViewInfo.offSetXY(point);
+                try {
+                    RawInputCallback callback = limitViewInfo.getCallback();
+                    callback.onRawErasingTouchPointMoveReceived(touchPointOffSetXY);
+                } catch (Exception exception) {
+                    Debug.e(exception);
+                }
+            }
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        /* JADX DEBUG: Failed to insert an additional move for type inference into block B:11:0x000b */
+        /* JADX WARN: Multi-variable type inference failed */
+        /* JADX WARN: Type inference failed for: r0v11, types: [com.onyx.android.sdk.pen.RawInputCallback] */
+        /* JADX WARN: Type inference failed for: r0v2, types: [boolean] */
+        /* JADX WARN: Type inference failed for: r0v3, types: [java.lang.Throwable] */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onRawErasingTouchPointListReceived(TouchPointList pointList) {
+            if (!MultiViewTouchHelper.this.c()) {
+                return;
+            }
+            try {
+                MultiViewTouchHelper.this.c.getCallback().onRawErasingTouchPointListReceived(pointList);
+            } catch (Exception exception) {
+                Debug.e(exception);
+            }
+            if (MultiViewTouchHelper.g) {
+                Debug.d(MultiViewTouchHelper.this.getTag(), "onRawErasingTouchPointListReceived" + MultiViewTouchHelper.this.c + ", point list size = " + pointList.size(), new Object[0]);
+            }
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        /* JADX DEBUG: Failed to insert an additional move for type inference into block B:9:0x0021 */
+        /* JADX WARN: Multi-variable type inference failed */
+        /* JADX WARN: Type inference failed for: r0v3, types: [com.onyx.android.sdk.pen.multiview.LimitViewInfo] */
+        /* JADX WARN: Type inference failed for: r0v4, types: [java.lang.Throwable] */
+        /* JADX WARN: Type inference failed for: r0v5, types: [com.onyx.android.sdk.pen.RawInputCallback] */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onPenActive(TouchPoint point) {
+            super.onPenActive(point);
+            LimitViewInfo limitViewInfoA = MultiViewTouchHelper.this.a(point);
+            if (MultiViewTouchHelper.this.a(limitViewInfoA)) {
+                TouchPoint touchPointOffSetXY = limitViewInfoA.offSetXY(point);
+                try {
+                    RawInputCallback callback = limitViewInfoA.getCallback();
+                    callback.onPenActive(touchPointOffSetXY);
+                } catch (Exception exception) {
+                    Debug.e(exception);
+                }
+            }
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onPenUpRefresh(RectF refreshRect) {
+            super.onPenUpRefresh(refreshRect);
+            Rect rect = RectUtils.toRect(refreshRect);
+            List listA = MultiViewTouchHelper.this.a(rect);
+            if (CollectionUtils.isNullOrEmpty(listA)) {
+                Debug.d(MultiViewTouchHelper.this.getTag(), "onPenUpRefresh do nothing, do not find limitViewInfo", new Object[0]);
+                return;
+            }
+            Iterator it = listA.iterator();
+            while (it.hasNext()) {
+                MultiViewTouchHelper.this.a((LimitViewInfo) it.next(), rect);
+            }
+        }
+    }
+
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public MultiViewTouchHelper(@NonNull View containerView, int feature) {
-        void var2_2;
-        void var1_1;
-        MultiViewTouchHelper multiViewTouchHelper = this;
-        this.b = new ArrayList<LimitViewInfo>();
-        this.d = new ViewWatcher();
-        multiViewTouchHelper.a((View)var1_1);
-        this.a = TouchHelper.create((View)var1_1, (int)var2_2, multiViewTouchHelper.b()).setSingleRegionMode();
+        a(containerView);
+        this.a = TouchHelper.create(containerView, feature, b()).setSingleRegionMode();
     }
 
-    private void a(@NonNull View containerView) {
-        int n;
-        Rect rect;
-        rect = ViewUtils.globalVisibleRect((View)rect);
-        this.e = n = rect.left;
-        this.f = rect.top;
-        this.d.setContainerViewScreenX(n).setContainerViewScreenY(this.f);
-    }
-
-    private RawInputCallback b() {
-        return new RawInputCallback(this){
-            final /* synthetic */ MultiViewTouchHelper a;
-            {
-                void var1_1;
-                this.a = var1_1;
-            }
-
-            /*
-             * WARNING - void declaration
-             */
-            @Override
-            public void onBeginRawDrawing(boolean shortcutDrawing, TouchPoint point) {
-                TouchPoint touchPoint;
-                a a2 = this;
-                LimitViewInfo limitViewInfo = MultiViewTouchHelper.a(a2.a, touchPoint);
-                if (!MultiViewTouchHelper.a(a2.a, limitViewInfo)) {
-                    return;
-                }
-                LimitViewInfo limitViewInfo2 = limitViewInfo;
-                MultiViewTouchHelper.b(this.a, limitViewInfo);
-                touchPoint = limitViewInfo2.offSetXY(touchPoint);
-                try {
-                    void var1_1;
-                    limitViewInfo2.getCallback().onBeginRawDrawing((boolean)var1_1, touchPoint);
-                }
-                catch (Exception exception) {
-                    Debug.e((Throwable)exception);
-                }
-                if (g) {
-                    Debug.d((Class)this.a.getTag(), (String)("onBeginRawDrawing " + limitViewInfo.toString() + " touchPoint:" + touchPoint.toString()), (Object[])new Object[0]);
-                }
-            }
-
-            /*
-             * WARNING - void declaration
-             */
-            @Override
-            public void onEndRawDrawing(boolean outLimitRegion, TouchPoint point) {
-                TouchPoint touchPoint;
-                void var1_1;
-                a a2 = this;
-                LimitViewInfo limitViewInfo = a2.a.c;
-                a2.a.clearActiveLimitViewInfo((var1_1 ^ 1) != 0);
-                if (!MultiViewTouchHelper.a(a2.a, limitViewInfo)) {
-                    return;
-                }
-                LimitViewInfo limitViewInfo2 = limitViewInfo;
-                touchPoint = limitViewInfo2.offSetXY(touchPoint);
-                try {
-                    limitViewInfo2.getCallback().onEndRawDrawing((boolean)var1_1, touchPoint);
-                }
-                catch (Exception exception) {
-                    Debug.e((Throwable)exception);
-                }
-                if (g) {
-                    Debug.d((Class)this.a.getTag(), (String)("onEndRawDrawing " + limitViewInfo.toString() + " touchPoint:" + touchPoint.toString()), (Object[])new Object[0]);
-                }
-            }
-
-            /*
-             * WARNING - void declaration
-             */
-            @Override
-            public void onRawDrawingTouchPointMoveReceived(TouchPoint point) {
-                void var1_1;
-                a a2 = this_;
-                Object this_ = a2.a.c;
-                if (!MultiViewTouchHelper.a(a2.a, (LimitViewInfo)this_)) {
-                    return;
-                }
-                Object object = this_;
-                this_ = ((LimitViewInfo)object).offSetXY((TouchPoint)var1_1);
-                try {
-                    ((LimitViewInfo)object).getCallback().onRawDrawingTouchPointMoveReceived((TouchPoint)this_);
-                }
-                catch (Exception exception) {
-                    Debug.e((Throwable)exception);
-                }
-            }
-
-            /*
-             * WARNING - void declaration
-             */
-            @Override
-            public void onRawDrawingTouchPointListReceived(TouchPointList pointList) {
-                void var1_1;
-                if (!this.a.c()) {
-                    return;
-                }
-                try {
-                    this.a.c.getCallback().onRawDrawingTouchPointListReceived((TouchPointList)var1_1);
-                }
-                catch (Exception exception) {
-                    Debug.e((Throwable)exception);
-                }
-                if (g) {
-                    Debug.d((Class)this.a.getTag(), (String)("onRawDrawingTouchPointListReceived " + this.a.c + ", point list size = " + var1_1.size()), (Object[])new Object[0]);
-                }
-            }
-
-            /*
-             * WARNING - void declaration
-             */
-            @Override
-            public void onBeginRawErasing(boolean shortcutErasing, TouchPoint point) {
-                TouchPoint touchPoint;
-                a a2 = this;
-                LimitViewInfo limitViewInfo = MultiViewTouchHelper.a(a2.a, touchPoint);
-                if (!MultiViewTouchHelper.a(a2.a, limitViewInfo)) {
-                    return;
-                }
-                LimitViewInfo limitViewInfo2 = limitViewInfo;
-                MultiViewTouchHelper.b(this.a, limitViewInfo);
-                touchPoint = limitViewInfo2.offSetXY(touchPoint);
-                try {
-                    void var1_1;
-                    limitViewInfo2.getCallback().onBeginRawErasing((boolean)var1_1, touchPoint);
-                }
-                catch (Exception exception) {
-                    Debug.e((Throwable)exception);
-                }
-                if (g) {
-                    Debug.d((Class)this.a.getTag(), (String)("onBeginRawErasing " + limitViewInfo.toString() + " point:" + touchPoint.toString()), (Object[])new Object[0]);
-                }
-            }
-
-            /*
-             * WARNING - void declaration
-             */
-            @Override
-            public void onEndRawErasing(boolean outLimitRegion, TouchPoint point) {
-                TouchPoint touchPoint;
-                void var1_1;
-                a a2 = this;
-                LimitViewInfo limitViewInfo = a2.a.c;
-                a2.a.clearActiveLimitViewInfo((var1_1 ^ 1) != 0);
-                if (!MultiViewTouchHelper.a(a2.a, limitViewInfo)) {
-                    return;
-                }
-                LimitViewInfo limitViewInfo2 = limitViewInfo;
-                touchPoint = limitViewInfo2.offSetXY(touchPoint);
-                try {
-                    limitViewInfo2.getCallback().onEndRawErasing((boolean)var1_1, touchPoint);
-                }
-                catch (Exception exception) {
-                    Debug.e((Throwable)exception);
-                }
-                if (g) {
-                    Debug.d((Class)this.a.getTag(), (String)("onEndRawErasing " + limitViewInfo.toString() + " point:" + touchPoint.toString()), (Object[])new Object[0]);
-                }
-            }
-
-            /*
-             * WARNING - void declaration
-             */
-            @Override
-            public void onRawErasingTouchPointMoveReceived(TouchPoint point) {
-                void var1_1;
-                a a2 = this_;
-                Object this_ = a2.a.c;
-                if (!MultiViewTouchHelper.a(a2.a, (LimitViewInfo)this_)) {
-                    return;
-                }
-                Object object = this_;
-                this_ = ((LimitViewInfo)object).offSetXY((TouchPoint)var1_1);
-                try {
-                    ((LimitViewInfo)object).getCallback().onRawErasingTouchPointMoveReceived((TouchPoint)this_);
-                }
-                catch (Exception exception) {
-                    Debug.e((Throwable)exception);
-                }
-            }
-
-            /*
-             * WARNING - void declaration
-             */
-            @Override
-            public void onRawErasingTouchPointListReceived(TouchPointList pointList) {
-                void var1_1;
-                if (!this.a.c()) {
-                    return;
-                }
-                try {
-                    this.a.c.getCallback().onRawErasingTouchPointListReceived((TouchPointList)var1_1);
-                }
-                catch (Exception exception) {
-                    Debug.e((Throwable)exception);
-                }
-                if (g) {
-                    Debug.d((Class)this.a.getTag(), (String)("onRawErasingTouchPointListReceived" + this.a.c + ", point list size = " + var1_1.size()), (Object[])new Object[0]);
-                }
-            }
-
-            /*
-             * WARNING - void declaration
-             */
-            @Override
-            public void onPenActive(TouchPoint point) {
-                void var1_1;
-                a a2 = this_;
-                super.onPenActive((TouchPoint)var1_1);
-                Object this_ = MultiViewTouchHelper.a(a2.a, (TouchPoint)var1_1);
-                if (!MultiViewTouchHelper.a(a2.a, (LimitViewInfo)this_)) {
-                    return;
-                }
-                Object object = this_;
-                this_ = ((LimitViewInfo)object).offSetXY((TouchPoint)var1_1);
-                try {
-                    ((LimitViewInfo)object).getCallback().onPenActive((TouchPoint)this_);
-                }
-                catch (Exception exception) {
-                    Debug.e((Throwable)exception);
-                }
-            }
-
-            @Override
-            public void onPenUpRefresh(RectF refreshRect) {
-                Rect rect;
-                super.onPenUpRefresh((RectF)rect);
-                rect = RectUtils.toRect((RectF)rect);
-                Object object = MultiViewTouchHelper.a(this.a, rect);
-                if (CollectionUtils.isNullOrEmpty((Collection)object)) {
-                    Debug.d((Class)this.a.getTag(), (String)"onPenUpRefresh do nothing, do not find limitViewInfo", (Object[])new Object[0]);
-                    return;
-                }
-                object = object.iterator();
-                while (object.hasNext()) {
-                    LimitViewInfo limitViewInfo = (LimitViewInfo)object.next();
-                    MultiViewTouchHelper.a(this.a, limitViewInfo, rect);
-                }
-            }
-        };
-    }
-
-    /*
-     * WARNING - void declaration
-     */
-    private void a(LimitViewInfo limitViewInfo, Rect refreshRect) {
-        Rect rect;
-        void var1_1;
-        if (!this.a((LimitViewInfo)var1_1)) {
-            return;
-        }
-        void v0 = var1_1;
-        void v1 = v0;
-        rect = v0.getRefreshRectInView(rect);
-        try {
-            v1.getCallback().onPenUpRefresh(RectUtils.toRectF((Rect)rect));
-        }
-        catch (Exception exception) {
-            Debug.e((Throwable)exception);
-        }
-        Debug.d((Class)this.getTag(), (String)("handlePenUpRefresh:" + rect.toString()), (Object[])new Object[0]);
-    }
-
-    /*
-     * WARNING - void declaration
-     */
-    private boolean a(LimitViewInfo limitViewInfo) {
-        void var1_1;
-        if (g && var1_1 == null) {
-            Debug.printStackTraceDebug((String)"limitViewInfo is null");
-        }
-        return var1_1 != null && var1_1.getCallback() != null;
-    }
-
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    /* JADX INFO: Access modifiers changed from: private */
     private boolean c() {
-        MultiViewTouchHelper multiViewTouchHelper = this;
-        return multiViewTouchHelper.a(multiViewTouchHelper.c);
+        return a(this.c);
     }
 
-    /*
-     * WARNING - void declaration
-     */
-    @Nullable
-    private LimitViewInfo a(TouchPoint point) {
-        void var1_1;
-        for (LimitViewInfo limitViewInfo : ((MultiViewTouchHelper)this).b) {
-            if (!limitViewInfo.contains((TouchPoint)var1_1)) continue;
-            return limitViewInfo;
-        }
-        Debug.printStackTraceDebug((String)("getLimitViewInfo is null, the point is " + var1_1.toString()));
-        return null;
-    }
-
-    /*
-     * WARNING - void declaration
-     */
-    private List<LimitViewInfo> a(Rect rect) {
-        ArrayList arrayList;
-        MultiViewTouchHelper multiViewTouchHelper = this_;
-        ArrayList this_ = arrayList;
-        arrayList = new ArrayList();
-        for (LimitViewInfo limitViewInfo : multiViewTouchHelper.b) {
-            void var1_1;
-            if (!limitViewInfo.intersect((Rect)var1_1)) continue;
-            this_.add(limitViewInfo);
-        }
-        return this_;
-    }
-
-    /*
-     * WARNING - void declaration
-     */
-    private MultiViewTouchHelper b(LimitViewInfo activeLimitViewInfo) {
-        void var1_1;
-        this.c = var1_1;
-        return this;
-    }
-
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static void setDebug(boolean debug) {
         g = debug;
     }
 
-    /*
-     * WARNING - void declaration
-     */
-    static /* synthetic */ LimitViewInfo a(MultiViewTouchHelper x0, TouchPoint x1) {
-        void var1_1;
-        return x0.a((TouchPoint)var1_1);
-    }
-
-    /*
-     * WARNING - void declaration
-     */
-    static /* synthetic */ boolean a(MultiViewTouchHelper x0, LimitViewInfo x1) {
-        void var1_1;
-        return x0.a((LimitViewInfo)var1_1);
-    }
-
-    /*
-     * WARNING - void declaration
-     */
-    static /* synthetic */ MultiViewTouchHelper b(MultiViewTouchHelper x0, LimitViewInfo x1) {
-        void var1_1;
-        return x0.b((LimitViewInfo)var1_1);
-    }
-
-    /*
-     * WARNING - void declaration
-     */
-    static /* synthetic */ List a(MultiViewTouchHelper x0, Rect x1) {
-        void var1_1;
-        return x0.a((Rect)var1_1);
-    }
-
-    /*
-     * WARNING - void declaration
-     */
-    static /* synthetic */ void a(MultiViewTouchHelper x0, LimitViewInfo x1, Rect x2) {
-        void var2_2;
-        void var1_1;
-        x0.a((LimitViewInfo)var1_1, (Rect)var2_2);
-    }
-
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public MultiViewTouchHelper bindContainerView(View containerView) {
-        void var1_1;
-        MultiViewTouchHelper multiViewTouchHelper = this;
-        multiViewTouchHelper.a((View)var1_1);
-        multiViewTouchHelper.a.bindHostView((View)var1_1, this.b());
-        return multiViewTouchHelper;
+        a(containerView);
+        this.a.bindHostView(containerView, b());
+        return this;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public Class getTag() {
-        return this.getClass();
+        return getClass();
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void clearActiveLimitViewInfo(boolean isActionUp) {
-        if (!isActionUp) {
+        if (isActionUp) {
+            this.c = null;
+        }
+    }
+
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    public void refreshLimitRect() {
+        ArrayList arrayList = new ArrayList();
+        Iterator<LimitViewInfo> it = this.b.iterator();
+        while (it.hasNext()) {
+            arrayList.addAll(it.next().getContainerLimitRectList());
+        }
+        List<Rect> rects = this.d.getRects();
+        Debug.i(getTag(), "Limit Rect : " + arrayList.toString(), new Object[0]);
+        Debug.i(getTag(), "Exclude Rect : " + rects.toString(), new Object[0]);
+        this.a.setLimitRect(arrayList);
+        this.a.setExcludeRect(rects);
+    }
+
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    public void add(LimitViewInfo limitViewInfo) {
+        if (this.b.contains(limitViewInfo)) {
             return;
         }
-        this.c = null;
+        limitViewInfo.setContainerViewScreenXY(this.e, this.f);
+        this.b.add(limitViewInfo);
     }
 
-    public void refreshLimitRect() {
-        ArrayList<Rect> arrayList;
-        ArrayList<Rect> arrayList2 = arrayList;
-        arrayList = new ArrayList<Rect>();
-        Iterator<LimitViewInfo> iterator = ((MultiViewTouchHelper)((Object)this_)).b.iterator();
-        while (iterator.hasNext()) {
-            arrayList2.addAll(iterator.next().getContainerLimitRectList());
-        }
-        MultiViewTouchHelper multiViewTouchHelper = this_;
-        List<Rect> this_ = multiViewTouchHelper.d.getRects();
-        Debug.i((Class)multiViewTouchHelper.getTag(), (String)("Limit Rect : " + ((Object)arrayList2).toString()), (Object[])new Object[0]);
-        Debug.i((Class)multiViewTouchHelper.getTag(), (String)("Exclude Rect : " + this_.toString()), (Object[])new Object[0]);
-        multiViewTouchHelper.a.setLimitRect(arrayList2);
-        multiViewTouchHelper.a.setExcludeRect(this_);
-    }
-
-    /*
-     * WARNING - void declaration
-     */
-    public void add(LimitViewInfo limitViewInfo) {
-        void var1_2;
-        if (!this.b.contains(var1_2)) {
-            MultiViewTouchHelper multiViewTouchHelper = this;
-            int n = multiViewTouchHelper.e;
-            var1_2.setContainerViewScreenXY(n, multiViewTouchHelper.f);
-            this.b.add((LimitViewInfo)var1_2);
-        }
-    }
-
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void remove(LimitViewInfo limitViewInfo) {
-        void var1_1;
-        this.b.remove(var1_1);
+        this.b.remove(limitViewInfo);
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void clear() {
         this.b.clear();
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchHelper getTouchHelper() {
         return this.a;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void addExcludeView(List<View> viewList) {
-        void var1_1;
-        this.d.add(var1_1);
+        this.d.add((List) viewList);
     }
 
-    /*
-     * WARNING - void declaration
-     */
-    public void addExcludeView(View view) {
-        void var1_1;
-        this.d.add(var1_1);
-    }
-
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void removeExcludeView(View view) {
-        void var1_1;
-        this.d.remove(var1_1);
+        this.d.remove(view);
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 2 */
+    public void addExcludeView(View view) {
+        this.d.add(view);
+    }
+
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 2 */
     public void removeExcludeView(List<View> viewList) {
-        void var1_1;
-        this.d.remove(var1_1);
+        this.d.remove((List) viewList);
+    }
+
+    private RawInputCallback b() {
+        return new a();
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    private MultiViewTouchHelper b(LimitViewInfo activeLimitViewInfo) {
+        this.c = activeLimitViewInfo;
+        return this;
+    }
+
+    private void a(@NonNull View containerView) {
+        Rect rectGlobalVisibleRect = ViewUtils.globalVisibleRect(containerView);
+        int i = rectGlobalVisibleRect.left;
+        this.e = i;
+        this.f = rectGlobalVisibleRect.top;
+        this.d.setContainerViewScreenX(i).setContainerViewScreenY(this.f);
+    }
+
+    /* JADX DEBUG: Failed to insert an additional move for type inference into block B:10:0x0009 */
+    /* JADX INFO: Access modifiers changed from: private */
+    /* JADX WARN: Multi-variable type inference failed */
+    /* JADX WARN: Type inference failed for: r0v1, types: [boolean] */
+    /* JADX WARN: Type inference failed for: r0v2, types: [java.lang.Throwable] */
+    /* JADX WARN: Type inference failed for: r0v6, types: [com.onyx.android.sdk.pen.RawInputCallback] */
+    private void a(LimitViewInfo limitViewInfo, Rect refreshRect) {
+        if (!a(limitViewInfo)) {
+            return;
+        }
+        try {
+            refreshRect = limitViewInfo.getRefreshRectInView(refreshRect);
+            limitViewInfo.getCallback().onPenUpRefresh(RectUtils.toRectF(refreshRect));
+        } catch (Exception exception) {
+            Debug.e(exception);
+        }
+        Debug.d(getTag(), "handlePenUpRefresh:" + refreshRect.toString(), new Object[0]);
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    private boolean a(LimitViewInfo limitViewInfo) {
+        if (g && limitViewInfo == null) {
+            Debug.printStackTraceDebug("limitViewInfo is null");
+        }
+        return (limitViewInfo == null || limitViewInfo.getCallback() == null) ? false : true;
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    @Nullable
+    private LimitViewInfo a(TouchPoint point) {
+        for (LimitViewInfo limitViewInfo : this.b) {
+            if (limitViewInfo.contains(point)) {
+                return limitViewInfo;
+            }
+        }
+        Debug.printStackTraceDebug("getLimitViewInfo is null, the point is " + point.toString());
+        return null;
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    private List<LimitViewInfo> a(Rect rect) {
+        ArrayList arrayList = new ArrayList();
+        for (LimitViewInfo limitViewInfo : this.b) {
+            if (limitViewInfo.intersect(rect)) {
+                arrayList.add(limitViewInfo);
+            }
+        }
+        return arrayList;
     }
 }
-

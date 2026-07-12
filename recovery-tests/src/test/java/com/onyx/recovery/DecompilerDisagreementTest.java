@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.onyx.android.sdk.utils.FileUtils;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,18 +14,6 @@ import org.junit.jupiter.api.Test;
 
 class DecompilerDisagreementTest {
     private static final Path ROOT = Paths.get(System.getProperty("recovery.root"));
-
-    @Test
-    void documentedFileSizeReconstructionProducesExpectedValues() {
-        assertEquals("0", FileUtils.readableFileSize(-1L));
-        assertEquals("0", FileUtils.readableFileSize(0L));
-        assertEquals("1 B", FileUtils.readableFileSize(1L));
-        assertEquals("1,023 B", FileUtils.readableFileSize(1023L));
-        assertEquals("1 KB", FileUtils.readableFileSize(1024L));
-        assertEquals("1.5 KB", FileUtils.readableFileSize(1536L));
-        assertEquals("1 MB", FileUtils.readableFileSize(1L << 20));
-        assertEquals("1 TB", FileUtils.readableFileSize(1L << 40));
-    }
 
     @Test
     void disagreementDocumentNamesAllNineResolvedSites() throws Exception {

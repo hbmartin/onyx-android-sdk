@@ -1,24 +1,17 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.onyx.android.sdk.data.note.TouchPoint
- */
 package com.onyx.android.sdk.pen.event;
 
 import com.onyx.android.sdk.data.note.TouchPoint;
 
+/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/event/PenActiveEvent.class */
 public class PenActiveEvent {
     private TouchPoint a;
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public PenActiveEvent(TouchPoint point) {
-        void var1_1;
-        this.a = var1_1;
+        this.a = point;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchPoint getPoint() {
         return this.a;
     }

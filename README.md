@@ -1,57 +1,69 @@
 # Onyx SDK recovered source
 
-This repository is a source-only recovery workspace for three Onyx/BOOX SDK
-packages. It contains no original SDK JAR, AAR, or native library.
+This repository is a source-only reconstruction of three Onyx/BOOX SDK
+packages. It contains no tracked original SDK JAR, AAR, or native library.
 
-| Module | Recovered version | Raw Java evidence | Source-native artifact |
-|---|---:|---:|---|
-| `onyxsdk-base` | 1.8.5 | 588 files | `onyxsdk-base-release.aar` |
-| `onyxsdk-device` | 1.3.5 | 72 files | `onyxsdk-device-release.aar` |
-| `onyxsdk-pen` | 1.5.4 | 45 files plus Rust JNI | `onyxsdk-pen-release.aar` |
+| Module | Recovered version | Production result |
+|---|---:|---|
+| `onyxsdk-base` | 1.8.5 | source-built Android library |
+| `onyxsdk-device` | 1.3.5 | source-built Android library |
+| `onyxsdk-pen` | 1.5.4 | complete 129-class pen surface plus two Rust JNI libraries |
 
-Each module follows a normal Android library layout:
+The pen module includes both generations of the Java API: the 57 classes from
+the 1.5.4 SDK and the 72 classes supplied with the newer native pen API. Its
+public/protected JVM signatures are checked against all 118 public reference
+classes. The references are analysis inputs only and are never Gradle inputs,
+tracked files, or AAR contents.
 
-- `src/main/java` contains only reviewed, compilable recovered source;
-- `src/main/AndroidManifest.xml` is the minimal source-native Android manifest;
-- `recovery-evidence/decompilers/<module>/jadx` contains the complete raw
-  decompilation for continued recovery work;
-- `recovery-evidence/android/<module>` contains the recovered legacy
-  manifests, resources, and AIDL until individual pieces are reviewed;
-- `onyxsdk-pen/native/onyx-pen-touch-reader` contains the Rust driver.
+## Pen native implementation
 
-There is no `binary-reference`, no fixture JAR, no `classes.jar` injection,
-and no preserved `libonyx_pen_touch_reader.so` or `libc++_shared.so`.
+`onyxsdk-pen` builds two native libraries entirely from Rust:
+
+- `libonyx_pen_touch_reader.so` implements the 11 `RawInputReader` JNI calls,
+  Linux input discovery/polling, pen and eraser states, pressure processing,
+  and region filtering;
+- `libneo_pen.so` implements the seven newer `NeoPenNative` calls and the
+  seven legacy `NeoPenWrapper` calls, including all nine pen types, prediction,
+  texture bitmaps, handle lifecycle, and the legacy static API.
+
+Both libraries are built for `armeabi-v7a`, `arm64-v8a`, `x86`, and `x86_64`.
+They do not depend on `libc++_shared.so`.
+
+The BOOX device differential harness executes the supplied reference and the
+Rust library through the same Java API. Pen types 1–5 match the recovered
+reference snapshot exactly. Types 6–9 use an independent Wacom-style
+spline/brush implementation and are checked for the same buffering, prediction,
+record encoding, bitmap behavior, and bounded output geometry.
 
 ## Build and test
 
 Prerequisites are JDK 17+, Rust stable, Android SDK platform 35, and Android NDK
-28.2.13676358. Set `ANDROID_HOME` or `ANDROID_SDK_ROOT` when the SDK is not in a
-standard location.
+28.2.13676358. Set `ANDROID_HOME` or `ANDROID_SDK_ROOT` when needed.
 
 ```bash
-./gradlew clean check assembleRecovered
+./gradlew clean :check assembleRecovered
 ```
 
-The build uses Android Gradle Plugin 9.2.1 to compile the Java and Android
-resources directly. It also:
+That gate compiles all production Java/Kotlin, tests the recovery behaviors,
+runs Rust tests and Clippy, builds eight native binaries, assembles the three
+release AARs, and verifies all JNI exports and packaged native dependencies.
 
-1. runs the recovered Java tests, including obfuscated,
-   `UnsupportedOperationException`, and decompiler-disagreement paths;
-2. runs the Rust state-machine tests;
-3. cross-compiles Rust for `armeabi-v7a`, `arm64-v8a`, `x86`, and `x86_64`;
-4. verifies all 11 JNI exports against the source-declared contract;
-5. rejects tracked SDK binaries, legacy injection code, `libc++_shared.so`, or
-   unexpected native dependencies;
-6. creates source-native AARs under each module's `build/outputs/aar`.
+With a connected BOOX device and the untracked analysis reference, run the
+additional differential gate:
 
-## Recovery boundary
+```bash
+scripts/device-pen-differential.sh /path/to/reference/libneo_pen.so DEVICE_SERIAL
+```
 
-The AARs contain the reviewed source-native recovery, not the original complete
-SDK API. The 705-file raw decompilation still has wider decompiler diagnostics
-and is retained as source evidence rather than silently compiled or replaced
-with binary bytecode. Expanding the source-native API now means repairing and
-promoting individual classes from evidence into a module's `src/main/java`.
+To repeat the JVM API comparison against the two untracked reference JARs:
+
+```bash
+scripts/verify-pen-api.py \
+  --old-reference /path/to/onyxsdk-pen-1.5.4/classes.jar \
+  --native-reference /path/to/onyxsdk-pen-native-classes.jar \
+  --candidate onyxsdk-pen/build/intermediates/aar_main_jar/release/syncReleaseLibJars/classes.jar
+```
 
 See [RECOVERY_NOTES.md](RECOVERY_NOTES.md),
-[docs/DECOMPILER_DISAGREEMENTS.md](docs/DECOMPILER_DISAGREEMENTS.md), and
+[docs/VALIDATION.md](docs/VALIDATION.md), and
 [docs/NATIVE_RECOVERY.md](docs/NATIVE_RECOVERY.md).

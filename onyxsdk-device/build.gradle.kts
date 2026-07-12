@@ -1,5 +1,3 @@
-import org.gradle.api.tasks.bundling.Jar
-
 plugins {
     id("com.android.library")
 }
@@ -40,15 +38,8 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
 }
 
-val decompiledSourcesJar = tasks.register<Jar>("decompiledSourcesJar") {
-    group = "build"
-    description = "Archives the raw JADX recovery retained as analysis evidence."
-    archiveClassifier.set("decompiled-sources")
-    from(rootProject.file("recovery-evidence/decompilers/device/jadx"))
-}
-
 tasks.register("assembleRecovered") {
     group = "build"
-    description = "Builds the source-native release AAR and decompilation evidence archive."
-    dependsOn("assembleRelease", decompiledSourcesJar)
+    description = "Builds the source-native release AAR."
+    dependsOn("assembleRelease")
 }

@@ -1,8 +1,6 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.onyx.android.sdk.pen.style;
 
+/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/style/StrokeStyle.class */
 public class StrokeStyle {
     public static final int PENCIL = 0;
     public static final int FOUNTAIN = 1;

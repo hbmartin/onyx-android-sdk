@@ -28,21 +28,10 @@ if rg -n 'classes-original|binary-reference|from\(".*\.jar"\)|tasks\.register<Zi
   fail "binary injection build logic is still present"
 fi
 
-for package in base device pen; do
-  case "$package" in
-    base) expected=588 ;;
-    device) expected=72 ;;
-    pen) expected=45 ;;
-  esac
-  actual="$(find "$ROOT/recovery-evidence/decompilers/$package/jadx" -name '*.java' | wc -l | tr -d ' ')"
-  test "$actual" -eq "$expected" || fail "$package JADX evidence count is $actual, expected $expected"
-  echo "$package: $actual raw recovered sources retained as evidence"
-done
-
 if rg -n 'UnsupportedOperationException\("Method not decompiled|IllegalStateException\("Decompilation failed' \
-    "$ROOT/recovery-evidence/decompilers/base/jadx/com/onyx/android/sdk/rx/RxUtils.java" \
-    "$ROOT/recovery-evidence/decompilers/base/jadx/com/onyx/android/sdk/utils/FileUtils.java" \
-    "$ROOT/recovery-evidence/decompilers/device/jadx/com/onyx/android/sdk/device/"{RK32XXDevice,IMX6Device,RK33XXDevice,SDMDevice,RK31XXDevice}.java; then
+    "$ROOT/onyxsdk-base/src/main/java/com/onyx/android/sdk/rx/RxUtils.java" \
+    "$ROOT/onyxsdk-base/src/main/java/com/onyx/android/sdk/utils/FileUtils.java" \
+    "$ROOT/onyxsdk-device/src/main/java/com/onyx/android/sdk/device/"{RK32XXDevice,IMX6Device,RK33XXDevice,SDMDevice,RK31XXDevice}.java; then
   fail "a repaired source site still contains a synthetic decompiler throw"
 fi
 
@@ -65,8 +54,19 @@ for class in RK32XXDevice IMX6Device RK33XXDevice SDMDevice RK31XXDevice; do
   jar tf "$TMP/device.jar" | rg -q "com/onyx/android/sdk/device/$class.class"
 done
 jar tf "$TMP/pen.jar" | rg -q 'com/onyx/android/sdk/pen/RawInputReader.class'
-jar tf "$TMP/pen.jar" | rg -q 'com/onyx/android/sdk/recovered/pen/NativeContract.class'
+jar tf "$TMP/pen.jar" | rg '\.class$' | sort -u > "$TMP/pen-classes"
+missing_pen_classes="$(comm -23 "$ROOT/scripts/native-contracts/pen-classes.txt" "$TMP/pen-classes" || true)"
+test -z "$missing_pen_classes" || fail "pen AAR is missing reference classes: $missing_pen_classes"
 echo "all AAR classes were compiled from recovered source"
+
+if unzip -Z1 "$PEN_AAR" | rg -q 'onyxsdk-pen-native-classes\.jar|classes-original\.jar'; then
+  fail "pen AAR contains a reference JAR"
+fi
+
+if rg -n '\?\?|\*\* GOTO|void var[0-9]|UnsupportedOperationException\("Method not decompiled|IllegalStateException\("Decompilation failed' \
+    "$ROOT/onyxsdk-pen/src/main/java"; then
+  fail "pen production source still contains decompiler-generated invalid or unfinished code"
+fi
 
 if unzip -Z1 "$PEN_AAR" | rg -q 'libc\+\+_shared\.so'; then
   fail "pen AAR still contains libc++_shared.so"
@@ -91,24 +91,42 @@ for bin in "$NDK_ROOT"/toolchains/llvm/prebuilt/$host_glob/bin; do
 done
 test -x "$LLVM_NM" || fail "NDK llvm-nm not found"
 
-rg -o '"Java_[^"]+"' \
-  "$ROOT/onyxsdk-pen/src/main/java/com/onyx/android/sdk/recovered/pen/NativeContract.java" \
-  | tr -d '"' | sort > "$TMP/expected-exports"
-test "$(wc -l < "$TMP/expected-exports" | tr -d ' ')" -eq 11 \
-  || fail "source contract does not contain 11 JNI exports"
+sha256() {
+  if command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 "$1" | awk '{print $1}'
+  else
+    sha256sum "$1" | awk '{print $1}'
+  fi
+}
+reference_neo_sha="4e902c1485ea660c5deb6a52693f95d113f862f448b57b6374c70404ba695f5e"
 
 for abi in armeabi-v7a arm64-v8a x86 x86_64; do
-  rebuilt="$ROOT/onyxsdk-pen/src/main/jniLibs/$abi/libonyx_pen_touch_reader.so"
-  test -s "$rebuilt" || fail "missing source-built $abi JNI library"
-  "$LLVM_NM" -D --defined-only "$rebuilt" | awk '{print $3}' | rg '^Java_' | sort > "$TMP/$abi.exports"
-  diff -u "$TMP/expected-exports" "$TMP/$abi.exports" || fail "$abi JNI source contract differs"
-  if "$LLVM_READELF" -d "$rebuilt" | rg -q 'libc\+\+_shared'; then
-    fail "$abi Rust driver unexpectedly depends on libc++_shared"
-  fi
-  unzip -p "$PEN_AAR" "jni/$abi/libonyx_pen_touch_reader.so" > "$TMP/$abi.aar.so"
-  "$LLVM_NM" -D --defined-only "$TMP/$abi.aar.so" | awk '{print $3}' | rg '^Java_' | sort > "$TMP/$abi.aar.exports"
-  diff -u "$TMP/expected-exports" "$TMP/$abi.aar.exports" || fail "$abi packaged JNI contract differs"
-  echo "$abi: source-built Rust driver exposes all 11 JNI functions"
+  for native_contract in \
+    "touch-reader:libonyx_pen_touch_reader.so" \
+    "neo-pen:libneo_pen.so"; do
+    contract="${native_contract%%:*}"
+    library="${native_contract#*:}"
+    expected="$ROOT/scripts/native-contracts/$contract.exports"
+    rebuilt="$ROOT/onyxsdk-pen/src/main/jniLibs/$abi/$library"
+    test -s "$expected" || fail "missing checked-in $contract export contract"
+    test -s "$rebuilt" || fail "missing source-built $abi $library"
+    "$LLVM_NM" -D --defined-only "$rebuilt" | awk '{print $3}' | rg '^Java_' | sort > "$TMP/$abi.$contract.exports"
+    diff -u "$expected" "$TMP/$abi.$contract.exports" || fail "$abi $contract source contract differs"
+    if "$LLVM_READELF" -d "$rebuilt" | rg -q 'libc\+\+_shared'; then
+      fail "$abi $library unexpectedly depends on libc++_shared"
+    fi
+    unzip -p "$PEN_AAR" "jni/$abi/$library" > "$TMP/$abi.$contract.aar.so"
+    test -s "$TMP/$abi.$contract.aar.so" || fail "$abi packaged $library is missing"
+    "$LLVM_NM" -D --defined-only "$TMP/$abi.$contract.aar.so" | awk '{print $3}' | rg '^Java_' | sort > "$TMP/$abi.$contract.aar.exports"
+    diff -u "$expected" "$TMP/$abi.$contract.aar.exports" || fail "$abi packaged $contract contract differs"
+    if [[ "$abi" == "arm64-v8a" && "$library" == "libneo_pen.so" ]]; then
+      test "$(sha256 "$rebuilt")" != "$reference_neo_sha" \
+        || fail "source output was replaced by the supplied reference libneo_pen.so"
+      test "$(sha256 "$TMP/$abi.$contract.aar.so")" != "$reference_neo_sha" \
+        || fail "release AAR contains the supplied reference libneo_pen.so"
+    fi
+  done
+  echo "$abi: both source-built Rust libraries match their JNI contracts"
 done
 
 echo "Source-only recovery verification passed."

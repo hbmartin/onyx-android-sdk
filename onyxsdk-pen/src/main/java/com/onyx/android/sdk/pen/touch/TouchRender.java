@@ -1,11 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  android.graphics.Rect
- *  android.view.MotionEvent
- *  android.view.View
- */
 package com.onyx.android.sdk.pen.touch;
 
 import android.graphics.Rect;
@@ -14,69 +6,70 @@ import android.view.View;
 import com.onyx.android.sdk.pen.RawInputCallback;
 import java.util.List;
 
+/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/touch/TouchRender.class */
 public interface TouchRender {
-    public void bindHostView(View var1, RawInputCallback var2);
+    void bindHostView(View view, RawInputCallback rawInputCallback);
 
-    public View getHostView();
+    View getHostView();
 
-    default public boolean onTouchEvent(MotionEvent motionEvent) {
+    default boolean onTouchEvent(MotionEvent motionEvent) {
         return false;
     }
 
-    public void setStrokeStyle(int var1);
+    void setStrokeStyle(int i);
 
-    public void setStrokeColor(int var1);
+    void setStrokeColor(int i);
 
-    public void setStrokeWidth(float var1);
+    void setStrokeWidth(float f);
 
-    public void debugLog(boolean var1);
+    void debugLog(boolean z);
 
-    public void setLimitRect(Rect var1, List<Rect> var2);
+    void setLimitRect(Rect rect, List<Rect> list);
 
-    public void setLimitRect(List<Rect> var1, List<Rect> var2);
+    void setLimitRect(List<Rect> list, List<Rect> list2);
 
-    public void setLimitRect(List<Rect> var1);
+    void setLimitRect(List<Rect> list);
 
-    public void setExcludeRect(List<Rect> var1);
+    void setExcludeRect(List<Rect> list);
 
-    public void openDrawing();
+    void openDrawing();
 
-    public void closeDrawing();
+    void closeDrawing();
 
-    public void setDrawingRenderEnabled(boolean var1);
+    void setDrawingRenderEnabled(boolean z);
 
-    public void setBrushRawDrawingEnabled(boolean var1);
+    void setBrushRawDrawingEnabled(boolean z);
 
-    public void setEraserRawDrawingEnabled(boolean var1, int var2);
+    void setEraserRawDrawingEnabled(boolean z, int i);
 
-    public void setInputReaderEnable(boolean var1);
+    void setInputReaderEnable(boolean z);
 
-    public void setSingleRegionMode();
+    void setSingleRegionMode();
 
-    public void setMultiRegionMode();
+    void setMultiRegionMode();
 
-    public void setPenUpRefreshTimeMs(int var1);
+    void setPenUpRefreshTimeMs(int i);
 
-    public void setPenUpRefreshEnabled(boolean var1);
+    void setPenUpRefreshEnabled(boolean z);
 
-    public void setFilterRepeatMovePoint(boolean var1);
+    void setFilterRepeatMovePoint(boolean z);
 
-    public void setPostInputEvent(boolean var1);
+    void setPostInputEvent(boolean z);
 
-    public void enableSideBtnErase(boolean var1);
+    void enableSideBtnErase(boolean z);
 
-    public void enableFingerTouch(boolean var1);
+    void enableFingerTouch(boolean z);
 
-    public void onlyEnableFingerTouch(boolean var1);
+    void onlyEnableFingerTouch(boolean z);
 
-    public void setTouchListenerEnabled(boolean var1);
+    void setTouchListenerEnabled(boolean z);
 
-    public void setHostViewScrollListenerEnabled(boolean var1);
+    void setHostViewScrollListenerEnabled(boolean z);
 
-    public void enableFingerTouchPressure(boolean var1);
+    void enableFingerTouchPressure(boolean z);
 
-    public void setFingerTouchPressure(float var1);
+    void setFingerTouchPressure(float f);
 
-    public void printTouchInfo();
+    void printTouchInfo();
 }
 

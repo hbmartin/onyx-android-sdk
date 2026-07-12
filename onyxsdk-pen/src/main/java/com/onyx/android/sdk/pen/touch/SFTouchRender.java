@@ -1,14 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  android.graphics.Rect
- *  android.graphics.RectF
- *  android.view.View
- *  com.onyx.android.sdk.api.device.epd.EpdController
- *  com.onyx.android.sdk.data.note.TouchPoint
- *  com.onyx.android.sdk.device.Device
- */
 package com.onyx.android.sdk.pen.touch;
 
 import android.graphics.Rect;
@@ -22,577 +11,417 @@ import com.onyx.android.sdk.pen.RawInputCallback;
 import com.onyx.android.sdk.pen.RawInputManager;
 import com.onyx.android.sdk.pen.RawInputReader;
 import com.onyx.android.sdk.pen.data.TouchPointList;
-import com.onyx.android.sdk.pen.touch.TouchRender;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-public class SFTouchRender
-implements TouchRender {
+/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/touch/SFTouchRender.class */
+public class SFTouchRender implements TouchRender {
+    static class a {
+    }
     private WeakReference<View> a;
     private RawInputCallback b;
     private EpdPenManager c;
     private RawInputManager d;
 
+    /* JADX INFO: Access modifiers changed from: private */
+    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/touch/SFTouchRender$b.class */
+    class b extends RawInputCallback {
+        RawInputCallback a;
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onBeginRawDrawing(boolean shortcutDrawing, TouchPoint point) {
+            if (SFTouchRender.this.a()) {
+                return;
+            }
+            SFTouchRender.this.getHostView().post(() -> {
+                this.a.onBeginRawDrawing(shortcutDrawing, point);
+            });
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onEndRawDrawing(boolean outLimitRegion, TouchPoint point) {
+            if (SFTouchRender.this.a()) {
+                return;
+            }
+            SFTouchRender.this.getHostView().post(() -> {
+                this.a.onEndRawDrawing(outLimitRegion, point);
+            });
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onRawDrawingTouchPointMoveReceived(TouchPoint point) {
+            if (SFTouchRender.this.a()) {
+                return;
+            }
+            SFTouchRender.this.getHostView().post(() -> {
+                this.a.onRawDrawingTouchPointMoveReceived(point);
+            });
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onRawDrawingTouchPointListReceived(TouchPointList pointList) {
+            if (SFTouchRender.this.a()) {
+                return;
+            }
+            SFTouchRender.this.getHostView().post(() -> {
+                this.a.onRawDrawingTouchPointListReceived(pointList);
+            });
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onBeginRawErasing(boolean shortcutErasing, TouchPoint point) {
+            if (SFTouchRender.this.a()) {
+                return;
+            }
+            SFTouchRender.this.getHostView().post(() -> {
+                this.a.onBeginRawErasing(shortcutErasing, point);
+            });
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onEndRawErasing(boolean outLimitRegion, TouchPoint point) {
+            if (SFTouchRender.this.a()) {
+                return;
+            }
+            SFTouchRender.this.getHostView().post(() -> {
+                this.a.onEndRawErasing(outLimitRegion, point);
+            });
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onRawErasingTouchPointMoveReceived(TouchPoint point) {
+            if (SFTouchRender.this.a()) {
+                return;
+            }
+            SFTouchRender.this.getHostView().post(() -> {
+                this.a.onRawErasingTouchPointMoveReceived(point);
+            });
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onRawErasingTouchPointListReceived(TouchPointList pointList) {
+            if (SFTouchRender.this.a()) {
+                return;
+            }
+            SFTouchRender.this.getHostView().post(() -> {
+                this.a.onRawErasingTouchPointListReceived(pointList);
+            });
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onPenActive(TouchPoint point) {
+            if (SFTouchRender.this.a()) {
+                return;
+            }
+            SFTouchRender.this.getHostView().post(() -> {
+                this.a.onPenActive(point);
+            });
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onPenUpRefresh(RectF refreshRect) {
+            if (this.a == null) {
+                return;
+            }
+            SFTouchRender.this.getHostView().post(() -> {
+                this.a.onPenUpRefresh(refreshRect);
+            });
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 2 */
+        b(RawInputCallback callback) {
+            this.a = callback;
+        }
+    }
+
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public SFTouchRender(View view, RawInputCallback callback) {
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static TouchRender create(View hostView, RawInputCallback callback) {
         if (hostView != null) {
-            void var1_1;
-            View view;
-            return new SFTouchRender(view, (RawInputCallback)var1_1);
+            return new SFTouchRender(hostView, callback);
         }
         throw new IllegalArgumentException("hostView should not be null!");
     }
 
-    private boolean a() {
-        return this.b == null || this.getHostView() == null;
-    }
-
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private EpdPenManager d() {
         if (this.c == null) {
-            EpdPenManager epdPenManager;
-            EpdPenManager epdPenManager2 = epdPenManager;
-            epdPenManager = new EpdPenManager();
-            this.c = epdPenManager2;
+            this.c = new EpdPenManager();
         }
         return this.c;
     }
 
-    /*
-     * WARNING - void declaration
-     */
-    private void a(View view) {
-        void var1_1;
-        this.d().setHostView((View)var1_1);
-    }
-
-    /*
-     * WARNING - void declaration
-     */
-    private void a(View view, RawInputCallback callback) {
-        void var2_2;
-        void var1_1;
-        SFTouchRender sFTouchRender = this;
-        sFTouchRender.e().setHostView((View)var1_1);
-        sFTouchRender.e().setRawInputCallback((RawInputCallback)var2_2);
-    }
-
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private RawInputManager e() {
         if (this.d == null) {
-            RawInputManager rawInputManager;
-            RawInputManager rawInputManager2 = rawInputManager;
-            rawInputManager = new RawInputManager();
-            this.d = rawInputManager2;
+            this.d = new RawInputManager();
         }
         return this.d;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void i() {
-        this.setStrokeStyle(0);
+        setStrokeStyle(0);
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void b() {
-        SFTouchRender sFTouchRender = this;
-        sFTouchRender.e().startRawInputReader();
-        sFTouchRender.d().startDrawing();
+        e().startRawInputReader();
+        d().startDrawing();
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void c() {
-        SFTouchRender sFTouchRender = this;
-        sFTouchRender.e().quitRawInputReader();
-        sFTouchRender.d().quitDrawing();
+        e().quitRawInputReader();
+        d().quitDrawing();
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void f() {
-        SFTouchRender sFTouchRender = this;
-        EpdController.leaveScribbleMode((View)sFTouchRender.e().getHostView());
-        sFTouchRender.e().pauseRawInputReader();
-        sFTouchRender.d().pauseDrawing();
+        EpdController.leaveScribbleMode(e().getHostView());
+        e().pauseRawInputReader();
+        d().pauseDrawing();
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void g() {
-        SFTouchRender sFTouchRender = this;
-        EpdController.leaveScribbleMode((View)sFTouchRender.e().getHostView());
-        sFTouchRender.d().pauseDrawing();
+        EpdController.leaveScribbleMode(e().getHostView());
+        d().pauseDrawing();
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void j() {
-        this.d().resumeDrawing();
+        d().resumeDrawing();
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void k() {
-        this.e().resumeRawInputReader();
+        e().resumeRawInputReader();
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void h() {
-        this.e().pauseRawInputReader();
+        e().pauseRawInputReader();
     }
 
-    /*
-     * WARNING - void declaration
-     */
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void bindHostView(View view, RawInputCallback callback) {
-        void var2_2;
-        b b2;
-        void var1_1;
-        WeakReference<void> weakReference;
-        SFTouchRender sFTouchRender = this;
-        Object object = weakReference;
-        weakReference = new WeakReference<void>(var1_1);
-        sFTouchRender.a = object;
-        object = b2;
-        b2 = new b((RawInputCallback)var2_2);
-        sFTouchRender.b = object;
-        sFTouchRender.a((View)var1_1, (RawInputCallback)object);
-        sFTouchRender.a((View)var1_1);
+        this.a = new WeakReference<>(view);
+        b bVar = new b(callback);
+        this.b = bVar;
+        a(view, bVar);
+        a(view);
     }
 
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public View getHostView() {
-        WeakReference<View> this_ = ((SFTouchRender)((Object)this_)).a;
-        return this_ == null ? null : (View)this_.get();
+        WeakReference<View> weakReference = this.a;
+        if (weakReference == null) {
+            return null;
+        }
+        return weakReference.get();
     }
 
-    /*
-     * WARNING - void declaration
-     */
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setStrokeStyle(int style) {
-        void var1_1;
-        this.d().setStrokeStyle((int)var1_1);
+        d().setStrokeStyle(style);
     }
 
-    /*
-     * WARNING - void declaration
-     */
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setStrokeColor(int color) {
-        void var1_1;
-        EpdPenManager.setStrokeColor((int)var1_1);
-        this.e().setStrokeColor((int)var1_1);
+        EpdPenManager.setStrokeColor(color);
+        e().setStrokeColor(color);
     }
 
-    /*
-     * WARNING - void declaration
-     */
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setStrokeWidth(float w) {
-        void var1_1;
-        this.e().setStrokeWidth((float)var1_1);
+        e().setStrokeWidth(w);
     }
 
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void debugLog(boolean enable) {
         RawInputReader.debugLog(enable);
     }
 
-    /*
-     * WARNING - void declaration
-     */
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setLimitRect(Rect limitRect, List<Rect> excludeRectList) {
-        void var2_2;
-        void var1_1;
-        this.e().setLimitRect((Rect)var1_1, (List<Rect>)var2_2);
+        e().setLimitRect(limitRect, excludeRectList);
     }
 
-    /*
-     * WARNING - void declaration
-     */
-    @Override
-    public void setLimitRect(List<Rect> limitRectList, List<Rect> excludeRectList) {
-        void var2_2;
-        void var1_1;
-        this.e().setLimitRect((List<Rect>)var1_1, (List<Rect>)var2_2);
-    }
-
-    /*
-     * WARNING - void declaration
-     */
-    @Override
-    public void setLimitRect(List<Rect> limitRectList) {
-        void var1_1;
-        this.e().setLimitRect((List<Rect>)var1_1);
-    }
-
-    /*
-     * WARNING - void declaration
-     */
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setExcludeRect(List<Rect> excludeRectList) {
-        void var1_1;
-        this.e().setExcludeRect((List<Rect>)var1_1);
+        e().setExcludeRect(excludeRectList);
     }
 
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void openDrawing() {
-        SFTouchRender sFTouchRender = this;
-        sFTouchRender.i();
-        sFTouchRender.b();
+        i();
+        b();
     }
 
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void closeDrawing() {
-        SFTouchRender sFTouchRender = this;
-        sFTouchRender.i();
-        sFTouchRender.f();
-        sFTouchRender.c();
+        i();
+        f();
+        c();
     }
 
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setDrawingRenderEnabled(boolean enabled) {
         if (enabled) {
-            this.j();
+            j();
         } else {
-            this.g();
+            g();
         }
     }
 
-    /*
-     * WARNING - void declaration
-     */
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setBrushRawDrawingEnabled(boolean enable) {
-        void var1_1;
-        Device.currentDevice().setBrushRawDrawingEnabled((boolean)var1_1);
+        Device.currentDevice().setBrushRawDrawingEnabled(enable);
     }
 
-    /*
-     * WARNING - void declaration
-     */
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setEraserRawDrawingEnabled(boolean enable, int eraserStyle) {
-        void var2_2;
-        void var1_1;
-        Device.currentDevice().setEraserRawDrawingEnabled((boolean)var1_1, (int)var2_2);
+        Device.currentDevice().setEraserRawDrawingEnabled(enable, eraserStyle);
     }
 
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setInputReaderEnable(boolean enabled) {
         if (enabled) {
-            this.k();
+            k();
         } else {
-            this.h();
+            h();
         }
     }
 
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setSingleRegionMode() {
-        this.e().setSingleRegionMode();
+        e().setSingleRegionMode();
     }
 
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setMultiRegionMode() {
-        this.e().setMultiRegionMode();
+        e().setMultiRegionMode();
     }
 
-    /*
-     * WARNING - void declaration
-     */
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setPenUpRefreshTimeMs(int penUpRefreshTimeMs) {
-        void var1_1;
-        this.e().setPenUpRefreshTimeMs((int)var1_1);
+        e().setPenUpRefreshTimeMs(penUpRefreshTimeMs);
     }
 
-    /*
-     * WARNING - void declaration
-     */
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setPenUpRefreshEnabled(boolean enable) {
-        void var1_1;
-        this.e().setPenUpRefreshEnabled((boolean)var1_1);
+        e().setPenUpRefreshEnabled(enable);
     }
 
-    /*
-     * WARNING - void declaration
-     */
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setFilterRepeatMovePoint(boolean filter) {
-        void var1_1;
-        this.e().setFilterRepeatMovePoint((boolean)var1_1);
+        e().setFilterRepeatMovePoint(filter);
     }
 
-    /*
-     * WARNING - void declaration
-     */
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setPostInputEvent(boolean post) {
-        void var1_1;
-        this.e().setPostInputEvent((boolean)var1_1);
+        e().setPostInputEvent(post);
     }
 
-    /*
-     * WARNING - void declaration
-     */
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void enableSideBtnErase(boolean enable) {
-        void var1_1;
-        this.e().enableSideBtnErase((boolean)var1_1);
-        Device.currentDevice().setEnablePenSideButton((boolean)var1_1);
+        e().enableSideBtnErase(enable);
+        Device.currentDevice().setEnablePenSideButton(enable);
     }
 
-    @Override
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void enableFingerTouch(boolean enable) {
     }
 
-    @Override
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void onlyEnableFingerTouch(boolean only) {
     }
 
-    /*
-     * WARNING - void declaration
-     */
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setHostViewScrollListenerEnabled(boolean enable) {
-        void var1_1;
-        this.e().setHostViewScrollListenerEnabled((boolean)var1_1);
+        e().setHostViewScrollListenerEnabled(enable);
     }
 
-    @Override
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setFingerTouchPressure(float pressure) {
     }
 
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void printTouchInfo() {
-        RawInputManager this_ = ((SFTouchRender)((Object)this_)).d;
-        if (this_ != null) {
-            this_.printTouchInfo();
+        RawInputManager rawInputManager = this.d;
+        if (rawInputManager != null) {
+            rawInputManager.printTouchInfo();
         }
     }
 
-    @Override
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void enableFingerTouchPressure(boolean enable) {
     }
 
-    @Override
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setTouchListenerEnabled(boolean enable) {
     }
 
-    private class b
-    extends RawInputCallback {
-        RawInputCallback a;
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 2 */
+    /* JADX INFO: Access modifiers changed from: private */
+    private boolean a() {
+        return this.b == null || getHostView() == null;
+    }
 
-        /*
-         * WARNING - void declaration
-         */
-        private b(RawInputCallback callback) {
-            void var2_2;
-            this.a = var2_2;
-        }
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 2 */
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
+    public void setLimitRect(List<Rect> limitRectList, List<Rect> excludeRectList) {
+        e().setLimitRect(limitRectList, excludeRectList);
+    }
 
-        /*
-         * WARNING - void declaration
-         */
-        private /* synthetic */ void a(RectF refreshRect) {
-            void var1_1;
-            this.a.onPenUpRefresh((RectF)var1_1);
-        }
+    private void a(View view) {
+        d().setHostView(view);
+    }
 
-        /*
-         * WARNING - void declaration
-         */
-        private /* synthetic */ void a(TouchPoint point) {
-            void var1_1;
-            this.a.onPenActive((TouchPoint)var1_1);
-        }
+    @Override // com.onyx.android.sdk.pen.touch.TouchRender
+    public void setLimitRect(List<Rect> limitRectList) {
+        e().setLimitRect(limitRectList);
+    }
 
-        /*
-         * WARNING - void declaration
-         */
-        private /* synthetic */ void b(TouchPointList pointList) {
-            void var1_1;
-            this.a.onRawErasingTouchPointListReceived((TouchPointList)var1_1);
-        }
-
-        /*
-         * WARNING - void declaration
-         */
-        private /* synthetic */ void c(TouchPoint point) {
-            void var1_1;
-            this.a.onRawErasingTouchPointMoveReceived((TouchPoint)var1_1);
-        }
-
-        /*
-         * WARNING - void declaration
-         */
-        private /* synthetic */ void d(boolean outLimitRegion, TouchPoint point) {
-            void var2_2;
-            void var1_1;
-            this.a.onEndRawErasing((boolean)var1_1, (TouchPoint)var2_2);
-        }
-
-        /*
-         * WARNING - void declaration
-         */
-        private /* synthetic */ void b(boolean shortcutErasing, TouchPoint point) {
-            void var2_2;
-            void var1_1;
-            this.a.onBeginRawErasing((boolean)var1_1, (TouchPoint)var2_2);
-        }
-
-        /*
-         * WARNING - void declaration
-         */
-        private /* synthetic */ void a(TouchPointList pointList) {
-            void var1_1;
-            this.a.onRawDrawingTouchPointListReceived((TouchPointList)var1_1);
-        }
-
-        /*
-         * WARNING - void declaration
-         */
-        private /* synthetic */ void b(TouchPoint point) {
-            void var1_1;
-            this.a.onRawDrawingTouchPointMoveReceived((TouchPoint)var1_1);
-        }
-
-        /*
-         * WARNING - void declaration
-         */
-        private /* synthetic */ void c(boolean outLimitRegion, TouchPoint point) {
-            void var2_2;
-            void var1_1;
-            this.a.onEndRawDrawing((boolean)var1_1, (TouchPoint)var2_2);
-        }
-
-        /*
-         * WARNING - void declaration
-         */
-        private /* synthetic */ void a(boolean shortcutDrawing, TouchPoint point) {
-            void var2_2;
-            void var1_1;
-            this.a.onBeginRawDrawing((boolean)var1_1, (TouchPoint)var2_2);
-        }
-
-        /*
-         * WARNING - void declaration
-         */
-        @Override
-        public void onBeginRawDrawing(boolean shortcutDrawing, TouchPoint point) {
-            void var2_2;
-            void var1_1;
-            if (SFTouchRender.this.a()) {
-                return;
-            }
-            SFTouchRender.this.getHostView().post(() -> this.a((boolean)var1_1, (TouchPoint)var2_2));
-        }
-
-        /*
-         * WARNING - void declaration
-         */
-        @Override
-        public void onEndRawDrawing(boolean outLimitRegion, TouchPoint point) {
-            void var2_2;
-            void var1_1;
-            if (SFTouchRender.this.a()) {
-                return;
-            }
-            SFTouchRender.this.getHostView().post(() -> this.c((boolean)var1_1, (TouchPoint)var2_2));
-        }
-
-        /*
-         * WARNING - void declaration
-         */
-        @Override
-        public void onRawDrawingTouchPointMoveReceived(TouchPoint point) {
-            void var1_1;
-            if (SFTouchRender.this.a()) {
-                return;
-            }
-            SFTouchRender.this.getHostView().post(() -> this.b((TouchPoint)var1_1));
-        }
-
-        /*
-         * WARNING - void declaration
-         */
-        @Override
-        public void onRawDrawingTouchPointListReceived(TouchPointList pointList) {
-            void var1_1;
-            if (SFTouchRender.this.a()) {
-                return;
-            }
-            SFTouchRender.this.getHostView().post(() -> this.a((TouchPointList)var1_1));
-        }
-
-        /*
-         * WARNING - void declaration
-         */
-        @Override
-        public void onBeginRawErasing(boolean shortcutErasing, TouchPoint point) {
-            void var2_2;
-            void var1_1;
-            if (SFTouchRender.this.a()) {
-                return;
-            }
-            SFTouchRender.this.getHostView().post(() -> this.b((boolean)var1_1, (TouchPoint)var2_2));
-        }
-
-        /*
-         * WARNING - void declaration
-         */
-        @Override
-        public void onEndRawErasing(boolean outLimitRegion, TouchPoint point) {
-            void var2_2;
-            void var1_1;
-            if (SFTouchRender.this.a()) {
-                return;
-            }
-            SFTouchRender.this.getHostView().post(() -> this.d((boolean)var1_1, (TouchPoint)var2_2));
-        }
-
-        /*
-         * WARNING - void declaration
-         */
-        @Override
-        public void onRawErasingTouchPointMoveReceived(TouchPoint point) {
-            void var1_1;
-            if (SFTouchRender.this.a()) {
-                return;
-            }
-            SFTouchRender.this.getHostView().post(() -> this.c((TouchPoint)var1_1));
-        }
-
-        /*
-         * WARNING - void declaration
-         */
-        @Override
-        public void onRawErasingTouchPointListReceived(TouchPointList pointList) {
-            void var1_1;
-            if (SFTouchRender.this.a()) {
-                return;
-            }
-            SFTouchRender.this.getHostView().post(() -> this.b((TouchPointList)var1_1));
-        }
-
-        /*
-         * WARNING - void declaration
-         */
-        @Override
-        public void onPenActive(TouchPoint point) {
-            void var1_1;
-            if (SFTouchRender.this.a()) {
-                return;
-            }
-            SFTouchRender.this.getHostView().post(() -> this.a((TouchPoint)var1_1));
-        }
-
-        /*
-         * WARNING - void declaration
-         */
-        @Override
-        public void onPenUpRefresh(RectF refreshRect) {
-            void var1_1;
-            if (this.a == null) {
-                return;
-            }
-            SFTouchRender.this.getHostView().post(() -> this.a((RectF)var1_1));
-        }
+    private void a(View view, RawInputCallback callback) {
+        e().setHostView(view);
+        e().setRawInputCallback(callback);
     }
 }
-

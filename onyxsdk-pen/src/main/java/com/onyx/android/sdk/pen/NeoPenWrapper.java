@@ -1,66 +1,64 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  android.graphics.Bitmap
- *  com.onyx.android.sdk.data.note.TouchPoint
- *  com.onyx.android.sdk.pen.NeoPenConfig
- */
 package com.onyx.android.sdk.pen;
 
 import android.graphics.Bitmap;
 import com.onyx.android.sdk.data.note.TouchPoint;
-import com.onyx.android.sdk.pen.NeoPenConfig;
-import com.onyx.android.sdk.pen.NeoRenderPoint;
-import com.onyx.android.sdk.pen.PenUtils;
 import java.util.List;
 
+/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/NeoPenWrapper.class */
 public class NeoPenWrapper {
     private static NeoPenConfig a;
 
-    private static native boolean nativeInitPen(NeoPenConfig var0);
+    private static native boolean nativeInitPen(NeoPenConfig neoPenConfig);
 
     private static native void nativeDestroyPen();
 
-    private static native NeoRenderPoint[] nativeOnPenDown(double[] var0);
+    private static native NeoRenderPoint[] nativeOnPenDown(double[] dArr);
 
-    private static native NeoRenderPoint[] nativeOnPenMove(double[] var0);
+    private static native NeoRenderPoint[] nativeOnPenMove(double[] dArr);
 
-    private static native NeoRenderPoint[] nativeOnPenUp(double[] var0);
+    private static native NeoRenderPoint[] nativeOnPenUp(double[] dArr);
 
-    private static native NeoRenderPoint[] nativeComputeRenderPoints(double[] var0);
+    private static native NeoRenderPoint[] nativeComputeRenderPoints(double[] dArr);
 
     private static native Bitmap[] nativeGetRenderedBitmaps();
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static boolean initPen(NeoPenConfig config) {
         a = config;
-        return NeoPenWrapper.nativeInitPen(a);
+        return nativeInitPen(config);
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static void destroyPen() {
-        NeoPenWrapper.nativeDestroyPen();
+        nativeDestroyPen();
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static NeoRenderPoint[] onPenDown(TouchPoint point) {
-        return NeoPenWrapper.nativeOnPenDown(PenUtils.getPointDoubleArray(point, NeoPenWrapper.a.maxTouchPressure));
+        return nativeOnPenDown(PenUtils.getPointDoubleArray(point, a.maxTouchPressure));
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static NeoRenderPoint[] onPenMove(TouchPoint point) {
-        return NeoPenWrapper.nativeOnPenMove(PenUtils.getPointDoubleArray(point, NeoPenWrapper.a.maxTouchPressure));
+        return nativeOnPenMove(PenUtils.getPointDoubleArray(point, a.maxTouchPressure));
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static NeoRenderPoint[] onPenUp(TouchPoint point) {
-        return NeoPenWrapper.nativeOnPenUp(PenUtils.getPointDoubleArray(point, NeoPenWrapper.a.maxTouchPressure));
+        return nativeOnPenUp(PenUtils.getPointDoubleArray(point, a.maxTouchPressure));
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static NeoRenderPoint[] computeRenderPoints(List<TouchPoint> points) {
-        return NeoPenWrapper.nativeComputeRenderPoints(PenUtils.getPointDoubleArray(points, NeoPenWrapper.a.maxTouchPressure));
+        return nativeComputeRenderPoints(PenUtils.getPointDoubleArray(points, a.maxTouchPressure));
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static Bitmap[] getRenderedBitmaps() {
-        return NeoPenWrapper.nativeGetRenderedBitmaps();
+        return nativeGetRenderedBitmaps();
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     static {
         System.loadLibrary("neo_pen");
     }

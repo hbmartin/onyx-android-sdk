@@ -1,373 +1,250 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  android.graphics.Rect
- *  android.graphics.RectF
- *  android.view.View
- *  com.onyx.android.sdk.data.note.TouchPoint
- */
 package com.onyx.android.sdk.pen;
 
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.view.View;
 import com.onyx.android.sdk.data.note.TouchPoint;
-import com.onyx.android.sdk.pen.RawInputCallback;
-import com.onyx.android.sdk.pen.RawInputReader;
 import com.onyx.android.sdk.pen.data.TouchPointList;
 import java.util.List;
 
+/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/RawInputManager.class */
 public class RawInputManager {
     private RawInputCallback a;
     private RawInputReader b = null;
     private boolean c = true;
 
-    private RawInputReader a() {
-        if (this.b == null) {
-            RawInputReader rawInputReader;
-            RawInputReader rawInputReader2 = rawInputReader;
-            rawInputReader = new RawInputReader();
-            this.b = rawInputReader2;
+    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/RawInputManager$a.class */
+    class a extends RawInputCallback {
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        a() {
         }
-        return this.b;
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onBeginRawDrawing(boolean shortcut, TouchPoint point) {
+            if (RawInputManager.this.isUseRawInput() && RawInputManager.this.a != null) {
+                RawInputManager.this.a.onBeginRawDrawing(shortcut, point);
+            }
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onEndRawDrawing(boolean outLimitRegion, TouchPoint point) {
+            if (RawInputManager.this.isUseRawInput() && RawInputManager.this.a != null) {
+                RawInputManager.this.a.onEndRawDrawing(outLimitRegion, point);
+            }
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onRawDrawingTouchPointMoveReceived(TouchPoint point) {
+            if (RawInputManager.this.isUseRawInput() && RawInputManager.this.a != null) {
+                RawInputManager.this.a.onRawDrawingTouchPointMoveReceived(point);
+            }
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onRawDrawingTouchPointListReceived(TouchPointList pointList) {
+            if (RawInputManager.this.isUseRawInput() && RawInputManager.this.a != null) {
+                RawInputManager.this.a.onRawDrawingTouchPointListReceived(pointList);
+            }
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onBeginRawErasing(boolean shortcut, TouchPoint point) {
+            if (RawInputManager.this.isUseRawInput() && RawInputManager.this.a != null) {
+                RawInputManager.this.a.onBeginRawErasing(shortcut, point);
+            }
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onEndRawErasing(boolean outLimitRegion, TouchPoint point) {
+            if (RawInputManager.this.isUseRawInput() && RawInputManager.this.a != null) {
+                RawInputManager.this.a.onEndRawErasing(outLimitRegion, point);
+            }
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onRawErasingTouchPointMoveReceived(TouchPoint point) {
+            if (RawInputManager.this.isUseRawInput() && RawInputManager.this.a != null) {
+                RawInputManager.this.a.onRawErasingTouchPointMoveReceived(point);
+            }
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onRawErasingTouchPointListReceived(TouchPointList pointList) {
+            if (RawInputManager.this.isUseRawInput() && RawInputManager.this.a != null) {
+                RawInputManager.this.a.onRawErasingTouchPointListReceived(pointList);
+            }
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onPenActive(TouchPoint point) {
+            if (RawInputManager.this.isUseRawInput() && RawInputManager.this.a != null) {
+                RawInputManager.this.a.onPenActive(point);
+            }
+        }
+
+        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+        @Override // com.onyx.android.sdk.pen.RawInputCallback
+        public void onPenUpRefresh(RectF refreshRect) {
+            if (RawInputManager.this.isUseRawInput() && RawInputManager.this.a != null) {
+                RawInputManager.this.a.onPenUpRefresh(refreshRect);
+            }
+        }
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setRawInputCallback(RawInputCallback callback) {
-        void var1_1;
-        this.a = var1_1;
+        this.a = callback;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void startRawInputReader() {
-        if (!this.isUseRawInput()) {
-            return;
+        if (isUseRawInput()) {
+            a().setRawInputCallback(new a());
+            a().start();
         }
-        RawInputManager rawInputManager = this;
-        rawInputManager.a().setRawInputCallback(new RawInputCallback(this){
-            final /* synthetic */ RawInputManager a;
-            {
-                void var1_1;
-                this.a = var1_1;
-            }
-
-            /*
-             * WARNING - void declaration
-             */
-            @Override
-            public void onBeginRawDrawing(boolean shortcut, TouchPoint point) {
-                if (!this.a.isUseRawInput()) {
-                    return;
-                }
-                if (this.a.a != null) {
-                    void var2_2;
-                    void var1_1;
-                    this.a.a.onBeginRawDrawing((boolean)var1_1, (TouchPoint)var2_2);
-                }
-            }
-
-            /*
-             * WARNING - void declaration
-             */
-            @Override
-            public void onEndRawDrawing(boolean outLimitRegion, TouchPoint point) {
-                if (!this.a.isUseRawInput()) {
-                    return;
-                }
-                if (this.a.a != null) {
-                    void var2_2;
-                    void var1_1;
-                    this.a.a.onEndRawDrawing((boolean)var1_1, (TouchPoint)var2_2);
-                }
-            }
-
-            /*
-             * WARNING - void declaration
-             */
-            @Override
-            public void onRawDrawingTouchPointMoveReceived(TouchPoint point) {
-                if (!this.a.isUseRawInput()) {
-                    return;
-                }
-                if (this.a.a != null) {
-                    void var1_1;
-                    this.a.a.onRawDrawingTouchPointMoveReceived((TouchPoint)var1_1);
-                }
-            }
-
-            /*
-             * WARNING - void declaration
-             */
-            @Override
-            public void onRawDrawingTouchPointListReceived(TouchPointList pointList) {
-                if (!this.a.isUseRawInput()) {
-                    return;
-                }
-                if (this.a.a != null) {
-                    void var1_1;
-                    this.a.a.onRawDrawingTouchPointListReceived((TouchPointList)var1_1);
-                }
-            }
-
-            /*
-             * WARNING - void declaration
-             */
-            @Override
-            public void onBeginRawErasing(boolean shortcut, TouchPoint point) {
-                if (!this.a.isUseRawInput()) {
-                    return;
-                }
-                if (this.a.a != null) {
-                    void var2_2;
-                    void var1_1;
-                    this.a.a.onBeginRawErasing((boolean)var1_1, (TouchPoint)var2_2);
-                }
-            }
-
-            /*
-             * WARNING - void declaration
-             */
-            @Override
-            public void onEndRawErasing(boolean outLimitRegion, TouchPoint point) {
-                if (!this.a.isUseRawInput()) {
-                    return;
-                }
-                if (this.a.a != null) {
-                    void var2_2;
-                    void var1_1;
-                    this.a.a.onEndRawErasing((boolean)var1_1, (TouchPoint)var2_2);
-                }
-            }
-
-            /*
-             * WARNING - void declaration
-             */
-            @Override
-            public void onRawErasingTouchPointMoveReceived(TouchPoint point) {
-                if (!this.a.isUseRawInput()) {
-                    return;
-                }
-                if (this.a.a != null) {
-                    void var1_1;
-                    this.a.a.onRawErasingTouchPointMoveReceived((TouchPoint)var1_1);
-                }
-            }
-
-            /*
-             * WARNING - void declaration
-             */
-            @Override
-            public void onRawErasingTouchPointListReceived(TouchPointList pointList) {
-                if (!this.a.isUseRawInput()) {
-                    return;
-                }
-                if (this.a.a != null) {
-                    void var1_1;
-                    this.a.a.onRawErasingTouchPointListReceived((TouchPointList)var1_1);
-                }
-            }
-
-            /*
-             * WARNING - void declaration
-             */
-            @Override
-            public void onPenActive(TouchPoint point) {
-                if (!this.a.isUseRawInput()) {
-                    return;
-                }
-                if (this.a.a != null) {
-                    void var1_1;
-                    this.a.a.onPenActive((TouchPoint)var1_1);
-                }
-            }
-
-            /*
-             * WARNING - void declaration
-             */
-            @Override
-            public void onPenUpRefresh(RectF refreshRect) {
-                if (!this.a.isUseRawInput()) {
-                    return;
-                }
-                if (this.a.a != null) {
-                    void var1_1;
-                    this.a.a.onPenUpRefresh((RectF)var1_1);
-                }
-            }
-        });
-        rawInputManager.a().start();
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void resumeRawInputReader() {
-        if (!this.isUseRawInput()) {
-            return;
+        if (isUseRawInput()) {
+            a().resume();
         }
-        this.a().resume();
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void pauseRawInputReader() {
-        if (!this.isUseRawInput()) {
-            return;
+        if (isUseRawInput()) {
+            a().pause();
         }
-        this.a().pause();
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void quitRawInputReader() {
-        if (!this.isUseRawInput()) {
-            return;
+        if (isUseRawInput()) {
+            a().quit();
         }
-        this.a().quit();
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public boolean isUseRawInput() {
         return this.c;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public RawInputManager setUseRawInput(boolean use) {
-        void var1_1;
-        this.c = var1_1;
+        this.c = use;
         return this;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public View getHostView() {
-        return this.a().getHostView();
+        return a().getHostView();
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public RawInputManager setHostView(View view) {
-        Rect rect;
-        void var1_1;
-        RawInputManager rawInputManager = this_;
-        this_.a().setHostView((View)var1_1);
-        RawInputManager this_ = rect;
-        var1_1.getLocalVisibleRect(new Rect());
-        rawInputManager.a().setLimitRect((Rect)this_);
-        return rawInputManager;
+        a().setHostView(view);
+        Rect rect = new Rect();
+        view.getLocalVisibleRect(rect);
+        a().setLimitRect(rect);
+        return this;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public RawInputManager setLimitRect(Rect limitRect, List<Rect> excludeRectList) {
-        void var2_2;
-        void var1_1;
-        RawInputManager rawInputManager = this;
-        rawInputManager.a().setLimitRect((Rect)var1_1);
-        rawInputManager.a().setExcludeRect((List<Rect>)var2_2);
-        return rawInputManager;
+        a().setLimitRect(limitRect);
+        a().setExcludeRect(excludeRectList);
+        return this;
     }
 
-    /*
-     * WARNING - void declaration
-     */
-    public RawInputManager setLimitRect(List<Rect> limitRect, List<Rect> excludeRectList) {
-        void var2_2;
-        void var1_1;
-        RawInputManager rawInputManager = this;
-        rawInputManager.a().setLimitRect((List<Rect>)var1_1);
-        rawInputManager.a().setExcludeRect((List<Rect>)var2_2);
-        return rawInputManager;
-    }
-
-    /*
-     * WARNING - void declaration
-     */
-    public RawInputManager setLimitRect(List<Rect> limitRectList) {
-        void var1_1;
-        RawInputManager rawInputManager = this;
-        rawInputManager.a().setLimitRect((List<Rect>)var1_1);
-        return rawInputManager;
-    }
-
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public RawInputManager setExcludeRect(List<Rect> excludeRectList) {
-        void var1_1;
-        RawInputManager rawInputManager = this;
-        rawInputManager.a().setExcludeRect((List<Rect>)var1_1);
-        return rawInputManager;
+        a().setExcludeRect(excludeRectList);
+        return this;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setStrokeWidth(float w) {
-        void var1_1;
-        this.a().setStrokeWidth((float)var1_1);
+        a().setStrokeWidth(w);
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setStrokeColor(int color) {
-        void var1_1;
-        this.a().setStrokeColor((int)var1_1);
+        a().setStrokeColor(color);
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setSingleRegionMode() {
-        this.a().setSingleRegionMode();
+        a().setSingleRegionMode();
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setMultiRegionMode() {
-        this.a().setMultiRegionMode();
+        a().setMultiRegionMode();
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setPenUpRefreshTimeMs(int penUpRefreshTimeMs) {
-        void var1_1;
-        this.a().setPenUpRefreshTimeMs((int)var1_1);
+        a().setPenUpRefreshTimeMs(penUpRefreshTimeMs);
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setPenUpRefreshEnabled(boolean enable) {
-        void var1_1;
-        this.a().setPenUpRefreshEnabled((boolean)var1_1);
+        a().setPenUpRefreshEnabled(enable);
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setFilterRepeatMovePoint(boolean filter) {
-        void var1_1;
-        this.a().setFilterRepeatMovePoint((boolean)var1_1);
+        a().setFilterRepeatMovePoint(filter);
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setPostInputEvent(boolean post) {
-        void var1_1;
-        this.a().setPostInputEvent((boolean)var1_1);
+        a().setPostInputEvent(post);
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void enableSideBtnErase(boolean enable) {
-        void var1_1;
-        this.a().enableSideBtnErase((boolean)var1_1);
+        a().enableSideBtnErase(enable);
     }
 
     public void setHostViewScrollListenerEnabled(boolean enable) {
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void printTouchInfo() {
-        RawInputReader this_ = ((RawInputManager)((Object)this_)).b;
-        if (this_ != null) {
-            this_.printTouchInfo();
+        RawInputReader rawInputReader = this.b;
+        if (rawInputReader != null) {
+            rawInputReader.printTouchInfo();
         }
+    }
+
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 2 */
+    private RawInputReader a() {
+        if (this.b == null) {
+            this.b = new RawInputReader();
+        }
+        return this.b;
+    }
+
+    public RawInputManager setLimitRect(List<Rect> limitRect, List<Rect> excludeRectList) {
+        a().setLimitRect(limitRect);
+        a().setExcludeRect(excludeRectList);
+        return this;
+    }
+
+    public RawInputManager setLimitRect(List<Rect> limitRectList) {
+        a().setLimitRect(limitRectList);
+        return this;
     }
 }
 

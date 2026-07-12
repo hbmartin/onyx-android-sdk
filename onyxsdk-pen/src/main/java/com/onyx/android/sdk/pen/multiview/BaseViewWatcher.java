@@ -1,10 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  android.graphics.Rect
- *  androidx.annotation.Nullable
- */
 package com.onyx.android.sdk.pen.multiview;
 
 import android.graphics.Rect;
@@ -14,85 +7,56 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/multiview/BaseViewWatcher.class */
 public abstract class BaseViewWatcher<T> {
     private int a;
     private int b;
-    private List<WeakReference<T>> c;
+    private List<WeakReference<T>> c = new ArrayList();
 
-    public BaseViewWatcher() {
-        ArrayList arrayList;
-        ArrayList this_ = arrayList;
-        arrayList = new ArrayList();
-        v1.c = this_;
-    }
-
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Nullable
     private WeakReference<T> a(T object) {
         if (object == null) {
             return null;
         }
-        for (WeakReference weakReference : ((BaseViewWatcher)this).c) {
-            void var1_1;
-            Object t = weakReference.get();
-            if (t == null || t != var1_1) continue;
-            return weakReference;
+        for (WeakReference<T> weakReference : this.c) {
+            T t = weakReference.get();
+            if (t != null && t == object) {
+                return weakReference;
+            }
         }
         return null;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public List<WeakReference<T>> getWatchedObjects() {
         return this.c;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public boolean add(T object) {
-        void var1_1;
-        if (this.contains(var1_1)) {
+        if (contains(object)) {
             return false;
         }
-        this.c.add(new WeakReference<void>(var1_1));
+        this.c.add(new WeakReference<>(object));
         return true;
     }
 
-    public boolean add(List<T> objectList) {
-        boolean bl = false;
-        Iterator<T> iterator = objectList.iterator();
-        while (iterator.hasNext()) {
-            bl |= this.add(iterator.next());
-        }
-        return bl;
-    }
-
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public boolean remove(T object) {
-        WeakReference<void> weakReference;
-        if ((weakReference = this.a(weakReference)) != null) {
-            return this.c.remove(weakReference);
+        WeakReference<T> weakReferenceA = a(object);
+        if (weakReferenceA != null) {
+            return this.c.remove(weakReferenceA);
         }
         return false;
     }
 
-    public boolean remove(List<T> objectList) {
-        boolean bl = false;
-        Iterator<T> iterator = objectList.iterator();
-        while (iterator.hasNext()) {
-            bl |= this.remove(iterator.next());
-        }
-        return bl;
-    }
-
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public boolean contains(T object) {
-        void var1_1;
-        return this.a(var1_1) != null;
+        return a(object) != null;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void clear() {
         this.c.clear();
     }
@@ -101,34 +65,49 @@ public abstract class BaseViewWatcher<T> {
 
     public abstract boolean hasVisibleObject();
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public boolean isAllInvisible() {
-        return this.hasVisibleObject() ^ true;
+        return !hasVisibleObject();
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public int getContainerViewScreenX() {
         return this.a;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public int getContainerViewScreenY() {
         return this.b;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public BaseViewWatcher<T> setContainerViewScreenX(int containerViewScreenX) {
-        void var1_1;
-        this.a = var1_1;
+        this.a = containerViewScreenX;
         return this;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public BaseViewWatcher<T> setContainerViewScreenY(int containerViewScreenY) {
-        void var1_1;
-        this.b = var1_1;
+        this.b = containerViewScreenY;
         return this;
+    }
+
+    public boolean remove(List<T> objectList) {
+        boolean zRemove = false;
+        Iterator<T> it = objectList.iterator();
+        while (it.hasNext()) {
+            zRemove |= remove(it.next());
+        }
+        return zRemove;
+    }
+
+    public boolean add(List<T> objectList) {
+        boolean zAdd = false;
+        Iterator<T> it = objectList.iterator();
+        while (it.hasNext()) {
+            zAdd |= add(it.next());
+        }
+        return zAdd;
     }
 }
 

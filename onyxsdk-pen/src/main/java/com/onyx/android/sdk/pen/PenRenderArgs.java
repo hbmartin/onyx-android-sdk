@@ -1,14 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  android.graphics.Canvas
- *  android.graphics.Matrix
- *  android.graphics.Paint
- *  android.graphics.RectF
- *  com.onyx.android.sdk.data.note.ShapeCreateArgs
- *  com.onyx.android.sdk.data.note.TouchPoint
- */
 package com.onyx.android.sdk.pen;
 
 import android.graphics.Canvas;
@@ -19,6 +8,7 @@ import com.onyx.android.sdk.data.note.ShapeCreateArgs;
 import com.onyx.android.sdk.data.note.TouchPoint;
 import java.util.List;
 
+/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/PenRenderArgs.class */
 public class PenRenderArgs {
     private Canvas a;
     private Paint b;
@@ -33,159 +23,135 @@ public class PenRenderArgs {
     private RectF k;
     private boolean l;
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public Canvas getCanvas() {
         return this.a;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public PenRenderArgs setCanvas(Canvas canvas) {
-        void var1_1;
-        this.a = var1_1;
+        this.a = canvas;
         return this;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public PenRenderArgs setContentRect(RectF contentRect) {
-        void var1_1;
-        this.k = var1_1;
+        this.k = contentRect;
         return this;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public RectF getContentRect() {
         return this.k;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public PenRenderArgs setTiltEnabled(boolean tiltEnabled) {
-        void var1_1;
-        this.l = var1_1;
+        this.l = tiltEnabled;
         return this;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public boolean isTiltEnabled() {
         return this.l;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public Paint getPaint() {
         return this.b;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public PenRenderArgs setPaint(Paint paint) {
-        void var1_1;
-        this.b = var1_1;
+        this.b = paint;
         return this;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public List<TouchPoint> getPoints() {
         return this.c;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public PenRenderArgs setPoints(List<TouchPoint> points) {
-        void var1_1;
-        this.c = var1_1;
+        this.c = points;
         return this;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public PenRenderArgs setPenType(int penType) {
-        void var1_1;
-        this.d = var1_1;
+        this.d = penType;
         return this;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public int getPenType() {
         return this.d;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public int getColor() {
         return this.e;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public PenRenderArgs setColor(int color) {
-        void var1_1;
-        this.e = var1_1;
+        this.e = color;
         return this;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public float getStrokeWidth() {
         return this.f;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public PenRenderArgs setStrokeWidth(float strokeWidth) {
-        void var1_1;
-        this.f = var1_1;
+        this.f = strokeWidth;
         return this;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public ShapeCreateArgs getCreateArgs() {
         return this.g;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public PenRenderArgs setCreateArgs(ShapeCreateArgs createArgs) {
-        void var1_1;
-        this.g = var1_1;
+        this.g = createArgs;
         return this;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public Matrix getScreenMatrix() {
         return this.i;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public PenRenderArgs setScreenMatrix(Matrix screenMatrix) {
-        void var1_1;
-        this.i = var1_1;
+        this.i = screenMatrix;
         return this;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public PenRenderArgs setRenderMatrix(Matrix renderMatrix) {
-        void var1_1;
-        this.h = var1_1;
+        this.h = renderMatrix;
         return this;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public Matrix getRenderMatrix() {
         return this.h;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public boolean isErase() {
         return this.j;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public PenRenderArgs setErase(boolean erase) {
-        void var1_1;
-        this.j = var1_1;
+        this.j = erase;
         return this;
     }
 }

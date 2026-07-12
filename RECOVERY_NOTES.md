@@ -2,73 +2,61 @@
 
 ## Source-only policy
 
-The repository intentionally excludes every supplied SDK binary:
+Supplied JARs, AARs, and native libraries are analysis references only. They
+are untracked, are not Gradle dependencies, and are not copied into release
+artifacts. Android Gradle Plugin compiles every class from `src/main`; both pen
+libraries are cross-compiled from the checked-in Rust crates.
 
-- no `classes-original.jar` files;
-- no original AAR files;
-- no original `libonyx_pen_touch_reader.so` files;
-- no copied `libc++_shared.so` runtime;
-- no binary test fixtures.
+Raw JADX/CFR/Vineflower output and the earlier recovery notes remain available
+on the `backup` branch. Production source and executable validation are the
+authority on this branch.
 
-Android Gradle Plugin compiles each AAR from checked-in Java and a minimal
-manifest. Legacy manifests, resources, and AIDL are source evidence under
-`recovery-evidence/android`, not implicit build inputs. The pen module compiles
-its JNI implementation from Rust during the build. `scripts/verify-recovery.sh`
-fails if removed binary inputs or their former injection patterns return.
+## Production recoveries
 
-## Java organization
+The base and device recoveries live directly in their real SDK classes:
 
-Exact-name JADX recovery produced 588 base, 72 device, and 45 pen outer-source
-files. Those 705 files are under `recovery-evidence/decompilers/*/jadx` and
-include the repaired nine target methods. They remain analysis input because
-95 files contain wider invalid type-inference artifacts.
+- `FileUtils.readableFileSize(long)` follows the verified 1024-based bytecode;
+- `RxUtils$d.run()` preserves its caught-`Exception`, escaping-`Error`, and
+  exactly-once worker disposal behavior;
+- all seven device reflection wrappers use the verified static `Method` field,
+  null receiver, empty argument array, and outer `catch (Exception)`.
 
-Only reviewed source is promoted into each module's `src/main/java`. The
-current compiled recovery contains:
+No recovery-only surrogate helper classes remain.
 
-- the bytecode-verified `FileUtils.readableFileSize(long)` implementation;
-- the bytecode-verified `RxUtils$d.run()` disposal behavior;
-- all seven reflective device mappings in their production device classes;
-- the recovered R8-named `com.onyx.android.sdk.device.a` UTF-8 file helper;
-- `RawInputReader`, `NativeContract`, and `DefaultArgumentGuard` for the pen
-  JNI and failure-path contracts.
+## Pen Java/Kotlin surface
 
-This separation keeps build output honest: a class is either source-compiled
-and tested, or visibly remains decompilation evidence.
+The production pen module contains all 129 reference class files: 57 from the
+legacy 1.5.4 JAR and 72 from `onyxsdk-pen-native-classes.jar`. The build also
+includes the required geometry types recovered from the release SDK. A `javap`
+descriptor audit proves that all 118 public reference classes have identical
+public/protected declarations, fields, constructors, and methods.
 
-## Nine repaired methods
+The legacy `PenUtils.getPointDoubleArray(TouchPoint, float)` allocation was
+corrected from five to seven elements so its existing seven-value JNI record
+can execute instead of throwing `ArrayIndexOutOfBoundsException`.
 
-CFR reconstructed all seven failed device sites as zero-argument static
-reflective calls guarded by `catch (Exception)`. Bytecode inspection confirmed
-the field mapping, null receiver, empty argument array, and exception table.
+## Pen native surface
 
-The two base sites required direct control-flow inspection:
+- `onyx-pen-touch-reader` exports the 11 `RawInputReader` JNI methods.
+- `onyx-neo-pen` exports seven `NeoPenNative` methods and seven legacy
+  `NeoPenWrapper` methods.
+- Both crates build for four Android ABIs without a shared C++ runtime.
+- Export lists in `scripts/native-contracts` are checked against loose binaries
+  and the packaged release AAR.
 
-- `FileUtils.readableFileSize(long)` uses logarithm base 1024, units through
-  TB, and `DecimalFormat("#,##0.#")`.
-- `RxUtils$d.run()` catches `Exception`, reports it, always disposes its worker,
-  and lets non-`Exception` throwables escape after disposal.
+The new pen runtime owns state by 64-bit handle, validates pen types, returns
+non-null empty ink objects where the reference does, safely handles stale
+handles, produces texture bitmaps, and resets stroke state after pen-up. The
+legacy static wrapper has its own lifecycle and offline list renderer.
 
-The decisions are summarized in
-`docs/DECOMPILER_DISAGREEMENTS.md`. Module-local tests inspect and exercise the
-production implementations directly.
+## Validation evidence
 
-## Native recovery
-
-The Rust crate preserves the 11 JNI method names and Java callback descriptor.
-The source contract is declared in `NativeContract` and implemented by the
-source-native `RawInputReader` bridge. Native validation compares every ABI's
-exports to that checked-in source contract and ensures neither the build nor
-the packaged AAR depends on `libc++_shared.so`.
-
-## Test visibility
-
-- `UnsupportedOperationPathTest` exercises the recovered Kotlin default-super
-  guard and exact exception message.
-- `ObfuscatedCodePathTest` executes the source-compiled R8 class `device.a`.
-- `FileUtilsRecoveryTest` covers the recovered formatting boundaries.
-- `RxUtilsWorkerDisposalTest` covers success, caught exception, disposal, and
-  uncaught `Error` behavior.
-- `RecoveredDeviceMethodTest` executes all seven reflective device mappings.
-- Rust tests cover state transitions, eraser selection, regions, and pressure
-  normalization.
+- Host Rust tests cover all nine encodings, lifecycle, prediction isolation,
+  raw input states, eraser selection, regions, and pressure normalization.
+- Android instrumentation runs every new pen type, exact recovered values for
+  types 1–3, texture and polygon encodings, invalid-handle safety, the legacy
+  wrapper, and raw-reader JNI configuration/lifecycle calls.
+- The device differential runs the original and Rust `libneo_pen.so` in the
+  same APK on BOOX hardware.
+- `scripts/verify-recovery.sh` audits source-only packaging, class coverage,
+  exports, ABI coverage, and native dependencies.

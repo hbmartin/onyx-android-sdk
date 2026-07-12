@@ -1,0 +1,14 @@
+[package]
+name = "onyx-neo-pen"
+version = "1.5.4-recovered"
+edition = "2021"
+license = "LicenseRef-Recovered-From-Binary"
+description = "Source-native Rust reconstruction of libneo_pen.so"
+
+[lib]
+name = "neo_pen"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+jni = { version = "0.21", default-features = false }
+

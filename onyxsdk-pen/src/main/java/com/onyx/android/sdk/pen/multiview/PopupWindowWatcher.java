@@ -1,36 +1,31 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  android.graphics.Rect
- *  android.widget.PopupWindow
- */
 package com.onyx.android.sdk.pen.multiview;
 
 import android.graphics.Rect;
 import android.widget.PopupWindow;
-import com.onyx.android.sdk.pen.multiview.BaseViewWatcher;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class PopupWindowWatcher
-extends BaseViewWatcher<PopupWindow> {
-    @Override
+/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/multiview/PopupWindowWatcher.class */
+public class PopupWindowWatcher extends BaseViewWatcher<PopupWindow> {
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.multiview.BaseViewWatcher
     public boolean hasVisibleObject() {
-        Iterator this_ = ((BaseViewWatcher)((Object)this_)).getWatchedObjects().iterator();
-        while (this_.hasNext()) {
-            PopupWindow popupWindow = (PopupWindow)((WeakReference)this_.next()).get();
-            if (popupWindow == null || !popupWindow.isShowing()) continue;
-            return true;
+        Iterator<WeakReference<PopupWindow>> it = getWatchedObjects().iterator();
+        while (it.hasNext()) {
+            PopupWindow popupWindow = it.next().get();
+            if (popupWindow != null && popupWindow.isShowing()) {
+                return true;
+            }
         }
         return false;
     }
 
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.multiview.BaseViewWatcher
     public List<Rect> getRects() {
-        return new ArrayList<Rect>();
+        return new ArrayList();
     }
 }
 

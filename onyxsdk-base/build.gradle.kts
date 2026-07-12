@@ -68,15 +68,8 @@ dependencies {
     testImplementation("org.robolectric:robolectric:4.14.1")
 }
 
-val decompiledSourcesJar = tasks.register<Jar>("decompiledSourcesJar") {
-    group = "build"
-    description = "Archives the raw JADX recovery retained as analysis evidence."
-    archiveClassifier.set("decompiled-sources")
-    from(rootProject.file("recovery-evidence/decompilers/base/jadx"))
-}
-
 tasks.register("assembleRecovered") {
     group = "build"
-    description = "Builds the source-native release AAR and decompilation evidence archive."
-    dependsOn("assembleRelease", decompiledSourcesJar)
+    description = "Builds the source-native release AAR."
+    dependsOn("assembleRelease")
 }

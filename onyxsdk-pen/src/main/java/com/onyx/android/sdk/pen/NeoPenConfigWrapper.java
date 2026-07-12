@@ -1,15 +1,9 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.onyx.android.sdk.data.note.ShapeCreateArgs
- *  com.onyx.android.sdk.device.Device
- */
 package com.onyx.android.sdk.pen;
 
 import com.onyx.android.sdk.data.note.ShapeCreateArgs;
 import com.onyx.android.sdk.device.Device;
 
+/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/NeoPenConfigWrapper.class */
 public class NeoPenConfigWrapper {
     public static final int NEOPEN_PEN_TYPE_BRUSH = 1;
     public static final int NEOPEN_PEN_TYPE_FOUNTAIN = 2;
@@ -25,109 +19,95 @@ public class NeoPenConfigWrapper {
     public float tiltScale = 3.0f;
     public float maxTouchPressure = 4095.0f;
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static void initPenConfig(NeoPenConfigWrapper config, ShapeCreateArgs createArgs) {
-        float[] fArray;
         if (createArgs.getTiltConfig() != null) {
-            var0.tiltEnabled = fArray.tiltConfig.isTiltEnabled();
-            var0.tiltScale = fArray.tiltConfig.getTiltScale();
+            config.tiltEnabled = createArgs.tiltConfig.isTiltEnabled();
+            config.tiltScale = createArgs.tiltConfig.getTiltScale();
             return;
         }
-        fArray = Device.currentDevice().getStrokeParameters(4);
-        if (fArray != null && fArray.length >= 2) {
-            boolean bl = fArray[0] != 0.0f;
-            var0.tiltEnabled = bl;
-            var0.tiltScale = fArray[1];
+        float[] strokeParameters = Device.currentDevice().getStrokeParameters(4);
+        if (strokeParameters == null || strokeParameters.length < 2) {
+            return;
         }
+        config.tiltEnabled = strokeParameters[0] != com.onyx.android.sdk.pen.utils.PenUtils.KEPLER_MIN_PRESSURE_SENSITIVITY;
+        config.tiltScale = strokeParameters[1];
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public int getType() {
         return this.type;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public NeoPenConfigWrapper setType(int type) {
-        void var1_1;
-        this.type = var1_1;
+        this.type = type;
         return this;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public int getColor() {
         return this.color;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public NeoPenConfigWrapper setColor(int color) {
-        void var1_1;
-        this.color = var1_1;
+        this.color = color;
         return this;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public float getWidth() {
         return this.width;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public NeoPenConfigWrapper setWidth(float width) {
-        void var1_1;
-        this.width = var1_1;
+        this.width = width;
         return this;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public int getRotateAngle() {
         return this.rotateAngle;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public NeoPenConfigWrapper setRotateAngle(int rotateAngle) {
-        void var1_1;
-        this.rotateAngle = var1_1;
+        this.rotateAngle = rotateAngle;
         return this;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public boolean isTiltEnabled() {
         return this.tiltEnabled;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public NeoPenConfigWrapper setTiltEnabled(boolean tiltEnabled) {
-        void var1_1;
-        this.tiltEnabled = var1_1;
+        this.tiltEnabled = tiltEnabled;
         return this;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public float getTiltScale() {
         return this.tiltScale;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public NeoPenConfigWrapper setTiltScale(float tiltScale) {
-        void var1_1;
-        this.tiltScale = var1_1;
+        this.tiltScale = tiltScale;
         return this;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public float getMaxTouchPressure() {
         return this.maxTouchPressure;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public NeoPenConfigWrapper setMaxTouchPressure(float maxTouchPressure) {
-        void var1_1;
-        this.maxTouchPressure = var1_1;
+        this.maxTouchPressure = maxTouchPressure;
         return this;
     }
 }
