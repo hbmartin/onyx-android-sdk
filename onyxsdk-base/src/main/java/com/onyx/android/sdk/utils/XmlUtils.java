@@ -7,7 +7,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/XmlUtils.class */
 public class XmlUtils {
     public static <T> List<T> loadBeansFromXml(int xmlResId, Class<T> tClass) {
         ArrayList arrayList = new ArrayList();

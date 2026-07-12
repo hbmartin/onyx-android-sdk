@@ -4,7 +4,6 @@ import android.view.View;
 import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.api.device.epd.UpdateMode;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/EpdRk3026.class */
 public class EpdRk3026 extends EpdDevice {
     @Override // com.onyx.android.sdk.api.device.EpdDevice
     public void applyGCUpdate(View view) {

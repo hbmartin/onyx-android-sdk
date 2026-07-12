@@ -1,11 +1,9 @@
 package com.onyx.android.sdk.data;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/SortOrder.class */
 public enum SortOrder {
     Asc,
     Desc;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/SortOrder$a.class */
     static /* synthetic */ class a {
         static final /* synthetic */ int[] a;
 

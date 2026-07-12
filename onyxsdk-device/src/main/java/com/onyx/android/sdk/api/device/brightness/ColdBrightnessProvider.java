@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/brightness/ColdBrightnessProvider.class */
 public class ColdBrightnessProvider extends BaseBrightnessProvider {
     private ArrayList<Integer> values;
 

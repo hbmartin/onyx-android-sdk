@@ -13,7 +13,6 @@ import com.onyx.android.sdk.utils.TouchUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/touch/AppTouchInputReader.class */
 public class AppTouchInputReader {
     private static final int k = 0;
     private static final int l = 1;
@@ -34,17 +33,14 @@ public class AppTouchInputReader {
     private boolean h = false;
     private float j = 1500.0f;
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public AppTouchInputReader(@NonNull AppInputCallback callback) {
         this.f = callback;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private boolean c(float px, float py) {
         return b(px, py) && !a(px, py);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private boolean b(float x, float y) {
         if (CollectionUtils.isNullOrEmpty(this.a)) {
             return true;
@@ -52,7 +48,6 @@ public class AppTouchInputReader {
         return a(this.a, x, y);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private boolean a(float x, float y) {
         if (CollectionUtils.isNullOrEmpty(this.b)) {
             return false;
@@ -60,7 +55,6 @@ public class AppTouchInputReader {
         return a(this.b, x, y);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private boolean e(MotionEvent event) {
         if (!c(event.getX(), event.getY()) || a(event)) {
             return false;
@@ -69,7 +63,6 @@ public class AppTouchInputReader {
         return true;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void f(MotionEvent event) {
         if (a(event) || this.e == 0) {
             return;
@@ -78,14 +71,12 @@ public class AppTouchInputReader {
         this.e = 0;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void d(MotionEvent event) {
         TouchPoint touchPointCreate = TouchPoint.create(event);
         b(touchPointCreate);
         this.f.onPenActive(touchPointCreate);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void g(MotionEvent event) {
         a();
         TouchPoint touchPointCreate = TouchPoint.create(event);
@@ -99,24 +90,20 @@ public class AppTouchInputReader {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public AppTouchInputReader setStrokeWidth(float width) {
         this.d = width;
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public float getStrokeWidth() {
         return this.d;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setLimitRectList(View hostView, List<Rect> limitRectList) {
         CollectionUtils.safeAddAll(this.a, limitRectList, true);
         EpdController.setScreenHandWritingRegionLimit(hostView, (Rect[]) limitRectList.toArray(new Rect[0]));
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setExcludeRectList(View hostView, List<Rect> excludeRectList) {
         if (excludeRectList == null) {
             return;
@@ -125,27 +112,22 @@ public class AppTouchInputReader {
         EpdController.setScreenHandWritingRegionExclude(hostView, (Rect[]) excludeRectList.toArray(new Rect[0]));
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setEnableFingerTouch(boolean enableFingerTouch) {
         this.g = enableFingerTouch;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setOnlyEnableFingerTouch(boolean onlyEnableFingerTouch) {
         this.h = onlyEnableFingerTouch;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setFingerTouchPressure(float fingerTouchPressure) {
         this.j = fingerTouchPressure;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setEnableFingerTouchPressure(boolean enableFingerTouchPressure) {
         this.i = enableFingerTouchPressure;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public boolean processMotionEvent(MotionEvent event) {
         switch (event.getAction()) {
             case 0:
@@ -165,7 +147,6 @@ public class AppTouchInputReader {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 2 */
     private void c(MotionEvent event) {
         if (a(event)) {
             return;

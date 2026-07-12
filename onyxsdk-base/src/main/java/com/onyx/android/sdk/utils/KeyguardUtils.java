@@ -8,7 +8,6 @@ import android.os.PowerManager;
 import android.util.Log;
 import java.lang.reflect.Method;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/KeyguardUtils.class */
 public class KeyguardUtils {
     private static final String a = "KeyguardUtils";
     private static final String b = "android.settings.FINGERPRINT_SETTINGS";

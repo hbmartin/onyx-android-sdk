@@ -9,12 +9,10 @@ import com.onyx.android.sdk.utils.ColorUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/PenUtils.class */
 public class PenUtils {
     public static final float ERASE_EXTRA_STROKE_WIDTH = 1.0f;
     private static Bitmap a;
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static Bitmap ensurePenBitmapCreated(Rect drawRect) {
         Bitmap bitmap = a;
         if (bitmap == null || bitmap.getWidth() != drawRect.width() || a.getHeight() != drawRect.height()) {
@@ -24,7 +22,6 @@ public class PenUtils {
         return a;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static int getColorSafely(int shapeColor) {
         if (!ColorUtils.isNeutralColor(shapeColor)) {
             shapeColor = -16777216;
@@ -32,8 +29,6 @@ public class PenUtils {
         return shapeColor;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
-    /* JADX DEBUG: Move duplicate insns, count: 1 to block B:3:0x003d */
     public static void drawStrokeByPointSize(Canvas canvas, Paint paint, List<TouchPoint> points, boolean erase) {
         int color = paint.getColor();
         Paint.Style style = paint.getStyle();
@@ -68,7 +63,6 @@ public class PenUtils {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static ArrayList<TouchPoint> toTouchPoints(NeoRenderPoint[] points) {
         ArrayList<TouchPoint> arrayList = new ArrayList<>();
         for (NeoRenderPoint neoRenderPoint : points) {
@@ -77,7 +71,6 @@ public class PenUtils {
         return arrayList;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static float[] getPointArray(List<TouchPoint> points, float maxTouchPressure) {
         float[] fArr = new float[points.size() * 5];
         for (int i = 0; i < points.size(); i++) {
@@ -92,7 +85,6 @@ public class PenUtils {
         return fArr;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static double[] getPointDoubleArray(TouchPoint point, float maxTouchPressure) {
         // The original 1.5.4 bytecode allocated five slots but wrote the
         // seven-value native record (x, y, pressure, size, tiltX, tiltY,

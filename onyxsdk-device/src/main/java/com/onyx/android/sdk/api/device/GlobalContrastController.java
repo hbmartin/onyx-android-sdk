@@ -5,7 +5,6 @@ import com.onyx.android.sdk.device.Device;
 import com.onyx.android.sdk.utils.Debug;
 import com.onyx.android.sdk.utils.SystemPropertiesUtil;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/GlobalContrastController.class */
 public class GlobalContrastController {
     private static final String TAG = "GlobalContrastController";
 

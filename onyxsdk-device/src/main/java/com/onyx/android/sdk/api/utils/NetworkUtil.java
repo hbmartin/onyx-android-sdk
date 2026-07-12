@@ -18,7 +18,6 @@ import com.onyx.android.sdk.utils.Debug;
 import java.net.NetworkInterface;
 import java.util.Collections;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/utils/NetworkUtil.class */
 public class NetworkUtil {
     private static final String TAG = "NetworkUtil";
     public static final String MAC_ADDRESS_KEY = "mac_address";

@@ -5,10 +5,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/LongClickUtils.class */
 public class LongClickUtils {
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/LongClickUtils$a.class */
     static class a implements View.OnTouchListener {
         private int a;
         private int b;

@@ -1,11 +1,9 @@
 // 
-// Decompiled by Procyon v0.6.0
 // 
 
 package com.onyx.android.sdk.utils;
 
 import java.util.Optional;
-import org.joda.time.DateTime;
 import java.time.ZoneId;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -749,11 +747,29 @@ public class DateTimeUtil
     }
     
     public static int getMonthDaysCount(final int year, final int month) {
-        return new DateTime().withYear(year).withMonthOfYear(month).dayOfMonth().getMaximumValue();
+        switch (month) {
+            case 2:
+                return isLeapYear(year) ? 29 : 28;
+            case 4:
+            case 6:
+            case 9:
+            case 11:
+                return 30;
+            case 1:
+            case 3:
+            case 5:
+            case 7:
+            case 8:
+            case 10:
+            case 12:
+                return 31;
+            default:
+                throw new IllegalArgumentException("month must be between 1 and 12: " + month);
+        }
     }
     
     public static boolean isLeapYear(final int year) {
-        return new DateTime().withYear(year).year().isLeap();
+        return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
     }
     
     public static long getDayTime(final long dayTime) {

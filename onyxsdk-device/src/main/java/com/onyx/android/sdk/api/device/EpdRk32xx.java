@@ -4,7 +4,6 @@ import android.view.View;
 import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.api.device.epd.UpdateMode;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/EpdRk32xx.class */
 public class EpdRk32xx extends EpdDevice {
     private void useFastScheme() {
     }

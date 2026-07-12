@@ -9,7 +9,6 @@ import com.onyx.android.sdk.utils.Debug;
 import com.onyx.android.sdk.utils.ReflectUtil;
 import java.util.Collections;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/device/eac/v3/EACManagerV3.class */
 public class EACManagerV3 extends EACManagerV2 {
     private Bundle a() {
         Bundle bundle = new Bundle();

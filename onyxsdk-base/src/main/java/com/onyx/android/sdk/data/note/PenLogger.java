@@ -6,7 +6,6 @@ import com.onyx.android.sdk.utils.Debug;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/note/PenLogger.class */
 public class PenLogger {
     public static int PRINT_INTERVAL_TIME_MS = 2000;
     public static PenLogger instance = new PenLogger();

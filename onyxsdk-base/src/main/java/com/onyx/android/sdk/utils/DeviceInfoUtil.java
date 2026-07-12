@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/DeviceInfoUtil.class */
 public class DeviceInfoUtil {
     private static final String a = "/proc/version";
     private static final String b = "/sys/onyx_misc/build_id";

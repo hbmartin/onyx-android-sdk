@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Objects;
 import kotlin.collections.CollectionsKt;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/ReaderTextStyle.class */
 public class ReaderTextStyle {
     public static final String TITLE = "Title";
     public static final String AUTHOR = "Author";
@@ -147,7 +146,6 @@ public class ReaderTextStyle {
     public static SPUnit MIN_FONT_SIZE = SPUnit.create(10.0f);
     public static SPUnit FONT_SIZE_STEP = SPUnit.create(4.0f);
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/ReaderTextStyle$Alignment.class */
     public enum Alignment {
         ALIGNMENT_NONE,
         ALIGNMENT_LEFT,
@@ -155,7 +153,6 @@ public class ReaderTextStyle {
         ALIGNMENT_JUSTIFY
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/ReaderTextStyle$CharacterIndent.class */
     public static class CharacterIndent {
         private int a;
 
@@ -190,7 +187,6 @@ public class ReaderTextStyle {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/ReaderTextStyle$DPUnit.class */
     public static class DPUnit {
         private int a;
 
@@ -218,7 +214,6 @@ public class ReaderTextStyle {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/ReaderTextStyle$FontEntry.class */
     public static class FontEntry {
         private String a;
         private String b;
@@ -310,14 +305,12 @@ public class ReaderTextStyle {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/ReaderTextStyle$Origin.class */
     public enum Origin {
         AUTHOR,
         AGENT,
         USER
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/ReaderTextStyle$PageMargin.class */
     public static class PageMargin {
         private Percentage a;
         private Percentage b;
@@ -401,7 +394,6 @@ public class ReaderTextStyle {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/ReaderTextStyle$Percentage.class */
     public static class Percentage {
         private int a;
 
@@ -429,7 +421,6 @@ public class ReaderTextStyle {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/ReaderTextStyle$SPUnit.class */
     public static class SPUnit {
         private float a;
 
@@ -467,7 +458,6 @@ public class ReaderTextStyle {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/ReaderTextStyle$TextSpacingTrim.class */
     public enum TextSpacingTrim {
         NORMAL,
         SPACE_ALL,
@@ -1093,7 +1083,6 @@ public class ReaderTextStyle {
         return Math.max(FONT_EMBOLDEN_NORMAL, (fontEmboldenLevel * 0.1f) + FONT_EMBOLDEN_NORMAL);
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/ReaderTextStyle$FontSpec.class */
     public static class FontSpec {
         private String a;
         private String b;

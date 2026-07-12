@@ -10,7 +10,6 @@ public class X509TrustAllSSLSocketFactory {
    private X509TrustManager a;
    private SSLSocketFactory b;
 
-   // $VF: Duplicated exception handlers to handle obfuscated exceptions
    public X509TrustAllSSLSocketFactory() {
       try {
          this.a = new X509TrustAllCertsManager();

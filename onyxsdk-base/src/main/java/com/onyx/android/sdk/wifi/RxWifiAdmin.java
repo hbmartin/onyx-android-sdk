@@ -48,7 +48,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin.class */
 @SuppressLint({"MissingPermission"})
 public class RxWifiAdmin {
     private static final String g = "RxWifiAdmin";
@@ -62,7 +61,6 @@ public class RxWifiAdmin {
     private RxFilter<Runnable> e;
     private List<Disposable> f;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$Callback.class */
     public interface Callback {
         void onWifiStateChange(boolean z, int i);
 
@@ -79,7 +77,6 @@ public class RxWifiAdmin {
         void onConnectedNetworkRSSIChange(int i);
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$DefaultCallback.class */
     public static class DefaultCallback implements Callback {
         @Override // com.onyx.android.sdk.wifi.RxWifiAdmin.Callback
         public void onWifiStateChange(boolean isWifiEnable, int wifiExtraState) {
@@ -110,24 +107,20 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$a.class */
     class a implements Function<Intent, List<AccessPoint>> {
         a() {
         }
 
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public List<AccessPoint> apply(Intent intent) throws Exception {
             RxWifiAdmin rxWifiAdmin = RxWifiAdmin.this;
             return rxWifiAdmin.buildResultList(rxWifiAdmin.b.getScanResults());
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$a0.class */
     class a0 implements Consumer<WifiState> {
         a0() {
         }
 
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public void accept(WifiState wifiState) throws Exception {
             RxWifiAdmin.this.startScanIfEnable();
             if (RxWifiAdmin.this.c == null) {
@@ -137,7 +130,6 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$b.class */
     class b implements ObservableOnSubscribe<Intent> {
         final /* synthetic */ Context a;
         final /* synthetic */ IntentFilter b;
@@ -155,12 +147,10 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$b0.class */
     class b0 implements Consumer<List<AccessPoint>> {
         b0() {
         }
 
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public void accept(List<AccessPoint> list) throws Exception {
             if (RxWifiAdmin.this.c == null) {
                 return;
@@ -169,7 +159,6 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$c.class */
     class c implements ObservableOnSubscribe<Integer> {
         final /* synthetic */ Context a;
         final /* synthetic */ IntentFilter b;
@@ -186,12 +175,10 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$c0.class */
     class c0 implements Consumer<List<AccessPoint>> {
         c0() {
         }
 
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public void accept(List<AccessPoint> list) throws Exception {
             if (RxWifiAdmin.this.c == null) {
                 return;
@@ -200,7 +187,6 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$d.class */
     class d implements ObservableOnSubscribe<SupplicantState> {
         final /* synthetic */ Context a;
         final /* synthetic */ IntentFilter b;
@@ -217,12 +203,10 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$d0.class */
     class d0 implements Consumer<List<AccessPoint>> {
         d0() {
         }
 
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public void accept(List<AccessPoint> list) throws Exception {
             if (RxWifiAdmin.this.c == null) {
                 return;
@@ -231,7 +215,6 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$e.class */
     class e implements ObservableOnSubscribe<NetworkInfo> {
         final /* synthetic */ Context a;
         final /* synthetic */ IntentFilter b;
@@ -248,7 +231,6 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$f.class */
     class f implements ObservableOnSubscribe<WifiState> {
         final /* synthetic */ Context a;
         final /* synthetic */ IntentFilter b;
@@ -265,7 +247,6 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$g.class */
     class g extends BroadcastReceiver {
         final /* synthetic */ ObservableEmitter a;
 
@@ -279,7 +260,6 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$h.class */
     class h extends BroadcastReceiver {
         final /* synthetic */ ObservableEmitter a;
 
@@ -293,7 +273,6 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$i.class */
     class i extends BroadcastReceiver {
         final /* synthetic */ ObservableEmitter a;
 
@@ -311,7 +290,6 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$j.class */
     class j extends BroadcastReceiver {
         final /* synthetic */ ObservableEmitter a;
 
@@ -325,12 +303,10 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$k.class */
     class k implements Consumer<Runnable> {
         k() {
         }
 
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public void accept(Runnable runnable) throws Exception {
             if (runnable != null) {
                 runnable.run();
@@ -338,7 +314,6 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$l.class */
     class l extends BroadcastReceiver {
         final /* synthetic */ ObservableEmitter a;
 
@@ -352,7 +327,6 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$m.class */
     class m implements Runnable {
         m() {
         }
@@ -363,7 +337,6 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$n.class */
     class n implements Runnable {
         final /* synthetic */ boolean a;
 
@@ -377,7 +350,6 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$o.class */
     class o implements Runnable {
         o() {
         }
@@ -390,7 +362,6 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$p.class */
     class p implements Runnable {
         final /* synthetic */ AccessPoint a;
 
@@ -405,7 +376,6 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$q.class */
     class q implements Runnable {
         final /* synthetic */ WifiManager a;
         final /* synthetic */ String b;
@@ -424,7 +394,6 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$r.class */
     class r implements Runnable {
         final /* synthetic */ WifiConfiguration a;
 
@@ -438,7 +407,6 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$s.class */
     class s implements Runnable {
         final /* synthetic */ ArrayList a;
 
@@ -455,7 +423,6 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$t.class */
     static class t implements Action {
         final /* synthetic */ Context a;
         final /* synthetic */ BroadcastReceiver b;
@@ -470,24 +437,20 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$u.class */
     class u implements Comparator<AccessPoint> {
         u() {
         }
 
         @Override // java.util.Comparator
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public int compare(AccessPoint a1, AccessPoint a2) {
             return a2.getSignalLevel() - a1.getSignalLevel();
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$v.class */
     class v implements Consumer<NetworkInfo> {
         v() {
         }
 
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public void accept(NetworkInfo networkInfo) throws Exception {
             if (RxWifiAdmin.this.c == null) {
                 return;
@@ -496,7 +459,6 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$w.class */
     class w implements Runnable {
         w() {
         }
@@ -507,12 +469,10 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$x.class */
     class x implements Consumer<Integer> {
         x() {
         }
 
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public void accept(Integer rssi) throws Exception {
             if (RxWifiAdmin.this.c == null) {
                 return;
@@ -521,12 +481,10 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$y.class */
     class y implements Consumer<SupplicantState> {
         y() {
         }
 
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public void accept(SupplicantState supplicantState) throws Exception {
             if (RxWifiAdmin.this.c == null) {
                 return;
@@ -535,12 +493,10 @@ public class RxWifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/RxWifiAdmin$z.class */
     class z implements Consumer<NetworkInfo> {
         z() {
         }
 
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public void accept(NetworkInfo networkInfo) throws Exception {
             if (RxWifiAdmin.this.c == null) {
                 return;

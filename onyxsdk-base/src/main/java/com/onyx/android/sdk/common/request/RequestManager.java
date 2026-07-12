@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/common/request/RequestManager.class */
 public class RequestManager {
     private static final String f = "RequestManager";
     private ExecutorContext c;
@@ -71,10 +70,6 @@ public class RequestManager {
         return submitRequest(context, request.getIdentifier(), request, runnable, callback);
     }
 
-    /* JADX WARN: Multi-variable type inference failed */
-    /* JADX WARN: Type inference failed for: r0v7, types: [java.lang.Throwable] */
-    /* JADX WARN: Type inference failed for: r0v8, types: [com.onyx.android.sdk.common.request.ExecutorContext, java.lang.Object] */
-    /* JADX WARN: Type inference incomplete: some casts might be missing */
     public final ExecutorContext getExecutorByIdentifier(String str) {
         if (StringUtils.isNullOrEmpty(str)) {
             return this.c;
@@ -86,7 +81,6 @@ public class RequestManager {
         return submitRequestToMultiThreadPool(context, request.getIdentifier(), request, runnable, callback);
     }
 
-    /* JADX WARN: Multi-variable type inference failed */
     public boolean isAllQueueEmpty() {
         if (!a().isRequestQueueEmpty()) {
             return false;

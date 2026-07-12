@@ -10,7 +10,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/sync/ResourcePathUtils.class */
 public class ResourcePathUtils {
     public static String getResourceDataDirPath(String documentId) {
         StringBuilder sbAppend = new StringBuilder().append(KSyncConstant.docDirFilePath(documentId));

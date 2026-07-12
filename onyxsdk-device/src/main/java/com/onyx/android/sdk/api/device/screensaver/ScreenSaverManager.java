@@ -8,7 +8,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import java.io.File;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/screensaver/ScreenSaverManager.class */
 public class ScreenSaverManager {
     public static int SCREEN_SAVER_COUNT_LIMIT = 3;
     private static ScreenSaverManager globalManager;

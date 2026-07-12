@@ -3,7 +3,6 @@ package com.onyx.android.sdk.common.request;
 import android.content.Context;
 import com.onyx.android.sdk.utils.Benchmark;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/common/request/BaseRequest.class */
 public class BaseRequest {
     private static volatile int j;
     private static boolean k = true;

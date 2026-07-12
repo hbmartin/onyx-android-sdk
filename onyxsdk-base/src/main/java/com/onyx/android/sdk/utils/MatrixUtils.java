@@ -9,7 +9,6 @@ import com.onyx.android.sdk.data.ReaderTextStyle;
 import com.onyx.android.sdk.data.note.MatrixValues;
 import com.onyx.android.sdk.data.note.TouchPoint;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/MatrixUtils.class */
 public class MatrixUtils {
     private static final Matrix a = new Matrix();
 

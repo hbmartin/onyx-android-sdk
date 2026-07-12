@@ -7,11 +7,9 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import java.util.concurrent.TimeUnit;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/rxbroadcast/RxBroadcast.class */
 public class RxBroadcast {
     public static final String TAG = "RxBroadcast";
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/rxbroadcast/RxBroadcast$a.class */
     static class a implements Consumer<Boolean> {
         final /* synthetic */ RxCallback a;
 
@@ -19,13 +17,11 @@ public class RxBroadcast {
             this.a = rxCallback;
         }
 
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public void accept(Boolean aBoolean) throws Exception {
             RxCallback.onNext(this.a, aBoolean);
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/rxbroadcast/RxBroadcast$b.class */
     static class b implements Consumer<Throwable> {
         final /* synthetic */ RxCallback a;
 
@@ -33,13 +29,11 @@ public class RxBroadcast {
             this.a = rxCallback;
         }
 
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public void accept(Throwable throwable) throws Exception {
             RxCallback.onError(this.a, throwable);
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/rxbroadcast/RxBroadcast$c.class */
     static class c implements Consumer<Boolean> {
         final /* synthetic */ RxCallback a;
 
@@ -47,13 +41,11 @@ public class RxBroadcast {
             this.a = rxCallback;
         }
 
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public void accept(Boolean aBoolean) throws Exception {
             RxCallback.onNext(this.a, aBoolean);
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/rxbroadcast/RxBroadcast$d.class */
     static class d implements Consumer<Throwable> {
         final /* synthetic */ RxCallback a;
 
@@ -61,7 +53,6 @@ public class RxBroadcast {
             this.a = rxCallback;
         }
 
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public void accept(Throwable throwable) throws Exception {
             RxCallback.onError(this.a, throwable);
         }

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/brightness/WarmBrightnessProvider.class */
 public class WarmBrightnessProvider extends BaseBrightnessProvider {
     private ArrayList<Integer> values;
 

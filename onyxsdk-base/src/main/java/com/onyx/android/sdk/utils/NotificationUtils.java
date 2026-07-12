@@ -9,7 +9,6 @@ import android.text.TextUtils;
 import androidx.core.app.NotificationCompat;
 import com.onyx.android.sdk.data.im.Message;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/NotificationUtils.class */
 public class NotificationUtils {
     private static final String a = "android.title";
     private static final String b = "android.substName";

@@ -1,6 +1,5 @@
 package com.onyx.android.sdk.device.eac;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/device/eac/EACConstants.class */
 public class EACConstants {
     public static final String SUPPORT_EAC_KEY = "supportEAC";
     public static final String ENABLE_EAC_KEY = "enable";

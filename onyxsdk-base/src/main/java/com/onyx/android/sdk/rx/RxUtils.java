@@ -21,15 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/RxUtils.class */
 public class RxUtils {
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/RxUtils$Consumer2.class */
     public interface Consumer2<T, R> {
         void accept(T t, R r) throws Exception;
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/RxUtils$a.class */
     static class a implements Callable<Object> {
         final /* synthetic */ Runnable a;
 
@@ -47,7 +44,6 @@ public class RxUtils {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/RxUtils$b.class */
     static class b implements Callable<Object> {
         final /* synthetic */ Runnable a;
 
@@ -65,7 +61,6 @@ public class RxUtils {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/RxUtils$c.class */
     static class c implements Action {
         final /* synthetic */ Action a;
 
@@ -86,7 +81,6 @@ public class RxUtils {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/RxUtils$d.class */
     static class d implements Runnable {
         final /* synthetic */ Action a;
         final /* synthetic */ Scheduler.Worker b;

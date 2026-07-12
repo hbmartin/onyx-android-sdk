@@ -11,11 +11,9 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/rxbroadcast/RxConnectivityChangeObservable.class */
 public class RxConnectivityChangeObservable extends Observable<Boolean> {
     private Context a;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/rxbroadcast/RxConnectivityChangeObservable$a.class */
     static final class a extends BroadcastReceiver implements Disposable {
         private Observer<? super Boolean> a;
         private Context b;

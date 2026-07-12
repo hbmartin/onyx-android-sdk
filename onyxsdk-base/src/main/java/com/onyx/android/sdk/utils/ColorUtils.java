@@ -9,7 +9,6 @@ import androidx.annotation.IntRange;
 import java.util.Set;
 import java.util.TreeSet;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/ColorUtils.class */
 public class ColorUtils {
     private static final int a = 2;
     private static final int b = 64;
@@ -19,7 +18,6 @@ public class ColorUtils {
     public static String RGBA_COLOR_START = "rgba";
     public static String RGB_COLOR_START = "RGB";
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/ColorUtils$ParseResultCode.class */
     public static class ParseResultCode {
         public static final int SUCCESS = 0;
         public static final int ILLEGAL_ARGUMENT = -1;

@@ -8,7 +8,6 @@ import com.onyx.android.sdk.utils.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/FontInfo.class */
 public class FontInfo {
     public static final String DEFAULT_ID = "serif";
     private String a;

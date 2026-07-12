@@ -6,7 +6,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.regex.Pattern;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/Debug.class */
 public class Debug {
     private static final String a = "Debug";
     private static boolean b = false;
@@ -14,7 +13,6 @@ public class Debug {
     private static boolean d = false;
     private static Pattern e = Pattern.compile("[a-z]+");
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/Debug$IMessage.class */
     public interface IMessage {
         String getMessage();
     }

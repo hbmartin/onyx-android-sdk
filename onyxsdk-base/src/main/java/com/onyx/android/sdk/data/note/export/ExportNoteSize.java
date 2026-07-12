@@ -2,7 +2,6 @@ package com.onyx.android.sdk.data.note.export;
 
 import com.onyx.android.sdk.data.note.NoteShapeType;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/note/export/ExportNoteSize.class */
 public enum ExportNoteSize {
     DEFAULT,
     CUSTOM,

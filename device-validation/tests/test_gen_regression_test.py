@@ -28,13 +28,34 @@ def generator_template() -> str:
     raise AssertionError("gen_regression_test.py no longer defines TEMPLATE")
 
 
+def generator_exclusion_api():
+    module = ast.parse(GENERATOR.read_text(encoding="utf-8"))
+    selected = []
+    for node in module.body:
+        if isinstance(node, ast.Assign) and any(
+                isinstance(target, ast.Name) and target.id == "EXCLUDED_MEMBERS"
+                for target in node.targets):
+            selected.append(node)
+        elif isinstance(node, ast.FunctionDef) and node.name == "excluded":
+            selected.append(node)
+    namespace = {}
+    exec(compile(ast.Module(body=selected, type_ignores=[]), GENERATOR, "exec"),
+         namespace)
+    return namespace["EXCLUDED_MEMBERS"], namespace["excluded"]
+
+
 class TemplateDriftTest(unittest.TestCase):
     def test_intentionally_removed_firmware_update_is_excluded(self):
-        generator = GENERATOR.read_text(encoding="utf-8")
-        self.assertIn("EXCLUDED_MEMBERS", generator)
-        self.assertIn("com.onyx.android.sdk.firmware.api.OnyxOTAService", generator)
-        self.assertIn("firmwareUpdate", generator)
-        self.assertIn("(Ljava/lang/String;)Lretrofit2/Call;", generator)
+        members, excluded = generator_exclusion_api()
+        owner, name, descriptor = next(iter(members))
+        message = f"missing member: public method {name} {descriptor}"
+
+        self.assertTrue(excluded(owner, message))
+        self.assertFalse(excluded(f"{owner}.Other", message))
+        self.assertFalse(excluded(
+            owner,
+            f"missing member: public method {name} (Ljava/lang/String;)V",
+        ))
 
     def test_checked_in_test_matches_generator_template(self):
         prefix, placeholder, suffix = generator_template().partition("//BODY//")

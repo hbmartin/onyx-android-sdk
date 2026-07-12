@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/GAdapterUtil.class */
 public final class GAdapterUtil {
     private static final String a = "GAdapterUtil";
     private static HashMap<String, Integer> b;

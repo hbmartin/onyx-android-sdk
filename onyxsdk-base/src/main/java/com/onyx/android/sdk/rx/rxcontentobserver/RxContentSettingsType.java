@@ -7,13 +7,11 @@ import androidx.annotation.Nullable;
 import com.onyx.android.sdk.data.ReaderTextStyle;
 import com.onyx.android.sdk.utils.TTFFont;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/rxcontentobserver/RxContentSettingsType.class */
 public enum RxContentSettingsType {
     GLOBAL,
     SYSTEM,
     SECURE;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/rxcontentobserver/RxContentSettingsType$a.class */
     static /* synthetic */ class a {
         static final /* synthetic */ int[] a;
 

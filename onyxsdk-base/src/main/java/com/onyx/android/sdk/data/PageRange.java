@@ -4,7 +4,6 @@ import com.alibaba.fastjson2.annotation.JSONField;
 import com.onyx.android.sdk.api.ReaderPosition;
 import com.onyx.android.sdk.utils.PageInfoUtils;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/PageRange.class */
 public class PageRange {
     private ReaderPosition a;
     private ReaderPosition b;

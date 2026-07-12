@@ -5,7 +5,6 @@ import com.alibaba.fastjson2.annotation.JSONField;
 import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.data.ReaderTextStyle;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/note/ShapeCreateArgs.class */
 public class ShapeCreateArgs implements Cloneable {
     public TiltConfig tiltConfig;
     private PenAttrs b;

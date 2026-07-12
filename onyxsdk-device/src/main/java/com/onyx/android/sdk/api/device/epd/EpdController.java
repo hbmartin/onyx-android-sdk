@@ -12,7 +12,6 @@ import androidx.annotation.Nullable;
 import com.onyx.android.sdk.device.Device;
 import com.onyx.android.sdk.utils.Debug;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/epd/EpdController.class */
 public abstract class EpdController {
     private static String TAG = "EpdController";
     public static final int STROKE_STYLE_PENCIL = 0;

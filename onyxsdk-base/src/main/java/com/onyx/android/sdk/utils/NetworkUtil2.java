@@ -5,7 +5,6 @@ import android.content.Intent;
 import com.onyx.android.sdk.api.utils.NetworkUtil;
 import com.onyx.android.sdk.data.CommonConstant;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/NetworkUtil2.class */
 public class NetworkUtil2 {
     public static void openWifiActivity(Context context, boolean enableWhenStart) {
         Intent intent = new Intent("onyx.settings.action.wifi");

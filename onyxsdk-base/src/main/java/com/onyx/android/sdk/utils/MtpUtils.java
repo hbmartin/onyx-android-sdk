@@ -8,7 +8,6 @@ import com.onyx.android.sdk.device.Device;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/MtpUtils.class */
 public class MtpUtils {
     private static final String a = "android.media.IMediaScannerService";
     private static final String b = "com.android.providers.media";

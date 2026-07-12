@@ -1,6 +1,5 @@
 package com.onyx.android.sdk.wifi;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/WifiSignalLevel.class */
 public enum WifiSignalLevel {
     NO_SIGNAL(0, "no signal"),
     POOR(1, "poor"),

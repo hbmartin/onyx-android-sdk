@@ -6,7 +6,6 @@ import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.api.device.epd.UpdateMode;
 import com.onyx.android.sdk.device.Device;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/EpdDeviceManager.class */
 public class EpdDeviceManager {
     private static final String TAG = "EpdDeviceManager";
     private static int gcInterval;
@@ -14,7 +13,6 @@ public class EpdDeviceManager {
     private static boolean inFastUpdateMode = false;
     private static EpdDevice epdDevice;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/EpdDeviceManager$a.class */
     static /* synthetic */ class a {
         static final /* synthetic */ int[] a;
 

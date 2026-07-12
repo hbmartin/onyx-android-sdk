@@ -8,7 +8,6 @@ import com.onyx.android.sdk.utils.SystemPropertiesUtil;
 import java.io.File;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/screensaver/ScreenResourceManager.class */
 public class ScreenResourceManager {
     public static final String TAG = "ScreenResourceManager";
 

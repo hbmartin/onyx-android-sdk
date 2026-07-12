@@ -5,10 +5,8 @@ import com.onyx.android.sdk.utils.Debug;
 import com.onyx.android.sdk.utils.StringUtils;
 import java.util.concurrent.TimeoutException;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/ExceptionUtils.class */
 public class ExceptionUtils {
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/ExceptionUtils$a.class */
     static class a implements Thread.UncaughtExceptionHandler {
         final /* synthetic */ Thread.UncaughtExceptionHandler a;
 

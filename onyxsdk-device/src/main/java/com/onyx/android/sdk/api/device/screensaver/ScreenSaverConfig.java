@@ -2,7 +2,6 @@ package com.onyx.android.sdk.api.device.screensaver;
 
 import java.io.File;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/screensaver/ScreenSaverConfig.class */
 public class ScreenSaverConfig {
     public String screenSaverName;
     public String targetFormat;

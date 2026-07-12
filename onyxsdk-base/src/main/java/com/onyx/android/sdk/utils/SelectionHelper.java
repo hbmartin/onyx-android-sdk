@@ -17,7 +17,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/SelectionHelper.class */
 public class SelectionHelper<T> implements Serializable {
     private Map<String, SelectionModel<T>> a;
     private Comparator<T> b;

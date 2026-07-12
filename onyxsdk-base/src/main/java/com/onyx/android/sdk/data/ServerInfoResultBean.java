@@ -4,13 +4,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/ServerInfoResultBean.class */
 public class ServerInfoResultBean implements Serializable {
     public String result_code;
     public String message;
     public Data data;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/ServerInfoResultBean$Data.class */
     public static class Data {
         public int count;
         public List<ServerInfo> results;

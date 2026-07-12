@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/CommonExtraIntentReceiver.class */
 public class CommonExtraIntentReceiver extends DeviceReceiver.ExtraIntentReceiver {
     private List<BaseReceiver> a;
 

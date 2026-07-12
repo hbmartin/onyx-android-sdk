@@ -6,7 +6,6 @@ import com.onyx.android.sdk.api.utils.LocaleUtils;
 import com.onyx.android.sdk.api.utils.NetworkUtil;
 import java.util.Locale;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/OTAManager.class */
 public class OTAManager {
     public static final String TAG = "OTAManager";
 

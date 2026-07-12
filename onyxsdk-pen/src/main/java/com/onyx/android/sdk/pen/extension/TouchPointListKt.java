@@ -13,13 +13,11 @@ import kotlin.collections.CollectionsKt;
 import kotlin.jvm.internal.Intrinsics;
 import org.jetbrains.annotations.NotNull;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/extension/TouchPointListKt.class */
 @Metadata(mv = {1, 6, 0}, k = 2, xi = 48, d1 = {"\u0000\u001e\n\u0000\n\u0002\u0018\u0002\n\u0002\u0010 \n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u0007\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0000\u001a\u0018\u0010\u0000\u001a\u00020\u0001*\b\u0012\u0004\u0012\u00020\u00030\u00022\u0006\u0010\u0004\u001a\u00020\u0005\u001a\u001e\u0010\u0006\u001a\b\u0012\u0004\u0012\u00020\u00030\u0002*\b\u0012\u0004\u0012\u00020\u00030\u00022\u0006\u0010\u0004\u001a\u00020\u0005\u001a\n\u0010\u0007\u001a\u00020\u0001*\u00020\b¨\u0006\t"}, d2 = {"calculateBoundingRect", "Landroid/graphics/RectF;", "", "Lcom/onyx/android/sdk/data/note/TouchPoint;", "drawRadius", "", "filterByGridSpacing", "getBoundingRect", "Lcom/onyx/android/sdk/pen/data/TouchPointList;", "onyxsdk-pen_release"})
 public final class TouchPointListKt {
     private TouchPointListKt() {
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @NotNull
     public static final RectF getBoundingRect(@NotNull TouchPointList $this$getBoundingRect) {
         Intrinsics.checkNotNullParameter($this$getBoundingRect, "<this>");
@@ -39,9 +37,6 @@ public final class TouchPointListKt {
         return rectF;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
-    /* JADX DEBUG: Move duplicate insns, count: 1 to block B:12:0x0085 */
-    /* JADX DEBUG: Move duplicate insns, count: 1 to block B:15:0x0094 */
     @NotNull
     public static final List<TouchPoint> filterByGridSpacing(@NotNull List<? extends TouchPoint> list, float drawRadius) {
         boolean z;
@@ -102,7 +97,6 @@ public final class TouchPointListKt {
         return arrayList;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @NotNull
     public static final RectF calculateBoundingRect(@NotNull List<? extends TouchPoint> list, float drawRadius) {
         Intrinsics.checkNotNullParameter(list, "<this>");

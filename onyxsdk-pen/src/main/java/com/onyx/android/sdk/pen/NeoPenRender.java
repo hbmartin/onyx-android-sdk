@@ -16,7 +16,6 @@ import kotlin.jvm.internal.Intrinsics;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/NeoPenRender.class */
 @Metadata(mv = {1, 6, 0}, k = 1, xi = 48, d1 = {"\u0000p\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0004\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0010\b\n\u0002\b\b\n\u0002\u0010\u0002\n\u0002\b\u0004\n\u0002\u0010\u0014\n\u0000\n\u0002\u0010\u0015\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u000b\n\u0002\b\u0003\n\u0002\u0010 \n\u0002\b\u0005\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0006\b\u0016\u0018\u0000 82\u00020\u0001:\u00018B\r\u0012\u0006\u0010\u0002\u001a\u00020\u0003¢\u0006\u0002\u0010\u0004J \u0010\u0017\u001a\u00020\u00182\u0016\u0010\u0019\u001a\u0012\u0012\u0006\u0012\u0004\u0018\u00010\n\u0012\u0006\u0012\u0004\u0018\u00010\n0\tH\u0014J\b\u0010\u001a\u001a\u00020\u0018H\u0004J\u0006\u0010\u001b\u001a\u00020\u0018J\u0006\u0010\u001c\u001a\u00020\u001dJ\u0006\u0010\u001e\u001a\u00020\u001fJ\u000e\u0010 \u001a\u00020\u00182\u0006\u0010!\u001a\u00020\"J*\u0010#\u001a\u0012\u0012\u0006\u0012\u0004\u0018\u00010\n\u0012\u0006\u0012\u0004\u0018\u00010\n0\t2\u0006\u0010$\u001a\u00020%2\b\b\u0002\u0010&\u001a\u00020'H\u0016J*\u0010(\u001a\u0012\u0012\u0006\u0012\u0004\u0018\u00010\n\u0012\u0006\u0012\u0004\u0018\u00010\n0\t2\u0006\u0010$\u001a\u00020%2\b\b\u0002\u0010&\u001a\u00020'H\u0016J<\u0010)\u001a\u0012\u0012\u0006\u0012\u0004\u0018\u00010\n\u0012\u0006\u0012\u0004\u0018\u00010\n0\t2\f\u0010*\u001a\b\u0012\u0004\u0012\u00020%0+2\n\b\u0002\u0010,\u001a\u0004\u0018\u00010%2\b\b\u0002\u0010&\u001a\u00020'H\u0016J\u0014\u0010-\u001a\u00020\u00182\f\u0010.\u001a\b\u0012\u0004\u0012\u00020%0+J\u0018\u0010/\u001a\u00020\u00182\u0006\u00100\u001a\u0002012\u0006\u00102\u001a\u000203H\u0016J&\u0010/\u001a\u00020\u00182\u0006\u00100\u001a\u0002012\u0006\u00102\u001a\u0002032\f\u0010.\u001a\b\u0012\u0004\u0012\u00020%0+H\u0016J\"\u00104\u001a\u00020\u00182\b\u00105\u001a\u0004\u0018\u00010\n2\u0006\u00100\u001a\u0002012\u0006\u00102\u001a\u000203H\u0004J\b\u00106\u001a\u00020\u0018H\u0016J\b\u00107\u001a\u00020\u0018H\u0016R\u0011\u0010\u0002\u001a\u00020\u0003¢\u0006\b\n\u0000\u001a\u0004\b\u0005\u0010\u0006RA\u0010\u0007\u001a2\u0012\u0014\u0012\u0012\u0012\u0006\u0012\u0004\u0018\u00010\n\u0012\u0006\u0012\u0004\u0018\u00010\n0\t0\bj\u0018\u0012\u0014\u0012\u0012\u0012\u0006\u0012\u0004\u0018\u00010\n\u0012\u0006\u0012\u0004\u0018\u00010\n0\t`\u000b¢\u0006\b\n\u0000\u001a\u0004\b\f\u0010\rR\u001a\u0010\u000e\u001a\u00020\u000fX\u0086\u000e¢\u0006\u000e\n\u0000\u001a\u0004\b\u0010\u0010\u0011\"\u0004\b\u0012\u0010\u0013R\u001a\u0010\u0014\u001a\u00020\u000fX\u0086\u000e¢\u0006\u000e\n\u0000\u001a\u0004\b\u0015\u0010\u0011\"\u0004\b\u0016\u0010\u0013¨\u00069"}, d2 = {"Lcom/onyx/android/sdk/pen/NeoPenRender;", "", "neoPen", "Lcom/onyx/android/sdk/pen/NeoPen;", "(Lcom/onyx/android/sdk/pen/NeoPen;)V", "getNeoPen", "()Lcom/onyx/android/sdk/pen/NeoPen;", "penResults", "Ljava/util/ArrayList;", "Lkotlin/Pair;", "Lcom/onyx/android/sdk/pen/PenResult;", "Lkotlin/collections/ArrayList;", "getPenResults", "()Ljava/util/ArrayList;", "pointCount", "", "getPointCount", "()I", "setPointCount", "(I)V", "pointCountThreshold", "getPointCountThreshold", "setPointCountThreshold", "addPenResult", "", "pair", "clearPenResults", "destroyPen", "loadPenPointArrays", "", "loadPenPointSizeArrays", "", "onTouchData", "touchData", "Lcom/onyx/android/sdk/geometry/data/TouchData;", "onTouchDone", "realPoint", "Lcom/onyx/android/sdk/base/data/TouchPoint;", "repaint", "", "onTouchDown", "onTouchMove", "realPointList", "", "predictPoint", "onTouchPointList", "points", "render", "canvas", "Landroid/graphics/Canvas;", "paint", "Landroid/graphics/Paint;", "renderResult", "penResult", "reset", "resetPredict", "Companion", "onyxsdk-pen_release"})
 public class NeoPenRender {
     @NotNull
@@ -42,7 +41,6 @@ public class NeoPenRender {
     @NotNull
     private final ArrayList<Pair<PenResult, PenResult>> d;
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public NeoPenRender(@NotNull NeoPen neoPen) {
         Intrinsics.checkNotNullParameter(neoPen, "neoPen");
         this.a = neoPen;
@@ -50,7 +48,6 @@ public class NeoPenRender {
         this.d = new ArrayList<>();
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static /* synthetic */ Pair onTouchDown$default(NeoPenRender neoPenRender, TouchPoint touchPoint, boolean z, int i, Object obj) {
         if (obj != null) {
             throw new UnsupportedOperationException("Super calls with default arguments not supported in this target, function: onTouchDown");
@@ -61,7 +58,6 @@ public class NeoPenRender {
         return neoPenRender.onTouchDown(touchPoint, z);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static /* synthetic */ Pair onTouchMove$default(NeoPenRender neoPenRender, List list, TouchPoint touchPoint, boolean z, int i, Object obj) {
         if (obj != null) {
             throw new UnsupportedOperationException("Super calls with default arguments not supported in this target, function: onTouchMove");
@@ -75,7 +71,6 @@ public class NeoPenRender {
         return neoPenRender.onTouchMove(list, touchPoint, z);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static /* synthetic */ Pair onTouchDone$default(NeoPenRender neoPenRender, TouchPoint touchPoint, boolean z, int i, Object obj) {
         if (obj != null) {
             throw new UnsupportedOperationException("Super calls with default arguments not supported in this target, function: onTouchDone");
@@ -86,39 +81,32 @@ public class NeoPenRender {
         return neoPenRender.onTouchDone(touchPoint, z);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @NotNull
     public final NeoPen getNeoPen() {
         return this.a;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public final int getPointCount() {
         return this.b;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public final void setPointCount(int i) {
         this.b = i;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public final int getPointCountThreshold() {
         return this.c;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public final void setPointCountThreshold(int i) {
         this.c = i;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @NotNull
     public final ArrayList<Pair<PenResult, PenResult>> getPenResults() {
         return this.d;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public final void onTouchPointList(@NotNull List<? extends TouchPoint> points) {
         TouchPoint touchPoint;
         TouchPoint touchPoint2;
@@ -143,7 +131,6 @@ public class NeoPenRender {
         onTouchDone(touchPoint2, true);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @NotNull
     public final float[] loadPenPointArrays() {
         ArrayList<Pair<PenResult, PenResult>> arrayList = this.d;
@@ -164,7 +151,6 @@ public class NeoPenRender {
         return CollectionsKt.toFloatArray(CollectionsKt.flatten(arrayList3));
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @NotNull
     public final int[] loadPenPointSizeArrays() {
         ArrayList<Pair<PenResult, PenResult>> arrayList = this.d;
@@ -185,7 +171,6 @@ public class NeoPenRender {
         return CollectionsKt.toIntArray(CollectionsKt.flatten(arrayList3));
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void render(@NotNull Canvas canvas, @NotNull Paint paint, @NotNull List<? extends TouchPoint> points) {
         Intrinsics.checkNotNullParameter(canvas, "canvas");
         Intrinsics.checkNotNullParameter(paint, "paint");
@@ -195,7 +180,6 @@ public class NeoPenRender {
         reset();
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     protected final void renderResult(@Nullable PenResult penResult, @NotNull Canvas canvas, @NotNull Paint paint) {
         Intrinsics.checkNotNullParameter(canvas, "canvas");
         Intrinsics.checkNotNullParameter(paint, "paint");
@@ -205,7 +189,6 @@ public class NeoPenRender {
         penResult.draw(canvas, paint);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @NotNull
     public Pair<PenResult, PenResult> onTouchDown(@NotNull TouchPoint realPoint, boolean repaint) {
         Intrinsics.checkNotNullParameter(realPoint, "realPoint");
@@ -215,7 +198,6 @@ public class NeoPenRender {
         return pairOnPenDown;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @NotNull
     public Pair<PenResult, PenResult> onTouchMove(@NotNull List<? extends TouchPoint> realPointList, @Nullable TouchPoint predictPoint, boolean repaint) {
         Intrinsics.checkNotNullParameter(realPointList, "realPointList");
@@ -225,7 +207,6 @@ public class NeoPenRender {
         return pairOnPenMove;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @NotNull
     public Pair<PenResult, PenResult> onTouchDone(@NotNull TouchPoint realPoint, boolean repaint) {
         Intrinsics.checkNotNullParameter(realPoint, "realPoint");
@@ -235,7 +216,6 @@ public class NeoPenRender {
         return pairOnPenUp;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public final void onTouchData(@NotNull TouchData touchData) {
         Intrinsics.checkNotNullParameter(touchData, "touchData");
         int action = touchData.getAction();
@@ -254,29 +234,24 @@ public class NeoPenRender {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     protected void addPenResult(@NotNull Pair<? extends PenResult, ? extends PenResult> pair) {
         Intrinsics.checkNotNullParameter(pair, "pair");
         this.d.add(new Pair<>((PenResult) pair.getFirst(), (PenResult) pair.getSecond()));
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     protected final void clearPenResults() {
         this.d.clear();
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public final void destroyPen() {
         this.a.destroy();
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void reset() {
         this.b = 0;
         clearPenResults();
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void resetPredict() {
         Pair pair = (Pair) CollectionsKt.lastOrNull(this.d);
         if (pair == null) {

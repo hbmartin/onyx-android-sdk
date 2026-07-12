@@ -4,7 +4,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/ObjectHolder.class */
 public class ObjectHolder<T> {
     private List<WeakReference<T>> a = new ArrayList();
 

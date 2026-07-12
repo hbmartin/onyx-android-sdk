@@ -4,7 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/HashUtils.class */
 public class HashUtils {
     public static String md5(String string) {
         try {

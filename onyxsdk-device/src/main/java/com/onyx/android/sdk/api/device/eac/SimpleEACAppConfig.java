@@ -1,6 +1,5 @@
 package com.onyx.android.sdk.api.device.eac;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/eac/SimpleEACAppConfig.class */
 public class SimpleEACAppConfig {
     private String pkgName;
     private boolean enable = true;

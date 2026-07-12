@@ -13,7 +13,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/device/RK3026Device.class */
 public class RK3026Device extends BaseDevice {
     private static final String s = "RK3026Device";
     private static RK3026Device t;
@@ -80,7 +79,6 @@ public class RK3026Device extends BaseDevice {
     private static int E = 1;
     private static int F = 1;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/device/RK3026Device$a.class */
     static /* synthetic */ class a {
         static final /* synthetic */ int[] a;
         static final /* synthetic */ int[] b;

@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/device/BaseDevice.class */
 public class BaseDevice {
     private static final String b = "BaseDevice";
     private static final String c = "show_status_bar";
@@ -87,7 +86,6 @@ public class BaseDevice {
     protected static final Map<String, String> volumePathUUIDMap = new HashMap();
     private Method updateLocaleMethod;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/device/BaseDevice$a.class */
     static /* synthetic */ class a {
         static final /* synthetic */ int[] a;
 

@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/TouchHelper.class */
 public class TouchHelper {
     public static final int STROKE_STYLE_PENCIL = 0;
     public static final int STROKE_STYLE_FOUNTAIN = 1;
@@ -33,12 +32,10 @@ public class TouchHelper {
     private volatile boolean c;
     private List<TouchRender> d;
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private TouchHelper(View view, RawInputCallback callback) {
         this(view, DeviceFeatureUtil.hasStylus(view.getContext()) ? 2 : 1, callback, true);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static TouchHelper create(View hostView, RawInputCallback callback) {
         if (hostView != null) {
             return new TouchHelper(hostView, callback);
@@ -46,29 +43,24 @@ public class TouchHelper {
         throw new IllegalArgumentException("hostView should not be null!");
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void a() {
         this.a = false;
         this.b = false;
         this.c = false;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static void register(Object subscriber) {
         getEventBusHolder().register(subscriber);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static void unregister(Object subscriber) {
         getEventBusHolder().unregister(subscriber);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static EventBusHolder getEventBusHolder() {
         return TouchEventBus.getInstance().getEventBusHolder();
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchHelper bindHostView(View hostView, RawInputCallback callback) {
         if (hostView == null) {
             throw new IllegalArgumentException("hostView should not be null!");
@@ -80,7 +72,6 @@ public class TouchHelper {
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public View getHostView() {
         for (TouchRender touchRender : this.d) {
             if (touchRender.getHostView() != null) {
@@ -90,7 +81,6 @@ public class TouchHelper {
         return null;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public boolean onTouchEvent(MotionEvent event) {
         boolean zOnTouchEvent = false;
         Iterator<TouchRender> it = this.d.iterator();
@@ -100,7 +90,6 @@ public class TouchHelper {
         return zOnTouchEvent;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchHelper setStrokeStyle(int style) {
         Iterator<TouchRender> it = this.d.iterator();
         while (it.hasNext()) {
@@ -109,7 +98,6 @@ public class TouchHelper {
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchHelper setStrokeColor(int color) {
         Iterator<TouchRender> it = this.d.iterator();
         while (it.hasNext()) {
@@ -118,7 +106,6 @@ public class TouchHelper {
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchHelper setStrokeWidth(float w) {
         Iterator<TouchRender> it = this.d.iterator();
         while (it.hasNext()) {
@@ -127,7 +114,6 @@ public class TouchHelper {
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchHelper debugLog(boolean enable) {
         Iterator<TouchRender> it = this.d.iterator();
         while (it.hasNext()) {
@@ -136,7 +122,6 @@ public class TouchHelper {
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchHelper setLimitRect(Rect limitRect, List<Rect> excludeRectList) {
         Iterator<TouchRender> it = this.d.iterator();
         while (it.hasNext()) {
@@ -145,7 +130,6 @@ public class TouchHelper {
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchHelper setExcludeRect(List<Rect> excludeRectList) {
         Iterator<TouchRender> it = this.d.iterator();
         while (it.hasNext()) {
@@ -154,7 +138,6 @@ public class TouchHelper {
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchHelper openRawDrawing() {
         a();
         Iterator<TouchRender> it = this.d.iterator();
@@ -165,7 +148,6 @@ public class TouchHelper {
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void closeRawDrawing() {
         this.a = false;
         Iterator<TouchRender> it = this.d.iterator();
@@ -174,7 +156,6 @@ public class TouchHelper {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchHelper setRawDrawingEnabled(boolean enabled) {
         if (!this.a) {
             return this;
@@ -185,17 +166,14 @@ public class TouchHelper {
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public boolean isRawDrawingInputEnabled() {
         return this.c;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public boolean isRawDrawingRenderEnabled() {
         return this.b;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchHelper setRawDrawingRenderEnabled(boolean enabled) {
         if (this.a && this.b != enabled) {
             Iterator<TouchRender> it = this.d.iterator();
@@ -208,7 +186,6 @@ public class TouchHelper {
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchHelper forceSetRawDrawingEnabled(boolean enabled) {
         if (!this.a) {
             return this;
@@ -222,7 +199,6 @@ public class TouchHelper {
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchHelper setRawInputReaderEnable(boolean enabled) {
         if (this.a && this.c != enabled) {
             Iterator<TouchRender> it = this.d.iterator();
@@ -235,12 +211,10 @@ public class TouchHelper {
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public boolean isRawDrawingCreated() {
         return this.a;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchHelper setSingleRegionMode() {
         Iterator<TouchRender> it = this.d.iterator();
         while (it.hasNext()) {
@@ -249,7 +223,6 @@ public class TouchHelper {
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchHelper setMultiRegionMode() {
         Iterator<TouchRender> it = this.d.iterator();
         while (it.hasNext()) {
@@ -258,7 +231,6 @@ public class TouchHelper {
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setPenUpRefreshTimeMs(int penUpRefreshTimeMs) {
         Iterator<TouchRender> it = this.d.iterator();
         while (it.hasNext()) {
@@ -266,7 +238,6 @@ public class TouchHelper {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Deprecated
     public void setPenUpRefreshEnabled(boolean enable) {
         Iterator<TouchRender> it = this.d.iterator();
@@ -275,7 +246,6 @@ public class TouchHelper {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setFilterRepeatMovePoint(boolean filter) {
         Iterator<TouchRender> it = this.d.iterator();
         while (it.hasNext()) {
@@ -283,7 +253,6 @@ public class TouchHelper {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setPostInputEvent(boolean post) {
         Iterator<TouchRender> it = this.d.iterator();
         while (it.hasNext()) {
@@ -291,7 +260,6 @@ public class TouchHelper {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setTouchListenerEnabled(boolean enable) {
         Iterator<TouchRender> it = this.d.iterator();
         while (it.hasNext()) {
@@ -299,7 +267,6 @@ public class TouchHelper {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void enableSideBtnErase(boolean enable) {
         Iterator<TouchRender> it = this.d.iterator();
         while (it.hasNext()) {
@@ -307,7 +274,6 @@ public class TouchHelper {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void enableFingerTouch(boolean enable) {
         Iterator<TouchRender> it = this.d.iterator();
         while (it.hasNext()) {
@@ -315,7 +281,6 @@ public class TouchHelper {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void onlyEnableFingerTouch(boolean only) {
         Iterator<TouchRender> it = this.d.iterator();
         while (it.hasNext()) {
@@ -323,7 +288,6 @@ public class TouchHelper {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void enableFingerTouchPressure(boolean enable) {
         Iterator<TouchRender> it = this.d.iterator();
         while (it.hasNext()) {
@@ -331,7 +295,6 @@ public class TouchHelper {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setFingerTouchPressure(float pressure) {
         Iterator<TouchRender> it = this.d.iterator();
         while (it.hasNext()) {
@@ -339,7 +302,6 @@ public class TouchHelper {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void printTouchInfo() {
         Iterator<TouchRender> it = this.d.iterator();
         while (it.hasNext()) {
@@ -347,7 +309,6 @@ public class TouchHelper {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchHelper setBrushRawDrawingEnabled(boolean enable) {
         Iterator<TouchRender> it = this.d.iterator();
         while (it.hasNext()) {
@@ -356,7 +317,6 @@ public class TouchHelper {
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchHelper setEraserRawDrawingEnabled(boolean drawing, int eraserStyle) {
         Iterator<TouchRender> it = this.d.iterator();
         while (it.hasNext()) {
@@ -365,7 +325,6 @@ public class TouchHelper {
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchHelper setHostViewScrollListenerEnabled(boolean enable) {
         Iterator<TouchRender> it = this.d.iterator();
         while (it.hasNext()) {
@@ -374,19 +333,16 @@ public class TouchHelper {
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void resetPenDefaultRawDrawing() {
         Device.currentDevice().setBrushRawDrawingEnabled(true);
         Device.currentDevice().setEraserRawDrawingEnabled(false, 5);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void restartRawDrawing() {
         closeRawDrawing();
         openRawDrawing();
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 2 */
     private TouchHelper(View view, int feature, RawInputCallback callback, boolean enableTouchListener) {
         this.a = false;
         this.b = false;

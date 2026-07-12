@@ -4,7 +4,6 @@ import android.content.Context;
 import com.onyx.android.sdk.device.BaseDevice;
 import com.onyx.android.sdk.device.Device;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/LightUtils.class */
 public class LightUtils {
     public static boolean adjustBrightness(Context context, int lightType, boolean increase) {
         int frontLightDeviceValue = Device.currentDevice().getFrontLightDeviceValue(context);

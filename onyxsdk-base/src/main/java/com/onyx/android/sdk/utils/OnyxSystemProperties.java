@@ -9,7 +9,6 @@ public class OnyxSystemProperties {
    private static Method d;
    private static Method e;
 
-   // $VF: Duplicated exception handlers to handle obfuscated exceptions
    private static void a() {
       Class var10000;
       try {

@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/FileInfo.class */
 public class FileInfo implements Serializable {
     private static final boolean m = false;
     private String name;
@@ -33,7 +32,6 @@ public class FileInfo implements Serializable {
     private Boolean k;
     private boolean l;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/FileInfo$a.class */
     static /* synthetic */ class a {
         static final /* synthetic */ int[] a;
 

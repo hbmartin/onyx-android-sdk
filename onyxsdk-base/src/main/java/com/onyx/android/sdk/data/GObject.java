@@ -6,13 +6,11 @@ import com.onyx.android.sdk.utils.DateTimeUtil;
 import java.util.Date;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/GObject.class */
 public class GObject {
     public static final transient String TAG = "GObject";
     private JSONObject a;
     private transient GObjectCallback b;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/GObject$GObjectCallback.class */
     public static abstract class GObjectCallback {
         public void changed(String key, GObject object) {
         }

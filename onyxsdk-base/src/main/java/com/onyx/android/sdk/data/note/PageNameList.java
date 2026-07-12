@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/note/PageNameList.class */
 public class PageNameList implements Serializable {
     private static final long serialVersionUID = -705150527872278930L;
     private List<String> a = new ArrayList();

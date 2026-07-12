@@ -5,7 +5,6 @@ import com.onyx.android.sdk.utils.StringUtils;
 import com.onyx.android.sdk.utils.TTFFont;
 import com.onyx.android.sdk.utils.UUIDUtils;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/PageId.class */
 public class PageId {
     private static final boolean d = false;
     private String a;

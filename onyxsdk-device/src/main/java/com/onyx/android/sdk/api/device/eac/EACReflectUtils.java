@@ -5,7 +5,6 @@ import com.onyx.android.sdk.utils.ReflectUtil;
 import java.lang.reflect.Method;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/eac/EACReflectUtils.class */
 public class EACReflectUtils {
     public static final String EINK_HELPER_CLS_NAME = "android.onyx.optimization.EInkHelper";
     public static final Class<?> eInkHelperClass;

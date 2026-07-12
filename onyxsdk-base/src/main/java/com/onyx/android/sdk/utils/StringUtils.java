@@ -1,5 +1,4 @@
 // 
-// Decompiled by Procyon v0.6.0
 // 
 
 package com.onyx.android.sdk.utils;
@@ -43,6 +42,10 @@ public class StringUtils
     private static Pattern b;
     private static Pattern c;
     private static String d;
+    private static final int XML_BEFORE_SURROGATES_MAX = 0xD7FF;
+    private static final int XML_AFTER_SURROGATES_MIN = 0xE000;
+    private static final int XML_BASIC_MULTILINGUAL_PLANE_MAX = 0xFFFD;
+    private static final int XML_SUPPLEMENTARY_MIN = 0x10000;
     public static final Character.UnicodeScript[] LETTER_SET;
     
     public static String toStringSafely(final Object obj) {
@@ -820,9 +823,15 @@ public class StringUtils
             offset += Character.charCount(codePoint);
             if (codePoint != 9 && codePoint != 10 && codePoint != 13
                     && (codePoint < 32
-                    || codePoint > 55295 && codePoint < 57344
-                    || codePoint > 65533 && codePoint < 65536
-                    || codePoint > 1114111)) {
+                    || (codePoint > XML_BEFORE_SURROGATES_MAX
+                    && codePoint < XML_AFTER_SURROGATES_MIN)
+                    || (codePoint > XML_BASIC_MULTILINGUAL_PLANE_MAX
+                    && codePoint < XML_SUPPLEMENTARY_MIN))) {
+                continue;
+            }
+            if ((codePoint >= 0x7F && codePoint <= 0x84)
+                    || (codePoint >= 0x86 && codePoint <= 0x9F)) {
+                escaped.append("&#").append(codePoint).append(';');
                 continue;
             }
             switch (codePoint) {

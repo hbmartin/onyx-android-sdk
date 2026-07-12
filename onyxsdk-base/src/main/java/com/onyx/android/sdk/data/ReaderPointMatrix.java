@@ -6,14 +6,12 @@ import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/ReaderPointMatrix.class */
 public class ReaderPointMatrix {
     private int rows;
     private int b;
     private ArrayList<ArrayList<PointF>> c;
     private ArrayList<ArrayList<ReaderNavigation>> d;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/ReaderPointMatrix$a.class */
     static /* synthetic */ class a {
         static final /* synthetic */ int[] a;
 

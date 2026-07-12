@@ -6,7 +6,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/note/QuickPenList.class */
 public class QuickPenList implements Serializable {
     private List<PenArgs> a = new CopyOnWriteArrayList();
     private String b;

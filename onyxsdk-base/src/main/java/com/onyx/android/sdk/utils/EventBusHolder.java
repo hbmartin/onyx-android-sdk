@@ -6,12 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 import org.greenrobot.eventbus.EventBus;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/EventBusHolder.class */
 public class EventBusHolder {
     private EventBus a;
     private final List<a> b = new ArrayList();
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/EventBusHolder$a.class */
     private static class a extends WeakReference<Object> {
         private final String a;
 

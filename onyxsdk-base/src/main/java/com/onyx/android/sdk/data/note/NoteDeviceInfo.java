@@ -10,7 +10,6 @@ import com.onyx.android.sdk.utils.ResManager;
 import com.onyx.android.sdk.utils.StringUtils;
 import java.io.Serializable;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/note/NoteDeviceInfo.class */
 public class NoteDeviceInfo implements Serializable {
     public SizeF size;
     public String deviceName;

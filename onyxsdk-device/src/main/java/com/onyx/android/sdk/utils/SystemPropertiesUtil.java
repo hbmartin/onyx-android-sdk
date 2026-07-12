@@ -5,7 +5,6 @@ import com.onyx.android.sdk.api.utils.CompatibilityUtil;
 import com.onyx.android.sdk.api.utils.StringUtils;
 import com.onyx.android.sdk.device.Device;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/SystemPropertiesUtil.class */
 public class SystemPropertiesUtil {
     private static final String a = "ro.vendor.build.onyxfp";
     private static final String b = "ro.vendor.build.onyxid";

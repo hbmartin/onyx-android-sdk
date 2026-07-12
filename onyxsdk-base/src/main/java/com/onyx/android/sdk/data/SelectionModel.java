@@ -9,7 +9,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/SelectionModel.class */
 public class SelectionModel<T> extends BaseObservable implements Serializable {
     private boolean a;
     private List<T> b;

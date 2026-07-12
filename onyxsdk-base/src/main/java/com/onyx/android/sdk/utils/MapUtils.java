@@ -8,23 +8,18 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/MapUtils.class */
 public class MapUtils {
 
-    /* JADX INFO: Add missing generic type declarations: [V, K] */
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/MapUtils$a.class */
     static class a<K, V> implements Comparator<Map.Entry<K, V>> {
         a() {
         }
 
         @Override // java.util.Comparator
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
             return ((Comparable) o1.getValue()).compareTo(o2.getValue());
         }
     }
 
-    /* JADX WARN: Multi-variable type inference failed */
     public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
         LinkedList<Map.Entry> linkedList = new LinkedList(map.entrySet());
         Collections.sort(linkedList, new a());

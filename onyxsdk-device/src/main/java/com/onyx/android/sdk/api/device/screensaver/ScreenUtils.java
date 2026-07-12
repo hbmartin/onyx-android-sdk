@@ -7,7 +7,6 @@ import android.os.Build;
 import android.view.WindowManager;
 import androidx.annotation.NonNull;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/screensaver/ScreenUtils.class */
 public class ScreenUtils {
     private ScreenUtils() {
         throw new UnsupportedOperationException("u can't instantiate me...");

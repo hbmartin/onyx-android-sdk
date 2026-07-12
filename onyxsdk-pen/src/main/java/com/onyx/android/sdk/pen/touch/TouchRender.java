@@ -6,7 +6,6 @@ import android.view.View;
 import com.onyx.android.sdk.pen.RawInputCallback;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/touch/TouchRender.class */
 public interface TouchRender {
     void bindHostView(View view, RawInputCallback rawInputCallback);
 

@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/BaseReceiver.class */
 public abstract class BaseReceiver {
     public static final String DATA_SCHEME_PACKAGE = "package";
     public static final String DATA_SCHEME_FILE = "file";

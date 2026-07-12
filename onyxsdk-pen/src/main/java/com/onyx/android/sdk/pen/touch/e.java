@@ -2,7 +2,6 @@ package com.onyx.android.sdk.pen.touch;
 
 import com.onyx.android.sdk.data.note.TouchPoint;
 
-/* JADX INFO: loaded from: onyxsdk-pen-native-classes.jar:com/onyx/android/sdk/pen/touch/e.class */
 public final /* synthetic */ class e implements Runnable {
     public final SFTouchRender.b a;
     public final boolean b;

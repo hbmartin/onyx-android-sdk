@@ -6,7 +6,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/BuildVersionOver28LogEntry.class */
 public class BuildVersionOver28LogEntry extends DefaultLogEntry {
     private static BuildVersionOver28LogEntry h;
     public static final String PROGRAM_EXEC_LOGCAT_GET_NOTE = "/system/bin/logcat -b system -b main -b crash -b events -d -v tag -v time ";
@@ -16,7 +15,6 @@ public class BuildVersionOver28LogEntry extends DefaultLogEntry {
     public static final String ANR_TRACES_PATH = "/data/anr/anr_*";
     public static final String PROGRAM_EXEC_CAT_ANR = "/system/bin/cat /data/anr/anr_*";
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/BuildVersionOver28LogEntry$a.class */
     class a implements FilenameFilter {
         a() {
         }

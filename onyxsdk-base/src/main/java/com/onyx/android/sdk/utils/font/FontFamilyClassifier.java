@@ -30,7 +30,6 @@ import kotlin.text.StringsKt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/font/FontFamilyClassifier.class */
 @Metadata(mv = {1, 6, 0}, k = 1, xi = 48, d1 = {"\u00008\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\b\f\n\u0002\u0010%\n\u0002\u0010\u000e\n\u0000\n\u0002\u0010 \n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u001e\n\u0002\b\u0004\bÆ\u0002\u0018\u00002\u00020\u0001B\u0007\b\u0002¢\u0006\u0002\u0010\u0002J\u001a\u0010\u0016\u001a\b\u0012\u0004\u0012\u00020\u00180\u00172\f\u0010\u0019\u001a\b\u0012\u0004\u0012\u00020\u00180\u001aJ\u000e\u0010\u001b\u001a\u00020\u00152\u0006\u0010\u001c\u001a\u00020\u0015J\u0014\u0010\u001d\u001a\u0004\u0018\u00010\u0018*\b\u0012\u0004\u0012\u00020\u00180\u0017H\u0002R\u0016\u0010\u0003\u001a\n \u0005*\u0004\u0018\u00010\u00040\u0004X\u0082\u0004¢\u0006\u0002\n\u0000R\u001b\u0010\u0006\u001a\u00020\u00078BX\u0082\u0084\u0002¢\u0006\f\n\u0004\b\n\u0010\u000b\u001a\u0004\b\b\u0010\tR\u001b\u0010\f\u001a\u00020\u00078BX\u0082\u0084\u0002¢\u0006\f\n\u0004\b\u000e\u0010\u000b\u001a\u0004\b\r\u0010\tR#\u0010\u000f\u001a\n \u0005*\u0004\u0018\u00010\u00040\u00048BX\u0082\u0084\u0002¢\u0006\f\n\u0004\b\u0012\u0010\u000b\u001a\u0004\b\u0010\u0010\u0011R\u001a\u0010\u0013\u001a\u000e\u0012\u0004\u0012\u00020\u0015\u0012\u0004\u0012\u00020\u00150\u0014X\u0082\u0004¢\u0006\u0002\n\u0000¨\u0006\u001e"}, d2 = {"Lcom/onyx/android/sdk/utils/font/FontFamilyClassifier;", TTFFont.UNKNOWN_FONT_NAME, "()V", "BASE_FONT_PATTERN", "Ljava/util/regex/Pattern;", "kotlin.jvm.PlatformType", "FONT_NAME_REPLACE_REGEX", "Lkotlin/text/Regex;", "getFONT_NAME_REPLACE_REGEX", "()Lkotlin/text/Regex;", "FONT_NAME_REPLACE_REGEX$delegate", "Lkotlin/Lazy;", "FONT_NORMAL_REGEX", "getFONT_NORMAL_REGEX", "FONT_NORMAL_REGEX$delegate", "FONT_WEIGHT_AND_STYLE_PATTERN", "getFONT_WEIGHT_AND_STYLE_PATTERN", "()Ljava/util/regex/Pattern;", "FONT_WEIGHT_AND_STYLE_PATTERN$delegate", "fontNameCache", TTFFont.UNKNOWN_FONT_NAME, TTFFont.UNKNOWN_FONT_NAME, "groupFonts", TTFFont.UNKNOWN_FONT_NAME, "Lcom/onyx/android/sdk/data/FontInfo;", "fonts", TTFFont.UNKNOWN_FONT_NAME, "parseBaseFontNameCached", "fullName", "createFamilyFont", "onyxsdk-base_release"})
 public final class FontFamilyClassifier {
 
@@ -50,7 +49,6 @@ public final class FontFamilyClassifier {
     @NotNull
     private static final Map<String, String> e;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/font/FontFamilyClassifier$a.class */
     @Metadata(mv = {1, 6, 0}, k = 3, xi = 48, d1 = {"\u0000\b\n\u0000\n\u0002\u0018\u0002\n\u0000\u0010\u0000\u001a\u00020\u0001H\n¢\u0006\u0002\b\u0002"}, d2 = {"<anonymous>", "Lkotlin/text/Regex;", "invoke"})
     static final class a implements Function0<Regex> {
         public static final a a = new a();
@@ -59,13 +57,11 @@ public final class FontFamilyClassifier {
         }
 
         @NotNull
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public final Regex invoke() {
             return new Regex("[-_]$");
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/font/FontFamilyClassifier$b.class */
     @Metadata(mv = {1, 6, 0}, k = 3, xi = 48, d1 = {"\u0000\b\n\u0000\n\u0002\u0018\u0002\n\u0000\u0010\u0000\u001a\u00020\u0001H\n¢\u0006\u0002\b\u0002"}, d2 = {"<anonymous>", "Lkotlin/text/Regex;", "invoke"})
     static final class b implements Function0<Regex> {
         public static final b a = new b();
@@ -74,13 +70,11 @@ public final class FontFamilyClassifier {
         }
 
         @NotNull
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public final Regex invoke() {
             return new Regex("Regular|Normal", RegexOption.IGNORE_CASE);
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/font/FontFamilyClassifier$c.class */
     @Metadata(mv = {1, 6, 0}, k = 3, xi = 48, d1 = {"\u0000\n\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0002\u0010\u0000\u001a\n \u0002*\u0004\u0018\u00010\u00010\u0001H\n¢\u0006\u0002\b\u0003"}, d2 = {"<anonymous>", "Ljava/util/regex/Pattern;", "kotlin.jvm.PlatformType", "invoke"})
     static final class c implements Function0<Pattern> {
         public static final c a = new c();
@@ -88,7 +82,6 @@ public final class FontFamilyClassifier {
         c() {
         }
 
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public final Pattern invoke() {
             List<String> listListOf = CollectionsKt.listOf(new String[]{"Thin", "ExtraLight", "Extralight", "Light", "Regular", "Normal", "Medium", "SemiBold", "Demibold", "Bold", "ExtraBold", "Heavy", "Black"});
             String strJoinToString$default = String.join(LogUtils.ITEM_SEPARATOR, listListOf);
@@ -107,7 +100,6 @@ public final class FontFamilyClassifier {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/font/FontFamilyClassifier$d.class */
     @Metadata(mv = {1, 6, 0}, k = 3, xi = 48, d1 = {"\u0000\u0010\n\u0000\n\u0002\u0010\u000e\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0000\u0010\u0000\u001a\n \u0002*\u0004\u0018\u00010\u00010\u00012\u0006\u0010\u0003\u001a\u00020\u0004H\n¢\u0006\u0002\b\u0005"}, d2 = {"<anonymous>", TTFFont.UNKNOWN_FONT_NAME, "kotlin.jvm.PlatformType", "it", "Lcom/onyx/android/sdk/data/FontInfo;", "invoke"})
     static final class d implements Function1<FontInfo, String> {
         public static final d a = new d();
@@ -115,14 +107,12 @@ public final class FontFamilyClassifier {
         d() {
         }
 
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public final String invoke(@NotNull FontInfo it) {
             Intrinsics.checkNotNullParameter(it, "it");
             return it.getFontUniqueName();
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/font/FontFamilyClassifier$e.class */
     @Metadata(mv = {1, 6, 0}, k = 3, xi = 48, d1 = {"\u0000\u0014\n\u0000\n\u0002\u0010\u000b\n\u0000\n\u0002\u0010 \n\u0002\u0018\u0002\n\u0002\b\u0002\u0010\u0000\u001a\u00020\u00012\f\u0010\u0002\u001a\b\u0012\u0004\u0012\u00020\u00040\u0003H\n¢\u0006\u0004\b\u0005\u0010\u0006"}, d2 = {"<anonymous>", TTFFont.UNKNOWN_FONT_NAME, "it", TTFFont.UNKNOWN_FONT_NAME, "Lcom/onyx/android/sdk/data/FontInfo;", "invoke", "(Ljava/util/List;)Ljava/lang/Boolean;"})
     static final class e implements Function1<List<? extends FontInfo>, Boolean> {
         public static final e a = new e();
@@ -131,14 +121,12 @@ public final class FontFamilyClassifier {
         }
 
         @NotNull
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public final Boolean invoke(@NotNull List<? extends FontInfo> list) {
             Intrinsics.checkNotNullParameter(list, "it");
             return Boolean.valueOf(list.size() > 1);
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/font/FontFamilyClassifier$f.class */
     @Metadata(mv = {1, 6, 0}, k = 3, xi = 48, d1 = {"\u0000\u000e\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010 \n\u0000\u0010\u0000\u001a\u0004\u0018\u00010\u00012\f\u0010\u0002\u001a\b\u0012\u0004\u0012\u00020\u00010\u0003H\n¢\u0006\u0002\b\u0004"}, d2 = {"<anonymous>", "Lcom/onyx/android/sdk/data/FontInfo;", "it", TTFFont.UNKNOWN_FONT_NAME, "invoke"})
     static final class f implements Function1<List<? extends FontInfo>, FontInfo> {
         public static final f a = new f();
@@ -147,7 +135,6 @@ public final class FontFamilyClassifier {
         }
 
         @Nullable
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public final FontInfo invoke(@NotNull List<? extends FontInfo> list) {
             Intrinsics.checkNotNullParameter(list, "it");
             return FontFamilyClassifier.access$createFamilyFont(FontFamilyClassifier.INSTANCE, list);
@@ -203,7 +190,6 @@ public final class FontFamilyClassifier {
         return result;
     }
 
-    /* JADX WARN: Code duplicated, block: B:14:0x0053  */
     @NotNull
     public final String parseBaseFontNameCached(@NotNull String fullName) {
         String strGroup;

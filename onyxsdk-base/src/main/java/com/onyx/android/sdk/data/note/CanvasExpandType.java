@@ -2,7 +2,6 @@ package com.onyx.android.sdk.data.note;
 
 import com.onyx.android.sdk.utils.StringUtils;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/note/CanvasExpandType.class */
 public enum CanvasExpandType {
     DEFAULT,
     HEIGHT_EXPAND,

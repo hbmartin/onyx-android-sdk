@@ -12,12 +12,10 @@ import io.reactivex.functions.Consumer;
 import java.io.File;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/ServiceUtils.class */
 public class ServiceUtils {
     public static final int SERVICE_CONNECT_TIME_OUT_MS = 6000;
     public static final int SERVICE_WAIT_SLEEP_TIME = 100;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/ServiceUtils$OnyxServiceConnection.class */
     public static class OnyxServiceConnection implements ServiceConnection {
         public static final int WAIT_SLEEP_TIME = 100;
         private volatile boolean a = false;

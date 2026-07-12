@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/note/PageInfo.class */
 public class PageInfo implements Serializable, Cloneable {
     private int a = 0;
     private List<LayerInfo> b;

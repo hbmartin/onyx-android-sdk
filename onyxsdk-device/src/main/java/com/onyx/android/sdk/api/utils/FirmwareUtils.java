@@ -1,6 +1,5 @@
 package com.onyx.android.sdk.api.utils;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/utils/FirmwareUtils.class */
 public class FirmwareUtils {
     private static String getBuildEntryFromFingerprint(String fingerprint) {
         String[] strArrSplit = fingerprint.split("/");

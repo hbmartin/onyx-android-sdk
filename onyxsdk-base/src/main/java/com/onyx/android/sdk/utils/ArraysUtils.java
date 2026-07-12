@@ -5,7 +5,6 @@ import androidx.annotation.Nullable;
 import com.onyx.android.sdk.rx.RxUtils;
 import io.reactivex.functions.Consumer;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/ArraysUtils.class */
 public class ArraysUtils {
     public static int[] toIntArray(Integer[] inArray) {
         int length = inArray.length;

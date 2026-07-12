@@ -40,7 +40,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/WifiAdmin.class */
 public class WifiAdmin {
     private static final String h = "WifiAdmin";
     public static final int SECURITY_NONE = 0;
@@ -59,7 +58,6 @@ public class WifiAdmin {
     private BroadcastReceiver f;
     private RxManager g;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/WifiAdmin$Callback.class */
     public interface Callback {
         void onWifiStateChange(boolean z, int i);
 
@@ -76,7 +74,6 @@ public class WifiAdmin {
         void onConnectedNetworkRSSIChange(int i);
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/WifiAdmin$DefaultCallback.class */
     public static class DefaultCallback implements Callback {
         @Override // com.onyx.android.sdk.wifi.WifiAdmin.Callback
         public void onWifiStateChange(boolean isWifiEnable, int wifiExtraState) {
@@ -107,7 +104,6 @@ public class WifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/WifiAdmin$a.class */
     class a extends BroadcastReceiver {
         final WifiAdmin owner = WifiAdmin.this;
 
@@ -148,7 +144,6 @@ public class WifiAdmin {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/WifiAdmin$b.class */
     class b extends RxCallback<RxRequest> {
         final /* synthetic */ RxCallback a;
         final /* synthetic */ d b;
@@ -159,25 +154,21 @@ public class WifiAdmin {
         }
 
         @Override // com.onyx.android.sdk.rx.RxCallback
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public void onNext(@NonNull RxRequest rxRequest) {
             this.a.onNext(this.b.a());
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/WifiAdmin$c.class */
     class c implements Comparator<AccessPoint> {
         c() {
         }
 
         @Override // java.util.Comparator
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public int compare(AccessPoint a1, AccessPoint a2) {
             return a2.getSignalLevel() - a1.getSignalLevel();
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/WifiAdmin$d.class */
     private class d extends RxRequest {
         private List<AccessPoint> c;
 

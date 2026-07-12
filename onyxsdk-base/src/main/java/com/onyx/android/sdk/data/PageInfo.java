@@ -7,7 +7,6 @@ import com.onyx.android.sdk.api.ReaderPosition;
 import com.onyx.android.sdk.utils.Debug;
 import com.onyx.android.sdk.utils.PageInfoUtils;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/PageInfo.class */
 public class PageInfo {
     static final /* synthetic */ boolean t = !PageInfo.class.desiredAssertionStatus();
     private int a;

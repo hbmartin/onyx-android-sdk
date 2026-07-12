@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/screensaver/ScreenSaverUtils.class */
 public class ScreenSaverUtils {
     private static String TAG = "ScreenSaverUtils";
     public static final int TYPE_WALLPAPER = 1;
