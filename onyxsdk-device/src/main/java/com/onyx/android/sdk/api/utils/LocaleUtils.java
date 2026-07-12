@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/utils/LocaleUtils.class */
 public class LocaleUtils {
     private static Map<String, Locale> langLocaleMap;
     private static String LOCALE_RUSSIAN_LANGUAGE = "ru";

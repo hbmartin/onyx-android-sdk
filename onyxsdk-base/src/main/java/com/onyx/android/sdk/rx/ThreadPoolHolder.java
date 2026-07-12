@@ -3,7 +3,6 @@ package com.onyx.android.sdk.rx;
 import android.content.Context;
 import java.util.concurrent.ConcurrentHashMap;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/ThreadPoolHolder.class */
 public class ThreadPoolHolder {
     private ConcurrentHashMap<String, RxManager> a = new ConcurrentHashMap<>();
 

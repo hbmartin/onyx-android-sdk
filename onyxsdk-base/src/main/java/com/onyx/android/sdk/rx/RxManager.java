@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/RxManager.class */
 public final class RxManager {
     private static final String h = "onyx_";
     private static final String i = h + RxManager.class.getSimpleName();
@@ -37,7 +36,6 @@ public final class RxManager {
     private boolean d = true;
     private List<Observable<? extends RxRequest>> g = new ArrayList();
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/RxManager$Builder.class */
     public static final class Builder {
         private static Context c;
         private Scheduler a;
@@ -100,7 +98,6 @@ public final class RxManager {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/RxManager$ThreadPoolIdentifier.class */
     public static class ThreadPoolIdentifier {
         public static final String DEFAULT = "default";
         public static final String DB = "db";
@@ -110,8 +107,6 @@ public final class RxManager {
         public static final String CLOUD = "cloud";
     }
 
-    /* JADX INFO: Add missing generic type declarations: [T] */
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/RxManager$a.class */
     class a<T extends RxRequest> implements Callable<T> {
         final /* synthetic */ T a;
 
@@ -119,10 +114,7 @@ public final class RxManager {
             this.a = rxRequest;
         }
 
-        /* JADX WARN: Incorrect return type in method signature: ()TT; */
-        /* JADX WARN: Multi-variable type inference failed */
         @Override // java.util.concurrent.Callable
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public T call() throws Exception {
             RxManager.this.b();
             try {
@@ -136,8 +128,6 @@ public final class RxManager {
         }
     }
 
-    /* JADX INFO: Add missing generic type declarations: [T] */
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/RxManager$b.class */
     class b<T> implements ObservableTransformer<T, T> {
         final /* synthetic */ RxCallback a;
         final /* synthetic */ RxManager owner = RxManager.this;
@@ -153,8 +143,6 @@ public final class RxManager {
         }
     }
 
-    /* JADX INFO: Add missing generic type declarations: [T] */
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/RxManager$c.class */
     class c<T> extends RxCallback<T> {
         final /* synthetic */ RxCallback a;
 
@@ -162,7 +150,6 @@ public final class RxManager {
             this.a = rxCallback;
         }
 
-        /* JADX WARN: Type inference failed for: r0v2, types: [com.onyx.android.sdk.rx.RxCallback, java.lang.Throwable] */
         @Override // com.onyx.android.sdk.rx.RxCallback
         public void onNext(@NonNull T t) {
             try {
@@ -172,7 +159,6 @@ public final class RxManager {
             }
         }
 
-        /* JADX WARN: Type inference failed for: r0v2, types: [com.onyx.android.sdk.rx.RxCallback, java.lang.Throwable] */
         @Override // com.onyx.android.sdk.rx.RxCallback
         public void onError(@NonNull Throwable e) {
             try {
@@ -182,7 +168,6 @@ public final class RxManager {
             }
         }
 
-        /* JADX WARN: Type inference failed for: r0v2, types: [com.onyx.android.sdk.rx.RxCallback, java.lang.Throwable] */
         @Override // com.onyx.android.sdk.rx.RxCallback
         public void onComplete() {
             try {
@@ -207,7 +192,6 @@ public final class RxManager {
         k = reportTime;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     void d() {
         if (this.d) {
             this.a.releaseWakeLock();
@@ -303,7 +287,6 @@ public final class RxManager {
         return new c(callback);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     private void b() {
         if (isEnableBenchmarkDebug()) {
             this.b = new Benchmark();
@@ -318,7 +301,6 @@ public final class RxManager {
         return new b(callback);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     private void a(Object o) {
         Benchmark benchmark;
         if (!isEnableBenchmarkDebug() || (benchmark = this.b) == null || o == null || benchmark.duration() < k) {
@@ -327,7 +309,6 @@ public final class RxManager {
         this.b.report(RxManager.class.getSimpleName() + ": " + o.getClass().getName());
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     void a(String tag) {
         if (this.d) {
             this.a.acquireWakeLock(this.c, tag);

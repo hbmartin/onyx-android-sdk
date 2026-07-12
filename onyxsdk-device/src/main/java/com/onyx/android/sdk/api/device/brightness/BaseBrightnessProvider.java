@@ -5,7 +5,6 @@ import com.onyx.android.sdk.device.Device;
 import java.util.ArrayList;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/brightness/BaseBrightnessProvider.class */
 public abstract class BaseBrightnessProvider {
     protected Context appContext;
 

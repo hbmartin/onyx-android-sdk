@@ -4,11 +4,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/WebQueryThirdSiteResultBean.class */
 public class WebQueryThirdSiteResultBean implements Serializable {
     private Data a;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/WebQueryThirdSiteResultBean$Data.class */
     public static class Data {
         private List<WebQueryThirdSiteBean> a;
 

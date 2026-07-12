@@ -5,7 +5,6 @@ import com.onyx.android.sdk.utils.TTFFont;
 import java.util.HashMap;
 import java.util.Map;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/TouchBinding.class */
 public class TouchBinding {
     public static final String TOUCH_LEFT_TOP = "TOUCH_LEFT_TOP";
     public static final String TOUCH_LEFT_BOTTOM = "TOUCH_LEFT_BOTTOM";

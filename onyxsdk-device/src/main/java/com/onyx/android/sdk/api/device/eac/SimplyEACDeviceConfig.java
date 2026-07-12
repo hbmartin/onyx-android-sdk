@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/eac/SimplyEACDeviceConfig.class */
 public class SimplyEACDeviceConfig {
     private Map<String, SimpleEACAppConfig> appConfigMap = new ConcurrentHashMap();
     private Set<String> eacWhiteSet = Collections.newSetFromMap(new ConcurrentHashMap());

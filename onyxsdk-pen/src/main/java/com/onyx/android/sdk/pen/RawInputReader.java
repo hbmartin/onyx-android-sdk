@@ -26,7 +26,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/RawInputReader.class */
 public class RawInputReader {
     private static final String w;
     private static final int x = 0;
@@ -67,18 +66,13 @@ public class RawInputReader {
     private volatile boolean o = true;
     private volatile boolean q = true;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/RawInputReader$a.class */
     class a implements Runnable {
         private final long session;
 
-        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
         a(long session) {
             this.session = session;
         }
 
-        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
-        /* JADX DEBUG: Multi-variable search result rejected for r8v0, resolved type: com.onyx.android.sdk.pen.RawInputReader$a */
-        /* JADX WARN: Multi-variable type inference failed */
         @Override // java.lang.Runnable
         public void run() {
             try {
@@ -97,18 +91,13 @@ public class RawInputReader {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/RawInputReader$b.class */
     class b extends RxTimerUtil.TimerObserver {
         final /* synthetic */ TouchPoint a;
 
-        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
         b(TouchPoint touchPoint) {
             this.a = touchPoint;
         }
 
-        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
-        /* JADX DEBUG: Method merged with bridge method: onNext(Ljava/lang/Object;)V */
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public void onNext(Long aLong) {
             if (RawInputReader.this.g()) {
                 RawInputReader.this.a(false);
@@ -117,22 +106,16 @@ public class RawInputReader {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/RawInputReader$c.class */
     class c extends RxTimerUtil.TimerObserver {
-        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
         c() {
         }
 
-        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
-        /* JADX DEBUG: Method merged with bridge method: onNext(Ljava/lang/Object;)V */
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public void onNext(Long aLong) {
             RawInputReader rawInputReader = RawInputReader.this;
             rawInputReader.a(rawInputReader.a());
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     private native void nativeRawReader(long session);
 
     private native void nativeRawClose(long session);
@@ -155,13 +138,11 @@ public class RawInputReader {
 
     private native void nativeEnableSideBtnErase(boolean z2);
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static void debugLog(boolean enable) {
         F = enable;
         nativeDebug(enable);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void f() {
         if (getHostView() == null) {
             return;
@@ -180,28 +161,23 @@ public class RawInputReader {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void m() {
         this.r = null;
         this.s = null;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private boolean i() {
         return this.v;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private boolean h() {
         return this.p;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private ExecutorService e() {
         return J;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void p() {
         long session = READER_SESSIONS.incrementAndGet();
         this.readerSession = session;
@@ -209,23 +185,18 @@ public class RawInputReader {
         e().submit(new a(session));
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
-    /* JADX INFO: Access modifiers changed from: private */
     private boolean g() {
         return this.c;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void q() {
         this.h = EpdController.getRawTouchPointToScreenMatrix();
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private boolean j() {
         return this.d;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void l() {
         if (isPenUpRefreshEnabled()) {
             o();
@@ -233,18 +204,15 @@ public class RawInputReader {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void o() {
         RxTimerUtil.cancel(this.t);
         this.t = null;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void n() {
         this.i = null;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     static {
         System.loadLibrary("onyx_pen_touch_reader");
         w = RawInputReader.class.getSimpleName();
@@ -252,18 +220,15 @@ public class RawInputReader {
         J = SingleThreadScheduler.newSingleThreadExecutor(H, I);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setRawInputCallback(RawInputCallback callback) {
         this.l = callback;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setHostView(View view) {
         this.m = new WeakReference<>(view);
         f();
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public View getHostView() {
         if (this.m == null) {
             return null;
@@ -271,7 +236,6 @@ public class RawInputReader {
         return this.m.get();
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void start() {
         Log.d(w, "start requested previousSession=" + this.readerSession
                 + " fdValid=" + isFdValid());
@@ -283,7 +247,6 @@ public class RawInputReader {
         a("start");
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void resume() {
         Log.d(w, "resume session=" + this.readerSession + " fdValid=" + isFdValid());
         f();
@@ -292,7 +255,6 @@ public class RawInputReader {
         a("resume");
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     // Faithful reference behavior: the native pause flush fires only when the
     // pen state is below 2, and this class only ever sets state 4, so a stroke
     // in progress continues across pause()/resume() without a forced release.
@@ -303,7 +265,6 @@ public class RawInputReader {
         a("pause");
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void quit() {
         Log.d(w, "quit requested session=" + this.readerSession + " fdValid=" + isFdValid());
         o();
@@ -320,12 +281,10 @@ public class RawInputReader {
         Log.d(w, "quit completed session=" + this.readerSession + " fdValid=" + isFdValid());
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public boolean isFdValid() {
         return nativeIsValid();
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setStrokeWidth(float w2) {
         this.j = w2;
         nativeSetStrokeWidth(w2);
@@ -333,61 +292,50 @@ public class RawInputReader {
         a("setStrokeWidth:" + w2);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setStrokeColor(int color) {
         this.k = color;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setPenUpRefreshTimeMs(int penUpRefreshTimeMs) {
         this.n = penUpRefreshTimeMs;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setPostInputEvent(boolean post) {
         this.v = post;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setPenUpRefreshEnabled(boolean enable) {
         this.o = enable;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public boolean isPenUpRefreshEnabled() {
         return this.o;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setFilterRepeatMovePoint(boolean filter) {
         this.q = filter;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public boolean isFilterRepeatMovePoint() {
         return this.q;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setSingleRegionMode() {
         nativeSetRegionMode(1);
         EpdController.setScreenHandWritingRegionMode(getHostView(), 1);
         a("setSingleRegionMode");
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setMultiRegionMode() {
         nativeSetRegionMode(0);
         EpdController.setScreenHandWritingRegionMode(getHostView(), 0);
         a("setMultiRegionMode");
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void enableSideBtnErase(boolean enable) {
         nativeEnableSideBtnErase(enable);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setLimitRect(Rect rect) {
         if (rect != null) {
             nativeSetLimitRegion(a(rect));
@@ -396,7 +344,6 @@ public class RawInputReader {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void setExcludeRect(List<Rect> rectList) {
         if (rectList == null || rectList.size() <= 0) {
             return;
@@ -406,7 +353,6 @@ public class RawInputReader {
         a("setExcludeRect");
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void onTouchPointReceived(float x2, float y2, int pressure, int tx, int ty, boolean isErasing, boolean shortcutDrawing, boolean shortcutErasing, int state, long ts) {
         if (state == 5) {
             a(x2, y2, pressure, 0, tx, ty, ts);
@@ -442,30 +388,24 @@ public class RawInputReader {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public EventBusHolder getEventBusHolder() {
         return TouchEventBus.getInstance().getEventBusHolder();
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchPointList detachTouchPointList() {
         TouchPointList touchPointList = this.i;
         n();
         return touchPointList;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public boolean isErasing() {
         return this.a;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void printTouchInfo() {
         Debug.i(getClass(), "erasing: " + this.a + ", active: " + this.c + ", curPenRect: " + this.r + ", oldPenRect: " + this.s + ", downPointReported: " + this.p + ", filterRepeatMovePoint: " + this.q + ", penUpRefreshTimeMs: " + this.n + ", pointMatrix: " + MatrixUtils.matrixString(this.h) + ", reportData: " + this.d, new Object[0]);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 2 */
-    /* JADX INFO: Access modifiers changed from: private */
     private void c() {
         c(this.readerSession);
     }
@@ -475,12 +415,10 @@ public class RawInputReader {
         nativeRawClose(session);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 2 */
     private void b(boolean reported) {
         this.p = reported;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 2 */
     private void e(TouchPoint touchPoint) {
         if (i()) {
             if (!g()) {
@@ -492,7 +430,6 @@ public class RawInputReader {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 2 */
     private TouchPoint d(TouchPoint touchPoint) {
         this.e[0] = touchPoint.x;
         this.e[1] = touchPoint.y;
@@ -648,7 +585,6 @@ public class RawInputReader {
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     private void a(boolean active) {
         this.c = active;
     }
@@ -667,7 +603,6 @@ public class RawInputReader {
         return true;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     private void a(Object event) {
         if (i()) {
             getEventBusHolder().post(event);
@@ -714,7 +649,6 @@ public class RawInputReader {
         return (Math.abs(curMovePoint.x - touchPoint.x) + Math.abs(curMovePoint.y - touchPoint.y)) / ((float) j) < 0.005f && Math.abs(curMovePoint.pressure - touchPoint.pressure) <= 2.0f;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     @Nullable
     private RectF a() {
         if (this.r == null) {
@@ -756,7 +690,6 @@ public class RawInputReader {
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     private void a(RectF refreshRect) {
         if (this.l == null || !j() || refreshRect == null) {
             return;

@@ -90,7 +90,7 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("androidx.databinding:databinding-common:4.1.3")
     implementation("com.alibaba.fastjson2:fastjson2:2.0.48.android8")
-    implementation("org.apache.commons:commons-lang3:3.7")
+    implementation("org.apache.commons:commons-lang3:3.18.0")
     implementation("io.reactivex.rxjava2:rxjava:2.1.13")
     implementation("io.reactivex.rxjava2:rxandroid:2.1.0")
     implementation("androidx.dynamicanimation:dynamicanimation:1.1.0-alpha03")

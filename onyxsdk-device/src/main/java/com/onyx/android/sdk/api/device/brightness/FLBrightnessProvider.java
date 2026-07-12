@@ -5,7 +5,6 @@ import com.onyx.android.sdk.api.utils.CollectionUtils;
 import com.onyx.android.sdk.device.Device;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/brightness/FLBrightnessProvider.class */
 public class FLBrightnessProvider extends BaseBrightnessProvider {
     private List<Integer> values;
 

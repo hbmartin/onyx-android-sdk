@@ -10,7 +10,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/IntentUtils.class */
 public class IntentUtils {
     public static final String MUSIC_PLAYER_ACTION = "android.intent.action.MUSIC_PLAYER";
     public static final String CATEGORY_LAUNCHER_APP = "android.intent.category.LAUNCHER_APP";

@@ -6,7 +6,6 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import java.util.concurrent.TimeUnit;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/RxDebounce.class */
 public class RxDebounce implements Disposable {
     private ObservableHolder<Long> a;
 

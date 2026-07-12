@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/BroadcastHelper.class */
 public class BroadcastHelper {
     public static final String ONYX_BASE_ACTION_PREFIX = "onyx.action";
     public static final String ARGS_OPERATION_FLAG = "args_operation_flag";
@@ -257,7 +256,6 @@ public class BroadcastHelper {
     public static final String SPLIT_SCREEN_VISIBILITY_ACTION = "onyx.action.SPLIT_SCREEN_VISIBILITY_ACTION";
     public static final String UPLOAD_EAC_THEME_ACTION = "onyx.action.UPLOAD_EAC_THEME";
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/BroadcastHelper$App.class */
     public static class App {
         public static final String APP_LOGCAT_DATA_INFO_ACTION = "onyx.action.app.LOGCAT_DATA_INFO";
         public static final String APP_ENABLE_FRAGMENTATION_DEBUG_ACTION = "onyx.action.app_ENABLE_FRAGMENTATION_DEBUG";
@@ -271,7 +269,6 @@ public class BroadcastHelper {
         public static final String EXTRA_USER_HANDLE = "android.intent.extra.user_handle";
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/BroadcastHelper$AppMarket.class */
     public static class AppMarket {
         public static final String ARGS_APP_PACKAGE_NAME = "args_app_package_name";
         public static final String ARGS_DOWNLOAD_PROGRESS = "args_download_progress";
@@ -284,7 +281,6 @@ public class BroadcastHelper {
         public static final String ACTION_APP_INSTALL_FINALLY = "com.onyx.intent.action.APP_INSTALL_FINALLY";
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/BroadcastHelper$BookShelf.class */
     public class BookShelf {
         public static final String KEY_NAME = "name";
         public static final String RECEIVER_INTENT_ADDBOOKSHELVES_ACTION = "com.onyx.intent.action.addbookshelves";
@@ -294,7 +290,6 @@ public class BroadcastHelper {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/BroadcastHelper$BooxTransfer.class */
     public class BooxTransfer {
         public static final String PUSH_RECORD_START_SINGLE_DOWNLOAD_REQUEST_ACTION = "onyx.action.cloud.push.RECORD_START_SINGLE_DOWNLOAD_REQUEST";
         public static final String PUSH_RECORD_CANCEL_SINGLE_DOWNLOAD_REQUEST_ACTION = "onyx.action.cloud.push.RECORD_CANCEL_SINGLE_DOWNLOAD_REQUEST";
@@ -318,7 +313,6 @@ public class BroadcastHelper {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/BroadcastHelper$CHILD.class */
     public static class CHILD {
         public static final String ENTER_CHILD_MODE_ACTION = "onyx.action.child.ENTER";
         public static final String EXIT_CHILD_MODE_ACTION = "onyx.action.child.EXIT";
@@ -327,7 +321,6 @@ public class BroadcastHelper {
         public static final String WEB_CONTROL_RULE_SET_CHANGED_ACTION = "onyx.action.child.WEB_CONTROL_RULE_SET_CHANGED";
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/BroadcastHelper$CloudStorage.class */
     public class CloudStorage {
         public static final String ENABLE_FEATURE_CHANGE_ACTION = "onyx.action.cloud.storage.ENABLE_FEATURE_CHANGE";
         public static final String ENABLE_NOTIFICATION_ACTION = "onyx.action.cloud.storage.ENABLE_NOTIFICATION";
@@ -336,13 +329,11 @@ public class BroadcastHelper {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/BroadcastHelper$DownloadConfig.class */
     public static class DownloadConfig {
         public static final String CLOUD_STORAGE_DOWNLOADING_RESPONSE_ACTION = "onyx.action.cloud.storage.DOWNLOADING_RESPONSE";
         public static final String NETDISK_FILES_SAVE_METADATA = "onyx.action.cloud.storage.SAVE_METADATA";
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/BroadcastHelper$Font.class */
     public static class Font {
         public static final int FONT_LANG_INDEX_ALL = 0;
         public static final int FONT_LANG_INDEX_CJK = 1;
@@ -358,7 +349,6 @@ public class BroadcastHelper {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/BroadcastHelper$InputKeyboard.class */
     public static class InputKeyboard {
         public static final String ONYX_IME_STATUS_CHANGED_ACTION = "onyx.action.kime.status.changed";
         public static final String THIRD_KEYBOARD_TOUCH_REGION_CHANGED = "onyx.action.keyboard.touch.region.changed";
@@ -374,7 +364,6 @@ public class BroadcastHelper {
         public static final int IME_STATUS_WINDOW_HIDDEN = 6;
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/BroadcastHelper$MarketConfig.class */
     public class MarketConfig {
         public static final String PACKAGE_NAME = "com.onyx.appmarket";
         public static final String SERVICE_ACTION_APP_CHECK_UPDATE = "com.onyx.appmarket_ACTION_APP_CHECK_UPDATE";
@@ -383,7 +372,6 @@ public class BroadcastHelper {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/BroadcastHelper$MultiWindowConfig.class */
     public static class MultiWindowConfig {
         public static final String ACTION_START_MULTI_WINDOW = "com.onyx.action.START_MULTI_WINDOW";
         public static final String ACTION_QUIT_MULTI_WINDOW = "com.onyx.action.QUIT_MULTI_WINDOW";
@@ -412,7 +400,6 @@ public class BroadcastHelper {
         public static final String ARGS_FLAGS = "compat_m_args_flags";
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/BroadcastHelper$OnyxDict.class */
     public class OnyxDict {
         public static final String DICT_UPDATE_NEW_WORD_ACTION = "dict.action.UPDATE_NEW_WORD";
         public static final String ARGS_DELETE_NEW_WORD = "args_delete_new_word";
@@ -425,13 +412,11 @@ public class BroadcastHelper {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/BroadcastHelper$ReceiverFlags.class */
     public static class ReceiverFlags {
         public static final int RECEIVER_EXPORTED = ReflectUtil.getStaticIntFieldSafely(Context.class, "RECEIVER_EXPORTED");
         public static final int RECEIVER_NOT_EXPORTED = ReflectUtil.getStaticIntFieldSafely(Context.class, "RECEIVER_NOT_EXPORTED");
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/BroadcastHelper$Settings.class */
     public class Settings {
         public static final String SETTINGS_MAIN = "onyx.settings.action.main";
         public static final String SETTINGS_CHILD = "onyx.settings.action.child";
@@ -499,7 +484,6 @@ public class BroadcastHelper {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/BroadcastHelper$ZhiShuShop.class */
     public static class ZhiShuShop {
         public static final String ACTION_SHOP_EBOOK_DETAIL = "com.onyx.zhishu.shop.EBOOK_DETAIL";
         public static final String ACTION_SHOP_LOGIN = "com.onyx.zhishu.shop.Login";

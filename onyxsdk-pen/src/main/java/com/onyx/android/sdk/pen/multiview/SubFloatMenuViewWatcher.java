@@ -7,15 +7,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/multiview/SubFloatMenuViewWatcher.class */
 public class SubFloatMenuViewWatcher extends BaseViewWatcher<View> {
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.multiview.BaseViewWatcher
     public List<Rect> getRects() {
         return new ArrayList();
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.multiview.BaseViewWatcher
     public boolean hasVisibleObject() {
         Iterator<WeakReference<View>> it = getWatchedObjects().iterator();

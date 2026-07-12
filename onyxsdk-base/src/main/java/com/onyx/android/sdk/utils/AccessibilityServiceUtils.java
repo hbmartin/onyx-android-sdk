@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import java.lang.reflect.Method;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/AccessibilityServiceUtils.class */
 public class AccessibilityServiceUtils {
     private static final String a = "AccessibilityServiceUtils";
     private static final String b = "onyx.android.intent.send.gesture";

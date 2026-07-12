@@ -13,7 +13,6 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/device/eac/v1/EACManagerV1.class */
 public class EACManagerV1 extends BaseEACManager {
     private static final Method b;
     private static final Method c;
@@ -37,7 +36,6 @@ public class EACManagerV1 extends BaseEACManager {
         d = ReflectUtil.getMethodSafely(cls, "getConfigFromService", new Class[0]);
     }
 
-    /* JADX WARN: Multi-variable type inference failed */
     @WorkerThread
     protected void fetchConfigFromService() {
         Object objInvokeMethodSafely = ReflectUtil.invokeMethodSafely(d, null, new Object[0]);

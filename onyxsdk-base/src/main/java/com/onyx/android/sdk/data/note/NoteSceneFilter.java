@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/note/NoteSceneFilter.class */
 public class NoteSceneFilter {
     private List<Integer> a = new ArrayList();
 

@@ -8,15 +8,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/multiview/ViewWatcher.class */
 public class ViewWatcher extends BaseViewWatcher<View> {
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void a(View view, Rect rect) {
         Rect rectGlobalVisibleRect = ViewUtils.globalVisibleRect(view);
         rect.offsetTo(rectGlobalVisibleRect.left - getContainerViewScreenX(), rectGlobalVisibleRect.top - getContainerViewScreenY());
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.multiview.BaseViewWatcher
     public List<Rect> getRects() {
         ArrayList arrayList = new ArrayList();
@@ -41,7 +38,6 @@ public class ViewWatcher extends BaseViewWatcher<View> {
         return arrayList2;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.multiview.BaseViewWatcher
     public boolean hasVisibleObject() {
         Iterator<WeakReference<View>> it = getWatchedObjects().iterator();

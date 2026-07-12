@@ -3,7 +3,6 @@ package com.onyx.android.sdk.api.device;
 import com.onyx.android.sdk.device.Device;
 import java.io.File;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/DeviceEnvironment.class */
 public class DeviceEnvironment {
     public static File getStorageRootDirectory() {
         return Device.currentDevice().getStorageRootDirectory();

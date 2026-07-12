@@ -2,10 +2,8 @@ package com.onyx.android.sdk.common.request;
 
 import android.os.Handler;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/common/request/BaseCallback.class */
 public abstract class BaseCallback {
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/common/request/BaseCallback$ProgressInfo.class */
     public static class ProgressInfo {
         public long soFarBytes;
         public long totalBytes;
@@ -27,7 +25,6 @@ public abstract class BaseCallback {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/common/request/BaseCallback$a.class */
     class a implements Runnable {
         final /* synthetic */ BaseRequest b;
         final /* synthetic */ ProgressInfo c;

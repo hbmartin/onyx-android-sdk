@@ -1,6 +1,5 @@
 package com.onyx.android.sdk.api.device.tp;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/tp/UpgradeConfig.class */
 public class UpgradeConfig {
     public String tpType;
     public boolean force;

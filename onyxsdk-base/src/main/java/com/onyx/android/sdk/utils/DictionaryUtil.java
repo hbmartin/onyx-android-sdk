@@ -15,14 +15,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.text.WordUtils;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/DictionaryUtil.class */
 public class DictionaryUtil {
     private static final String a = "state";
     private static final String b = "resultFileFd";
     private static final int c = 5;
     private static final String d = "content://com.onyx.dict.DictionaryProvider";
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/DictionaryUtil$a.class */
     static class a extends TypeReference<List<DictionaryQueryResult>> {
         a() {
         }

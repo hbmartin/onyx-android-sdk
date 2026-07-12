@@ -1,6 +1,5 @@
 package com.onyx.android.sdk.api.utils;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/utils/StringUtils.class */
 public class StringUtils {
     public static boolean isNullOrEmpty(String string) {
         return string == null || string.trim().length() <= 0;

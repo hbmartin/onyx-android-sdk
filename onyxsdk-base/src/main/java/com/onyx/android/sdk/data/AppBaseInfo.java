@@ -8,7 +8,6 @@ import androidx.databinding.BaseObservable;
 import com.alibaba.fastjson2.annotation.JSONField;
 import java.io.Serializable;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/AppBaseInfo.class */
 public class AppBaseInfo extends BaseObservable implements Serializable {
     public String name;
 
@@ -25,13 +24,11 @@ public class AppBaseInfo extends BaseObservable implements Serializable {
     public int page = 0;
     public Source source = Source.NONE;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/AppBaseInfo$Source.class */
     public enum Source {
         NONE,
         CLUSTER
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/AppBaseInfo$Type.class */
     public enum Type {
         APP,
         GROUP,

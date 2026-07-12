@@ -7,9 +7,9 @@ are untracked, are not Gradle dependencies, and are not copied into release
 artifacts. Android Gradle Plugin compiles every class from `src/main`; both pen
 libraries are cross-compiled from the checked-in Rust crates.
 
-Raw JADX/CFR/Vineflower output and the earlier recovery notes remain available
-on the `backup` branch. Production source and executable validation are the
-authority on this branch.
+Raw generated output and the earlier recovery notes remain available on the
+`backup` branch. Production source and executable validation are the authority
+on this branch.
 
 ## Production recoveries
 
@@ -47,8 +47,7 @@ which were repaired:
   visibility; synthetic `access$` accessors re-added;
 - wildcard generic signatures corrected (`Collection<? extends Object>` etc.)
   and every diverging `kotlin.Metadata` annotation replaced with the exact
-  reference values (decoded from the class-file constant pool, not decompiler
-  output).
+  reference values decoded from the class-file constant pool.
 
 The repaired surface is pinned — without any reference JAR — by
 `onyxsdk-base`'s `RecoveredApiSurfaceRegressionTest`, generated from the

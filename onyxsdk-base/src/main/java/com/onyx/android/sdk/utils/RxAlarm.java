@@ -15,7 +15,6 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import java.util.concurrent.TimeUnit;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/RxAlarm.class */
 public class RxAlarm implements Disposable {
     private static final Class k = RxAlarm.class;
     private static final long l = 50;
@@ -30,7 +29,6 @@ public class RxAlarm implements Disposable {
     private int g = hashCode();
     private BroadcastReceiver j = new b();
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/RxAlarm$a.class */
     class a implements ObservableOnSubscribe<Long> {
         a() {
         }
@@ -41,7 +39,6 @@ public class RxAlarm implements Disposable {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/RxAlarm$b.class */
     class b extends BroadcastReceiver {
         b() {
         }

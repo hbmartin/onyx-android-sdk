@@ -3,7 +3,6 @@ package com.onyx.android.sdk.utils;
 import android.content.Context;
 import android.content.Intent;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/MockKeyEventUtil.class */
 public class MockKeyEventUtil {
     private static final String a = "onyx.android.intent.send.key.event";
     private static final String b = "key_code";

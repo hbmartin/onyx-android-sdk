@@ -8,12 +8,10 @@ import com.onyx.android.sdk.utils.CollectionUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/NeoFountainPenWrapper.class */
 public class NeoFountainPenWrapper {
     public static final float MIN_FOUNTAIN_PEN_WIDTH = 1.0f;
     private static final int a = 10;
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static void drawStroke(Canvas canvas, Paint paint, List<TouchPoint> points, float displayScale, float strokeWidth, float maxTouchPressure, boolean erase) {
         List<TouchPoint> listComputeStrokePoints = computeStrokePoints(points, displayScale, strokeWidth, maxTouchPressure);
         if (listComputeStrokePoints == null) {
@@ -32,7 +30,6 @@ public class NeoFountainPenWrapper {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static List<TouchPoint> computeStrokePoints(List<TouchPoint> points, float displayScale, float strokeWidth, float maxTouchPressure) {
         return hasPressure(points) ? computeStrokePoints(points, strokeWidth, maxTouchPressure) : a(points, displayScale);
     }
@@ -45,7 +42,6 @@ public class NeoFountainPenWrapper {
                 : a(points, displayScale);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private static List<TouchPoint> a(List<TouchPoint> points, float scale) {
         ArrayList arrayList = new ArrayList();
         for (TouchPoint touchPoint : points) {
@@ -56,7 +52,6 @@ public class NeoFountainPenWrapper {
         return arrayList;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static boolean hasPressure(List<TouchPoint> points) {
         if (CollectionUtils.isNullOrEmpty(points)) {
             return false;

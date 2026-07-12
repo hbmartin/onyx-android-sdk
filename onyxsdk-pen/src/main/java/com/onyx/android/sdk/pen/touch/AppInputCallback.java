@@ -4,7 +4,6 @@ import android.view.MotionEvent;
 import com.onyx.android.sdk.data.note.TouchPoint;
 import com.onyx.android.sdk.pen.data.TouchPointList;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/touch/AppInputCallback.class */
 public abstract class AppInputCallback {
     public abstract void onBeginRawDrawing(MotionEvent motionEvent, boolean z, TouchPoint touchPoint);
 

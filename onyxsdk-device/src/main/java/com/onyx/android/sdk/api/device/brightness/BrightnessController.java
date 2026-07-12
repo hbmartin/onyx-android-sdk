@@ -6,7 +6,6 @@ import com.onyx.android.sdk.device.Device;
 import java.util.HashMap;
 import java.util.Map;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/brightness/BrightnessController.class */
 public class BrightnessController {
     public static final int INVALID_VALUE = -1;
     public static final Map<Integer, BaseBrightnessProvider> providerMap = new HashMap();

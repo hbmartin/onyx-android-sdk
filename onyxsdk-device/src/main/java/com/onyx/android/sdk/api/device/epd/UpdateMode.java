@@ -1,6 +1,5 @@
 package com.onyx.android.sdk.api.device.epd;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/epd/UpdateMode.class */
 public enum UpdateMode {
     None,
     DU,

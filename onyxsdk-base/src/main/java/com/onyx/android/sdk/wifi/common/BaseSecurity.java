@@ -12,7 +12,6 @@ import com.onyx.android.sdk.utils.ResManager;
 import com.onyx.android.sdk.utils.TTFFont;
 import com.onyx.android.sdk.wifi.AccessPoint;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/common/BaseSecurity.class */
 public class BaseSecurity {
     public static final int SECURITY_NONE = 0;
     public static final int SECURITY_WEP = 1;

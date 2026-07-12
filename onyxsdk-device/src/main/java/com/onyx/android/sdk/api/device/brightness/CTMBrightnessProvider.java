@@ -3,7 +3,6 @@ package com.onyx.android.sdk.api.device.brightness;
 import android.content.Context;
 import com.onyx.android.sdk.device.Device;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/brightness/CTMBrightnessProvider.class */
 public class CTMBrightnessProvider extends BaseBrightnessProvider {
     public CTMBrightnessProvider(Context appContext) {
         super(appContext);

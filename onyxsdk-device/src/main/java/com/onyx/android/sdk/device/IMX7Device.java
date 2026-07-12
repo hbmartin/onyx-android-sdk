@@ -16,7 +16,6 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/device/IMX7Device.class */
 public class IMX7Device extends BaseDevice {
     private static final int B = 0;
     private static final int C = 1;
@@ -96,7 +95,6 @@ public class IMX7Device extends BaseDevice {
     private static Method s0 = null;
     private static Method t0 = null;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/device/IMX7Device$a.class */
     static /* synthetic */ class a {
         static final /* synthetic */ int[] a;
         static final /* synthetic */ int[] b;

@@ -3,7 +3,6 @@ package com.onyx.android.sdk.data.richtext.model;
 import com.onyx.android.sdk.utils.LocaleUtils;
 import com.onyx.android.sdk.utils.StringUtils;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/richtext/model/RichTextDirection.class */
 public class RichTextDirection {
     public static final String TEXT_DIRECTION_LTR = "ltr";
     public static final String TEXT_DIRECTION_RTL = "rtl";
@@ -18,7 +17,6 @@ public class RichTextDirection {
     public static final String WRITING_MODE_SIDEWAYS_RL = "sideways-rl";
     public static final String WRITING_MODE_SIDEWAYS_LR = "sideways-lr";
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/richtext/model/RichTextDirection$Type.class */
     public enum Type {
         HORIZONTAL_TB(RichTextDirection.WRITING_MODE_HORIZONTAL_TB, "unset"),
         VERTICAL_LR(RichTextDirection.WRITING_MODE_VERTICAL_LR, RichTextDirection.TEXT_ORIENTATION_MIXED),

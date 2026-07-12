@@ -20,7 +20,6 @@ import com.onyx.android.sdk.wifi.common.SecurityAboveAndroidS;
 import java.util.HashSet;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/AccessPoint.class */
 public class AccessPoint extends BaseObservable {
     private WifiManager a;
     private ScanResult b;

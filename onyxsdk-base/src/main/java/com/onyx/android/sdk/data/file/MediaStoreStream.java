@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/file/MediaStoreStream.class */
 public class MediaStoreStream implements BaseStream {
     private static final String a = EnvironmentUtil.getExternalStorageDirectory().getAbsolutePath() + File.separator;
 

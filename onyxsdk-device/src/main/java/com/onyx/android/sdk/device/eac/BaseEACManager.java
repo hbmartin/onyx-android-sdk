@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.text.TextUtils;
 import androidx.annotation.WorkerThread;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/device/eac/BaseEACManager.class */
 public abstract class BaseEACManager {
     @WorkerThread
     public abstract boolean isHookEpdc(String str);

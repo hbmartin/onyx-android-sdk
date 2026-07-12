@@ -10,9 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import kotlin.Pair;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/NeoPenUtils.class */
 public class NeoPenUtils {
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static List<TouchPoint> computeStrokePoints(int type, List<TouchPoint> points, float strokeWidth, float maxTouchPressure) {
         NeoPenConfig neoPenConfig = new NeoPenConfig();
         neoPenConfig.setWidth(strokeWidth);
@@ -62,7 +60,6 @@ public class NeoPenUtils {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static ArrayList<TouchPoint> mapToPenCanvas(List<TouchPoint> points, Matrix screenMatrix) {
         float[] fArr = new float[points.size() * 2];
         for (int i = 0; i < points.size(); i++) {
@@ -83,7 +80,6 @@ public class NeoPenUtils {
         return arrayList;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static NeoRenderPoint[] mapFromPenCanvas(NeoRenderPoint[] points, List<Bitmap> pixelBitmapPool, Matrix matrix) {
         float[] fArr = new float[points.length * 2];
         for (int i = 0; i < points.length; i++) {
@@ -104,7 +100,6 @@ public class NeoPenUtils {
         return neoRenderPointArr;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static void readPointResult(Pair<PenResult, PenResult> result, List<TouchPoint> points) {
         if (result == null || result.getFirst() == null || !(result.getFirst() instanceof PenPointResult)) {
             return;
@@ -116,7 +111,6 @@ public class NeoPenUtils {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static void readPointResults(List<Pair<PenResult, PenResult>> results, List<TouchPoint> points) {
         if (CollectionUtils.isNullOrEmpty(results)) {
             return;
@@ -127,7 +121,6 @@ public class NeoPenUtils {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static void readTextureResult(Pair<PenResult, PenResult> result, List<Bitmap> indexedPixelBitmapsResult, ArrayList<NeoRenderPoint> resultPoints) {
         if (result == null || result.getFirst() == null) {
             return;

@@ -14,7 +14,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/note/ResourcePBDocumentUtils.class */
 public class ResourcePBDocumentUtils {
     private static final String a = "#";
     private static final int b = 2;

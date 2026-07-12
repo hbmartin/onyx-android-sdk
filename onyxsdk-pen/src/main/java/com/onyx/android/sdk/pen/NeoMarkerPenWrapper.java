@@ -8,14 +8,11 @@ import com.onyx.android.sdk.data.note.TouchPoint;
 import com.onyx.android.sdk.utils.CollectionUtils;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/NeoMarkerPenWrapper.class */
 public class NeoMarkerPenWrapper {
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static List<TouchPoint> computeStrokePoints(List<TouchPoint> points, float strokeWidth, float maxTouchPressure) {
         return computeStrokePoints(strokeWidth, points, maxTouchPressure);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static void drawStroke(Canvas canvas, Paint paint, List<TouchPoint> list, float strokeWidth, boolean erase) {
         if (CollectionUtils.isNullOrEmpty(list)) {
             return;
@@ -49,7 +46,6 @@ public class NeoMarkerPenWrapper {
         paint.setAlpha(alpha);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 2 */
     public static List<TouchPoint> computeStrokePoints(float strokeWidth, List<TouchPoint> points, float maxTouchPressure) {
         return NeoPenUtils.computeStrokePoints(3, points, strokeWidth, maxTouchPressure);
     }

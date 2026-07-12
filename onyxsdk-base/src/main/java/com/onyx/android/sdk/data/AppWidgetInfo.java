@@ -10,7 +10,6 @@ import com.onyx.android.sdk.utils.PackageUtils;
 import com.onyx.android.sdk.utils.ShellUtils;
 import com.onyx.android.sdk.utils.StringUtils;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/AppWidgetInfo.class */
 public class AppWidgetInfo extends AppBaseInfo {
     public String appLabelName;
     public String idString;

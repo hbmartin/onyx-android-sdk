@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Locale;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/LocaleUtils.class */
 public class LocaleUtils {
     public static String LOCALE_SPLIT_CHAR = "_";
     public static String LOCALE_RUSSIAN_LANGUAGE = "ru";

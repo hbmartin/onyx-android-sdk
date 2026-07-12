@@ -17,7 +17,6 @@ import io.reactivex.schedulers.Schedulers;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/RxBaseAction.class */
 public abstract class RxBaseAction<T> {
     private static final String f = "onyx_";
     private static boolean g = false;

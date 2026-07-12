@@ -33,7 +33,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/LauncherAppsManager.class */
 public class LauncherAppsManager {
     private static final String d = "LauncherAppsManager";
     private static LauncherAppsManager e;
@@ -232,7 +231,6 @@ public class LauncherAppsManager {
         this.a.unregisterCallback(callback);
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/LauncherAppsManager$QueryResult.class */
     public static class QueryResult extends ArrayList<ShortcutInfo> {
         static QueryResult b = new QueryResult();
         private final boolean a;

@@ -8,10 +8,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/multiview/DialogWatcher.class */
 public class DialogWatcher extends BaseViewWatcher<Dialog> {
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
-    /* JADX WARN: Type inference failed for: r0v12, types: [java.lang.Class, java.lang.Throwable] */
     private void a() {
         try {
             Iterator<WeakReference<Dialog>> it = getWatchedObjects().iterator();
@@ -27,7 +24,6 @@ public class DialogWatcher extends BaseViewWatcher<Dialog> {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.multiview.BaseViewWatcher
     public boolean hasVisibleObject() {
         Iterator<WeakReference<Dialog>> it = getWatchedObjects().iterator();
@@ -40,13 +36,11 @@ public class DialogWatcher extends BaseViewWatcher<Dialog> {
         return false;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.multiview.BaseViewWatcher
     public List<Rect> getRects() {
         return new ArrayList();
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.multiview.BaseViewWatcher
     public void clear() {
         a();

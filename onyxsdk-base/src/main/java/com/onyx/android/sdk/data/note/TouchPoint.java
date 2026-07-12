@@ -15,7 +15,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/note/TouchPoint.class */
 public class TouchPoint extends com.onyx.android.sdk.base.data.TouchPoint {
     public static final int OBJECT_BYTE_COUNT = 32;
 

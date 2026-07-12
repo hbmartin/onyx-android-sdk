@@ -11,15 +11,12 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/rxcontentobserver/RxContentObserver.class */
 public class RxContentObserver {
     private Disposable a;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/rxcontentobserver/RxContentObserver$a.class */
     class a extends ContentObserver {
         final /* synthetic */ BehaviorSubject a;
 
-        /* JADX WARN: 'super' call moved to the top of the method (can break code semantics) */
         a(Handler x0, BehaviorSubject behaviorSubject) {
             super(x0);
             this.a = behaviorSubject;

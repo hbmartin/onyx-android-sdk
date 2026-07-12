@@ -20,7 +20,6 @@ import kotlin.ranges.RangesKt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/* JADX INFO: loaded from: onyxsdk-pen-native-classes.jar:com/onyx/android/sdk/pen/PenBrushResult.class */
 @Metadata(d1 = {"\u0000d\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010 \n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u000b\n\u0002\b\u000b\n\u0002\u0010\u0007\n\u0002\b\u0005\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0010\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0010\b\n\u0002\b\u0004\n\u0002\u0010\u0000\n\u0002\b\u0006\u0018\u0000 42\u00020\u0001:\u000245B#\u0012\f\u0010\u0002\u001a\b\u0012\u0004\u0012\u00020\u00040\u0003\u0012\u0006\u0010\u0005\u001a\u00020\u0006\u0012\u0006\u0010\u0007\u001a\u00020\b¢\u0006\u0002\u0010\tJ\u0014\u0010!\u001a\u0004\u0018\u00010\u00012\b\u0010\"\u001a\u0004\u0018\u00010\u0001H\u0016J\u0018\u0010#\u001a\u00020$2\u0006\u0010%\u001a\u00020&2\u0006\u0010'\u001a\u00020(H\u0016J(\u0010)\u001a\u00020$2\u0006\u0010%\u001a\u00020&2\u0006\u0010*\u001a\u00020+2\u0006\u0010,\u001a\u00020+2\u0006\u0010-\u001a\u00020\u0004H\u0002J\u0013\u0010.\u001a\u00020\u000e2\b\u0010/\u001a\u0004\u0018\u000100H\u0096\u0002J\u0010\u00101\u001a\u00020\u000e2\u0006\u0010-\u001a\u00020\u0004H\u0002J\u0010\u00102\u001a\u00020$2\u0006\u0010%\u001a\u00020&H\u0002J\b\u00103\u001a\u00020$H\u0002R\u0014\u0010\u0002\u001a\b\u0012\u0004\u0012\u00020\u00040\u0003X\u0082\u0004¢\u0006\u0002\n\u0000R\u000e\u0010\n\u001a\u00020\bX\u0082\u0004¢\u0006\u0002\n\u0000R\u000e\u0010\u000b\u001a\u00020\fX\u0082\u0004¢\u0006\u0002\n\u0000R\u001a\u0010\r\u001a\u00020\u000eX\u0086\u000e¢\u0006\u000e\n\u0000\u001a\u0004\b\r\u0010\u000f\"\u0004\b\u0010\u0010\u0011R\u000e\u0010\u0005\u001a\u00020\u0006X\u0082\u0004¢\u0006\u0002\n\u0000R\u001a\u0010\u0012\u001a\u00020\fX\u0086\u000e¢\u0006\u000e\n\u0000\u001a\u0004\b\u0013\u0010\u0014\"\u0004\b\u0015\u0010\u0016R\u000e\u0010\u0017\u001a\u00020\fX\u0082\u0004¢\u0006\u0002\n\u0000R\u000e\u0010\u0018\u001a\u00020\fX\u0082\u0004¢\u0006\u0002\n\u0000R\u001a\u0010\u0019\u001a\u00020\u001aX\u0086\u000e¢\u0006\u000e\n\u0000\u001a\u0004\b\u001b\u0010\u001c\"\u0004\b\u001d\u0010\u001eR\u000e\u0010\u001f\u001a\u00020 X\u0082\u0004¢\u0006\u0002\n\u0000¨\u00066"}, d2 = {"Lcom/onyx/android/sdk/pen/PenBrushResult;", "Lcom/onyx/android/sdk/pen/PenResult;", "brushPoints", "", "Lcom/onyx/android/sdk/pen/PenBrushInk;", "maskGenerator", "Lcom/onyx/android/sdk/pen/NeoPencilPen$Companion$BrushMaskGenerator;", "rect", "Landroid/graphics/RectF;", "(Ljava/util/List;Lcom/onyx/android/sdk/pen/NeoPencilPen$Companion$BrushMaskGenerator;Landroid/graphics/RectF;)V", "canvasBoundingRectF", "invertMatrix", "Landroid/graphics/Matrix;", "isEnabledClipRect", "", "()Z", "setEnabledClipRect", "(Z)V", "matrix", "getMatrix", "()Landroid/graphics/Matrix;", "setMatrix", "(Landroid/graphics/Matrix;)V", "pointBitmapRenderMatrix", "pointScaleRenderMatrix", "pointSizeScale", "", "getPointSizeScale", "()F", "setPointSizeScale", "(F)V", "tempMaskKey", "Lcom/onyx/android/sdk/pen/NeoPencilPen$Companion$MaskKey;", "append", "add", "draw", "", "canvas", "Landroid/graphics/Canvas;", "paint", "Landroid/graphics/Paint;", "drawMask", "shapeColor", "", "shapeAlpha", "point", "equals", "other", "", "isEnabledDrawMask", "normalizeCanvasBoundingRectF", "updateMatrixWithPointSizeScale", "Companion", "PaintHolder", "sdk-pen_release"}, k = 1, mv = {1, 6, 0}, xi = 48)
 public final class PenBrushResult extends PenResult {
     public static final float POINT_SIZE_FACTOR = 255.0f;
@@ -54,20 +53,17 @@ public final class PenBrushResult extends PenResult {
     @NotNull
     private final MaskKey k;
 
-    /* JADX INFO: renamed from: Companion, reason: from kotlin metadata */
     @NotNull
     public static final Companion Companion = new Companion(null);
 
     @NotNull
     private static final Map<Integer, a> o = new LinkedHashMap();
 
-    /* JADX INFO: loaded from: onyxsdk-pen-native-classes.jar:com/onyx/android/sdk/pen/PenBrushResult$Companion.class */
     @Metadata(d1 = {"\u0000*\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0002\n\u0002\u0010\b\n\u0002\b\u0003\n\u0002\u0010\u0007\n\u0000\n\u0002\u0010%\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\b\u0086\u0003\u0018\u00002\u00020\u0001B\u0007\b\u0002¢\u0006\u0002\u0010\u0002J\f\u0010\f\u001a\u00020\u0004*\u0004\u0018\u00010\rR\u000e\u0010\u0003\u001a\u00020\u0004X\u0082T¢\u0006\u0002\n\u0000R\u000e\u0010\u0005\u001a\u00020\u0004X\u0082T¢\u0006\u0002\n\u0000R\u000e\u0010\u0006\u001a\u00020\u0004X\u0082T¢\u0006\u0002\n\u0000R\u000e\u0010\u0007\u001a\u00020\bX\u0086T¢\u0006\u0002\n\u0000R\u001a\u0010\t\u001a\u000e\u0012\u0004\u0012\u00020\u0004\u0012\u0004\u0012\u00020\u000b0\nX\u0082\u0004¢\u0006\u0002\n\u0000¨\u0006\u000e"}, d2 = {"Lcom/onyx/android/sdk/pen/PenBrushResult$Companion;", "", "()V", "MAX_ALPHA_INT", "", "MIN_ALPHA_INT", "MIN_POINT_SIZE", "POINT_SIZE_FACTOR", "", "bitmapPaintMap", "", "Lcom/onyx/android/sdk/pen/PenBrushResult$PaintHolder;", "getPointsCount", "Lcom/onyx/android/sdk/pen/PenBrushResult;", "sdk-pen_release"}, k = 1, mv = {1, 6, 0}, xi = 48)
     public static final class Companion {
         private Companion() {
         }
 
-        /* JADX DEBUG: Can't inline method, not implemented redirect type for insn: 0x0001: CONSTRUCTOR  A[MD:():void (m)] call: com.onyx.android.sdk.pen.PenBrushResult.Companion.<init>():void type: THIS */
         public /* synthetic */ Companion(DefaultConstructorMarker defaultConstructorMarker) {
             this();
         }
@@ -82,8 +78,6 @@ public final class PenBrushResult extends PenResult {
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    /* JADX INFO: loaded from: onyxsdk-pen-native-classes.jar:com/onyx/android/sdk/pen/PenBrushResult$a.class */
     @Metadata(d1 = {"\u0000 \n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0010\b\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0002\b\u0007\n\u0002\u0010\u0002\n\u0000\b\u0002\u0018\u00002\u00020\u0001B\u0017\u0012\b\b\u0002\u0010\u0002\u001a\u00020\u0003\u0012\u0006\u0010\u0004\u001a\u00020\u0003¢\u0006\u0002\u0010\u0005J\u0016\u0010\u000e\u001a\u00020\u000f2\u0006\u0010\u0002\u001a\u00020\u00032\u0006\u0010\u0004\u001a\u00020\u0003R\u0011\u0010\u0006\u001a\u00020\u0007¢\u0006\b\n\u0000\u001a\u0004\b\b\u0010\tR\u001a\u0010\u0002\u001a\u00020\u0003X\u0086\u000e¢\u0006\u000e\n\u0000\u001a\u0004\b\n\u0010\u000b\"\u0004\b\f\u0010\r¨\u0006\u0010"}, d2 = {"Lcom/onyx/android/sdk/pen/PenBrushResult$PaintHolder;", "", "shapeColor", "", "alpha", "(II)V", "paint", "Landroid/graphics/Paint;", "getPaint", "()Landroid/graphics/Paint;", "getShapeColor", "()I", "setShapeColor", "(I)V", "updatePaintColor", "", "sdk-pen_release"}, k = 1, mv = {1, 6, 0}, xi = 48)
     static final class a {
         private int a;
@@ -101,7 +95,6 @@ public final class PenBrushResult extends PenResult {
             this.b = paint;
         }
 
-        /* JADX DEBUG: Can't inline method, not implemented redirect type for insn: 0x000c: CONSTRUCTOR 
           (wrap int:?: TERNARY null = ((wrap int:0x0002: ARITH (r7v0 int) & (1 int) A[WRAPPED]) != (0 int)) ? (-16777216 int) : (r5v0 int))
           (r6v0 int)
          A[MD:(int, int):void (m)] call: com.onyx.android.sdk.pen.PenBrushResult.a.<init>(int, int):void type: THIS */
@@ -128,7 +121,6 @@ public final class PenBrushResult extends PenResult {
         }
     }
 
-    /* JADX WARN: 'super' call moved to the top of the method (can break code semantics) */
     public PenBrushResult(@NotNull List<PenBrushInk> list, @NotNull BrushMaskGenerator brushMaskGenerator, @NotNull RectF rectF) {
         super(rectF);
         Intrinsics.checkNotNullParameter(list, "brushPoints");
@@ -168,7 +160,6 @@ public final class PenBrushResult extends PenResult {
         canvas.drawBitmap(bitmap, this.j, aVar.a());
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     private static final a b(int i, int i2, Integer num) {
         Intrinsics.checkNotNullParameter(num, "it");
         return new a(i, i2);

@@ -7,7 +7,6 @@ import com.onyx.android.sdk.utils.TTFFont;
 import java.io.Serializable;
 import java.util.Locale;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/ServerInfo.class */
 public class ServerInfo implements Serializable {
     private static final String g = "test_server_id";
     private static final String h = "vn";

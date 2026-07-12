@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/reader/ReaderWakeupServiceBundle.class */
 public class ReaderWakeupServiceBundle {
     private static final long c = 30000;
     private static final int d = 2000;
@@ -27,7 +26,6 @@ public class ReaderWakeupServiceBundle {
     private RxManager a;
     private Map<String, MessengerRemoteServiceConnection> b = new HashMap();
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/reader/ReaderWakeupServiceBundle$a.class */
     class a extends RxRequest {
         a() {
         }
@@ -37,7 +35,6 @@ public class ReaderWakeupServiceBundle {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/reader/ReaderWakeupServiceBundle$b.class */
     class b extends MessengerRemoteServiceConnection {
         b(Context context, Intent serviceIntent) {
             super(context, serviceIntent);

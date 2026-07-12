@@ -7,11 +7,9 @@ import java.text.Collator;
 import java.util.Date;
 import java.util.Locale;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/ComparatorUtils.class */
 public class ComparatorUtils {
     private static Collator collator = Collator.getInstance(Locale.CHINESE);
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/ComparatorUtils$a.class */
     static /* synthetic */ class a {
         static final /* synthetic */ int[] a;
 

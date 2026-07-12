@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/multiview/LimitViewInfo.class */
 public class LimitViewInfo {
     private View a;
     private RawInputCallback b;
@@ -23,13 +22,11 @@ public class LimitViewInfo {
     private int e;
     private int f;
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public LimitViewInfo(@NonNull View view, @Nullable RawInputCallback callback) {
         this.a = view;
         this.b = callback;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void a(List<Rect> limitRectList) {
         Iterator<Rect> it = limitRectList.iterator();
         while (it.hasNext()) {
@@ -37,35 +34,29 @@ public class LimitViewInfo {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private Rect b(Rect containerRect) {
         Rect rect = new Rect(containerRect);
         rect.offset(-this.e, -this.f);
         return rect;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public View getView() {
         return this.a;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public RawInputCallback getCallback() {
         return this.b;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public LimitViewInfo setCallback(RawInputCallback callback) {
         this.b = callback;
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public List<Rect> getLimitRectList() {
         return this.c;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public LimitViewInfo setLimitRectList(List<Rect> limitRectList) {
         this.c.clear();
         this.d.clear();
@@ -74,12 +65,10 @@ public class LimitViewInfo {
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public List<Rect> getContainerLimitRectList() {
         return this.d;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public LimitViewInfo initLimitRect() {
         ArrayList arrayList = new ArrayList();
         Rect rect = new Rect();
@@ -89,7 +78,6 @@ public class LimitViewInfo {
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public LimitViewInfo setContainerViewScreenXY(int screenX, int screenY) {
         int[] iArrA = a();
         this.e = iArrA[0] - screenX;
@@ -98,13 +86,11 @@ public class LimitViewInfo {
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchPoint offSetXY(TouchPoint point) {
         point.offset(-this.e, -this.f);
         return point;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public boolean contains(Rect rect, TouchPoint point) {
         int i;
         int i2;
@@ -115,7 +101,6 @@ public class LimitViewInfo {
         return i3 < i4 && (i = rect.top) < (i2 = rect.bottom) && x >= i3 && x <= i4 && y >= i && y <= i2;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public boolean intersect(Rect r) {
         Iterator<Rect> it = getContainerLimitRectList().iterator();
         while (it.hasNext()) {
@@ -126,21 +111,18 @@ public class LimitViewInfo {
         return false;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public Rect getRefreshRectInView(Rect containerRefreshRect) {
         Rect viewInContainerRect = getViewInContainerRect();
         viewInContainerRect.intersect(containerRefreshRect);
         return b(viewInContainerRect);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public Rect getViewInContainerRect() {
         Rect rect = new Rect();
         getView().getLocalVisibleRect(rect);
         return a(rect);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 2 */
     public TouchPointList offSetXY(TouchPointList touchPointList) {
         if (CollectionUtils.isNullOrEmpty(touchPointList.getPoints())) {
             return touchPointList;

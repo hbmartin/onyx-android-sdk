@@ -14,14 +14,11 @@ import com.onyx.android.sdk.data.span.FixVerticalImageSpan;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/SpannableStringUtils.class */
 public class SpannableStringUtils {
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/SpannableStringUtils$a.class */
     static class a extends ClickableImageSpan {
         final /* synthetic */ ImageSpaceClickListener b;
 
-        /* JADX WARN: 'super' call moved to the top of the method (can break code semantics) */
         a(Drawable b, ImageSpaceClickListener imageSpaceClickListener) {
             super(b);
             this.b = imageSpaceClickListener;

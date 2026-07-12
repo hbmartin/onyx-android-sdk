@@ -7,7 +7,6 @@ import com.onyx.android.sdk.device.RK31XXDevice;
 import com.onyx.android.sdk.device.RK32XXDevice;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/FrontLightController.class */
 public class FrontLightController {
     public static final int LIGHT_TYPE_NONE = 0;
     public static final int LIGHT_TYPE_FL = 1;

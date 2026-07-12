@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/utils/ActivityUtil.class */
 public class ActivityUtil {
     private static final String TAG = "ActivityUtil";
 

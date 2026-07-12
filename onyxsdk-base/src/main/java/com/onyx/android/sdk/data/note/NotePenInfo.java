@@ -8,7 +8,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/note/NotePenInfo.class */
 public class NotePenInfo implements Serializable {
     public Map<Integer, Float> penWithMap;
     public Map<Integer, Float> eraseWidthMap;

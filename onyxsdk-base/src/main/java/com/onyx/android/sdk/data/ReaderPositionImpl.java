@@ -5,7 +5,6 @@ import com.onyx.android.sdk.utils.StringUtils;
 import com.onyx.android.sdk.utils.TTFFont;
 import java.util.Objects;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/ReaderPositionImpl.class */
 public class ReaderPositionImpl implements ReaderPosition {
     public static final int POSITION_TYPE_UNKNOWN = 0;
     public static final int POSITION_TYPE_INT = 1;

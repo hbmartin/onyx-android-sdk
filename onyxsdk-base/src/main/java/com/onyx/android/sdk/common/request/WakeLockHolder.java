@@ -6,7 +6,6 @@ import android.util.Log;
 import com.onyx.android.sdk.device.Device;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/common/request/WakeLockHolder.class */
 public class WakeLockHolder {
     private static final String d = "onyx-framework";
     public static final int FULL_FLAGS = 26;
@@ -46,7 +45,6 @@ public class WakeLockHolder {
         return this.a != null && this.a.isHeld();
     }
 
-    /* JADX WARN: Multi-variable type inference failed */
     public synchronized void releaseWakeLock() {
         try {
             if (this.a != null) {
@@ -101,7 +99,6 @@ public class WakeLockHolder {
         acquireWakeLock(context, flags, tag, -1);
     }
 
-    /* JADX WARN: Not initialized variable reg: 0, insn: 0x005c: INVOKE (r0 I:java.lang.Exception) VIRTUAL call: java.lang.Exception.printStackTrace():void A[Catch: Exception -> 0x005c, MD:():void (c), TRY_LEAVE] (LINE:20), block:B:18:0x005c */
     public synchronized void acquireWakeLock(Context context, int flags, String tag, int ms) {
         try {
             if (this.a == null) {

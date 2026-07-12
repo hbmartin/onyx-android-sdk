@@ -9,7 +9,6 @@ import com.onyx.android.sdk.utils.TTFFont;
 import java.util.ArrayList;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/common/base/BaseSearchHistoryHelper.class */
 public class BaseSearchHistoryHelper {
     private static final String b = "search_history_key";
     private static final int c = 8;

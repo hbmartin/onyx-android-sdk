@@ -35,7 +35,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/WifiUtil.class */
 public class WifiUtil {
     public static final String ACTION_WIFI_ENABLE = "android.intent.action.WIFI_ENABLE";
     private static final String SSID_PATTERN = "^\"(.*)\"$";
@@ -47,7 +46,6 @@ public class WifiUtil {
     public static final String USE_SYSTEM_CA = "use_system_ca";
     public static final String DO_NOT_VALIDATE_CA = "do_not_validate_ca";
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/WifiUtil$a.class */
     static /* synthetic */ class a {
         static final /* synthetic */ int[] a;
 

@@ -7,7 +7,6 @@ import com.onyx.android.sdk.utils.ReflectUtil;
 import java.util.HashMap;
 import java.util.Map;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/device/Device.class */
 public class Device {
     private static final String TAG = "Device";
     public static final String BOARD_PLATFORM_RK3288 = "rk3288";
@@ -23,7 +22,6 @@ public class Device {
     public static final BaseDevice currentDevice = detectDevice();
     private static Map<String, DeviceIndex> b;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/device/Device$DeviceIndex.class */
     public enum DeviceIndex {
         BaseDevice,
         imx6,
@@ -35,7 +33,6 @@ public class Device {
         SDM
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/device/Device$a.class */
     static /* synthetic */ class a {
         static final /* synthetic */ int[] a;
 

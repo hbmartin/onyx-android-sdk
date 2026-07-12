@@ -4,7 +4,6 @@ import androidx.annotation.Nullable;
 import com.onyx.android.sdk.utils.StringUtils;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/TargetLang.class */
 public enum TargetLang {
     AUTO("auto"),
     CHT("cht"),

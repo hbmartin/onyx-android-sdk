@@ -20,11 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/CollectionUtils.class */
 public class CollectionUtils {
 
-    /* JADX INFO: Add missing generic type declarations: [T] */
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/CollectionUtils$a.class */
     static class a<T> implements Comparable<T> {
         final /* synthetic */ Collection a;
         final /* synthetic */ Comparator b;
@@ -34,7 +31,6 @@ public class CollectionUtils {
             this.b = comparator;
         }
 
-        /* JADX WARN: Multi-variable type inference failed */
         @Override // java.lang.Comparable
         public int compareTo(@NonNull T item) {
             Iterator it = this.a.iterator();
@@ -47,7 +43,6 @@ public class CollectionUtils {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/CollectionUtils$b.class */
     static class b implements Comparable<String> {
         final /* synthetic */ String a;
 
@@ -56,7 +51,6 @@ public class CollectionUtils {
         }
 
         @Override // java.lang.Comparable
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public int compareTo(@NonNull String o) {
             return o.compareTo(this.a);
         }
@@ -171,7 +165,6 @@ public class CollectionUtils {
         originList.set(index, target);
     }
 
-    /* JADX WARN: Multi-variable type inference failed */
     public static <T> void safeAddAll(Collection<T> originList, Collection<T> collection) {
         if (originList == null || isNullOrEmpty(collection)) {
             return;
@@ -186,7 +179,6 @@ public class CollectionUtils {
         originList.add(target);
     }
 
-    /* JADX WARN: Multi-variable type inference failed */
     public static <K, V> void safeAddAllMap(Map<K, V> originMap, Map<K, V> map) {
         if (originMap == null || isNullOrEmpty(map)) {
             return;
@@ -200,7 +192,6 @@ public class CollectionUtils {
         }
     }
 
-    /* JADX WARN: Multi-variable type inference failed */
     public static <T> void ensureAddAll(Collection<T> originList, Collection<T> collection) {
         if (originList == null || isNullOrEmpty(collection)) {
             return;
@@ -506,7 +497,6 @@ public class CollectionUtils {
         });
     }
 
-    /* JADX WARN: Multi-variable type inference failed */
     public static <K, V> Map<K, V> toMap(Collection<V> collection, Function<V, K> function) {
         HashMap map = new HashMap();
         if (isNonBlank(collection)) {
@@ -517,7 +507,6 @@ public class CollectionUtils {
         return map;
     }
 
-    /* JADX WARN: Multi-variable type inference failed */
     public static <K, V> Map<K, V> reverse(Map<K, V> map) {
         LinkedHashMap linkedHashMap = new LinkedHashMap(map.size());
         ArrayList arrayList = new ArrayList(map.keySet());

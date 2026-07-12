@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/GAdapter.class */
 public class GAdapter {
     private ArrayList<GObject> a = new ArrayList<>();
     private GObject b = new GObject();

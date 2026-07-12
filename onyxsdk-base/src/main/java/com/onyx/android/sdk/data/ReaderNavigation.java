@@ -3,7 +3,6 @@ package com.onyx.android.sdk.data;
 import android.graphics.PointF;
 import android.graphics.RectF;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/ReaderNavigation.class */
 public class ReaderNavigation {
     private static final float e = 30.0f;
     private static final float f = 10.0f;

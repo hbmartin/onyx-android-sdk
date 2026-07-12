@@ -22,7 +22,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/WebViewUtils.class */
 public class WebViewUtils {
     private static final String a = "WebViewUtils";
     public static final String GET_HTML_ELEMENT_BY_TAG_NAME = "'<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'";

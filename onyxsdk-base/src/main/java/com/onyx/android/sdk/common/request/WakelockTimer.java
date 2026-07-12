@@ -8,7 +8,6 @@ import kotlin.jvm.internal.DefaultConstructorMarker;
 import kotlin.jvm.internal.Intrinsics;
 import org.jetbrains.annotations.NotNull;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/common/request/WakelockTimer.class */
 @Metadata(mv = {1, 6, 0}, k = 1, xi = 48, d1 = {"\u0000=\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0010\u000e\n\u0002\b\u0004\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u0002\n\u0002\b\u0003\n\u0002\u0010\u000b\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\t\n\u0002\b\u0002*\u0001\b\u0018\u0000 \u00172\u00020\u0001:\u0001\u0017B\u000f\u0012\b\b\u0002\u0010\u0002\u001a\u00020\u0003¢\u0006\u0002\u0010\u0004J\u0006\u0010\f\u001a\u00020\rJ\u0006\u0010\u000e\u001a\u00020\rJ\u0006\u0010\u000f\u001a\u00020\rJ\u0006\u0010\u0010\u001a\u00020\u0011J\u0016\u0010\u0012\u001a\u00020\r2\u0006\u0010\u0013\u001a\u00020\u00142\u0006\u0010\u0015\u001a\u00020\u0016R\u0011\u0010\u0002\u001a\u00020\u0003¢\u0006\b\n\u0000\u001a\u0004\b\u0005\u0010\u0006R\u0010\u0010\u0007\u001a\u00020\bX\u0082\u0004¢\u0006\u0004\n\u0002\u0010\tR\u000e\u0010\n\u001a\u00020\u000bX\u0082\u0004¢\u0006\u0002\n\u0000¨\u0006\u0018"}, d2 = {"Lcom/onyx/android/sdk/common/request/WakelockTimer;", TTFFont.UNKNOWN_FONT_NAME, "flag", TTFFont.UNKNOWN_FONT_NAME, "(Ljava/lang/String;)V", "getFlag", "()Ljava/lang/String;", "releaseTimerObserver", "com/onyx/android/sdk/common/request/WakelockTimer$releaseTimerObserver$1", "Lcom/onyx/android/sdk/common/request/WakelockTimer$releaseTimerObserver$1;", "wakeLockHolder", "Lcom/onyx/android/sdk/common/request/WakeLockHolder;", "cancelScheduledRelease", TTFFont.UNKNOWN_FONT_NAME, "ensureReleaseWakeLock", "exitWakeLock", "isHeld", TTFFont.UNKNOWN_FONT_NAME, "startWakeLock", "context", "Landroid/content/Context;", "timeMs", TTFFont.UNKNOWN_FONT_NAME, "Companion", "onyxsdk-base_release"})
 public final class WakelockTimer {
 
@@ -27,7 +26,6 @@ public final class WakelockTimer {
     @NotNull
     private final WakelockTimer$releaseTimerObserver$1 c;
 
-    /* JADX WARN: Type inference failed for: r1v1, types: [com.onyx.android.sdk.common.request.WakelockTimer$releaseTimerObserver$1] */
     public WakelockTimer(@NotNull String flag) {
         Intrinsics.checkNotNullParameter(flag, "flag");
         this.a = flag;

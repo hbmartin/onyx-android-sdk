@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/touch/AppTouchRender.class */
 public class AppTouchRender implements TouchRender {
     private AppTouchInputReader a;
     private boolean b;
@@ -30,16 +29,13 @@ public class AppTouchRender implements TouchRender {
     private Disposable g;
     private ObservableEmitter<TouchPoint> h;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/touch/AppTouchRender$a.class */
     class a extends AppInputCallback {
         final /* synthetic */ RawInputCallback a;
 
-        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
         a(RawInputCallback rawInputCallback) {
             this.a = rawInputCallback;
         }
 
-        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
         @Override // com.onyx.android.sdk.pen.touch.AppInputCallback
         public void onBeginRawDrawing(MotionEvent event, boolean shortcutDrawing, TouchPoint point) {
             AppTouchRender.this.a(event, point);
@@ -48,7 +44,6 @@ public class AppTouchRender implements TouchRender {
             }
         }
 
-        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
         @Override // com.onyx.android.sdk.pen.touch.AppInputCallback
         public void onEndRawDrawing(MotionEvent event, boolean outLimitRegion, TouchPoint point) {
             AppTouchRender.this.a();
@@ -58,7 +53,6 @@ public class AppTouchRender implements TouchRender {
             }
         }
 
-        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
         @Override // com.onyx.android.sdk.pen.touch.AppInputCallback
         public void onRawDrawingTouchPointMoveReceived(TouchPoint point) {
             if (AppTouchRender.this.h != null) {
@@ -69,7 +63,6 @@ public class AppTouchRender implements TouchRender {
             }
         }
 
-        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
         @Override // com.onyx.android.sdk.pen.touch.AppInputCallback
         public void onRawDrawingTouchPointListReceived(MotionEvent event, TouchPointList pointList) {
             AppTouchRender.this.a();
@@ -79,16 +72,13 @@ public class AppTouchRender implements TouchRender {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public AppTouchRender(View view, RawInputCallback callback) {
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void d() {
         setStrokeStyle(0);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void bindHostView(View view, RawInputCallback callback) {
         this.a = new AppTouchInputReader(a(callback));
@@ -100,7 +90,6 @@ public class AppTouchRender implements TouchRender {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public boolean onTouchEvent(MotionEvent event) {
         if (b()) {
@@ -109,7 +98,6 @@ public class AppTouchRender implements TouchRender {
         return false;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public View getHostView() {
         WeakReference<View> weakReference = this.f;
@@ -119,19 +107,16 @@ public class AppTouchRender implements TouchRender {
         return weakReference.get();
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setStrokeStyle(int style) {
         EpdController.setStrokeStyle(style);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setStrokeColor(int color) {
         EpdController.setStrokeColor(color);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setInputReaderEnable(boolean enabled) {
         this.b = enabled;
@@ -165,19 +150,16 @@ public class AppTouchRender implements TouchRender {
     public void enableSideBtnErase(boolean enable) {
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setLimitRect(List<Rect> limitRectList) {
         this.a.setLimitRectList(getHostView(), limitRectList);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setExcludeRect(List<Rect> excludeRectList) {
         this.a.setExcludeRectList(getHostView(), excludeRectList);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void openDrawing() {
         d();
@@ -185,7 +167,6 @@ public class AppTouchRender implements TouchRender {
         EpdController.setScreenHandWritingPenState(getHostView(), 1);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void closeDrawing() {
         d();
@@ -193,7 +174,6 @@ public class AppTouchRender implements TouchRender {
         EpdController.setScreenHandWritingPenState(getHostView(), 0);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setDrawingRenderEnabled(boolean enabled) {
         this.c = enabled;
@@ -211,7 +191,6 @@ public class AppTouchRender implements TouchRender {
     public void setEraserRawDrawingEnabled(boolean draw, int eraserStyle) {
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setStrokeWidth(float w) {
         this.a.setStrokeWidth(w);
@@ -222,13 +201,11 @@ public class AppTouchRender implements TouchRender {
     public void debugLog(boolean enable) {
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void enableFingerTouch(boolean enable) {
         this.a.setEnableFingerTouch(enable);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void onlyEnableFingerTouch(boolean only) {
         this.a.setOnlyEnableFingerTouch(only);
@@ -238,14 +215,12 @@ public class AppTouchRender implements TouchRender {
     public void setHostViewScrollListenerEnabled(boolean enable) {
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void enableFingerTouchPressure(boolean enable) {
         this.d = enable;
         this.a.setEnableFingerTouchPressure(enable);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setFingerTouchPressure(float pressure) {
         this.a.setFingerTouchPressure(pressure);
@@ -255,23 +230,19 @@ public class AppTouchRender implements TouchRender {
     public void printTouchInfo() {
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     protected boolean onInterceptTouchEvent(MotionEvent event) {
         return TouchUtils.isPenTouchType(event);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setTouchListenerEnabled(boolean enable) {
         this.e = enable;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 2 */
     private boolean c() {
         return this.c;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 2 */
     @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setLimitRect(Rect limitRect, List<Rect> excludeRectList) {
         this.a.setLimitRectList(getHostView(), Collections.singletonList(limitRect));
@@ -309,7 +280,6 @@ public class AppTouchRender implements TouchRender {
         this.a.setExcludeRectList(getHostView(), excludeRectList);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     private void a(MotionEvent event, TouchPoint downPoint) {
         if (c()) {
             if (!onInterceptTouchEvent(event)) {
@@ -323,7 +293,6 @@ public class AppTouchRender implements TouchRender {
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     @SuppressLint({"CheckResult"})
     private void b(MotionEvent event, TouchPoint touchPoint) {
         if (c() && !onInterceptTouchEvent(event)) {
@@ -334,7 +303,6 @@ public class AppTouchRender implements TouchRender {
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     private void a() {
         Disposable disposable = this.g;
         if (disposable != null) {

@@ -1,5 +1,4 @@
 /*
- * Decompiled with CFR 0.152.
  */
 package com.onyx.android.sdk.pen;
 

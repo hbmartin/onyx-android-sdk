@@ -1,6 +1,5 @@
 package com.onyx.android.sdk.wifi;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/wifi/WifiState.class */
 public enum WifiState {
     DISABLING(0, "disabling"),
     DISABLED(1, "disabled"),

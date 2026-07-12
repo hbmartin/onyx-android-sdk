@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/RequestChain.class */
 public class RequestChain<T extends RxRequest> extends RxRequest {
     private List<T> c = new ArrayList();
 

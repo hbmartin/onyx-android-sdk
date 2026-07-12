@@ -12,7 +12,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/PageInfoUtils.class */
 public class PageInfoUtils {
     public static final int INVALID_PAGE_NUMBER = -1;
     public static final int INVALID_POSITION_INT = -1;
@@ -23,7 +22,6 @@ public class PageInfoUtils {
     public static final ReaderPosition FIRST_PAGE_POSITION = getPositionByPageNumber(0);
     public static final String INVALID_POSITION_STR = null;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/PageInfoUtils$a.class */
     static class a implements Comparator<PageInfo> {
         final /* synthetic */ boolean a;
 
@@ -32,7 +30,6 @@ public class PageInfoUtils {
         }
 
         @Override // java.util.Comparator
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public int compare(PageInfo o1, PageInfo o2) {
             int pageNumber = this.a ? o2.getPageNumber() : o1.getPageNumber();
             int pageNumber2 = this.a ? o1.getPageNumber() : o2.getPageNumber();

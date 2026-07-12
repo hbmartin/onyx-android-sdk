@@ -11,7 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/LinkDocumentUtils.class */
 public class LinkDocumentUtils {
     public static String getLinkFileName(LinkDocumentArgs args) {
         return args.getRevisionId();

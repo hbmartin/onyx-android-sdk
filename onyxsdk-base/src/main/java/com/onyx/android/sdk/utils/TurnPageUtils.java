@@ -5,7 +5,6 @@ import com.onyx.android.sdk.common.event.NextPageEvent;
 import com.onyx.android.sdk.common.event.PrevPageEvent;
 import org.greenrobot.eventbus.EventBus;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/TurnPageUtils.class */
 public class TurnPageUtils {
     public static boolean handleTurnPageKey(EventBus eventBus, KeyEvent event) {
         if (event.getAction() == 0) {

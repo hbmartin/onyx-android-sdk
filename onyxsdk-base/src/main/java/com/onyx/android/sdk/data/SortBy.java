@@ -1,6 +1,5 @@
 package com.onyx.android.sdk.data;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/SortBy.class */
 public enum SortBy {
     None,
     Name,

@@ -13,14 +13,11 @@ import com.onyx.android.sdk.utils.MatrixUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/NeoCharcoalPenWrapper.class */
 public class NeoCharcoalPenWrapper {
     private static final int a = 5000;
     private static final int b = 1000;
     private static int c;
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
-    /* JADX WARN: Type inference failed for: r0v8, types: [com.onyx.android.sdk.pen.NeoCharcoalPen, com.onyx.android.sdk.pen.NeoPen, java.lang.Throwable] */
     public static NeoRenderPoint[] computeStrokeRenderPoints(PenRenderArgs renderArgs, List<Bitmap> indexedPixelBitmapsResult) {
         Matrix screenMatrix = renderArgs.getScreenMatrix();
         List<TouchPoint> points = renderArgs.getPoints();
@@ -67,7 +64,6 @@ public class NeoCharcoalPenWrapper {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static float[] computeStrokePoints(PenRenderArgs renderArgs, List<Bitmap> indexedPixelBitmapsResult) {
         NeoRenderPoint[] neoRenderPointArrComputeStrokeRenderPoints = computeStrokeRenderPoints(renderArgs, indexedPixelBitmapsResult);
         if (neoRenderPointArrComputeStrokeRenderPoints == null) {
@@ -84,7 +80,6 @@ public class NeoCharcoalPenWrapper {
         return fArr;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static void drawNormalStroke(PenRenderArgs renderArgs) {
         List<TouchPoint> points = renderArgs.getPoints();
         int size = CollectionUtils.getSize(points);
@@ -102,7 +97,6 @@ public class NeoCharcoalPenWrapper {
         } while (i < size);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static void drawNormalStrokeImpl(PenRenderArgs renderArgs) {
         ArrayList arrayList = new ArrayList();
         NeoRenderPoint[] neoRenderPointArrComputeStrokeRenderPoints = computeStrokeRenderPoints(renderArgs, arrayList);
@@ -122,7 +116,6 @@ public class NeoCharcoalPenWrapper {
         arrayList.clear();
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static void drawBigStroke(PenRenderArgs renderArgs) {
         List<TouchPoint> points = renderArgs.getPoints();
         int size = CollectionUtils.getSize(points);
@@ -140,7 +133,6 @@ public class NeoCharcoalPenWrapper {
         } while (i < size);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static void drawBigStrokeImpl(PenRenderArgs renderArgs) {
         if (renderArgs.getContentRect() == null || renderArgs.getContentRect().isEmpty()) {
             Debug.e(NeoCharcoalPenWrapper.class, "empty view port", new Object[0]);

@@ -20,11 +20,9 @@ import kotlin.jvm.internal.Intrinsics;
 import kotlin.jvm.internal.Lambda;
 import org.jetbrains.annotations.NotNull;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/ImageRender.class */
 @Metadata(mv = {1, 6, 0}, k = 1, xi = 48, d1 = {"\u0000R\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\u0008\u0002\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u0007\n\u0000\n\u0002\u0018\u0002\n\u0002\u0008\u0003\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u000b\n\u0002\u0008\u0002\n\u0002\u0010\u000e\n\u0002\u0008\u0003\n\u0002\u0018\u0002\n\u0002\u0008\u0004\n\u0002\u0010\u0002\n\u0002\u0008\u0005\u0018\u00002\u00020\u0001:\u0001\"B\u0005\u00a2\u0006\u0002\u0010\u0002J*\u0010\u0003\u001a\u0004\u0018\u00010\u00042\u0006\u0010\u0005\u001a\u00020\u00062\u0006\u0010\u0007\u001a\u00020\u00082\u0006\u0010\t\u001a\u00020\n2\u0006\u0010\u000b\u001a\u00020\nH\u0002J\"\u0010\u000c\u001a\u0004\u0018\u00010\u00042\u0006\u0010\u0005\u001a\u00020\u00062\u0006\u0010\r\u001a\u00020\u000e2\u0006\u0010\u000f\u001a\u00020\u0010H\u0002J \u0010\u0011\u001a\u00020\u00122\u0006\u0010\u0013\u001a\u00020\u00042\u0006\u0010\u0014\u001a\u00020\u00152\u0006\u0010\u0016\u001a\u00020\nH\u0002J\u000e\u0010\u0017\u001a\u00020\u00122\u0006\u0010\u0018\u001a\u00020\u0019J(\u0010\u001a\u001a\u00020\u00122\u0006\u0010\u0013\u001a\u00020\u00042\u0006\u0010\u0014\u001a\u00020\u00152\u0006\u0010\u0007\u001a\u00020\u00082\u0006\u0010\u0016\u001a\u00020\nH\u0002J\u0018\u0010\u001b\u001a\u00020\u00102\u0006\u0010\u0007\u001a\u00020\u00082\u0006\u0010\u001c\u001a\u00020\nH\u0002J\u0018\u0010\u001d\u001a\u00020\u001e2\u0006\u0010\u0013\u001a\u00020\u00042\u0006\u0010\u001f\u001a\u00020\u0004H\u0002J\u001e\u0010 \u001a\u00020\u001e2\u0006\u0010\u0016\u001a\u00020\n2\u0006\u0010\u0013\u001a\u00020\u00042\u0006\u0010!\u001a\u00020\u0004\u00a8\u0006#"}, d2 = {"Lcom/onyx/android/sdk/utils/ImageRender;", "", "()V", "decodeSubImageFromStream", "Landroid/graphics/Bitmap;", "inputStream", "Ljava/io/InputStream;", "scale", "", "displayRectF", "Landroid/graphics/RectF;", "viewport", "decodeSubImageFromStreamImpl", "options", "Landroid/graphics/BitmapFactory$Options;", "regionToDecode", "Landroid/graphics/Rect;", "drawFullImageToTargetBitmap", "", "targetBitmap", "path", "", "displayRect", "drawImage", "renderArgs", "Lcom/onyx/android/sdk/utils/ImageRender$RenderArgs;", "drawSubImageToTargetBitmap", "getOriginRegion", "visibleRect", "renderSubImageToTargetBitmap", "", "regionBitmap", "renderToTargetBitmap", "decodeBitmap", "RenderArgs", "onyxsdk-base_release"})
 public final class ImageRender {
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/ImageRender$RenderArgs.class */
     @Metadata(mv = {1, 6, 0}, k = 1, xi = 48, d1 = {"\u0000$\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0010\u000e\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u0007\n\u0002\b\n\u0018\u00002\u00020\u0001B%\u0012\u0006\u0010\u0002\u001a\u00020\u0003\u0012\u0006\u0010\u0004\u001a\u00020\u0005\u0012\u0006\u0010\u0006\u001a\u00020\u0007\u0012\u0006\u0010\b\u001a\u00020\t¢\u0006\u0002\u0010\nR\u0011\u0010\u0006\u001a\u00020\u0007¢\u0006\b\n\u0000\u001a\u0004\b\u000b\u0010\fR\u0011\u0010\u0002\u001a\u00020\u0003¢\u0006\b\n\u0000\u001a\u0004\b\r\u0010\u000eR\u0011\u0010\b\u001a\u00020\t¢\u0006\b\n\u0000\u001a\u0004\b\u000f\u0010\u0010R\u0011\u0010\u0004\u001a\u00020\u0005¢\u0006\b\n\u0000\u001a\u0004\b\u0011\u0010\u0012¨\u0006\u0013"}, d2 = {"Lcom/onyx/android/sdk/utils/ImageRender$RenderArgs;", TTFFont.UNKNOWN_FONT_NAME, "path", TTFFont.UNKNOWN_FONT_NAME, "viewportBitmap", "Landroid/graphics/Bitmap;", "displayRect", "Landroid/graphics/RectF;", "scale", TTFFont.UNKNOWN_FONT_NAME, "(Ljava/lang/String;Landroid/graphics/Bitmap;Landroid/graphics/RectF;F)V", "getDisplayRect", "()Landroid/graphics/RectF;", "getPath", "()Ljava/lang/String;", "getScale", "()F", "getViewportBitmap", "()Landroid/graphics/Bitmap;", "onyxsdk-base_release"})
     public static final class RenderArgs {
 
@@ -68,19 +66,16 @@ public final class ImageRender {
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/ImageRender$a.class */
     @Metadata(mv = {1, 6, 0}, k = 3, xi = 48, d1 = {"\u0000\u0010\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0000\u0010\u0000\u001a\n \u0002*\u0004\u0018\u00010\u00010\u00012\u0006\u0010\u0003\u001a\u00020\u0004H\n¢\u0006\u0002\b\u0005"}, d2 = {"<anonymous>", "Landroid/graphics/Bitmap;", "kotlin.jvm.PlatformType", "decoder", "Landroid/graphics/BitmapRegionDecoder;", "invoke"})
     static final class a implements Function1<BitmapRegionDecoder, Bitmap> {
         final /* synthetic */ Rect a;
         final /* synthetic */ BitmapFactory.Options b;
 
-        /* JADX WARN: 'super' call moved to the top of the method (can break code semantics) */
         a(Rect $regionToDecode, BitmapFactory.Options $options) {
             this.a = $regionToDecode;
             this.b = $options;
         }
 
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public final Bitmap invoke(@NotNull BitmapRegionDecoder decoder) {
             Intrinsics.checkNotNullParameter(decoder, "decoder");
             return decoder.decodeRegion(this.a, this.b);

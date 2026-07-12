@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import com.onyx.android.sdk.utils.CollectionUtils;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/dict/DictionaryQueryResult.class */
 public class DictionaryQueryResult {
     public String originWord;
     public String candidate;

@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/FeedbackArgsBean.class */
 public class FeedbackArgsBean {
     private String a;
     private String b;

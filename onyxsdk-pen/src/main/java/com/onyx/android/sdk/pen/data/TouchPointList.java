@@ -17,16 +17,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/data/TouchPointList.class */
 public class TouchPointList implements Serializable, Cloneable {
 
     private List<TouchPoint> a;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/data/TouchPointList$a.class */
     static /* synthetic */ class a {
         static final /* synthetic */ int[] a;
 
-        /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
         static {
             int[] iArr = new int[MirrorType.values().length];
             a = iArr;
@@ -41,12 +38,10 @@ public class TouchPointList implements Serializable, Cloneable {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchPointList() {
         this.a = new ArrayList();
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static RectF getBoundingRect(List<TouchPoint> list) {
         RectF rectF = new RectF();
         if (CollectionUtils.isNullOrEmpty(list)) {
@@ -60,13 +55,10 @@ public class TouchPointList implements Serializable, Cloneable {
         return rectF;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public final List<TouchPoint> getPoints() {
         return this.a;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
-    /* JADX DEBUG: Move duplicate insns, count: 1 to block B:7:0x0021 */
     @JSONField(serialize = false, deserialize = false)
     public final List<TouchPoint> getRenderPoints() {
         int size = size();
@@ -87,50 +79,41 @@ public class TouchPointList implements Serializable, Cloneable {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchPointList setPoints(List<TouchPoint> list) {
         this.a = list;
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchPoint first() {
         return (TouchPoint) CollectionUtils.getFirst(this.a);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchPoint last() {
         return (TouchPoint) CollectionUtils.getLast(this.a);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public int size() {
         return this.a.size();
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchPoint get(int i) {
         return this.a.get(i);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void add(TouchPoint touchPoint) {
         this.a.add(touchPoint);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void addAll(TouchPointList other) {
         CollectionUtils.safeAddAll(this.a, other.getPoints());
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public List<TinyPoint> detachPointList() {
         List<TinyPoint> tinyPointList = toTinyPointList();
         this.a.clear();
         return tinyPointList;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public List<TinyPoint> toTinyPointList() {
         ArrayList arrayList = new ArrayList();
         if (CollectionUtils.isNullOrEmpty(this.a)) {
@@ -144,12 +127,10 @@ public class TouchPointList implements Serializable, Cloneable {
         return arrayList;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public Iterator<TouchPoint> iterator() {
         return this.a.iterator();
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchPointList applyMatrix(Matrix matrix) {
         if (MatrixUtils.isEmptyMatrix(matrix)) {
             return this;
@@ -163,14 +144,12 @@ public class TouchPointList implements Serializable, Cloneable {
         return this;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public TouchPointList cloneMatrixPoints(Matrix matrix) {
         TouchPointList touchPointListClone = clone();
         touchPointListClone.applyMatrix(matrix);
         return touchPointListClone;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void scaleAllPoints(float scaleValue) {
         for (TouchPoint touchPoint : this.a) {
             touchPoint.x *= scaleValue;
@@ -178,7 +157,6 @@ public class TouchPointList implements Serializable, Cloneable {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void translateAllPoints(float dx, float dy) {
         for (TouchPoint touchPoint : this.a) {
             touchPoint.x += dx;
@@ -186,7 +164,6 @@ public class TouchPointList implements Serializable, Cloneable {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void rotateAllPoints(float rotateAngle, PointF originPoint) {
         Matrix matrix = new Matrix();
         matrix.setRotate(rotateAngle, originPoint.x, originPoint.y);
@@ -198,7 +175,6 @@ public class TouchPointList implements Serializable, Cloneable {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void mirrorAllPoints(MirrorType type, float translateDistance) {
         Matrix matrix = new Matrix();
         if (type == MirrorType.XAxisMirror) {
@@ -216,28 +192,22 @@ public class TouchPointList implements Serializable, Cloneable {
         }
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public boolean isEmpty() {
         return CollectionUtils.isNullOrEmpty(this.a);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void clear() {
         this.a = new ArrayList();
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 2 */
     public void add(int index, TouchPoint touchPoint) {
         this.a.add(index, touchPoint);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 2 */
     public void addAll(int index, List<TouchPoint> pointList) {
         this.a.addAll(index, pointList);
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 2 */
-    /* JADX DEBUG: Method merged with bridge method: clone()Ljava/lang/Object; */
     @NonNull
     public TouchPointList clone() {
         TouchPointList touchPointList = new TouchPointList();

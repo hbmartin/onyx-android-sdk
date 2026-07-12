@@ -51,7 +51,7 @@ dependencies {
     api("androidx.appcompat:appcompat:1.7.1")
     api("androidx.databinding:databinding-common:4.1.3")
     api("com.alibaba.fastjson2:fastjson2:2.0.48.android8")
-    api("org.apache.commons:commons-lang3:3.7")
+    api("org.apache.commons:commons-lang3:3.18.0")
     api("io.reactivex.rxjava2:rxjava:2.1.13")
     api("io.reactivex.rxjava2:rxandroid:2.1.0")
     api("androidx.dynamicanimation:dynamicanimation:1.1.0-alpha03")

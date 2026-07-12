@@ -4,7 +4,6 @@ import android.view.MotionEvent;
 import io.reactivex.functions.Consumer;
 import java.util.List;
 
-/* JADX INFO: loaded from: onyxsdk-pen-native-classes.jar:com/onyx/android/sdk/pen/touch/a.class */
 public final /* synthetic */ class a implements Consumer {
     public final AppTouchRender a;
     public final MotionEvent b;

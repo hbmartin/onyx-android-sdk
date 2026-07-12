@@ -9,11 +9,9 @@ import android.widget.ImageView;
 import com.onyx.android.sdk.data.ReaderTextStyle;
 import com.onyx.android.sdk.data.Size;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/BitmapLoadUtils.class */
 public class BitmapLoadUtils {
     private static final String TAG = "BitmapLoadUtils";
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/BitmapLoadUtils$a.class */
     static /* synthetic */ class a {
         static final /* synthetic */ int[] a;
 

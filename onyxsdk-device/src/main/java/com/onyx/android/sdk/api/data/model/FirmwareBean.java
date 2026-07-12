@@ -4,7 +4,6 @@ import android.os.Build;
 import com.onyx.android.sdk.api.utils.FirmwareUtils;
 import com.onyx.android.sdk.utils.SystemPropertiesUtil;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/data/model/FirmwareBean.class */
 public class FirmwareBean {
     public static final String RELEASE_TAG = "release";
     public static final String TESTING_TAG = "test";

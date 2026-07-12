@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/PowerUtil.class */
 public class PowerUtil {
     private static final String a = "com.android.internal.os.PowerProfile";
 

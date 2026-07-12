@@ -23,35 +23,29 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/AppGroupInfo.class */
 public class AppGroupInfo extends AppBaseInfo implements Serializable {
     public String idString;
     public long time;
     public List<AppDataInfo> appInfoList;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/AppGroupInfo$a.class */
     class a implements Function<AppDataInfo, String> {
         a() {
         }
 
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public String apply(@NonNull AppDataInfo appDataInfo) throws Exception {
             return appDataInfo.getPackageName();
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/AppGroupInfo$b.class */
     class b implements Function<AppDataInfo, String> {
         b() {
         }
 
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public String apply(@NonNull AppDataInfo appDataInfo) throws Exception {
             return ApplicationUtil.getAppInfoLaunchName(appDataInfo);
         }
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/AppGroupInfo$c.class */
     class c implements Comparable<AppDataInfo> {
         final /* synthetic */ Set a;
         final /* synthetic */ Function b;
@@ -62,7 +56,6 @@ public class AppGroupInfo extends AppBaseInfo implements Serializable {
         }
 
         @Override // java.lang.Comparable
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public int compareTo(@NonNull AppDataInfo appDataInfo) {
             return !CollectionUtils.safelyContains((Set<String>) this.a, (String) RxUtils.applyItemSafety(this.b, appDataInfo)) ? 1 : 0;
         }

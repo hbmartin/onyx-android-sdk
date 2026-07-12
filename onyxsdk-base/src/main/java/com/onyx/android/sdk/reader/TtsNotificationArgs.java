@@ -5,7 +5,6 @@ import android.os.Parcelable;
 import com.onyx.android.sdk.utils.DeviceUtils;
 import com.onyx.android.sdk.utils.TTFFont;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/reader/TtsNotificationArgs.class */
 public class TtsNotificationArgs implements Parcelable {
     public static final Parcelable.Creator<TtsNotificationArgs> CREATOR = new a();
     private boolean isSpeaking = false;
@@ -158,13 +157,11 @@ public class TtsNotificationArgs implements Parcelable {
         this.fixedPageDocument = fixedPageDocument;
     }
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/reader/TtsNotificationArgs$a.class */
     static class a implements Parcelable.Creator<TtsNotificationArgs> {
         a() {
         }
 
         @Override // android.os.Parcelable.Creator
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public TtsNotificationArgs createFromParcel(Parcel source) {
             TtsNotificationArgs ttsNotificationArgs = new TtsNotificationArgs();
             ttsNotificationArgs.setSpeaking(source.readInt() != 0);
@@ -185,7 +182,6 @@ public class TtsNotificationArgs implements Parcelable {
         }
 
         @Override // android.os.Parcelable.Creator
-        /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public TtsNotificationArgs[] newArray(int size) {
             return new TtsNotificationArgs[0];
         }

@@ -11,7 +11,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/SingleThreadScheduler.class */
 public class SingleThreadScheduler {
     private static final int a = 1;
     private static final int b = 1;
@@ -19,7 +18,6 @@ public class SingleThreadScheduler {
     public static final long LONG_KEEP_ALIVE_TIME_IN_SECOND = TimeUnit.MINUTES.toSeconds(10);
     private static Scheduler c;
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/rx/SingleThreadScheduler$a.class */
     static class a implements ThreadFactory {
         final /* synthetic */ String a;
 

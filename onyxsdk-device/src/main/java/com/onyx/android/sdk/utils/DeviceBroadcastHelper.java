@@ -4,10 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import com.onyx.android.sdk.api.utils.CompatibilityUtil;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/DeviceBroadcastHelper.class */
 public class DeviceBroadcastHelper {
 
-    /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/DeviceBroadcastHelper$PowerManagerSettings.class */
     public static class PowerManagerSettings {
         public static final String ARGS_TIMEOUT = "args_timeout";
         public static final String ARGS_ENABLE = "args_enable";

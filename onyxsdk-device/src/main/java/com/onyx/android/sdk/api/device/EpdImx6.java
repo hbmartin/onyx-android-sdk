@@ -4,7 +4,6 @@ import android.view.View;
 import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.api.device.epd.UpdateMode;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/api/device/EpdImx6.class */
 public class EpdImx6 extends EpdDevice {
     private void useFastScheme() {
         EpdController.setDisplayScheme(EpdController.SCHEME_SCRIBBLE);

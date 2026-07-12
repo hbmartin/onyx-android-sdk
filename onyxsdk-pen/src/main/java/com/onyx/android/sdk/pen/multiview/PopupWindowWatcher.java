@@ -7,9 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/multiview/PopupWindowWatcher.class */
 public class PopupWindowWatcher extends BaseViewWatcher<PopupWindow> {
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.multiview.BaseViewWatcher
     public boolean hasVisibleObject() {
         Iterator<WeakReference<PopupWindow>> it = getWatchedObjects().iterator();
@@ -22,7 +20,6 @@ public class PopupWindowWatcher extends BaseViewWatcher<PopupWindow> {
         return false;
     }
 
-    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Override // com.onyx.android.sdk.pen.multiview.BaseViewWatcher
     public List<Rect> getRects() {
         return new ArrayList();

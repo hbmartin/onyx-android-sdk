@@ -68,11 +68,21 @@ class JvmApiContractsTest(unittest.TestCase):
             descriptor="(Ljava/lang/String;)Lretrofit2/Call;",
             flags=frozenset({"ACC_PUBLIC", "ACC_ABSTRACT"}),
         )
+        visible = Member(
+            kind="method",
+            name="isUpdateAvailable",
+            descriptor="()Z",
+            flags=frozenset({"ACC_PUBLIC", "ACC_ABSTRACT"}),
+        )
         api.members[method.key] = method
+        api.members[visible.key] = visible
 
         payload = contracts.canonical_class(api, "onyxsdk-base")
 
-        self.assertEqual([], payload["members"])
+        self.assertEqual(
+            ["isUpdateAvailable"],
+            [member["name"] for member in payload["members"]],
+        )
 
 
 if __name__ == "__main__":

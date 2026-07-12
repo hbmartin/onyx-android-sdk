@@ -5,7 +5,6 @@ import android.system.Os;
 import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicReference;
 
-/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/utils/OsUtil.class */
 public class OsUtil {
     public static void setenv(String name, String value, boolean overwrite) throws Exception {
         if (Build.VERSION.SDK_INT >= 21) {
