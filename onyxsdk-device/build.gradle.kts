@@ -27,6 +27,17 @@ android {
     lint {
         disable += "GradleDependency"
     }
+
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
+}
+
+dependencies {
+    api("com.alibaba.fastjson2:fastjson2:2.0.48.android8")
+    api("androidx.annotation:annotation:1.0.0")
+
+    testImplementation("junit:junit:4.13.2")
 }
 
 val decompiledSourcesJar = tasks.register<Jar>("decompiledSourcesJar") {

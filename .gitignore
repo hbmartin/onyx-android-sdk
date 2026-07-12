@@ -6,3 +6,4 @@ onyxsdk-pen/src/main/jniLibs/
 .idea/
 .DS_Store
 local.properties
+recovery-evidence/

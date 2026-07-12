@@ -43,6 +43,12 @@ android {
     }
 }
 
+dependencies {
+    api(project(":onyxsdk-base"))
+    api("de.ruedigermoeller:fst:2.56")
+    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10")
+}
+
 tasks.named("preBuild") {
     dependsOn(buildRustAndroid)
 }
