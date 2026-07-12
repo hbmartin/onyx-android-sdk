@@ -124,6 +124,10 @@ start_event_capture() {
 stop_event_capture() {
   local device_pid="$1" destination="$2"
   "${ADB_CMD[@]}" shell "kill $device_pid" 2>/dev/null || true
+  # toybox setsid forks when the caller already leads a process group, making
+  # $! the exited wrapper; sweep any surviving reader by command line. The
+  # bracket keeps the sweeping shell's own command line out of the match.
+  "${ADB_CMD[@]}" shell "pkill -f 'geteven[t] -lt $INPUT_DEVICE'" 2>/dev/null || true
   "${ADB_CMD[@]}" pull "$DEVICE_EVENT_CAPTURE" "$destination" >/dev/null
   "${ADB_CMD[@]}" shell "rm -f $DEVICE_EVENT_CAPTURE"
 }

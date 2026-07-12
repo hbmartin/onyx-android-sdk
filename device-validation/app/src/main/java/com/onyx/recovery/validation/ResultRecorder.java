@@ -29,6 +29,7 @@ final class ResultRecorder implements AutoCloseable {
     private final Writer writer;
     private final String variant;
     private long sequence;
+    private boolean closed;
 
     ResultRecorder(Context context) throws IOException {
         this.variant = BuildConfig.SDK_VARIANT;
@@ -41,6 +42,10 @@ final class ResultRecorder implements AutoCloseable {
 
     synchronized void record(String suite, String caseId, String phase, String status,
                              Object inputs, Object result, Throwable error) {
+        // onDestroy interrupts the worker without awaiting it; a probe still
+        // running when the recorder closes must drop its record instead of
+        // crashing the process on the closed writer.
+        if (closed) return;
         JSONObject line = new JSONObject();
         try {
             line.put("sequence", sequence++);
@@ -84,6 +89,9 @@ final class ResultRecorder implements AutoCloseable {
     }
 
     synchronized void markDone(Context context, String suite) throws IOException {
+        // A done marker without its suite_complete record would let the
+        // runner pull a stream that never says which suite finished.
+        if (closed) throw new IOException("result recorder is closed");
         value("harness", "suite_complete", suite, true);
         try (FileWriter writer = new FileWriter(new File(context.getFilesDir(), "done"), false)) {
             writer.write(suite);
@@ -93,6 +101,8 @@ final class ResultRecorder implements AutoCloseable {
 
     @Override
     public synchronized void close() throws IOException {
+        if (closed) return;
+        closed = true;
         writer.close();
     }
 
