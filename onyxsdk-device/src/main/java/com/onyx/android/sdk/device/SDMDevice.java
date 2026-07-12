@@ -1448,16 +1448,11 @@ public class SDMDevice extends BaseDevice
     @Override
     public void penUp() {
         try {
-            final Method j0 = SDMDevice.j0;
-            final Object receiver = null;
-            try {
-                ReflectUtil.invokeMethodSafely(j0, receiver, new Object[0]);
-            }
-            catch (final Exception ex) {
-                ex.printStackTrace();
-            }
+            ReflectUtil.invokeMethodSafely(SDMDevice.j0, null, new Object[0]);
         }
-        catch (final Exception ex2) {}
+        catch (final Exception exception) {
+            exception.printStackTrace();
+        }
     }
     
     @Override
@@ -1727,16 +1722,11 @@ public class SDMDevice extends BaseDevice
     @Override
     public void resetEpdPost() {
         try {
-            final Method u0 = SDMDevice.u0;
-            final Object receiver = null;
-            try {
-                ReflectUtil.invokeMethodSafely(u0, receiver, new Object[0]);
-            }
-            catch (final Exception ex) {
-                ex.printStackTrace();
-            }
+            ReflectUtil.invokeMethodSafely(SDMDevice.u0, null, new Object[0]);
         }
-        catch (final Exception ex2) {}
+        catch (final Exception exception) {
+            exception.printStackTrace();
+        }
     }
     
     @Override

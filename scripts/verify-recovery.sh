@@ -58,10 +58,12 @@ done
 unzip -p "$BASE_AAR" classes.jar > "$TMP/base.jar"
 unzip -p "$DEVICE_AAR" classes.jar > "$TMP/device.jar"
 unzip -p "$PEN_AAR" classes.jar > "$TMP/pen.jar"
-jar tf "$TMP/base.jar" | rg -q 'com/onyx/android/sdk/recovered/base/ReadableFileSize.class'
-jar tf "$TMP/base.jar" | rg -q 'com/onyx/android/sdk/recovered/base/DisposeFinally.class'
+jar tf "$TMP/base.jar" | rg -q 'com/onyx/android/sdk/utils/FileUtils.class'
+jar tf "$TMP/base.jar" | rg -q 'com/onyx/android/sdk/rx/RxUtils\$d.class'
 jar tf "$TMP/device.jar" | rg -q 'com/onyx/android/sdk/device/a.class'
-jar tf "$TMP/device.jar" | rg -q 'com/onyx/android/sdk/recovered/device/DeviceMethodRecovery.class'
+for class in RK32XXDevice IMX6Device RK33XXDevice SDMDevice RK31XXDevice; do
+  jar tf "$TMP/device.jar" | rg -q "com/onyx/android/sdk/device/$class.class"
+done
 jar tf "$TMP/pen.jar" | rg -q 'com/onyx/android/sdk/pen/RawInputReader.class'
 jar tf "$TMP/pen.jar" | rg -q 'com/onyx/android/sdk/recovered/pen/NativeContract.class'
 echo "all AAR classes were compiled from recovered source"

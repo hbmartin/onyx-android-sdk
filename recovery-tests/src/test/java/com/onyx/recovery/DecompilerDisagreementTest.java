@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.onyx.android.sdk.recovered.base.ReadableFileSize;
+import com.onyx.android.sdk.utils.FileUtils;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,15 +17,15 @@ class DecompilerDisagreementTest {
     private static final Path ROOT = Paths.get(System.getProperty("recovery.root"));
 
     @Test
-    void documentedReadableFileSizeReconstructionProducesExpectedValues() {
-        assertEquals("0", ReadableFileSize.format(-1L));
-        assertEquals("0", ReadableFileSize.format(0L));
-        assertEquals("1 B", ReadableFileSize.format(1L));
-        assertEquals("1,023 B", ReadableFileSize.format(1023L));
-        assertEquals("1 KB", ReadableFileSize.format(1024L));
-        assertEquals("1.5 KB", ReadableFileSize.format(1536L));
-        assertEquals("1 MB", ReadableFileSize.format(1L << 20));
-        assertEquals("1 TB", ReadableFileSize.format(1L << 40));
+    void documentedFileSizeReconstructionProducesExpectedValues() {
+        assertEquals("0", FileUtils.readableFileSize(-1L));
+        assertEquals("0", FileUtils.readableFileSize(0L));
+        assertEquals("1 B", FileUtils.readableFileSize(1L));
+        assertEquals("1,023 B", FileUtils.readableFileSize(1023L));
+        assertEquals("1 KB", FileUtils.readableFileSize(1024L));
+        assertEquals("1.5 KB", FileUtils.readableFileSize(1536L));
+        assertEquals("1 MB", FileUtils.readableFileSize(1L << 20));
+        assertEquals("1 TB", FileUtils.readableFileSize(1L << 40));
     }
 
     @Test
@@ -43,13 +43,13 @@ class DecompilerDisagreementTest {
     @Test
     void recoveredSourcesRetainDiagnosticsButNotFakeMethodBodies() throws Exception {
         List<Path> repairedFiles = List.of(
-                ROOT.resolve("recovery-evidence/decompilers/base/jadx/com/onyx/android/sdk/utils/FileUtils.java"),
-                ROOT.resolve("recovery-evidence/decompilers/base/jadx/com/onyx/android/sdk/rx/RxUtils.java"),
-                ROOT.resolve("recovery-evidence/decompilers/device/jadx/com/onyx/android/sdk/device/RK32XXDevice.java"),
-                ROOT.resolve("recovery-evidence/decompilers/device/jadx/com/onyx/android/sdk/device/IMX6Device.java"),
-                ROOT.resolve("recovery-evidence/decompilers/device/jadx/com/onyx/android/sdk/device/RK33XXDevice.java"),
-                ROOT.resolve("recovery-evidence/decompilers/device/jadx/com/onyx/android/sdk/device/SDMDevice.java"),
-                ROOT.resolve("recovery-evidence/decompilers/device/jadx/com/onyx/android/sdk/device/RK31XXDevice.java"));
+                ROOT.resolve("onyxsdk-base/src/main/java/com/onyx/android/sdk/utils/FileUtils.java"),
+                ROOT.resolve("onyxsdk-base/src/main/java/com/onyx/android/sdk/rx/RxUtils.java"),
+                ROOT.resolve("onyxsdk-device/src/main/java/com/onyx/android/sdk/device/RK32XXDevice.java"),
+                ROOT.resolve("onyxsdk-device/src/main/java/com/onyx/android/sdk/device/IMX6Device.java"),
+                ROOT.resolve("onyxsdk-device/src/main/java/com/onyx/android/sdk/device/RK33XXDevice.java"),
+                ROOT.resolve("onyxsdk-device/src/main/java/com/onyx/android/sdk/device/SDMDevice.java"),
+                ROOT.resolve("onyxsdk-device/src/main/java/com/onyx/android/sdk/device/RK31XXDevice.java"));
 
         for (Path source : repairedFiles) {
             String text = read(source);
@@ -61,20 +61,20 @@ class DecompilerDisagreementTest {
     @Test
     void repairedSourceBodiesContainEveryBytecodeVerifiedCall() throws Exception {
         Path deviceRoot = ROOT.resolve(
-                "recovery-evidence/decompilers/device/jadx/com/onyx/android/sdk/device");
+                "onyxsdk-device/src/main/java/com/onyx/android/sdk/device");
         Map<String, List<String>> expectedCalls = Map.of(
                 "RK32XXDevice.java", List.of(
-                        "ReflectUtil.invokeMethodSafely(b0, null, new Object[0]);",
-                        "ReflectUtil.invokeMethodSafely(m0, null, new Object[0]);"),
+                        "ReflectUtil.invokeMethodSafely(RK32XXDevice.b0, null, new Object[0]);",
+                        "ReflectUtil.invokeMethodSafely(RK32XXDevice.m0, null, new Object[0]);"),
                 "IMX6Device.java", List.of(
-                        "ReflectUtil.invokeMethodSafely(g0, null, new Object[0]);"),
+                        "ReflectUtil.invokeMethodSafely(IMX6Device.g0, null, new Object[0]);"),
                 "RK33XXDevice.java", List.of(
-                        "ReflectUtil.invokeMethodSafely(g0, null, new Object[0]);"),
+                        "ReflectUtil.invokeMethodSafely(RK33XXDevice.g0, null, new Object[0]);"),
                 "SDMDevice.java", List.of(
-                        "ReflectUtil.invokeMethodSafely(j0, null, new Object[0]);",
-                        "ReflectUtil.invokeMethodSafely(u0, null, new Object[0]);"),
+                        "ReflectUtil.invokeMethodSafely(SDMDevice.j0, null, new Object[0]);",
+                        "ReflectUtil.invokeMethodSafely(SDMDevice.u0, null, new Object[0]);"),
                 "RK31XXDevice.java", List.of(
-                        "ReflectUtil.invokeMethodSafely(i0, null, new Object[0]);"));
+                        "ReflectUtil.invokeMethodSafely(RK31XXDevice.i0, null, new Object[0]);"));
 
         for (var entry : expectedCalls.entrySet()) {
             String source = read(deviceRoot.resolve(entry.getKey()));
@@ -84,15 +84,15 @@ class DecompilerDisagreementTest {
         }
 
         String fileUtils = read(ROOT.resolve(
-                "recovery-evidence/decompilers/base/jadx/com/onyx/android/sdk/utils/FileUtils.java"));
-        assertTrue(fileUtils.contains("readableFileSize(long size)"));
+                "onyxsdk-base/src/main/java/com/onyx/android/sdk/utils/FileUtils.java"));
+        assertTrue(fileUtils.contains("readableFileSize(final long size)"));
         assertTrue(fileUtils.contains("new DecimalFormat(\"#,##0.#\")"));
-        assertTrue(fileUtils.contains("Math.pow(1024.0d, digitGroup)"));
+        assertTrue(fileUtils.contains("Math.pow(1024.0, digitGroup)"));
 
         String rxUtils = read(ROOT.resolve(
-                "recovery-evidence/decompilers/base/jadx/com/onyx/android/sdk/rx/RxUtils.java"));
+                "onyxsdk-base/src/main/java/com/onyx/android/sdk/rx/RxUtils.java"));
         assertTrue(rxUtils.contains("this.a.run();"));
-        assertTrue(rxUtils.contains("catch (Exception e)"));
+        assertTrue(rxUtils.contains("catch (Exception exception)"));
         assertTrue(rxUtils.contains("finally"));
         assertTrue(rxUtils.contains("this.b.dispose();"));
     }

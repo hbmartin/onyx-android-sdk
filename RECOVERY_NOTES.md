@@ -26,8 +26,9 @@ include the repaired nine target methods. They remain analysis input because
 Only reviewed source is promoted into each module's `src/main/java`. The
 current compiled recovery contains:
 
-- `ReadableFileSize` and `DisposeFinally` for the two repaired base behaviors;
-- `DeviceMethodRecovery` for all seven reflective device mappings;
+- the bytecode-verified `FileUtils.readableFileSize(long)` implementation;
+- the bytecode-verified `RxUtils$d.run()` disposal behavior;
+- all seven reflective device mappings in their production device classes;
 - the recovered R8-named `com.onyx.android.sdk.device.a` UTF-8 file helper;
 - `RawInputReader`, `NativeContract`, and `DefaultArgumentGuard` for the pen
   JNI and failure-path contracts.
@@ -49,8 +50,8 @@ The two base sites required direct control-flow inspection:
   and lets non-`Exception` throwables escape after disposal.
 
 The decisions are summarized in
-`docs/DECOMPILER_DISAGREEMENTS.md`. Tests inspect the repaired raw sources and
-exercise their promoted implementations.
+`docs/DECOMPILER_DISAGREEMENTS.md`. Module-local tests inspect and exercise the
+production implementations directly.
 
 ## Native recovery
 
@@ -65,9 +66,9 @@ the packaged AAR depends on `libc++_shared.so`.
 - `UnsupportedOperationPathTest` exercises the recovered Kotlin default-super
   guard and exact exception message.
 - `ObfuscatedCodePathTest` executes the source-compiled R8 class `device.a`.
-- `DecompilerDisagreementTest` audits all nine repaired source sites and their
-  documented mappings.
-- `RecoveredAlgorithmsTest` covers success, caught exception, finally/dispose,
-  uncaught `Error`, all seven device mappings, and the Java/JNI surface.
+- `FileUtilsRecoveryTest` covers the recovered formatting boundaries.
+- `RxUtilsWorkerDisposalTest` covers success, caught exception, disposal, and
+  uncaught `Error` behavior.
+- `RecoveredDeviceMethodTest` executes all seven reflective device mappings.
 - Rust tests cover state transitions, eraser selection, regions, and pressure
   normalization.

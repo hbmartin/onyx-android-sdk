@@ -35,8 +35,8 @@ their own `Exception` table. The recovery retains both layers.
 CFR produced structurally broken local variables for
 `FileUtils.readableFileSize`, and its aggressive exception reconstruction for
 `RxUtils$d.run` was hard to reason about. JVM bytecode resolved both exactly.
-The corresponding clean implementations are `ReadableFileSize` and
-`DisposeFinally` in `onyxsdk-base/src/main/java`.
+The clean implementations now live directly in the production `FileUtils` and
+`RxUtils` classes under `onyxsdk-base/src/main/java`.
 
 ## Genuine UnsupportedOperationException sites
 

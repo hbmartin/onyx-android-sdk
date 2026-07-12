@@ -1218,16 +1218,11 @@ public class IMX6Device extends BaseDevice
     @Override
     public void resetEpdPost() {
         try {
-            final Method g0 = IMX6Device.g0;
-            final Object receiver = null;
-            try {
-                ReflectUtil.invokeMethodSafely(g0, receiver, new Object[0]);
-            }
-            catch (final Exception ex) {
-                ex.printStackTrace();
-            }
+            ReflectUtil.invokeMethodSafely(IMX6Device.g0, null, new Object[0]);
         }
-        catch (final Exception ex2) {}
+        catch (final Exception exception) {
+            exception.printStackTrace();
+        }
     }
     
     public boolean supportScreenHandWriting() {
