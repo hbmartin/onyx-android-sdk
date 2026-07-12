@@ -86,7 +86,9 @@ scripts/verify-pen-api.py \
 
 See [RECOVERY_NOTES.md](RECOVERY_NOTES.md),
 [docs/VALIDATION.md](docs/VALIDATION.md), and
-[docs/NATIVE_RECOVERY.md](docs/NATIVE_RECOVERY.md).
+[docs/NATIVE_RECOVERY.md](docs/NATIVE_RECOVERY.md). The constraints and gates
+for the planned Java-to-Kotlin conversion are documented in
+[docs/KOTLIN_MIGRATION.md](docs/KOTLIN_MIGRATION.md).
 
 ## Demo and test app
 
@@ -122,9 +124,9 @@ device-validation/run-comparison.sh \
 The screen shows a drawing canvas plus limit, exclude, single-region, pause,
 clear, and finish controls. The runner builds both flavors, installs each one,
 captures events, and writes its report under `device-validation/results/`.
-Use `--suite automated`, `base`, `device`, `pen-replay`, `neo-pen`, or `guided`
-for the other test modes. The `automated` and `neo-pen` suites also require
-`--neo-pen-reference /path/to/reference/neo-pen-library`.
+Use `--suite automated`, `base`, `device`, `mmkv-compat`, `pen-replay`,
+`neo-pen`, or `guided` for the other test modes. The `automated` and `neo-pen`
+suites also require `--neo-pen-reference /path/to/reference/neo-pen-library`.
 
 To install only the recovered flavor for manual exploration:
 
@@ -164,11 +166,18 @@ Gradle resolves their transitive dependencies:
   `databinding-common` 4.1.3, `dynamicanimation` 1.1.0-alpha03,
   `fragment` 1.8.8, Test JUnit extension 1.2.1, and Test Runner 1.6.2.
 - Data, networking, and storage: Fastjson2 2.0.48.android8, Retrofit 2.1.0,
-  OkHttp logging interceptor 4.10.0, MMKV 1.0.19, Zip4j 2.11.5,
+  OkHttp logging interceptor 4.10.0, MMKV 1.3.14, Zip4j 2.11.5,
   Java UUID Generator 4.1.0, and FST 2.56.
 - Utilities: Commons Codec 1.13, Commons IO 2.13.0, Commons Text 1.4,
-  EasyPermissions 0.2.1, EventBus 3.0.0, Joda-Time 2.10.14,
-  Kotlin standard library JDK 8 1.6.10, Hugo annotations 1.2.3,
+  EventBus 3.0.0, Joda-Time 2.10.14, Kotlin standard library JDK 8 1.6.10,
+  Hugo annotations 1.2.1,
   RxJava 2.1.13, and RxAndroid 2.1.0.
 - Tests: JUnit 4.13.2, JUnit BOM 5.11.4 with JUnit Jupiter and the JUnit
   Platform Launcher, Robolectric 4.14.1, and JSON-java 20240303.
+
+EasyPermissions was previously exposed accidentally through `onyxsdk-base`'s
+Gradle `api` configuration even though no production source used it. Its
+removal changes that transitive dependency surface but removes no Onyx SDK
+class or method. MMKV compatibility with files written by 1.0.19 is covered by
+the `mmkv-compat` device suite described in
+[`device-validation/README.md`](device-validation/README.md).

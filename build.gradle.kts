@@ -33,6 +33,39 @@ val verifyRecovery = tasks.register<Exec>("verifyRecovery") {
     commandLine("bash", layout.projectDirectory.file("scripts/verify-recovery.sh").asFile)
 }
 
+val productionAarTasks = listOf(
+    ":onyxsdk-base:assembleRelease",
+    ":onyxsdk-base:support:onyxsdk-baselite:assembleRelease",
+    ":onyxsdk-base:support:onyxsdk-commons-io:assembleRelease",
+    ":onyxsdk-device:assembleRelease",
+    ":onyxsdk-pen:assembleRelease",
+)
+
+val verifyJvmApiContracts = tasks.register<Exec>("verifyJvmApiContracts") {
+    group = "verification"
+    description = "Checks the public/protected JVM contracts of every production AAR."
+    dependsOn(productionAarTasks)
+    commandLine(
+        "python3",
+        layout.projectDirectory.file("scripts/jvm_api_contracts.py").asFile,
+        "--root",
+        layout.projectDirectory.asFile,
+    )
+}
+
+tasks.register<Exec>("updateJvmApiContracts") {
+    group = "build setup"
+    description = "Explicitly replaces the checked-in JVM API contracts."
+    dependsOn(productionAarTasks)
+    commandLine(
+        "python3",
+        layout.projectDirectory.file("scripts/jvm_api_contracts.py").asFile,
+        "--root",
+        layout.projectDirectory.asFile,
+        "--update",
+    )
+}
+
 tasks.named("check") {
     dependsOn(
         ":onyxsdk-base:testDebugUnitTest",
@@ -48,6 +81,7 @@ tasks.named("check") {
         "nativeTest",
         "nativeClippy",
         verifyRecovery,
+        verifyJvmApiContracts,
     )
 }
 
