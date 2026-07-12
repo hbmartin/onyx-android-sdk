@@ -32,7 +32,7 @@ pub struct TouchEvent {
     pub shortcut_drawing: bool,
     pub shortcut_erasing: bool,
     pub state: i32,
-    pub timestamp_us: i64,
+    pub timestamp_ms: i64,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -73,7 +73,7 @@ pub struct PenManager {
     smoothed_pressure: i32,
     tilt_x: i32,
     tilt_y: i32,
-    timestamp_us: i64,
+    timestamp_ms: i64,
     stroke_width: f32,
     region_mode: i32,
     last_region_hit: Option<usize>,
@@ -100,7 +100,7 @@ impl Default for PenManager {
             smoothed_pressure: -1,
             tilt_x: 0,
             tilt_y: 0,
-            timestamp_us: 0,
+            timestamp_ms: 0,
             stroke_width: 0.0,
             region_mode: 0,
             last_region_hit: None,
@@ -178,9 +178,9 @@ impl PenManager {
         kind: u16,
         code: u16,
         value: i32,
-        timestamp_us: i64,
+        timestamp_ms: i64,
     ) -> Vec<TouchEvent> {
-        self.timestamp_us = timestamp_us;
+        self.timestamp_ms = timestamp_ms;
         match kind {
             EV_ABS => {
                 match code {
@@ -335,7 +335,7 @@ impl PenManager {
             shortcut_drawing: false,
             shortcut_erasing: self.reader == ReaderType::SideErase,
             state,
-            timestamp_us: self.timestamp_us,
+            timestamp_ms: self.timestamp_ms,
         }
     }
 }
@@ -355,6 +355,7 @@ mod tests {
         feed(&mut p, EV_ABS, ABS_PRESSURE, 100);
         let down = feed(&mut p, EV_SYN, 0, 0);
         assert_eq!(down.iter().map(|e| e.state).collect::<Vec<_>>(), vec![0, 5]);
+        assert!(down.iter().all(|event| event.timestamp_ms == 123));
         let moved = feed(&mut p, EV_SYN, 0, 0);
         assert_eq!(
             moved.iter().map(|e| e.state).collect::<Vec<_>>(),

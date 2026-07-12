@@ -55,7 +55,7 @@ fn emit(env: &mut JNIEnv, object: &JObject, event: TouchEvent) {
         JValue::Bool(event.shortcut_drawing as jboolean),
         JValue::Bool(event.shortcut_erasing as jboolean),
         JValue::Int(event.state),
-        JValue::Long(event.timestamp_us),
+        JValue::Long(event.timestamp_ms),
     ];
     let _ = env.call_method(object, "onTouchPointReceived", "(FFIIIZZZIJ)V", &args);
 }
@@ -216,12 +216,12 @@ struct InputEvent {
 }
 
 #[cfg(any(target_os = "android", target_os = "linux"))]
-fn now_us() -> i64 {
+fn now_ms() -> i64 {
     use std::time::{SystemTime, UNIX_EPOCH};
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap_or_default()
-        .as_micros() as i64
+        .as_millis() as i64
 }
 
 #[cfg(any(target_os = "android", target_os = "linux"))]
@@ -350,7 +350,7 @@ fn reader_loop(env: &mut JNIEnv, object: &JObject, session: i64) {
                     event.kind,
                     event.code,
                     event.value,
-                    now_us(),
+                    now_ms(),
                 );
                 for event in events {
                     emit(env, object, event);

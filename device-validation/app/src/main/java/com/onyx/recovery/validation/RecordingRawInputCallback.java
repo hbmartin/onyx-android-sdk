@@ -22,13 +22,22 @@ final class RecordingRawInputCallback extends RawInputCallback {
         return callbacks.get();
     }
 
+    static boolean rendersOnCanvas(String kind) {
+        return kind.startsWith("semantic_draw_") || kind.startsWith("semantic_erase_");
+    }
+
     private void point(String kind, boolean flag, TouchPoint point) {
         callbacks.incrementAndGet();
         recorder.event(kind, ResultRecorder.map(
                 "flag", flag,
                 "point", pointMap(point)
         ));
-        if (point != null) canvas.addPoint(point.x, point.y, kind.contains("eras"));
+        // onPenActive reports hover/proximity motion as well as contact. Keep
+        // recording it for the differential, but only paint explicit drawing
+        // and erasing callbacks or hovering between strokes connects them.
+        if (point != null && rendersOnCanvas(kind)) {
+            canvas.addPoint(point.x, point.y, kind.startsWith("semantic_erase_"));
+        }
     }
 
     private void list(String kind, TouchPointList points) {
