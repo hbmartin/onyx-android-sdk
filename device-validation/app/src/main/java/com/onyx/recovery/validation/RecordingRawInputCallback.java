@@ -1,0 +1,62 @@
+package com.onyx.recovery.validation;
+
+import android.graphics.RectF;
+
+import com.onyx.android.sdk.data.note.TouchPoint;
+import com.onyx.android.sdk.pen.RawInputCallback;
+import com.onyx.android.sdk.pen.data.TouchPointList;
+
+final class RecordingRawInputCallback extends RawInputCallback {
+    private final ResultRecorder recorder;
+    private final GuidedCanvasView canvas;
+
+    RecordingRawInputCallback(ResultRecorder recorder, GuidedCanvasView canvas) {
+        this.recorder = recorder;
+        this.canvas = canvas;
+    }
+
+    private void point(String kind, boolean flag, TouchPoint point) {
+        recorder.event(kind, ResultRecorder.map(
+                "flag", flag,
+                "point", pointMap(point)
+        ));
+        if (point != null) canvas.addPoint(point.x, point.y, kind.contains("eras"));
+    }
+
+    private void list(String kind, TouchPointList points) {
+        recorder.event(kind, ResultRecorder.map(
+                "size", points == null ? -1 : points.size(),
+                "first", points == null ? null : pointMap(points.first()),
+                "last", points == null ? null : pointMap(points.last())
+        ));
+    }
+
+    static Object pointMap(TouchPoint point) {
+        if (point == null) return null;
+        return ResultRecorder.map(
+                "x", point.x, "y", point.y, "pressure", point.pressure,
+                "size", point.size, "tiltX", point.tiltX, "tiltY", point.tiltY,
+                "timestamp", point.timestamp
+        );
+    }
+
+    @Override public void onBeginRawDrawing(boolean flag, TouchPoint point) { point("semantic_draw_begin", flag, point); }
+    @Override public void onEndRawDrawing(boolean flag, TouchPoint point) { point("semantic_draw_end", flag, point); }
+    @Override public void onRawDrawingTouchPointMoveReceived(TouchPoint point) { point("semantic_draw_move", false, point); }
+    @Override public void onRawDrawingTouchPointListReceived(TouchPointList points) { list("semantic_draw_list", points); }
+    @Override public void onBeginRawErasing(boolean flag, TouchPoint point) { point("semantic_erase_begin", flag, point); }
+    @Override public void onEndRawErasing(boolean flag, TouchPoint point) { point("semantic_erase_end", flag, point); }
+    @Override public void onRawErasingTouchPointMoveReceived(TouchPoint point) { point("semantic_erase_move", false, point); }
+    @Override public void onRawErasingTouchPointListReceived(TouchPointList points) { list("semantic_erase_list", points); }
+    @Override public void onPenActive(TouchPoint point) { point("semantic_pen_active", false, point); }
+
+    @Override
+    public void onPenUpRefresh(RectF rect) {
+        recorder.event("semantic_pen_refresh", ResultRecorder.map(
+                "left", rect == null ? null : rect.left,
+                "top", rect == null ? null : rect.top,
+                "right", rect == null ? null : rect.right,
+                "bottom", rect == null ? null : rect.bottom
+        ));
+    }
+}
