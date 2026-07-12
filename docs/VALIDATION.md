@@ -20,6 +20,9 @@
 | Exact simple pens | types 1–3 values asserted exactly by instrumentation tests |
 | Texture pens | types 4–5 exact only under the hardware differential gate; snapshots compare stamp positions plus bitmap dimensions and pixel digests |
 | Complex pen behavior | types 6–9 encoding, prediction, finiteness, and geometry bounds match |
+| Versioned fountain behavior | recovered-v1 remains default; reference-compatible v2 dynamics, bounds, batching, and prediction isolation are host-tested |
+| Device stroke extensions | additive API is explicitly accepted; reflection helpers reject instance methods intended for null receivers |
+| Direct stroke transport | firmware codes are mandatory, framework reflection remains default, and Binder failures fall back safely |
 | Reader lifecycle endurance | 300 start/pause/resume/quit cycles asserting no fd leaks, no stuck reader threads, bounded native- and Java-heap growth |
 | Replay delivery health | per-run `replay_health` record: zero dropped callbacks, semantic callbacks observed, delivery latency within bounds; unhealthy runs classify as `recovery_defect` |
 | Comparison taxonomy | host unit tests pin `compare_results.py` (one-sided records, asymmetric denials, bool/number equivalence, state grammar) and guided-scenario gates |

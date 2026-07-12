@@ -241,19 +241,19 @@ public class IMX6Device extends BaseDevice
             array9[0] = type;
             array9[1] = String.class;
             IMX6Device.J = ReflectUtil.getMethodSafely(View.class, "screenshot", (Class<?>[])parameterTypes9);
-            IMX6Device.O = ReflectUtil.getMethodSafely(View.class, "setStrokeColor", type);
-            IMX6Device.P = ReflectUtil.getMethodSafely(View.class, "setStrokeStyle", type);
+            IMX6Device.O = ReflectUtil.getStaticMethodSafely(View.class, "setStrokeColor", type);
+            IMX6Device.P = ReflectUtil.getStaticMethodSafely(View.class, "setStrokeStyle", type);
             final Class[] parameterTypes10 = { null };
             final Class<Float> type3 = Float.TYPE;
             parameterTypes10[0] = type3;
-            IMX6Device.Q = ReflectUtil.getMethodSafely(View.class, "setStrokeWidth", (Class<?>[])parameterTypes10);
+            IMX6Device.Q = ReflectUtil.getStaticMethodSafely(View.class, "setStrokeWidth", (Class<?>[])parameterTypes10);
             final Class[] parameterTypes11;
             final Class[] array10 = parameterTypes11 = new Class[4];
             array10[0] = type2;
             array10[1] = Paint.Style.class;
             array10[2] = Paint.Join.class;
             array10[3] = Paint.Cap.class;
-            IMX6Device.R = ReflectUtil.getMethodSafely(View.class, "setPainterStyle", (Class<?>[])parameterTypes11);
+            IMX6Device.R = ReflectUtil.getStaticMethodSafely(View.class, "setPainterStyle", (Class<?>[])parameterTypes11);
             IMX6Device.K = ReflectUtil.getMethodSafely(View.class, "supportRegal", (Class<?>[])new Class[0]);
             IMX6Device.L = ReflectUtil.getMethodSafely(View.class, "enableRegal", type2);
             final Class[] parameterTypes12;
@@ -337,19 +337,19 @@ public class IMX6Device extends BaseDevice
             array24[1] = (array24[0] = type3);
             array24[3] = (array24[2] = type3);
             array24[5] = (array24[4] = type3);
-            IMX6Device.l0 = ReflectUtil.getMethodSafely(View.class, "startStroke", (Class<?>[])parameterTypes25);
+            IMX6Device.l0 = ReflectUtil.getStaticMethodSafely(View.class, "startStroke", (Class<?>[])parameterTypes25);
             final Class[] parameterTypes26;
             final Class[] array25 = parameterTypes26 = new Class[6];
             array25[1] = (array25[0] = type3);
             array25[3] = (array25[2] = type3);
             array25[5] = (array25[4] = type3);
-            IMX6Device.m0 = ReflectUtil.getMethodSafely(View.class, "addStrokePoint", (Class<?>[])parameterTypes26);
+            IMX6Device.m0 = ReflectUtil.getStaticMethodSafely(View.class, "addStrokePoint", (Class<?>[])parameterTypes26);
             final Class[] parameterTypes27;
             final Class[] array26 = parameterTypes27 = new Class[6];
             array26[1] = (array26[0] = type3);
             array26[3] = (array26[2] = type3);
             array26[5] = (array26[4] = type3);
-            IMX6Device.n0 = ReflectUtil.getMethodSafely(View.class, "finishStroke", (Class<?>[])parameterTypes27);
+            IMX6Device.n0 = ReflectUtil.getStaticMethodSafely(View.class, "finishStroke", (Class<?>[])parameterTypes27);
             IMX6Device.v0 = ReflectUtil.getMethodSafely(View.class, "invalidate", type);
             final Class[] parameterTypes28;
             final Class[] array27 = parameterTypes28 = new Class[5];
@@ -1185,6 +1185,20 @@ public class IMX6Device extends BaseDevice
         return baseWidth;
     }
     
+    @Override
+    boolean hasStrokeStyleConfigurationCapability() {
+        return ReflectUtil.isStaticMethodAvailable(IMX6Device.O)
+                && ReflectUtil.isStaticMethodAvailable(IMX6Device.P)
+                && ReflectUtil.isStaticMethodAvailable(IMX6Device.Q);
+    }
+
+    @Override
+    boolean hasStrokeDataTransportCapability() {
+        return ReflectUtil.isStaticMethodAvailable(IMX6Device.l0)
+                && ReflectUtil.isStaticMethodAvailable(IMX6Device.m0)
+                && ReflectUtil.isStaticMethodAvailable(IMX6Device.n0);
+    }
+
     @Override
     public void enterScribbleMode(final View view) {
         try {

@@ -244,11 +244,11 @@ public class IMX7Device extends BaseDevice {
         H = ReflectUtil.getMethodSafely(View.class, "refreshScreen", cls);
         I = ReflectUtil.getMethodSafely(View.class, "refreshScreen", cls, cls, cls, cls, cls);
         J = ReflectUtil.getMethodSafely(View.class, "screenshot", cls, String.class);
-        M = ReflectUtil.getMethodSafely(View.class, "setStrokeColor", cls);
-        N = ReflectUtil.getMethodSafely(View.class, "setStrokeStyle", cls);
+        M = ReflectUtil.getStaticMethodSafely(View.class, "setStrokeColor", cls);
+        N = ReflectUtil.getStaticMethodSafely(View.class, "setStrokeStyle", cls);
         Class cls3 = Float.TYPE;
-        O = ReflectUtil.getMethodSafely(View.class, "setStrokeWidth", cls3);
-        P = ReflectUtil.getMethodSafely(View.class, "setPainterStyle", cls2, Paint.Style.class, Paint.Join.class, Paint.Cap.class);
+        O = ReflectUtil.getStaticMethodSafely(View.class, "setStrokeWidth", cls3);
+        P = ReflectUtil.getStaticMethodSafely(View.class, "setPainterStyle", cls2, Paint.Style.class, Paint.Join.class, Paint.Cap.class);
         K = ReflectUtil.getMethodSafely(View.class, "supportRegal", new Class[0]);
         L = ReflectUtil.getMethodSafely(View.class, "moveTo", cls3, cls3, cls3);
         Q = ReflectUtil.getMethodSafely(View.class, "lineTo", cls3, cls3, cls);
@@ -259,9 +259,9 @@ public class IMX7Device extends BaseDevice {
         V = ReflectUtil.getMethodSafely(View.class, "setScreenHandWritingPenState", cls);
         W = ReflectUtil.getMethodSafely(View.class, "setScreenHandWritingRegionLimit", cls, cls, cls, cls);
         X = ReflectUtil.getMethodSafely(View.class, "applyGammaCorrection", cls2, cls);
-        Y = ReflectUtil.getMethodSafely(View.class, "startStroke", cls3, cls3, cls3, cls3, cls3, cls3);
-        Z = ReflectUtil.getMethodSafely(View.class, "addStrokePoint", cls3, cls3, cls3, cls3, cls3, cls3);
-        a0 = ReflectUtil.getMethodSafely(View.class, "finishStroke", cls3, cls3, cls3, cls3, cls3, cls3);
+        Y = ReflectUtil.getStaticMethodSafely(View.class, "startStroke", cls3, cls3, cls3, cls3, cls3, cls3);
+        Z = ReflectUtil.getStaticMethodSafely(View.class, "addStrokePoint", cls3, cls3, cls3, cls3, cls3, cls3);
+        a0 = ReflectUtil.getStaticMethodSafely(View.class, "finishStroke", cls3, cls3, cls3, cls3, cls3, cls3);
         g0 = ReflectUtil.getMethodSafely(View.class, "invalidate", cls);
         h0 = ReflectUtil.getMethodSafely(View.class, "invalidate", cls, cls, cls, cls, cls);
         k0 = ReflectUtil.getMethodSafely(View.class, "setDefaultUpdateMode", cls);
@@ -649,6 +649,20 @@ public class IMX7Device extends BaseDevice {
         } catch (Exception unused) {
             return baseWidth;
         }
+    }
+
+    @Override
+    boolean hasStrokeStyleConfigurationCapability() {
+        return ReflectUtil.isStaticMethodAvailable(M)
+                && ReflectUtil.isStaticMethodAvailable(N)
+                && ReflectUtil.isStaticMethodAvailable(O);
+    }
+
+    @Override
+    boolean hasStrokeDataTransportCapability() {
+        return ReflectUtil.isStaticMethodAvailable(Y)
+                && ReflectUtil.isStaticMethodAvailable(Z)
+                && ReflectUtil.isStaticMethodAvailable(a0);
     }
 
     @Override // com.onyx.android.sdk.device.BaseDevice

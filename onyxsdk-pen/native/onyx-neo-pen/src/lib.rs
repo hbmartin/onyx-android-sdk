@@ -22,6 +22,7 @@ struct Touch {
 #[allow(dead_code)]
 #[derive(Clone, Debug)]
 struct PenConfig {
+    renderer_version: i32,
     color: i32,
     width: f32,
     min_width: f32,
@@ -50,6 +51,7 @@ struct PenConfig {
 impl Default for PenConfig {
     fn default() -> Self {
         Self {
+            renderer_version: 1,
             color: 0xff00_0000u32 as i32,
             width: 3.0,
             min_width: 0.001,
@@ -214,6 +216,156 @@ impl PenState {
             1.0
         };
         self.config.width * factor
+    }
+
+    fn reference_fountain_spacing(&self) -> f32 {
+        let dpi_scale = (self.config.dpi / 320.0).clamp(0.5, 4.0);
+        let precision = self.config.scale_precision.clamp(1.0, 8.0).sqrt();
+        let fast_scale = if self.config.fast_mode { 1.5 } else { 1.0 };
+        (self.config.brush_spacing * 4.0 * dpi_scale * fast_scale / precision).clamp(0.25, 16.0)
+    }
+
+    fn segment_velocity(start: Touch, end: Touch) -> f32 {
+        let distance = ((end.x - start.x).powi(2) + (end.y - start.y).powi(2)).sqrt();
+        let elapsed = (end.timestamp - start.timestamp).abs() as f32;
+        if elapsed <= 0.001 {
+            distance
+        } else {
+            distance / elapsed
+        }
+    }
+
+    fn normalized_velocity(&self, velocity: f32) -> f32 {
+        if velocity <= self.config.velocity_ignore_threshold {
+            return 0.0;
+        }
+        let lower = self.config.velocity_lower_bound;
+        let upper = self.config.velocity_upper_bound;
+        if upper > lower + f32::EPSILON {
+            ((velocity - lower) / (upper - lower)).clamp(0.0, 1.0)
+        } else {
+            (velocity / (velocity + 1.0)).clamp(0.0, 1.0)
+        }
+    }
+
+    fn reference_fountain_width(
+        &self,
+        previous: Option<Touch>,
+        point: Touch,
+        velocity: f32,
+    ) -> f32 {
+        let min_width = self.config.min_width.max(0.001);
+        // Reverse-engineering notes indicate the native renderer normalizes
+        // the configured width before applying pressure and velocity.
+        let normalized_width = (self.config.width + 3.0) * 0.5;
+        let max_width = (normalized_width * 2.0).max(min_width);
+        let pressure_exponent = 1.5 - self.config.pressure_sensitivity.clamp(0.0, 1.0);
+        let pressure = point.pressure.clamp(0.0, 1.0).powf(pressure_exponent);
+        let mut width = min_width + (max_width - min_width) * pressure;
+
+        let velocity_factor = self.normalized_velocity(velocity);
+        width *= 1.0 - velocity_factor * self.config.velocity_sensitivity.clamp(0.0, 1.0) * 0.65;
+        width *= 1.0 + velocity_factor * self.config.velocity_amplifier.clamp(0.0, 1.0) * 0.35;
+
+        if self.config.tilt_enabled {
+            let tilt = (point.tilt_x.powi(2) + point.tilt_y.powi(2)).sqrt();
+            let normalized_tilt = (tilt / 90.0).clamp(0.0, 1.0);
+            width *= 1.0 + normalized_tilt * self.config.tilt_scale.clamp(0.0, 10.0) * 0.05;
+        }
+
+        if self.config.direction_enabled {
+            if let Some(previous) = previous {
+                let direction = (point.y - previous.y).atan2(point.x - previous.x);
+                let configured_angle = self.config.brush_angle.to_radians()
+                    + (self.config.rotate_angle as f32).to_radians();
+                let directional = (direction - configured_angle).sin().abs();
+                let ratio = self.config.brush_ratio.clamp(1.0, 10.0);
+                width *= 1.0 + directional * (ratio - 1.0) * 0.05;
+            }
+        }
+
+        let shape_factor = match self.config.brush_shape {
+            1 => 0.95,
+            2 => 1.05,
+            _ => 1.0,
+        };
+        (width * shape_factor).clamp(min_width, max_width * 1.5)
+    }
+
+    fn smooth_reference_fountain_point(&self, point: Touch) -> Touch {
+        let Some(previous) = self.last else {
+            return point;
+        };
+        let current_weight = 1.0 - self.config.smooth_level.clamp(0.0, 1.0) * 0.85;
+        let previous_weight = 1.0 - current_weight;
+        Touch {
+            x: previous.x * previous_weight + point.x * current_weight,
+            y: previous.y * previous_weight + point.y * current_weight,
+            pressure: previous.pressure * previous_weight + point.pressure * current_weight,
+            size: previous.size * previous_weight + point.size * current_weight,
+            tilt_x: previous.tilt_x * previous_weight + point.tilt_x * current_weight,
+            tilt_y: previous.tilt_y * previous_weight + point.tilt_y * current_weight,
+            timestamp: point.timestamp,
+        }
+    }
+
+    fn emit_reference_fountain(&mut self, input: &[Touch]) -> InkData {
+        let mut ink = InkData::default();
+        for point in input.iter().copied() {
+            let smoothed = self.smooth_reference_fountain_point(point);
+            let previous = self.last;
+            let velocity = previous
+                .map(|start| Self::segment_velocity(start, smoothed))
+                .unwrap_or(0.0);
+            let target_width = self.reference_fountain_width(previous, smoothed, velocity);
+            if let Some(start) = previous {
+                let distance =
+                    ((smoothed.x - start.x).powi(2) + (smoothed.y - start.y).powi(2)).sqrt();
+                let steps = (distance / self.reference_fountain_spacing())
+                    .ceil()
+                    .clamp(1.0, 4096.0) as usize;
+                for (index, sample) in Self::interpolate_linear(start, smoothed, steps)
+                    .into_iter()
+                    .enumerate()
+                {
+                    let t = (index + 1) as f32 / steps as f32;
+                    let width = self.last_width + (target_width - self.last_width) * t;
+                    Self::push_point(&mut ink, sample, width);
+                }
+            } else {
+                Self::push_point(&mut ink, smoothed, target_width);
+            }
+            self.last_width = target_width;
+            self.last = Some(smoothed);
+            self.history.push(smoothed);
+            if self.history.len() > 32 {
+                self.history.remove(0);
+            }
+        }
+        ink
+    }
+
+    fn process_reference_fountain(
+        &mut self,
+        input: &[Touch],
+        prediction: Option<Touch>,
+        phase: Phase,
+    ) -> (InkData, InkData) {
+        if phase == Phase::Down {
+            self.reset();
+        }
+        let real = self.emit_reference_fountain(input);
+        let predicted = if phase == Phase::Move {
+            prediction
+                .map(|point| {
+                    let mut scratch = self.clone();
+                    scratch.emit_reference_fountain(&[point])
+                })
+                .unwrap_or_default()
+        } else {
+            InkData::default()
+        };
+        (real, predicted)
     }
 
     fn push_point(ink: &mut InkData, point: Touch, width: f32) {
@@ -471,6 +623,12 @@ impl PenState {
             .collect::<Vec<_>>();
         let mut real = InkData::default();
         let mut predicted = InkData::default();
+        if self.pen_type == 2 && self.config.renderer_version == 2 {
+            let prediction = prediction
+                .map(|point| self.transform(point))
+                .filter(|point| point.x.is_finite() && point.y.is_finite());
+            return self.process_reference_fountain(&transformed, prediction, phase);
+        }
         match phase {
             Phase::Down => {
                 self.reset();
@@ -708,6 +866,8 @@ fn read_config(env: &mut JNIEnv, object: &JObject) -> PenConfig {
     )
     .clamp(0.0, 50.0);
     PenConfig {
+        renderer_version: get_int(env, object, "rendererVersion", defaults.renderer_version)
+            .clamp(1, 2),
         color: get_int(env, object, "color", defaults.color),
         width: get_float(env, object, "width", defaults.width).max(0.001),
         min_width: get_float(env, object, "minWidth", defaults.min_width).max(0.001),
@@ -1396,6 +1556,105 @@ mod tests {
             up_a.points, up_b.points,
             "prediction must not affect the finished stroke"
         );
+    }
+
+    #[test]
+    fn recovered_renderer_remains_the_default() {
+        let config = PenConfig::default();
+        assert_eq!(config.renderer_version, 1);
+        let mut pen = PenState::new(2, config);
+        let (down, _) = pen.process(&[touch(0.0, 0.0, 0.5, 1.0)], None, Phase::Down);
+        assert_eq!(down.points, vec![0.0, 0.0, 3.0]);
+    }
+
+    #[test]
+    fn reference_fountain_uses_velocity_pressure_tilt_and_smoothing() {
+        let base = PenConfig {
+            renderer_version: 2,
+            pressure_sensitivity: 0.8,
+            velocity_sensitivity: 1.0,
+            velocity_lower_bound: 0.0,
+            velocity_upper_bound: 20.0,
+            smooth_level: 0.5,
+            tilt_enabled: true,
+            tilt_scale: 5.0,
+            ..PenConfig::default()
+        };
+        let mut slow = PenState::new(2, base.clone());
+        let mut fast = PenState::new(2, base.clone());
+        slow.process(&[touch(0.0, 0.0, 0.4, 0.0)], None, Phase::Down);
+        fast.process(&[touch(0.0, 0.0, 0.4, 0.0)], None, Phase::Down);
+        let (slow_ink, _) = slow.process(&[touch(10.0, 0.0, 0.8, 10.0)], None, Phase::Move);
+        let (fast_ink, _) = fast.process(&[touch(10.0, 0.0, 0.8, 1.0)], None, Phase::Move);
+        assert!(slow_ink.points.last().unwrap() > fast_ink.points.last().unwrap());
+        assert!(
+            slow.last.unwrap().x < 10.0,
+            "smoothing must lag the raw point"
+        );
+
+        let mut untilted = PenState::new(2, base.clone());
+        let mut tilted = PenState::new(2, base);
+        let plain = touch(0.0, 0.0, 0.7, 1.0);
+        let mut angled = plain;
+        angled.tilt_x = 60.0;
+        let (plain_ink, _) = untilted.process(&[plain], None, Phase::Down);
+        let (tilted_ink, _) = tilted.process(&[angled], None, Phase::Down);
+        assert!(tilted_ink.points[2] > plain_ink.points[2]);
+    }
+
+    #[test]
+    fn reference_fountain_prediction_is_isolated_and_batch_invariant() {
+        let config = PenConfig {
+            renderer_version: 2,
+            ..PenConfig::default()
+        };
+        let down = [touch(0.0, 0.0, 0.5, 1.0)];
+        let moves = [touch(8.0, 3.0, 0.6, 2.0), touch(16.0, 7.0, 0.7, 3.0)];
+        let prediction = touch(24.0, 10.0, 0.6, 4.0);
+
+        let mut predicted_pen = PenState::new(2, config.clone());
+        let mut plain_pen = PenState::new(2, config.clone());
+        predicted_pen.process(&down, None, Phase::Down);
+        plain_pen.process(&down, None, Phase::Down);
+        let (predicted_real, predicted) =
+            predicted_pen.process(&moves, Some(prediction), Phase::Move);
+        let (plain_real, _) = plain_pen.process(&moves, None, Phase::Move);
+        assert!(!predicted.points.is_empty());
+        assert_eq!(predicted_real.points, plain_real.points);
+        assert_eq!(predicted_pen.history, plain_pen.history);
+
+        let mut batched = PenState::new(2, config.clone());
+        let mut split = PenState::new(2, config);
+        batched.process(&down, None, Phase::Down);
+        split.process(&down, None, Phase::Down);
+        let (batched_ink, _) = batched.process(&moves, None, Phase::Move);
+        let (first, _) = split.process(&moves[..1], None, Phase::Move);
+        let (second, _) = split.process(&moves[1..], None, Phase::Move);
+        let mut split_points = first.points;
+        split_points.extend(second.points);
+        assert_eq!(batched_ink.points, split_points);
+        assert_eq!(batched.history, split.history);
+    }
+
+    #[test]
+    fn reference_fountain_configuration_boundaries_stay_finite() {
+        for value in [0.0, 1.0] {
+            let config = PenConfig {
+                renderer_version: 2,
+                pressure_sensitivity: value,
+                velocity_sensitivity: value,
+                velocity_amplifier: value,
+                smooth_level: value,
+                brush_spacing: if value == 0.0 { 0.1 } else { 1.0 },
+                scale_precision: if value == 0.0 { 1.0 } else { 8.0 },
+                ..PenConfig::default()
+            };
+            let mut pen = PenState::new(2, config);
+            pen.process(&[touch(0.0, 0.0, 0.0, 0.0)], None, Phase::Down);
+            let (ink, _) = pen.process(&[touch(100.0, 50.0, 1.0, 1.0)], None, Phase::Up);
+            assert!(ink.points.iter().all(|item| item.is_finite()));
+            assert!(ink.point_sizes.iter().all(|size| *size == 3));
+        }
     }
 
     #[test]

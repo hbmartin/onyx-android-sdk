@@ -88,6 +88,29 @@ public class ReflectUtil {
         return getMethodSafely(result, cls, name, parameterTypes) ? result.get() : null;
     }
 
+    /**
+     * Resolves a public method that the SDK intends to invoke with a null
+     * receiver. Unexpected instance methods are rejected during device
+     * initialization instead of failing silently on every invocation.
+     */
+    public static Method getStaticMethodSafely(
+            Class<?> cls, String name, Class<?>... parameterTypes) {
+        Method method = getMethodSafely(cls, name, parameterTypes);
+        if (method == null) {
+            return null;
+        }
+        if (!Modifier.isStatic(method.getModifiers())) {
+            Log.w(TAG, "Expected static method but resolved instance method: "
+                    + cls.getName() + "." + name);
+            return null;
+        }
+        return method;
+    }
+
+    public static boolean isStaticMethodAvailable(Method method) {
+        return method != null && Modifier.isStatic(method.getModifiers());
+    }
+
     public static boolean getStaticIntFieldSafely(
             AtomicReference<Integer> result, Class<?> cls, String name) {
         if (result == null || cls == null) {

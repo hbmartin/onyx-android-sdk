@@ -307,19 +307,19 @@ public class RK33XXDevice extends BaseDevice
             array7[1] = String.class;
             RK33XXDevice.J = ReflectUtil.getMethodSafely(clazz4, "screenshot", (Class<?>[])parameterTypes8);
             RK33XXDevice.u0 = ReflectUtil.getMethodSafely(clazz4, "byPass", type);
-            RK33XXDevice.O = ReflectUtil.getMethodSafely(clazz4, "setStrokeColor", type);
-            RK33XXDevice.P = ReflectUtil.getMethodSafely(clazz4, "setStrokeStyle", type);
+            RK33XXDevice.O = ReflectUtil.getStaticMethodSafely(clazz4, "setStrokeColor", type);
+            RK33XXDevice.P = ReflectUtil.getStaticMethodSafely(clazz4, "setStrokeStyle", type);
             final Class[] parameterTypes9 = { null };
             final Class<Float> type3 = Float.TYPE;
             parameterTypes9[0] = type3;
-            RK33XXDevice.Q = ReflectUtil.getMethodSafely(clazz4, "setLineWidth", (Class<?>[])parameterTypes9);
+            RK33XXDevice.Q = ReflectUtil.getStaticMethodSafely(clazz4, "setLineWidth", (Class<?>[])parameterTypes9);
             final Class[] parameterTypes10;
             final Class[] array8 = parameterTypes10 = new Class[4];
             array8[0] = type2;
             array8[1] = Paint.Style.class;
             array8[2] = Paint.Join.class;
             array8[3] = Paint.Cap.class;
-            RK33XXDevice.R = ReflectUtil.getMethodSafely(clazz4, "setPainterStyle", (Class<?>[])parameterTypes10);
+            RK33XXDevice.R = ReflectUtil.getStaticMethodSafely(clazz4, "setPainterStyle", (Class<?>[])parameterTypes10);
             RK33XXDevice.K = ReflectUtil.getMethodSafely(clazz4, "supportRegal", (Class<?>[])new Class[0]);
             RK33XXDevice.L = ReflectUtil.getMethodSafely(clazz4, "enableRegal", type2);
             final Class[] parameterTypes11;
@@ -407,19 +407,19 @@ public class RK33XXDevice extends BaseDevice
             array22[1] = (array22[0] = type3);
             array22[3] = (array22[2] = type3);
             array22[5] = (array22[4] = type3);
-            RK33XXDevice.p0 = ReflectUtil.getMethodSafely(clazz4, "startStroke", (Class<?>[])parameterTypes24);
+            RK33XXDevice.p0 = ReflectUtil.getStaticMethodSafely(clazz4, "startStroke", (Class<?>[])parameterTypes24);
             final Class[] parameterTypes25;
             final Class[] array23 = parameterTypes25 = new Class[6];
             array23[1] = (array23[0] = type3);
             array23[3] = (array23[2] = type3);
             array23[5] = (array23[4] = type3);
-            RK33XXDevice.q0 = ReflectUtil.getMethodSafely(clazz4, "addStrokePoint", (Class<?>[])parameterTypes25);
+            RK33XXDevice.q0 = ReflectUtil.getStaticMethodSafely(clazz4, "addStrokePoint", (Class<?>[])parameterTypes25);
             final Class[] parameterTypes26;
             final Class[] array24 = parameterTypes26 = new Class[6];
             array24[1] = (array24[0] = type3);
             array24[3] = (array24[2] = type3);
             array24[5] = (array24[4] = type3);
-            RK33XXDevice.r0 = ReflectUtil.getMethodSafely(clazz4, "finishStroke", (Class<?>[])parameterTypes26);
+            RK33XXDevice.r0 = ReflectUtil.getStaticMethodSafely(clazz4, "finishStroke", (Class<?>[])parameterTypes26);
             RK33XXDevice.A0 = ReflectUtil.getMethodSafely(clazz4, "invalidate", type);
             final Class[] parameterTypes27;
             final Class[] array25 = parameterTypes27 = new Class[5];
@@ -1308,6 +1308,20 @@ public class RK33XXDevice extends BaseDevice
         return baseWidth;
     }
     
+    @Override
+    boolean hasStrokeStyleConfigurationCapability() {
+        return ReflectUtil.isStaticMethodAvailable(RK33XXDevice.O)
+                && ReflectUtil.isStaticMethodAvailable(RK33XXDevice.P)
+                && ReflectUtil.isStaticMethodAvailable(RK33XXDevice.Q);
+    }
+
+    @Override
+    boolean hasStrokeDataTransportCapability() {
+        return ReflectUtil.isStaticMethodAvailable(RK33XXDevice.p0)
+                && ReflectUtil.isStaticMethodAvailable(RK33XXDevice.q0)
+                && ReflectUtil.isStaticMethodAvailable(RK33XXDevice.r0);
+    }
+
     @Override
     public void enterScribbleMode(final View view) {
         this.enablePost(view, 0);

@@ -388,6 +388,47 @@ public class NeoPenNativeDeviceTest {
     }
 
     @Test
+    public void referenceCompatibleFountainIsOptInForBothApiGenerations() {
+        NeoPenConfig config = new NeoPenConfig()
+                .setRendererVersion(NeoPenConfig.RENDERER_REFERENCE_COMPAT);
+        config.type = NeoPenConfig.NEOPEN_PEN_TYPE_FOUNTAIN;
+        config.velocitySensitivity = 1.0f;
+        config.velocityUpperBound = 20.0f;
+        config.tiltEnabled = true;
+
+        long handle = NeoPenNative.INSTANCE.createPen(
+                NeoPenConfig.NEOPEN_PEN_TYPE_FOUNTAIN, config);
+        assertNotEquals(0L, handle);
+        try {
+            NeoPenResult down = NeoPenNative.INSTANCE.onPenDown(
+                    handle, point(0f, 0f, 0.4f, 1_000L), false);
+            NeoPenResult move = NeoPenNative.INSTANCE.onPenMove(
+                    handle,
+                    Arrays.asList(point(10f, 2f, 0.8f, 1_008L),
+                            point(20f, 5f, 0.7f, 1_016L)),
+                    point(25f, 7f, 0.6f, 1_024L),
+                    false);
+            assertEncoding(down.getRealInk(), 3, false);
+            assertEncoding(move.getRealInk(), 3, false);
+            assertEncoding(move.getPredictionInk(), 3, false);
+        } finally {
+            NeoPenNative.INSTANCE.destroyPen(handle);
+        }
+
+        com.onyx.android.sdk.data.note.TouchPoint first =
+                new com.onyx.android.sdk.data.note.TouchPoint(0f, 0f, 0.4f, 0.5f, 12, -8, 1_000L);
+        com.onyx.android.sdk.data.note.TouchPoint second =
+                new com.onyx.android.sdk.data.note.TouchPoint(10f, 2f, 0.8f, 0.5f, 12, -8, 1_008L);
+        assertTrue(NeoPenWrapper.initPen(config));
+        try {
+            assertTrue(NeoPenWrapper.onPenDown(first).length > 0);
+            assertTrue(NeoPenWrapper.onPenMove(second).length > 0);
+        } finally {
+            NeoPenWrapper.destroyPen();
+        }
+    }
+
+    @Test
     public void legacyWrapperRunsThroughTheRustJni() {
         com.onyx.android.sdk.data.note.TouchPoint first =
                 new com.onyx.android.sdk.data.note.TouchPoint(10f, 12f, 0.25f, 0.5f, 12, -8, 1_000L);

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import subprocess
 import sys
 import zipfile
@@ -57,13 +58,29 @@ def main() -> int:
     parser.add_argument("--old-reference", required=True, type=Path)
     parser.add_argument("--native-reference", required=True, type=Path)
     parser.add_argument("--candidate", required=True, type=Path)
+    parser.add_argument(
+        "--accepted-additions",
+        type=Path,
+        default=Path(__file__).with_name("pen-api-additions.json"),
+    )
     args = parser.parse_args()
 
     for path in (args.old_reference, args.native_reference, args.candidate):
         if not path.is_file():
             parser.error(f"missing JAR: {path}")
 
+    try:
+        additions_payload = json.loads(args.accepted_additions.read_text())
+        accepted_extra_classes = set(additions_payload.pop("__extraClasses__", []))
+        accepted_additions = {
+            class_name: {tuple(member) for member in members}
+            for class_name, members in additions_payload.items()
+        }
+    except (OSError, ValueError, TypeError) as error:
+        parser.error(f"invalid accepted-additions file: {error}")
+
     checked = 0
+    observed_additions: set[tuple[str, tuple[str, str]]] = set()
     failures: list[str] = []
     reference_names: set[str] = set()
     for reference in (args.old_reference, args.native_reference):
@@ -84,31 +101,53 @@ def main() -> int:
             except RuntimeError as error:
                 failures.append(str(error))
                 continue
-            if expected == actual:
+            expected_declaration, expected_member_tuple = expected
+            actual_declaration, actual_member_tuple = actual
+            expected_members = set(expected_member_tuple)
+            actual_members = set(actual_member_tuple)
+            extra_members = actual_members - expected_members
+            allowed_members = accepted_additions.get(class_name, set())
+            unaccepted_extras = extra_members - allowed_members
+            # Compatibility is one-directional: every reference member must
+            # remain, while only explicitly listed additive API is allowed.
+            if (expected_declaration == actual_declaration
+                    and expected_members.issubset(actual_members)
+                    and not unaccepted_extras):
+                observed_additions.update((class_name, item) for item in extra_members)
                 continue
-            expected_members = set(expected[1])
-            actual_members = set(actual[1])
             details = [f"API mismatch: {class_name}"]
-            if expected[0] != actual[0]:
+            if expected_declaration != actual_declaration:
                 details.extend(
-                    [f"  expected declaration: {expected[0]}", f"  actual declaration:   {actual[0]}"]
+                    [f"  expected declaration: {expected_declaration}", f"  actual declaration:   {actual_declaration}"]
                 )
             details.extend(f"  missing: {item}" for item in sorted(expected_members - actual_members))
-            details.extend(f"  extra:   {item}" for item in sorted(actual_members - expected_members))
+            details.extend(f"  unaccepted extra: {item}" for item in sorted(unaccepted_extras))
             failures.append("\n".join(details))
 
+    candidate_only = sorted(set(class_names(args.candidate)) - reference_names)
+    unaccepted_classes = sorted(set(candidate_only) - accepted_extra_classes)
+    if unaccepted_classes:
+        failures.append("Unaccepted candidate-only classes: " + ", ".join(unaccepted_classes))
     if failures:
         print("\n\n".join(failures), file=sys.stderr)
         return 1
-    # The comparison is intentionally one-directional (the rebuilt module is a
-    # superset of each single reference JAR); surface the extras so additions
-    # are at least visible.
-    candidate_only = sorted(set(class_names(args.candidate)) - reference_names)
     if candidate_only:
         print(
-            f"note: {len(candidate_only)} candidate classes exist in no reference JAR "
-            f"and were not compared: {', '.join(candidate_only)}"
+            f"Accepted {len(candidate_only)} intentional candidate-only classes: "
+            f"{', '.join(candidate_only)}"
         )
+    configured_additions = {
+        (class_name, item)
+        for class_name, members in accepted_additions.items()
+        for item in members
+    }
+    unobserved = configured_additions - observed_additions
+    if unobserved:
+        print(
+            "note: accepted additions not present in this reference comparison: "
+            + ", ".join(sorted(f"{class_name}: {item[0]}" for class_name, item in unobserved))
+        )
+    print(f"Accepted {len(observed_additions)} intentional additive members.")
     print(f"Pen JVM API matches {checked} public reference classes.")
     return 0
 

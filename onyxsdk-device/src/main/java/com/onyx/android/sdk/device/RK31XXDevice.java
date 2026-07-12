@@ -290,19 +290,19 @@ public class RK31XXDevice extends BaseDevice
             array9[1] = String.class;
             RK31XXDevice.L = ReflectUtil.getMethodSafely(View.class, "screenshot", (Class<?>[])parameterTypes9);
             RK31XXDevice.M = ReflectUtil.getMethodSafely(View.class, "byPass", type);
-            RK31XXDevice.R = ReflectUtil.getMethodSafely(View.class, "setStrokeColor", type);
-            RK31XXDevice.S = ReflectUtil.getMethodSafely(View.class, "setStrokeStyle", type);
+            RK31XXDevice.R = ReflectUtil.getStaticMethodSafely(View.class, "setStrokeColor", type);
+            RK31XXDevice.S = ReflectUtil.getStaticMethodSafely(View.class, "setStrokeStyle", type);
             final Class[] parameterTypes10 = { null };
             final Class<Float> type3 = Float.TYPE;
             parameterTypes10[0] = type3;
-            RK31XXDevice.T = ReflectUtil.getMethodSafely(View.class, "setStrokeWidth", (Class<?>[])parameterTypes10);
+            RK31XXDevice.T = ReflectUtil.getStaticMethodSafely(View.class, "setStrokeWidth", (Class<?>[])parameterTypes10);
             final Class[] parameterTypes11;
             final Class[] array10 = parameterTypes11 = new Class[4];
             array10[0] = type2;
             array10[1] = Paint.Style.class;
             array10[2] = Paint.Join.class;
             array10[3] = Paint.Cap.class;
-            RK31XXDevice.U = ReflectUtil.getMethodSafely(View.class, "setPainterStyle", (Class<?>[])parameterTypes11);
+            RK31XXDevice.U = ReflectUtil.getStaticMethodSafely(View.class, "setPainterStyle", (Class<?>[])parameterTypes11);
             RK31XXDevice.N = ReflectUtil.getMethodSafely(View.class, "supportRegal", (Class<?>[])new Class[0]);
             RK31XXDevice.O = ReflectUtil.getMethodSafely(View.class, "enableRegal", type2);
             final Class[] parameterTypes12;
@@ -386,19 +386,19 @@ public class RK31XXDevice extends BaseDevice
             array24[1] = (array24[0] = type3);
             array24[3] = (array24[2] = type3);
             array24[5] = (array24[4] = type3);
-            RK31XXDevice.o0 = ReflectUtil.getMethodSafely(View.class, "startStroke", (Class<?>[])parameterTypes25);
+            RK31XXDevice.o0 = ReflectUtil.getStaticMethodSafely(View.class, "startStroke", (Class<?>[])parameterTypes25);
             final Class[] parameterTypes26;
             final Class[] array25 = parameterTypes26 = new Class[6];
             array25[1] = (array25[0] = type3);
             array25[3] = (array25[2] = type3);
             array25[5] = (array25[4] = type3);
-            RK31XXDevice.p0 = ReflectUtil.getMethodSafely(View.class, "addStrokePoint", (Class<?>[])parameterTypes26);
+            RK31XXDevice.p0 = ReflectUtil.getStaticMethodSafely(View.class, "addStrokePoint", (Class<?>[])parameterTypes26);
             final Class[] parameterTypes27;
             final Class[] array26 = parameterTypes27 = new Class[6];
             array26[1] = (array26[0] = type3);
             array26[3] = (array26[2] = type3);
             array26[5] = (array26[4] = type3);
-            RK31XXDevice.q0 = ReflectUtil.getMethodSafely(View.class, "finishStroke", (Class<?>[])parameterTypes27);
+            RK31XXDevice.q0 = ReflectUtil.getStaticMethodSafely(View.class, "finishStroke", (Class<?>[])parameterTypes27);
             RK31XXDevice.z0 = ReflectUtil.getMethodSafely(View.class, "invalidate", type);
             final Class[] parameterTypes28;
             final Class[] array27 = parameterTypes28 = new Class[5];
@@ -1262,6 +1262,20 @@ public class RK31XXDevice extends BaseDevice
         return baseWidth;
     }
     
+    @Override
+    boolean hasStrokeStyleConfigurationCapability() {
+        return ReflectUtil.isStaticMethodAvailable(RK31XXDevice.R)
+                && ReflectUtil.isStaticMethodAvailable(RK31XXDevice.S)
+                && ReflectUtil.isStaticMethodAvailable(RK31XXDevice.T);
+    }
+
+    @Override
+    boolean hasStrokeDataTransportCapability() {
+        return ReflectUtil.isStaticMethodAvailable(RK31XXDevice.o0)
+                && ReflectUtil.isStaticMethodAvailable(RK31XXDevice.p0)
+                && ReflectUtil.isStaticMethodAvailable(RK31XXDevice.q0);
+    }
+
     @Override
     public void enterScribbleMode(final View view) {
         try {

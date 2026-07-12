@@ -31,6 +31,8 @@ public abstract class EpdController {
     public static final String RESET_SYSTEM_CTP_ACTION = "action.disable.tp.exclude.bar.region";
     public static final String CTP_STATUS_CHANGE_ACTION = "ctp.status.change";
     private static boolean isRegalEnabled = true;
+    private static final StrokeTransport FRAMEWORK_STROKE_TRANSPORT = new FrameworkStrokeTransport();
+    private static volatile StrokeTransport strokeTransport = FRAMEWORK_STROKE_TRANSPORT;
     public static final float MAX_TOUCH_PRESSURE = getMaxTouchPressure();
 
     private EpdController() {
@@ -197,15 +199,85 @@ public abstract class EpdController {
     }
 
     public static float startStroke(float baseWidth, float x, float y, float pressure, float size, float time) {
-        return Device.currentDevice().startStroke(baseWidth, x, y, pressure, size, time);
+        return strokeTransport.startStroke(baseWidth, x, y, pressure, size, time);
     }
 
     public static float addStrokePoint(float baseWidth, float x, float y, float pressure, float size, float time) {
-        return Device.currentDevice().addStrokePoint(baseWidth, x, y, pressure, size, time);
+        return strokeTransport.addStrokePoint(baseWidth, x, y, pressure, size, time);
     }
 
     public static float finishStroke(float baseWidth, float x, float y, float pressure, float size, float time) {
-        return Device.currentDevice().finishStroke(baseWidth, x, y, pressure, size, time);
+        return strokeTransport.finishStroke(baseWidth, x, y, pressure, size, time);
+    }
+
+    public static void setEnablePenSideButton(boolean enabled) {
+        Device.currentDevice().setEnablePenSideButton(enabled);
+    }
+
+    public static void setBrushRawDrawingEnabled(boolean enabled) {
+        Device.currentDevice().setBrushRawDrawingEnabled(enabled);
+    }
+
+    public static void setEraserRawDrawingEnabled(boolean enabled, int eraserStyle) {
+        Device.currentDevice().setEraserRawDrawingEnabled(enabled, eraserStyle);
+    }
+
+    public static float[] getStrokeParameters(int strokeStyle) {
+        return Device.currentDevice().getStrokeParameters(strokeStyle);
+    }
+
+    public static void setStrokeParameters(int strokeStyle, float[] parameters) {
+        Device.currentDevice().setStrokeParameters(strokeStyle, parameters);
+    }
+
+    /** Applies the same color/style/width/extra-parameter group used by EAC. */
+    public static void applyStrokeConfiguration(StrokeConfiguration configuration) {
+        if (configuration == null) {
+            throw new IllegalArgumentException("configuration must not be null");
+        }
+        setStrokeColor(configuration.getColor());
+        setStrokeStyle(configuration.getStyle());
+        setStrokeWidth(configuration.getWidth());
+        setStrokeParameters(configuration.getStyle(), configuration.getExtraParameters());
+    }
+
+    public static boolean supportsStrokeStyleConfiguration() {
+        return Device.currentDevice().supportsStrokeStyleConfiguration();
+    }
+
+    public static boolean supportsStrokeDataTransport() {
+        return Device.currentDevice().supportsStrokeDataTransport();
+    }
+
+    public static boolean supportsAdvancedStrokeConfiguration() {
+        return Device.currentDevice().supportsAdvancedStrokeConfiguration();
+    }
+
+    /** Restores the normal BOOX framework/reflection stroke path. */
+    public static void useFrameworkStrokeTransport() {
+        strokeTransport = FRAMEWORK_STROKE_TRANSPORT;
+    }
+
+    /**
+     * Enables direct Binder transport only when the configured service exists.
+     * Failures during later transactions automatically fall back to the normal
+     * framework path.
+     */
+    public static boolean useSurfaceFlingerStrokeTransport(StrokeTransportConfig config) {
+        if (config == null) {
+            throw new IllegalArgumentException("config must not be null");
+        }
+        StrokeTransport candidate = new SurfaceFlingerStrokeTransport(
+                config, FRAMEWORK_STROKE_TRANSPORT);
+        if (!candidate.isAvailable()) {
+            return false;
+        }
+        strokeTransport = candidate;
+        return true;
+    }
+
+    public static String getStrokeTransportName() {
+        return strokeTransport.getName();
     }
 
     public static void enterScribbleMode(View view) {

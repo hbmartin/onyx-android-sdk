@@ -439,19 +439,19 @@ public class SDMDevice extends BaseDevice
             array7[1] = String.class;
             SDMDevice.Z = ReflectUtil.getMethodSafely(cls6, "screenshot", (Class<?>[])parameterTypes9);
             SDMDevice.J0 = ReflectUtil.getMethodSafely(cls6, "byPass", type2);
-            SDMDevice.d0 = ReflectUtil.getMethodSafely(cls6, "setStrokeColor", type2);
-            SDMDevice.e0 = ReflectUtil.getMethodSafely(cls6, "setStrokeStyle", type2);
+            SDMDevice.d0 = ReflectUtil.getStaticMethodSafely(cls6, "setStrokeColor", type2);
+            SDMDevice.e0 = ReflectUtil.getStaticMethodSafely(cls6, "setStrokeStyle", type2);
             final Class[] parameterTypes10 = { null };
             final Class<Float> type3 = Float.TYPE;
             parameterTypes10[0] = type3;
-            SDMDevice.f0 = ReflectUtil.getMethodSafely(cls6, "setStrokeWidth", (Class<?>[])parameterTypes10);
+            SDMDevice.f0 = ReflectUtil.getStaticMethodSafely(cls6, "setStrokeWidth", (Class<?>[])parameterTypes10);
             final Class[] parameterTypes11;
             final Class[] array8 = parameterTypes11 = new Class[4];
             array8[0] = type;
             array8[1] = Paint.Style.class;
             array8[2] = Paint.Join.class;
             array8[3] = Paint.Cap.class;
-            SDMDevice.g0 = ReflectUtil.getMethodSafely(cls6, "setPainterStyle", (Class<?>[])parameterTypes11);
+            SDMDevice.g0 = ReflectUtil.getStaticMethodSafely(cls6, "setPainterStyle", (Class<?>[])parameterTypes11);
             SDMDevice.a0 = ReflectUtil.getMethodSafely(cls6, "supportRegal", (Class<?>[])new Class[0]);
             SDMDevice.b0 = ReflectUtil.getMethodSafely(cls6, "enableRegal", type);
             SDMDevice.j0 = ReflectUtil.getMethodSafely(cls6, "penUp", (Class<?>[])new Class[0]);
@@ -551,19 +551,19 @@ public class SDMDevice extends BaseDevice
             array22[1] = (array22[0] = type3);
             array22[3] = (array22[2] = type3);
             array22[5] = (array22[4] = type3);
-            SDMDevice.E0 = ReflectUtil.getMethodSafely(cls6, "startStroke", (Class<?>[])parameterTypes25);
+            SDMDevice.E0 = ReflectUtil.getStaticMethodSafely(cls6, "startStroke", (Class<?>[])parameterTypes25);
             final Class[] parameterTypes26;
             final Class[] array23 = parameterTypes26 = new Class[6];
             array23[1] = (array23[0] = type3);
             array23[3] = (array23[2] = type3);
             array23[5] = (array23[4] = type3);
-            SDMDevice.F0 = ReflectUtil.getMethodSafely(cls6, "addStrokePoint", (Class<?>[])parameterTypes26);
+            SDMDevice.F0 = ReflectUtil.getStaticMethodSafely(cls6, "addStrokePoint", (Class<?>[])parameterTypes26);
             final Class[] parameterTypes27;
             final Class[] array24 = parameterTypes27 = new Class[6];
             array24[1] = (array24[0] = type3);
             array24[3] = (array24[2] = type3);
             array24[5] = (array24[4] = type3);
-            SDMDevice.G0 = ReflectUtil.getMethodSafely(cls6, "finishStroke", (Class<?>[])parameterTypes27);
+            SDMDevice.G0 = ReflectUtil.getStaticMethodSafely(cls6, "finishStroke", (Class<?>[])parameterTypes27);
             if ((SDMDevice.a1 = ReflectUtil.getMethodSafely(cls5, "invalidate", type2)) == null) {
                 SDMDevice.a1 = ReflectUtil.getMethodSafely(clazz, "invalidateWithUpdateMode", type2);
             }
@@ -797,22 +797,22 @@ public class SDMDevice extends BaseDevice
             array49[2] = type2;
             SDMDevice.U2 = ReflectUtil.getMethodSafely(classForName8, "setRotationLockAtAngle", (Class<?>[])parameterTypes52);
             Debug.d(SDMDevice.class, "init device finished.", new Object[0]);
-            SDMDevice.k3 = ReflectUtil.getMethodSafely(cls9, "setEnablePenSideButton", type);
-            SDMDevice.l3 = ReflectUtil.getMethodSafely(cls9, "setBrushRawDrawingEnabled", type);
+            SDMDevice.k3 = ReflectUtil.getStaticMethodSafely(cls9, "setEnablePenSideButton", type);
+            SDMDevice.l3 = ReflectUtil.getStaticMethodSafely(cls9, "setBrushRawDrawingEnabled", type);
             final Class[] parameterTypes53;
             final Class[] array50 = parameterTypes53 = new Class[2];
             array50[0] = type;
             array50[1] = type2;
-            if ((SDMDevice.m3 = ReflectUtil.getMethodSafely(cls9, "setEraserRawDrawingEnabled", (Class<?>[])parameterTypes53)) == null) {
-                SDMDevice.m3 = ReflectUtil.getMethodSafely(classForName, "setEraserRawDrawingEnabled", type);
+            if ((SDMDevice.m3 = ReflectUtil.getStaticMethodSafely(cls9, "setEraserRawDrawingEnabled", (Class<?>[])parameterTypes53)) == null) {
+                SDMDevice.m3 = ReflectUtil.getStaticMethodSafely(classForName, "setEraserRawDrawingEnabled", type);
             }
             final Class<?> cls13 = classForName;
-            SDMDevice.n3 = ReflectUtil.getMethodSafely(cls13, "getStrokeParameters", type2);
+            SDMDevice.n3 = ReflectUtil.getStaticMethodSafely(cls13, "getStrokeParameters", type2);
             final Class[] parameterTypes54;
             final Class[] array51 = parameterTypes54 = new Class[2];
             array51[0] = type2;
             array51[1] = float[].class;
-            SDMDevice.o3 = ReflectUtil.getMethodSafely(cls13, "setStrokeParameters", (Class<?>[])parameterTypes54);
+            SDMDevice.o3 = ReflectUtil.getStaticMethodSafely(cls13, "setStrokeParameters", (Class<?>[])parameterTypes54);
             SDMDevice.p3 = ReflectUtil.getMethodSafely(cls13, "getEpdToViewMatrix", (Class<?>[])new Class[0]);
             SDMDevice.X0 = ReflectUtil.getMethodSafely(ReflectUtil.classForName("android.onyx.utils.RotationUtil"), "convertRotation", type2);
             SDMDevice.Y0 = ReflectUtil.getMethodSafely(ReflectUtil.classForName("android.onyx.utils.FontsUtils"), "getFontPathMap", (Class<?>[])new Class[0]);
@@ -1678,6 +1678,29 @@ public class SDMDevice extends BaseDevice
         return baseWidth;
     }
     
+    @Override
+    boolean hasStrokeStyleConfigurationCapability() {
+        return ReflectUtil.isStaticMethodAvailable(SDMDevice.d0)
+                && ReflectUtil.isStaticMethodAvailable(SDMDevice.e0)
+                && ReflectUtil.isStaticMethodAvailable(SDMDevice.f0);
+    }
+
+    @Override
+    boolean hasStrokeDataTransportCapability() {
+        return ReflectUtil.isStaticMethodAvailable(SDMDevice.E0)
+                && ReflectUtil.isStaticMethodAvailable(SDMDevice.F0)
+                && ReflectUtil.isStaticMethodAvailable(SDMDevice.G0);
+    }
+
+    @Override
+    boolean hasAdvancedStrokeConfigurationCapability() {
+        return ReflectUtil.isStaticMethodAvailable(SDMDevice.k3)
+                && ReflectUtil.isStaticMethodAvailable(SDMDevice.l3)
+                && ReflectUtil.isStaticMethodAvailable(SDMDevice.m3)
+                && ReflectUtil.isStaticMethodAvailable(SDMDevice.n3)
+                && ReflectUtil.isStaticMethodAvailable(SDMDevice.o3);
+    }
+
     @Override
     public void enterScribbleMode(final View view) {
         this.enablePost(view, 0);

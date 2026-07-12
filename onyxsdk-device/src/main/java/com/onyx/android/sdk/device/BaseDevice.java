@@ -1196,6 +1196,33 @@ public class BaseDevice {
     public void setStrokeParameters(int strokeStyle, float[] params) {
     }
 
+    /** Returns whether the vendor stroke color/style/width methods resolved. */
+    public final boolean supportsStrokeStyleConfiguration() {
+        return hasStrokeStyleConfigurationCapability();
+    }
+
+    /** Returns whether start/add/finish stroke methods resolved. */
+    public final boolean supportsStrokeDataTransport() {
+        return hasStrokeDataTransportCapability();
+    }
+
+    /** Returns whether extra stroke parameters and raw-drawing controls resolved. */
+    public final boolean supportsAdvancedStrokeConfiguration() {
+        return hasAdvancedStrokeConfigurationCapability();
+    }
+
+    boolean hasStrokeStyleConfigurationCapability() {
+        return false;
+    }
+
+    boolean hasStrokeDataTransportCapability() {
+        return false;
+    }
+
+    boolean hasAdvancedStrokeConfigurationCapability() {
+        return false;
+    }
+
     @Nullable
     public Matrix getRawTouchPointToScreenMatrix() {
         Matrix matrix = new Matrix();
