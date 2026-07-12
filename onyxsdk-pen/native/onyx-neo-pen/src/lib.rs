@@ -1511,6 +1511,9 @@ mod tests {
         v2.process(&[touch(0.0, 0.0, 0.5, 1.0)], None, Phase::Down);
         v2.process(&[touch(60.0, 0.0, 0.5, 2.0)], None, Phase::Move);
         let (up, _) = v2.process(&[touch(60.0, 0.0, 0.5, 3.0)], None, Phase::Up);
-        assert_eq!(up.points[0], 56.0);
+        // The BOOX differential pins charcoal-v2's final texture to the
+        // stroke origin, not the most recent move point.
+        assert_eq!(up.points, [-4.0, -4.0]);
+        assert_eq!(up.stamps[0].rows, Some(CHARCOAL_V2_UP_ROWS));
     }
 }

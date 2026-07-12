@@ -56,6 +56,15 @@ final class ResultRecorder implements AutoCloseable {
             Log.w(TAG, "Dropping record after close: " + suite + "/" + caseId + "/" + phase);
             return;
         }
+        try {
+            writeRecord(suite, caseId, phase, status, inputs, result, error);
+        } catch (IOException e) {
+            throw new IllegalStateException("Could not record validation result", e);
+        }
+    }
+
+    private void writeRecord(String suite, String caseId, String phase, String status,
+                             Object inputs, Object result, Throwable error) throws IOException {
         JSONObject line = new JSONObject();
         try {
             line.put("sequence", sequence++);
@@ -75,14 +84,14 @@ final class ResultRecorder implements AutoCloseable {
                 exception.put("message", String.valueOf(error.getMessage()));
                 line.put("exception", exception);
             }
-            append(line);
-            if (error == null) {
-                Log.i(TAG, "RESULT " + line);
-            } else {
-                Log.e(TAG, "RESULT " + line, error);
-            }
-        } catch (JSONException | IOException e) {
+        } catch (JSONException e) {
             throw new IllegalStateException("Could not record validation result", e);
+        }
+        append(line);
+        if (error == null) {
+            Log.i(TAG, "RESULT " + line);
+        } else {
+            Log.e(TAG, "RESULT " + line, error);
         }
     }
 
@@ -107,7 +116,10 @@ final class ResultRecorder implements AutoCloseable {
         // A done marker without its suite_complete record would let the
         // runner pull a stream that never says which suite finished.
         if (closed) throw new IOException("result recorder is closed");
-        value("harness", "suite_complete", suite, true);
+        // Bypass record(): a write failure here must reach finishSuite's
+        // IOException handler as "suite not finished", not crash the activity
+        // as record()'s wrapped IllegalStateException would.
+        writeRecord("harness", "suite_complete", "observation", MATCH, suite, true, null);
         Log.i(TAG, "Writing done marker for suite=" + suite);
         try (FileWriter writer = new FileWriter(new File(context.getFilesDir(), "done"), false)) {
             writer.write(suite);
