@@ -144,6 +144,61 @@ class ClassifyTest(unittest.TestCase):
         self.assertEqual(compare_results.classify(record(), record(), True), "match")
 
 
+class ClassifiedAuditSummaryTest(unittest.TestCase):
+    def test_accepted_missing_residual_does_not_hide_changed_signature(self):
+        audit = {
+            "unacceptedCounts": {"binary_breaking": 1},
+            "acceptedResiduals": {"classes": ["example.AcceptedMissing"]},
+            "classes": {
+                "example.AcceptedMissing": {
+                    "buckets": {"binary_breaking": ["class missing from candidate"]},
+                },
+                "example.Changed": {
+                    "buckets": {"binary_breaking": ["removed method: changed()"]},
+                },
+            },
+        }
+
+        self.assertEqual(compare_results.classified_audit_summary(audit), {
+            "defects": 1,
+            "missing": 0,
+            "changed": 1,
+            "extraPublicSurface": 0,
+        })
+
+    def test_extra_public_surface_is_not_reported_as_changed_signature(self):
+        audit = {
+            "unacceptedCounts": {"extra_public_surface": 1},
+            "extraClasses": ["example.Extension"],
+            "classes": {},
+        }
+
+        self.assertEqual(compare_results.classified_audit_summary(audit), {
+            "defects": 1,
+            "missing": 0,
+            "changed": 0,
+            "extraPublicSurface": 1,
+        })
+
+    def test_extra_member_is_still_a_changed_class_signature(self):
+        audit = {
+            "unacceptedCounts": {"extra_public_surface": 1},
+            "extraClasses": [],
+            "classes": {
+                "example.Changed": {
+                    "buckets": {"extra_public_surface": ["extra member: changed()"]},
+                },
+            },
+        }
+
+        self.assertEqual(compare_results.classified_audit_summary(audit), {
+            "defects": 1,
+            "missing": 0,
+            "changed": 1,
+            "extraPublicSurface": 1,
+        })
+
+
 class PenSummaryTest(unittest.TestCase):
     def test_valid_stroke_has_no_errors(self):
         records = [raw_event(0), raw_event(1), raw_event(2)]

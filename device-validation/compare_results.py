@@ -130,6 +130,30 @@ def classify(reference: dict[str, Any] | None, recovered: dict[str, Any] | None,
     return "recovery_defect"
 
 
+def classified_audit_summary(audit: dict[str, Any]) -> dict[str, int]:
+    """Decompose unaccepted audit findings without counting accepted residuals."""
+    unaccepted = audit.get("unacceptedCounts", {})
+    accepted_classes = set(audit.get("acceptedResiduals", {}).get("classes", []))
+    accepted_extra_classes = set(
+        audit.get("acceptedResiduals", {}).get("extraClasses", []))
+    missing = sum(
+        1 for name, details in audit.get("classes", {}).items()
+        if name not in accepted_classes
+        and "class missing from candidate" in
+        details.get("buckets", {}).get("binary_breaking", [])
+    )
+    unaccepted_extra_classes = len(
+        set(audit.get("extraClasses", [])) - accepted_extra_classes)
+    extra_public_surface = unaccepted.get("extra_public_surface", 0)
+    defects = sum(unaccepted.values())
+    return {
+        "defects": defects,
+        "missing": missing,
+        "changed": max(0, defects - missing - unaccepted_extra_classes),
+        "extraPublicSurface": extra_public_surface,
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("reference", type=Path)
@@ -212,13 +236,11 @@ def main() -> None:
         for module, values in api.items():
             audit = values.get("classifiedAudit")
             if audit:
-                unaccepted = audit.get("unacceptedCounts", {})
-                defects = sum(unaccepted.values())
-                missing = sum(
-                    1 for details in audit.get("classes", {}).values()
-                    if "class missing from candidate" in
-                    details.get("buckets", {}).get("binary_breaking", []))
-                changed = max(0, defects - missing)
+                audit_summary = classified_audit_summary(audit)
+                defects = audit_summary["defects"]
+                missing = audit_summary["missing"]
+                changed = audit_summary["changed"]
+                extra_public_surface = audit_summary["extraPublicSurface"]
                 extra = len(audit.get("extraClasses", []))
                 accepted_classes = len(audit.get("acceptedResiduals", {}).get("classes", []))
                 accepted_extra = len(audit.get("acceptedResiduals", {}).get("extraClasses", []))
@@ -230,12 +252,14 @@ def main() -> None:
                 extra = len(values.get("extraClasses", []))
                 accepted_classes = 0
                 accepted_extra = 0
+                extra_public_surface = 0
                 defects = missing + changed
                 counts["recovery_defect"] += defects
                 counts["platform_variation"] += extra
             api_summary[module] = {
                 "missingClasses": missing,
                 "changedSignatures": changed,
+                "extraPublicSurface": extra_public_surface,
                 "recoveryExtensions": extra,
                 "acceptedCompilerResiduals": accepted_classes,
                 "acceptedExtensions": accepted_extra,
@@ -271,13 +295,15 @@ def main() -> None:
     if api_summary is not None:
         lines.extend(["", "## Public API surface", ""])
         for module, summary in api_summary.items():
-            lines.append(
-                f"- `{module}`: `{summary['classification']}` — "
-                f"{summary['missingClasses']} missing classes, "
-                f"{summary['changedSignatures']} changed class signatures, "
-                f"{summary['recoveryExtensions']} recovery extensions, "
-                f"{summary['acceptedCompilerResiduals']} accepted compiler residuals"
-            )
+            lines.extend([
+                f"- `{module}`: `{summary['classification']}`",
+                f"  - {summary['missingClasses']} missing classes",
+                f"  - {summary['changedSignatures']} changed class signatures",
+                f"  - {summary['extraPublicSurface']} unaccepted extra public-surface findings",
+                f"  - {summary['recoveryExtensions']} recovery extension classes",
+                f"  - {summary['acceptedCompilerResiduals']} accepted compiler residuals",
+                f"  - {summary['acceptedExtensions']} accepted extensions",
+            ])
         lines.extend(["", "Exact class names are recorded in `api-surface.json`."])
     mismatches = [item for item in comparisons if item["classification"] != "match"]
     lines.extend(["", "## Non-matching cases", ""])

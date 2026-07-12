@@ -17,6 +17,7 @@ public final class NeoPenNative {
     @NotNull
     public static final NeoPenNative INSTANCE = new NeoPenNative();
     private static final String TRACE_TAG = "OnyxNeoPen";
+    // Cached at class load; set log.tag.OnyxNeoPen before loading this library.
     private static final boolean a = Log.isLoggable(TRACE_TAG, Log.DEBUG);
 
     static {
