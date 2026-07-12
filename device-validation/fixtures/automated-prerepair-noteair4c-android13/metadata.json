@@ -1,0 +1,25 @@
+{
+  "comparisons": [
+    "."
+  ],
+  "promotedAt": "2026-07-12T16:04:31+00:00",
+  "promotedFiles": [
+    "api-surface.json",
+    "device/adb-shell-id.txt",
+    "device/display.txt",
+    "device/getevent-capabilities.txt",
+    "device/getprop.txt",
+    "neo-pen-differential.txt",
+    "recovered.jsonl",
+    "reference.jsonl"
+  ],
+  "sanitized": {
+    "redactedTokens": 1,
+    "volatileFields": [
+      "monotonicNs",
+      "thread",
+      "wallClockMs"
+    ]
+  },
+  "sourceRun": "automated-final"
+}

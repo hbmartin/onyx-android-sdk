@@ -29,10 +29,13 @@ def classes(jar: Path) -> list[str]:
 
 def javap(jar: Path, names: list[str], classpath: list[Path]) -> dict[str, list[str]]:
     result: dict[str, list[str]] = {}
+    errors: list[str] = []
     cp = ":".join(str(path) for path in [jar, *classpath])
     for offset in range(0, len(names), 80):
         command = ["javap", "-public", "-classpath", cp, *names[offset:offset + 80]]
         completed = subprocess.run(command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+        if completed.stderr.strip():
+            errors.append(completed.stderr.strip())
         current = None
         signature: list[str] = []
         for raw in completed.stdout.splitlines():
@@ -47,6 +50,13 @@ def javap(jar: Path, names: list[str], classpath: list[Path]) -> dict[str, list[
                 signature.append(line)
         if current is not None:
             result[current] = [signature[0], *sorted(signature[1:])]
+    # A class that fails to disassemble would otherwise vanish from the API
+    # dict, fall out of the intersection, and be counted nowhere.
+    dropped = sorted(set(names) - set(result))
+    if dropped:
+        detail = "\n".join(errors) or "(javap reported no error text)"
+        raise SystemExit(f"javap produced no output for {len(dropped)} class(es) in {jar.name}: "
+                         f"{', '.join(dropped[:10])}{'…' if len(dropped) > 10 else ''}\n{detail}")
     return result
 
 

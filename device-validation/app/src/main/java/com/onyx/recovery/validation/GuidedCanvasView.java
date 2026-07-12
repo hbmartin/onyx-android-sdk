@@ -38,6 +38,11 @@ final class GuidedCanvasView extends View {
         postInvalidate();
     }
 
+    // Called on stroke begin so separate strokes are not joined by a line.
+    synchronized void breakStroke(boolean erasing) {
+        if (erasing) hasErase = false; else hasInk = false;
+    }
+
     synchronized void clearPaths() {
         inkPath.reset();
         erasePath.reset();

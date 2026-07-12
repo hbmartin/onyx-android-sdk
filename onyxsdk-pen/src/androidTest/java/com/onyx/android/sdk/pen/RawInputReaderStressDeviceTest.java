@@ -28,6 +28,7 @@ public class RawInputReaderStressDeviceTest {
 
         int fdsBefore = openFdCount();
         long nativeHeapBefore = android.os.Debug.getNativeHeapAllocatedSize();
+        long javaHeapBefore = usedJavaHeap();
 
         for (int i = 0; i < CYCLES; i++) {
             runCycle(new RawInputReader());
@@ -36,6 +37,7 @@ public class RawInputReaderStressDeviceTest {
 
         int fdsAfter = openFdCount();
         long nativeHeapAfter = android.os.Debug.getNativeHeapAllocatedSize();
+        long javaHeapAfter = usedJavaHeap();
         int readerThreads = readerThreadCount();
 
         // The shared reader executor legitimately keeps one worker alive;
@@ -46,6 +48,18 @@ public class RawInputReaderStressDeviceTest {
         long nativeGrowth = nativeHeapAfter - nativeHeapBefore;
         assertTrue("native heap grew by " + nativeGrowth + " bytes over "
                 + CYCLES + " cycles", nativeGrowth < 16L * 1024 * 1024);
+        long javaGrowth = javaHeapAfter - javaHeapBefore;
+        assertTrue("java heap grew by " + javaGrowth + " bytes over "
+                + CYCLES + " cycles", javaGrowth < 32L * 1024 * 1024);
+    }
+
+    private static long usedJavaHeap() {
+        Runtime runtime = Runtime.getRuntime();
+        // Two GC passes settle SoftReference/finalizer churn enough for a
+        // leak bound this generous.
+        runtime.gc();
+        runtime.gc();
+        return runtime.totalMemory() - runtime.freeMemory();
     }
 
     private static void runCycle(RawInputReader reader) throws Exception {

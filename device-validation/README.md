@@ -63,6 +63,62 @@ the recovered variant runs — if the reference capture recorded zero stylus
 events, and each variant's capture fails the run if its own evdev log stayed
 empty.
 
+The stylus evdev node is auto-detected (the device advertising
+`BTN_TOOL_PEN`); override with `--input-device /dev/input/eventN` if a device
+exposes several pen nodes.
+
+## Guided operator protocol
+
+```bash
+./run-comparison.sh --suite guided
+```
+
+Twelve scenarios (DU/GU/GC refresh, scribble mode, region limits, ghosting
+cleanup, pressure, tilt, both erasers, pause/resume, restart), each captured
+on both builds with automated gates around an operator same/different verdict,
+then a combined exact-replay parity phase. Operator instructions live in
+`docs/GUIDED_VALIDATION.md`; the scenario catalog and gates in
+`guided_scenarios.py`.
+
+## Replay delivery health
+
+Replay suites record a `replay_health` observation per run: every delivered
+event must produce its JNI callback (drop count zero), semantic callbacks must
+arrive, and per-event delivery latency must stay inside generous bounds
+(p95 ≤ 50 ms, max ≤ 250 ms). `compare_results.py` classifies an unhealthy
+side as `recovery_defect` even when both sides are symmetric. Raw latency
+numbers are recorded under phase `metrics`, which is never compared across
+variants. Note that `onPenUpRefresh` is exercised only by live captures — in
+replay mode the reader quits before the pen-up refresh timer can fire — so
+that callback path is deliberately validated by the live/guided suites, not
+by replay.
+
+## Fixtures
+
+Raw `results/` runs stay untracked. Promote a finished run into the
+git-tracked `fixtures/` directory with:
+
+```bash
+python3 promote_fixture.py results/<run-dir> --name <fixture-name>
+```
+
+The script normalizes host-volatile fields, scrubs identifying tokens
+(serials, MACs) from every promoted file, skips logcat, and regenerates each
+`comparison.json` from the sanitized streams. `tests/test_fixtures.py`
+re-compares every fixture and fails if the pinned counts stop reproducing.
+The current `automated-prerepair-noteair4c-android13` fixture pins the
+pre-repair evidence run, 75 api-surface defects included — promote a fresh
+run after the next hardware session for a post-repair baseline.
+
+## Host-side tests
+
+```bash
+python3 -m unittest discover tests
+```
+
+covers the comparison taxonomy (`compare_results.py`), the guided-scenario
+gates, and fixture reproduction — no device required.
+
 ## Safety boundary
 
 The harness does not use root, inject input, hook processes, write system

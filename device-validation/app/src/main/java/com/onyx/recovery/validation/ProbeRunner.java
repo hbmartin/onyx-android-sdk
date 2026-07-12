@@ -12,12 +12,19 @@ import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.api.device.epd.UpdateMode;
 import com.onyx.android.sdk.data.Orientation;
 import com.onyx.android.sdk.data.note.line.Line;
+import com.onyx.android.sdk.device.BaseDevice;
 import com.onyx.android.sdk.device.Device;
 import com.onyx.android.sdk.extension.StringKt;
+import com.onyx.android.sdk.utils.BuildUtils;
 import com.onyx.android.sdk.utils.Colors;
+import com.onyx.android.sdk.utils.DateTimeUtil;
+import com.onyx.android.sdk.utils.DetectInputDeviceUtil;
+import com.onyx.android.sdk.utils.DeviceFeatureUtil;
+import com.onyx.android.sdk.utils.DeviceInfoUtil;
 import com.onyx.android.sdk.utils.DeviceUtils;
 import com.onyx.android.sdk.utils.ElementCounter;
 import com.onyx.android.sdk.utils.FileUtils;
+import com.onyx.android.sdk.utils.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -147,6 +154,51 @@ final class ProbeRunner {
                     "stylus", counter.get("stylus"),
                     "asc", counter.printAscList());
         });
+
+        // Pure helpers: identical inputs must produce identical outputs
+        // through both SDKs.
+        probe(recorder, "base", "string_utils", null, () -> ResultRecorder.map(
+                "blank", StringUtils.isBlank("  "),
+                "integer", StringUtils.isInteger("42"),
+                "notInteger", StringUtils.isInteger("4a2"),
+                "join", StringUtils.join(Arrays.asList("a", "b", "c"), "-"),
+                "splitLetterNumber", StringUtils.splitLetterAndNumber("page12"),
+                "utf8", StringUtils.utf8("onyx".getBytes(StandardCharsets.UTF_8))
+        ));
+
+        // Read-only feature and configuration reads. None of these touch
+        // accounts, radios, packages, power, or persistent settings; several
+        // may legitimately record permission_denied or unsupported_hardware
+        // on some firmware, which the comparison pins explicitly.
+        probe(recorder, "base", "device_features", null, () -> ResultRecorder.map(
+                "audio", DeviceFeatureUtil.hasAudio(activity),
+                "wifi", DeviceFeatureUtil.hasWifi(activity),
+                "bluetooth", DeviceFeatureUtil.hasBluetooth(activity),
+                "touch", DeviceFeatureUtil.hasTouch(activity),
+                "frontLight", DeviceFeatureUtil.hasFrontLight(activity),
+                "ctmBrightness", DeviceFeatureUtil.hasCTMBrightness(activity),
+                "camera", DeviceFeatureUtil.hasCamera(activity),
+                "stylus", DeviceFeatureUtil.hasStylus(activity),
+                "externalSd", DeviceFeatureUtil.supportExternalSD(activity),
+                "fingerprint", DeviceFeatureUtil.hasFingerprint(activity),
+                "eac", DeviceFeatureUtil.supportEAC(),
+                "lowRam", DeviceFeatureUtil.isLowRamDevice(activity)
+        ));
+        probe(recorder, "base", "device_info", null, () -> ResultRecorder.map(
+                "screen", String.valueOf(DeviceInfoUtil.getScreenResolution(activity)),
+                "colorDevice", DeviceInfoUtil.isColorDevice(),
+                "externalStorage", DeviceInfoUtil.getExternalStorageDirectory() != null,
+                "removableSd", DeviceInfoUtil.getRemovableSDCardDirectory() != null,
+                "kernelInfo", shape(DeviceInfoUtil.getDeviceKernelInfo()),
+                "vcom", DeviceInfoUtil.getVComInfo(activity),
+                "emtp", shape(DeviceInfoUtil.getEMTPInfo())
+        ));
+        probe(recorder, "base", "serial_access", null, () -> shape(BuildUtils.getSerial()));
+        probe(recorder, "base", "sn_access", null, () -> shape(DeviceInfoUtil.loadSN(false)));
+        probe(recorder, "base", "cpu_serial_access", null, () -> shape(DeviceInfoUtil.loadCPUSerial()));
+        probe(recorder, "base", "detect_input_device_util", null,
+                DetectInputDeviceUtil::detectInputDevicePath);
+        probe(recorder, "base", "hour24_setting", null, () -> DateTimeUtil.isSystemHour24(activity));
     }
 
     static void device(Activity activity, View host, ResultRecorder recorder) {
@@ -172,6 +224,30 @@ final class ProbeRunner {
                 "penState", EpdController.getPenState(),
                 "validPenState", EpdController.isValidPenState()
         ));
+        probe(recorder, "device", "refresh_state", null, () -> ResultRecorder.map(
+                "deepGc", EpdController.isDeepGcMode(host),
+                "appScopeMode", String.valueOf(EpdController.getAppScopeRefreshMode()),
+                "ctpDisableRegion", EpdController.isCTPDisableRegion(activity),
+                "ctpPowerOn", EpdController.isCTPPowerOn(),
+                "emtpPowerOn", EpdController.isEMTPPowerOn()
+        ));
+        // The per-model reflection wrapper behind Device.currentDevice() is
+        // where firmware-specific behavior lives; read-only getters only.
+        probe(recorder, "device", "current_device_features", null, () -> {
+            BaseDevice device = Device.currentDevice();
+            return ResultRecorder.map(
+                    "supportDfb", device.supportDFB(),
+                    "supportRegal", device.supportRegal(),
+                    "touchpadEnable", device.isTouchpadEnable(),
+                    "touchable", device.isTouchable(activity),
+                    "legalSystem", device.isLegalSystem(activity),
+                    "primaryStorageRemovable", device.isPrimaryStorageRemovable(activity),
+                    "sideKeyMapping", device.getCurrentSideKeyMapping(activity),
+                    "frontLightMin", device.getFrontLightBrightnessMinimum(activity),
+                    "frontLightMax", device.getFrontLightBrightnessMaximum(activity),
+                    "frontLightDefault", device.getFrontLightBrightnessDefault(activity)
+            );
+        });
         probe(recorder, "device", "raw_matrix", null, () -> matrix(EpdController.getRawTouchPointToScreenMatrix()));
         probe(recorder, "device", "mapping_roundtrip", null, () -> {
             float[] original = {100f, 200f, 900f, 1200f};
@@ -232,8 +308,39 @@ final class ProbeRunner {
         try {
             recorder.value(suite, caseId, input, supplier.get());
         } catch (Throwable error) {
-            recorder.failure(suite, caseId, error);
+            // Unsupported and permission-denied outcomes are expected results
+            // on some firmware, recorded explicitly so the comparison can pin
+            // them instead of treating them as flaky failures.
+            if (isUnsupported(error)) {
+                recorder.unsupported(suite, caseId, error.getClass().getName());
+            } else {
+                recorder.failure(suite, caseId, error);
+            }
         }
+    }
+
+    private static boolean isUnsupported(Throwable error) {
+        for (Throwable current = error; current != null; current = current.getCause()) {
+            // The ITE wrapper is just reflection plumbing; classify by its cause.
+            if (current instanceof java.lang.reflect.InvocationTargetException) continue;
+            if (current instanceof UnsupportedOperationException
+                    || current instanceof NoSuchMethodError
+                    || current instanceof NoSuchFieldError
+                    || current instanceof NoClassDefFoundError
+                    || current instanceof ReflectiveOperationException) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Identity-shaped values (serials, device ids) are probed for behavior
+    // but recorded as presence + length only, so promoted fixtures never
+    // carry an identifier.
+    private static Object shape(String value) {
+        return ResultRecorder.map(
+                "present", value != null && !value.trim().isEmpty(),
+                "length", value == null ? 0 : value.length());
     }
 
     interface CheckedSupplier { Object get() throws Exception; }

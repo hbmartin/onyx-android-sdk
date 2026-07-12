@@ -1,0 +1,5 @@
+Building and capturing the supplied reference library
+Building and capturing the Rust implementation
+Pen snapshots match: types 1-5 exact; types 6-9 structural and bounded geometric parity.
+Running the complete candidate instrumentation suite
+Device pen differential and candidate instrumentation passed on <redacted>.

@@ -6,7 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
-from collections import Counter, defaultdict
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -35,16 +35,27 @@ def equivalent(left: Any, right: Any) -> bool:
         return len(left) == len(right) and all(equivalent(a, b) for a, b in zip(left, right))
     if isinstance(left, (int, float)) and isinstance(right, (int, float)):
         if isinstance(left, bool) or isinstance(right, bool):
-            return left == right
+            # Python's True == 1, so a plain equality would still let a bool
+            # match a number; demand both sides be bools.
+            return isinstance(left, bool) and isinstance(right, bool) and left == right
         return math.isclose(float(left), float(right), abs_tol=FLOAT_TOLERANCE, rel_tol=0.0)
     return left == right
+
+
+def operator_action(record: dict[str, Any]) -> bool:
+    return record.get("suite") == "pen" and record.get("caseId") == "mode"
 
 
 def keyed(records: list[dict[str, Any]], live: bool) -> dict[tuple[str, str, str, int], dict[str, Any]]:
     counts: Counter[tuple[str, str, str]] = Counter()
     result = {}
     for record in records:
-        if live and record.get("phase") == "event":
+        # Per-run performance numbers are never comparable across runs.
+        if record.get("phase") == "metrics":
+            continue
+        # In live mode the two captures are two different human performances:
+        # per-point events and button-press mode changes legitimately differ.
+        if live and (record.get("phase") == "event" or operator_action(record)):
             continue
         stem = (record.get("suite", ""), record.get("caseId", ""), record.get("phase", ""))
         index = counts[stem]
@@ -56,7 +67,8 @@ def keyed(records: list[dict[str, Any]], live: bool) -> dict[tuple[str, str, str
 def pen_summary(records: list[dict[str, Any]]) -> dict[str, Any]:
     raw = [r.get("output", {}) for r in records if r.get("caseId") == "raw_jni"]
     states = [event.get("state") for event in raw if isinstance(event, dict)]
-    pressure = [event.get("pressure") for event in raw if isinstance(event, dict) and isinstance(event.get("pressure"), (int, float))]
+    pressure = [value for event in raw if isinstance(event, dict)
+                for value in (event.get("pressure"),) if isinstance(value, (int, float))]
     errors = []
     if any(state not in {0, 1, 2, 3, 4, 5, 6} for state in states):
         errors.append("unknown_state")
@@ -86,15 +98,21 @@ def pen_summary(records: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def classify(reference: dict[str, Any] | None, recovered: dict[str, Any] | None, same: bool) -> str:
-    if reference is None or recovered is None:
-        return "harness_error"
+    # A record present in only one stream is a behavioral divergence (an
+    # extra or missing callback/observation), not a harness failure — filing
+    # it as harness_error would hide exactly what this comparison hunts for.
+    if recovered is None:
+        return "missing_in_recovered"
+    if reference is None:
+        return "extra_in_recovered"
     statuses = {reference.get("status"), recovered.get("status")}
-    if "permission_denied" in statuses:
-        return "permission_denied"
-    if "unsupported_hardware" in statuses:
-        return "unsupported_hardware"
     if "harness_error" in statuses:
         return "harness_error"
+    for benign in ("permission_denied", "unsupported_hardware"):
+        if benign in statuses:
+            # Benign only when BOTH builds report it. One build being denied
+            # or unsupported where the other proceeded is itself a defect.
+            return benign if len(statuses) == 1 else "recovery_defect"
     if same:
         return "match"
     if reference.get("suite") == "inventory":
@@ -109,6 +127,8 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--live", action="store_true")
     parser.add_argument("--api-surface", type=Path)
+    parser.add_argument("--require-clean", action="store_true",
+                        help="exit non-zero if any defect-like classification is counted")
     args = parser.parse_args()
 
     reference_records = load(args.reference)
@@ -129,6 +149,32 @@ def main() -> None:
             "reference": reference,
             "recovered": recovered,
         })
+
+    operator = None
+    if args.live:
+        operator = {
+            "reference": [r.get("output") for r in reference_records if operator_action(r)],
+            "recovered": [r.get("output") for r in recovered_records if operator_action(r)],
+        }
+
+    # Device-side replay instrumentation asserts that every delivered event
+    # produced its callback within bounds; an unhealthy side is a defect even
+    # when both sides are symmetric (both-unhealthy must not read as match).
+    replay_health = None
+    ref_health = [r.get("output", {}) for r in reference_records if r.get("caseId") == "replay_health"]
+    rec_health = [r.get("output", {}) for r in recovered_records if r.get("caseId") == "replay_health"]
+    if ref_health or rec_health:
+        healthy = (
+            ref_health and rec_health
+            and all(h.get("healthy") is True for h in ref_health + rec_health)
+        )
+        health_classification = "match" if healthy else "recovery_defect"
+        counts[health_classification] += 1
+        replay_health = {
+            "classification": health_classification,
+            "reference": ref_health,
+            "recovered": rec_health,
+        }
 
     pen = None
     if args.live:
@@ -171,6 +217,8 @@ def main() -> None:
         "liveComparison": args.live,
         "counts": dict(sorted(counts.items())),
         "penTrace": pen,
+        "replayHealth": replay_health,
+        "operatorActions": operator,
         "apiSurface": api_summary,
         "comparisons": comparisons,
     }
@@ -178,8 +226,14 @@ def main() -> None:
     (args.output / "comparison.json").write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
     lines = ["# Onyx SDK device comparison", "", f"Float tolerance: `{FLOAT_TOLERANCE}`", "", "## Classifications", ""]
-    for name in ("match", "recovery_defect", "platform_variation", "permission_denied", "unsupported_hardware", "harness_error"):
+    for name in ("match", "recovery_defect", "missing_in_recovered", "extra_in_recovered",
+                 "platform_variation", "permission_denied", "unsupported_hardware", "harness_error"):
         lines.append(f"- `{name}`: {counts[name]}")
+    if replay_health is not None:
+        lines.extend(["", "## Replay delivery health", "",
+                      f"Classification: `{replay_health['classification']}`", "",
+                      f"- Reference: `{json.dumps(replay_health['reference'], sort_keys=True)}`",
+                      f"- Recovered: `{json.dumps(replay_health['recovered'], sort_keys=True)}`"])
     if pen is not None:
         lines.extend(["", "## Live pen traces", "", f"Classification: `{pen['classification']}`", "",
                       f"- Reference: `{json.dumps(pen['reference'], sort_keys=True)}`",
@@ -202,6 +256,13 @@ def main() -> None:
         for item in mismatches:
             lines.append(f"- `{item['classification']}` — `{'/'.join(map(str, item['key'][:3]))}` occurrence {item['key'][3]}")
     (args.output / "report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    if args.require_clean:
+        defects = {name: counts[name] for name in
+                   ("recovery_defect", "missing_in_recovered", "extra_in_recovered", "harness_error")
+                   if counts[name]}
+        if defects:
+            raise SystemExit(f"comparison is not clean: {defects} (see {args.output / 'report.md'})")
 
 
 if __name__ == "__main__":
