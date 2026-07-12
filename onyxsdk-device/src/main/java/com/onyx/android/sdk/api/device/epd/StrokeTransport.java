@@ -19,6 +19,11 @@ interface StrokeTransport {
     String getName();
 }
 
+@FunctionalInterface
+interface BinderServiceResolver {
+    IBinder resolve(String serviceName);
+}
+
 final class FrameworkStrokeTransport implements StrokeTransport {
     @Override
     public float startStroke(float baseWidth, float x, float y, float pressure, float size, float time) {
@@ -51,7 +56,7 @@ final class SurfaceFlingerStrokeTransport implements StrokeTransport {
 
     private final StrokeTransportConfig config;
     private final StrokeTransport fallback;
-    private final Method serviceLookupMethod;
+    private final BinderServiceResolver serviceResolver;
     private volatile IBinder binder;
     private volatile boolean resolutionAttempted;
 
@@ -60,10 +65,10 @@ final class SurfaceFlingerStrokeTransport implements StrokeTransport {
     }
 
     SurfaceFlingerStrokeTransport(StrokeTransportConfig config, StrokeTransport fallback,
-                                  Method serviceLookupMethod) {
+                                  BinderServiceResolver serviceResolver) {
         this.config = config;
         this.fallback = fallback;
-        this.serviceLookupMethod = serviceLookupMethod;
+        this.serviceResolver = serviceResolver;
     }
 
     @Override
@@ -111,12 +116,14 @@ final class SurfaceFlingerStrokeTransport implements StrokeTransport {
             resolutionAttempted = true;
             binder = null;
             try {
-                Method getService = serviceLookupMethod;
-                if (getService == null) {
+                Object service;
+                if (serviceResolver != null) {
+                    service = serviceResolver.resolve(config.getServiceName());
+                } else {
                     Class<?> serviceManager = Class.forName("android.os.ServiceManager");
-                    getService = serviceManager.getMethod("getService", String.class);
+                    Method getService = serviceManager.getMethod("getService", String.class);
+                    service = getService.invoke(null, config.getServiceName());
                 }
-                Object service = getService.invoke(null, config.getServiceName());
                 if (service instanceof IBinder) {
                     binder = (IBinder) service;
                 }

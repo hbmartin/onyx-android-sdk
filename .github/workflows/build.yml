@@ -32,11 +32,16 @@ jobs:
       - name: Install Android platform and NDK
         run: sdkmanager "platforms;android-35" "ndk;${ANDROID_NDK_VERSION}"
 
-      - name: Set up Rust
-        uses: dtolnay/rust-toolchain@stable
+      - name: Set up pinned Rust toolchain
+        uses: dtolnay/rust-toolchain@1.96.1
         with:
-          components: rustfmt
+          components: clippy,rustfmt
           targets: armv7-linux-androideabi,aarch64-linux-android,i686-linux-android,x86_64-linux-android
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: onyxsdk-pen/native -> target
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
@@ -54,3 +59,29 @@ jobs:
             onyxsdk-*/build/outputs/aar/*.aar
             onyxsdk-*/build/libs/*.jar
             recovery-tests/build/reports/tests/
+
+  fuzz-touch-reader:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      RUSTUP_TOOLCHAIN: nightly-2026-07-02
+
+    steps:
+      - name: Check out recovered source
+        uses: actions/checkout@v7
+
+      - name: Set up pinned nightly Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly-2026-07-02
+
+      - name: Cache Rust fuzz dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: touch-reader-fuzz
+          workspaces: onyxsdk-pen/native -> target
+
+      - name: Install cargo-fuzz
+        run: cargo install cargo-fuzz --locked --version 0.13.2
+
+      - name: Fuzz touch-reader state transitions
+        working-directory: onyxsdk-pen/native/onyx-pen-touch-reader
+        run: cargo +nightly-2026-07-02 fuzz run pen_manager -- -runs=10000

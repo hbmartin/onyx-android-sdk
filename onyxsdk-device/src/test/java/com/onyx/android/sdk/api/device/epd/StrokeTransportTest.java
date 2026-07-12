@@ -6,7 +6,6 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import android.os.IBinder;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,15 +24,17 @@ public class StrokeTransportTest {
     }
 
     @Test
-    public void retriesBinderResolutionOnlyAtNextStrokeBoundary() throws Exception {
+    public void retriesBinderResolutionOnlyAtNextStrokeBoundary() {
         AtomicBoolean initialBinderAlive = new AtomicBoolean(true);
         IBinder initialBinder = binder(initialBinderAlive);
         IBinder recoveredBinder = binder(new AtomicBoolean(true));
         SERVICE.set(initialBinder);
 
-        Method lookup = StrokeTransportTest.class.getMethod("getService", String.class);
         SurfaceFlingerStrokeTransport transport = new SurfaceFlingerStrokeTransport(
-                new StrokeTransportConfig(100, 101, 102), null, lookup);
+                new StrokeTransportConfig(100, 101, 102), null, serviceName -> {
+                    LOOKUP_COUNT.incrementAndGet();
+                    return SERVICE.get();
+                });
 
         assertTrue(transport.isAvailable());
         assertEquals(1, LOOKUP_COUNT.get());
@@ -49,11 +50,6 @@ public class StrokeTransportTest {
 
         assertSame(recoveredBinder, transport.resolveBinder(true));
         assertEquals(3, LOOKUP_COUNT.get());
-    }
-
-    public static Object getService(String serviceName) {
-        LOOKUP_COUNT.incrementAndGet();
-        return SERVICE.get();
     }
 
     private static IBinder binder(AtomicBoolean alive) {

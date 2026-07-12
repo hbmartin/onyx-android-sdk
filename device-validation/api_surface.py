@@ -79,7 +79,7 @@ def main() -> None:
         "device": ([args.artifacts_root / "onyxsdk-device-1.3.5/classes.jar"],
                    args.recovery_root / "onyxsdk-device/build/outputs/aar/onyxsdk-device-release.aar"),
         "pen": ([args.artifacts_root / "onyxsdk-pen-1.5.4/classes.jar",
-                 args.recovery_root / "onyxsdk-pen-native-classes.jar"],
+                 args.artifacts_root / "onyxsdk-pen-native-classes.jar"],
                 args.recovery_root / "onyxsdk-pen/build/outputs/aar/onyxsdk-pen-release.aar"),
     }
     payload = {}

@@ -3,21 +3,24 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 RECOVERY_ROOT="$(cd "$ROOT/.." && pwd)"
-ARTIFACTS_ROOT="$(cd "$RECOVERY_ROOT/.." && pwd)"
+ARTIFACTS_ROOT=""
 PACKAGE="com.onyx.recovery.validation"
 SERIAL=""
 SUITE="automated"
 OUTPUT=""
 DURATION=30000
 INPUT_DEVICE="auto"
+REFERENCE_NEO_LIBRARY=""
 
 usage() {
-  echo "usage: $0 [--serial SERIAL] [--suite automated|base|device|pen-replay|pen-live|neo-pen|guided] [--output DIR] [--duration-ms MS] [--input-device /dev/input/eventN]" >&2
+  echo "usage: $0 --artifacts-root DIR [--neo-pen-reference FILE] [--serial SERIAL] [--suite automated|base|device|pen-replay|pen-live|neo-pen|guided] [--output DIR] [--duration-ms MS] [--input-device /dev/input/eventN]" >&2
 }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --serial) SERIAL="$2"; shift 2 ;;
+    --artifacts-root) ARTIFACTS_ROOT="$2"; shift 2 ;;
+    --neo-pen-reference) REFERENCE_NEO_LIBRARY="$2"; shift 2 ;;
     --suite) SUITE="$2"; shift 2 ;;
     --output) OUTPUT="$2"; shift 2 ;;
     --duration-ms) DURATION="$2"; shift 2 ;;
@@ -28,13 +31,21 @@ while [[ $# -gt 0 ]]; do
 done
 
 case "$SUITE" in automated|base|device|pen-replay|pen-live|neo-pen|guided) ;; *) usage; exit 2 ;; esac
+[[ -n "$ARTIFACTS_ROOT" ]] || { usage; echo "--artifacts-root is required" >&2; exit 2; }
+ARTIFACTS_ROOT="$(cd "$ARTIFACTS_ROOT" && pwd)"
+if [[ "$SUITE" == "automated" || "$SUITE" == "neo-pen" ]]; then
+  [[ -n "$REFERENCE_NEO_LIBRARY" ]] \
+    || { echo "--neo-pen-reference is required for the $SUITE suite" >&2; exit 2; }
+  REFERENCE_NEO_LIBRARY="$(cd "$(dirname "$REFERENCE_NEO_LIBRARY")" && pwd)/$(basename "$REFERENCE_NEO_LIBRARY")"
+fi
 
 if [[ "$SUITE" == "guided" && ! -t 0 ]]; then
   echo "the guided suite prompts an operator for verdicts and needs an interactive terminal" >&2
   exit 1
 fi
 
-SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$HOME/Library/Android/sdk}}"
+SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+[[ -n "$SDK_ROOT" ]] || { echo "Set ANDROID_HOME or ANDROID_SDK_ROOT to the Android SDK directory" >&2; exit 1; }
 ADB="$SDK_ROOT/platform-tools/adb"
 test -x "$ADB" || { echo "adb not found at $ADB" >&2; exit 1; }
 export ANDROID_HOME="$SDK_ROOT" ANDROID_SDK_ROOT="$SDK_ROOT"
@@ -71,7 +82,7 @@ echo "Building recovered SDK and validation APKs"
 (cd "$RECOVERY_ROOT" && ./gradlew assembleRecovered \
   :onyxsdk-base:support:onyxsdk-baselite:assembleRelease \
   :onyxsdk-base:support:onyxsdk-commons-io:assembleRelease)
-(cd "$ROOT" && ../gradlew -p . -POnyxArtifactsRoot="$ARTIFACTS_ROOT" \
+(cd "$ROOT" && "$RECOVERY_ROOT/gradlew" -p . -POnyxArtifactsRoot="$ARTIFACTS_ROOT" \
   :app:assembleReferenceDebug :app:assembleRecoveredDebug)
 
 python3 "$ROOT/api_surface.py" --artifacts-root "$ARTIFACTS_ROOT" \
@@ -293,7 +304,7 @@ fi
 
 if [[ "$SUITE" == "automated" || "$SUITE" == "neo-pen" ]]; then
   echo "Running nine-type native neo-pen differential"
-  "$RECOVERY_ROOT/scripts/device-pen-differential.sh" "$RECOVERY_ROOT/libneo_pen.so" "$SERIAL" \
+  "$RECOVERY_ROOT/scripts/device-pen-differential.sh" "$REFERENCE_NEO_LIBRARY" "$SERIAL" \
     | tee "$OUTPUT/neo-pen-differential.txt"
   # Derive the report section from what the differential actually printed
   # instead of asserting specifics its exit status alone cannot support.

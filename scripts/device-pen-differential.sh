@@ -2,9 +2,13 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-REFERENCE_SO="${1:?usage: device-pen-differential.sh <reference-libneo_pen.so> [device-serial]}"
+REFERENCE_LIBRARY="${1:?usage: device-pen-differential.sh <reference-neo-pen-library> [device-serial]}"
 SERIAL="${2:-${ANDROID_SERIAL:-}}"
-SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$HOME/Library/Android/sdk}}"
+SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+if [[ -z "$SDK_ROOT" ]]; then
+  echo "Set ANDROID_HOME or ANDROID_SDK_ROOT to the Android SDK directory" >&2
+  exit 1
+fi
 ADB="$SDK_ROOT/platform-tools/adb"
 EXPECTED_SHA256="4e902c1485ea660c5deb6a52693f95d113f862f448b57b6374c70404ba695f5e"
 TMP="$(mktemp -d)"
@@ -18,10 +22,20 @@ fail() {
   exit 1
 }
 
-test -f "$REFERENCE_SO" || fail "reference library does not exist: $REFERENCE_SO"
+sha256() {
+  if command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 "$1" | awk '{print $1}'
+  elif command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$1" | awk '{print $1}'
+  else
+    fail "neither shasum nor sha256sum is available"
+  fi
+}
+
+test -f "$REFERENCE_LIBRARY" || fail "reference library does not exist: $REFERENCE_LIBRARY"
 test -x "$ADB" || fail "adb not found: $ADB"
-REFERENCE_SO="$(cd "$(dirname "$REFERENCE_SO")" && pwd)/$(basename "$REFERENCE_SO")"
-actual_sha="$(shasum -a 256 "$REFERENCE_SO" | awk '{print $1}')"
+REFERENCE_LIBRARY="$(cd "$(dirname "$REFERENCE_LIBRARY")" && pwd)/$(basename "$REFERENCE_LIBRARY")"
+actual_sha="$(sha256 "$REFERENCE_LIBRARY")"
 test "$actual_sha" = "$EXPECTED_SHA256" \
   || fail "unexpected reference SHA-256: $actual_sha"
 
@@ -50,7 +64,7 @@ restore_candidate() {
     >"$restore_log" 2>&1; then
     rm -f "$restore_log"
   else
-    echo "pen differential: candidate rebuild FAILED — build outputs may still contain the reference libneo_pen.so." >&2
+    echo "pen differential: candidate rebuild FAILED — build outputs may still contain the reference library." >&2
     echo "re-run: ./gradlew :onyxsdk-pen:assembleDebug :onyxsdk-pen:assembleDebugAndroidTest (gradle log: $restore_log)" >&2
     exit 1
   fi
@@ -73,7 +87,7 @@ capture_snapshot() {
 echo "Building and capturing the supplied reference library"
 ANDROID_HOME="$SDK_ROOT" ANDROID_SDK_ROOT="$SDK_ROOT" \
   "$ROOT/gradlew" -p "$ROOT" :onyxsdk-pen:assembleDebugAndroidTest \
-  -PpenReferenceNeoSo="$REFERENCE_SO" >/dev/null
+  -PpenReferenceNeoSo="$REFERENCE_LIBRARY" >/dev/null
 capture_snapshot "$TMP/reference.txt"
 
 echo "Building and capturing the Rust implementation"

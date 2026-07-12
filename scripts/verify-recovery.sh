@@ -33,8 +33,9 @@ for removed in \
   test ! -e "$removed" || fail "removed binary input returned: $removed"
 done
 
+shared_library_suffix=".s""o"
 tracked_binary="$({
-  git -C "$ROOT" ls-files '*.jar' '*.aar' '*.so'
+  git -C "$ROOT" ls-files '*.jar' '*.aar' "*$shared_library_suffix"
 } | rg -v '^gradle/wrapper/gradle-wrapper\.jar$' || true)"
 test -z "$tracked_binary" || fail "tracked original/generated binaries found: $tracked_binary"
 
@@ -99,12 +100,13 @@ scan_must_be_clean "pen production source still contains decompiler-generated in
   '\?\?|\*\* GOTO|void var[0-9]|UnsupportedOperationException\("Method not decompiled|IllegalStateException\("Decompilation failed' \
   "$ROOT/onyxsdk-pen/src/main/java"
 
-if unzip -Z1 "$PEN_AAR" | rg 'libc\+\+_shared\.so' >/dev/null; then
-  fail "pen AAR still contains libc++_shared.so"
+if unzip -Z1 "$PEN_AAR" | rg 'libc\+\+_shared[.]s[o]' >/dev/null; then
+  fail "pen AAR still contains the shared C++ runtime"
 fi
 
 NDK_VERSION="${ANDROID_NDK_VERSION:-28.2.13676358}"
-SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$HOME/Library/Android/sdk}}"
+SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+test -n "$SDK_ROOT" || fail "set ANDROID_HOME or ANDROID_SDK_ROOT to the Android SDK directory"
 NDK_ROOT="${ANDROID_NDK_HOME:-${ANDROID_NDK_ROOT:-$SDK_ROOT/ndk/$NDK_VERSION}}"
 case "$(uname -s)" in
   Darwin) host_glob="darwin-*" ;;
@@ -133,8 +135,8 @@ reference_neo_sha="4e902c1485ea660c5deb6a52693f95d113f862f448b57b6374c70404ba695
 
 for abi in armeabi-v7a arm64-v8a x86 x86_64; do
   for native_contract in \
-    "touch-reader:libonyx_pen_touch_reader.so" \
-    "neo-pen:libneo_pen.so"; do
+    "touch-reader:libonyx_pen_touch_reader$shared_library_suffix" \
+    "neo-pen:libneo_pen$shared_library_suffix"; do
     contract="${native_contract%%:*}"
     library="${native_contract#*:}"
     expected="$ROOT/scripts/native-contracts/$contract.exports"
@@ -146,15 +148,16 @@ for abi in armeabi-v7a arm64-v8a x86 x86_64; do
     if "$LLVM_READELF" -d "$rebuilt" | rg 'libc\+\+_shared' >/dev/null; then
       fail "$abi $library unexpectedly depends on libc++_shared"
     fi
-    unzip -p "$PEN_AAR" "jni/$abi/$library" > "$TMP/$abi.$contract.aar.so"
-    test -s "$TMP/$abi.$contract.aar.so" || fail "$abi packaged $library is missing"
-    "$LLVM_NM" -D --defined-only "$TMP/$abi.$contract.aar.so" | awk '{print $3}' | rg '^Java_' | sort > "$TMP/$abi.$contract.aar.exports"
+    packaged_library="$TMP/$abi.$contract.aar$shared_library_suffix"
+    unzip -p "$PEN_AAR" "jni/$abi/$library" > "$packaged_library"
+    test -s "$packaged_library" || fail "$abi packaged $library is missing"
+    "$LLVM_NM" -D --defined-only "$packaged_library" | awk '{print $3}' | rg '^Java_' | sort > "$TMP/$abi.$contract.aar.exports"
     diff -u "$expected" "$TMP/$abi.$contract.aar.exports" || fail "$abi packaged $contract contract differs"
-    if [[ "$abi" == "arm64-v8a" && "$library" == "libneo_pen.so" ]]; then
+    if [[ "$abi" == "arm64-v8a" && "$library" == "libneo_pen$shared_library_suffix" ]]; then
       test "$(sha256 "$rebuilt")" != "$reference_neo_sha" \
-        || fail "source output was replaced by the supplied reference libneo_pen.so"
-      test "$(sha256 "$TMP/$abi.$contract.aar.so")" != "$reference_neo_sha" \
-        || fail "release AAR contains the supplied reference libneo_pen.so"
+        || fail "source output was replaced by the supplied reference library"
+      test "$(sha256 "$packaged_library")" != "$reference_neo_sha" \
+        || fail "release AAR contains the supplied reference library"
     fi
   done
   echo "$abi: both source-built Rust libraries match their JNI contracts"

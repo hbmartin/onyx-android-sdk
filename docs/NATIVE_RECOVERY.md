@@ -3,7 +3,7 @@
 The pen AAR contains two source-built Rust libraries and no supplied native
 binary.
 
-## `libonyx_pen_touch_reader.so`
+## Pen touch reader
 
 The raw reader implements all 11 `RawInputReader` JNI entry points:
 
@@ -15,7 +15,7 @@ The raw reader implements all 11 `RawInputReader` JNI entry points:
 - pressure normalization and
   `onTouchPointReceived(FFIIIZZZIJ)V` callback dispatch.
 
-## `libneo_pen.so`
+## Neo-pen renderer
 
 The neo renderer implements both Java generations:
 
@@ -38,7 +38,7 @@ state.
 `armeabi-v7a`, `arm64-v8a`, `x86`, and `x86_64`. The checked-in export contracts
 under `scripts/native-contracts` contain 11 touch-reader names and 14 neo-pen
 names. `scripts/verify-recovery.sh` compares those contracts with every loose
-and packaged library and rejects `libc++_shared.so` dependencies.
+and packaged library and rejects shared C++ runtime dependencies.
 
 ## Device differential
 

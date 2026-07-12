@@ -146,7 +146,7 @@ legacy static wrapper has its own lifecycle and offline list renderer.
 - Android instrumentation runs every new pen type, exact recovered values for
   types 1–3, texture and polygon encodings, invalid-handle safety, the legacy
   wrapper, and raw-reader JNI configuration/lifecycle calls.
-- The device differential runs the original and Rust `libneo_pen.so` in the
+- The device differential runs the original and Rust neo-pen libraries in the
   same APK on BOOX hardware.
 - `scripts/verify-recovery.sh` audits source-only packaging, class coverage,
   exports, ABI coverage, and native dependencies.

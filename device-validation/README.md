@@ -7,28 +7,30 @@ sequentially so package-scoped firmware behavior is comparable.
 
 ## Automated comparison
 
-Connect and authorize the device, then run:
+From the repository root, connect and authorize the device, then run:
 
 ```bash
-./run-comparison.sh --serial 2a9d2c67 --suite automated
+device-validation/run-comparison.sh --artifacts-root /path/to/reference-artifacts \
+  --neo-pen-reference /path/to/reference/neo-pen-library \
+  --serial 2a9d2c67 --suite automated
 ```
 
 Use `--output DIR` to select a result directory. The runner records device
 inventory, an API-surface report, both JSONL result streams, `comparison.json`,
-and `report.md`. Original SDK files are read from the workspace parent by
-default; override that with the `OnyxArtifactsRoot` Gradle property.
+and `report.md`. Original SDK files are read only from the required,
+explicitly supplied artifacts directory.
 The automated suite also invokes the existing nine-pen-type native differential
-against the hash-pinned, untracked `libneo_pen.so` reference.
+against the hash-pinned, untracked neo-pen reference library.
 
 For a classified JVM comparison that separates binary-breaking differences
 from source-level generics, kotlin.Metadata, and harmless compiler artifacts,
 run the descriptor-level audit (after `./gradlew assembleRecovered`):
 
 ```bash
-python3 classify_api_differences.py --module base \
-  --artifacts-root /path/to/onyx-artifacts --recovery-root .. \
-  --accepted-residuals accepted-residuals/base.json \
-  --output base-classified.json --fail-on binary_breaking
+python3 device-validation/classify_api_differences.py --module base \
+  --artifacts-root /path/to/reference-artifacts --recovery-root . \
+  --accepted-residuals device-validation/accepted-residuals/base.json \
+  --output device-validation/base-classified.json --fail-on binary_breaking
 ```
 
 It reads `javap -v` structures per class (including nested classes), compares
@@ -45,15 +47,16 @@ the pen module with `--fail-on extra_public_surface`: its accepted file lists
 two intentional extra public classes, and under `--fail-on binary_breaking`
 an unexpected new public class would never fail the gate.
 
-The full surface/native audit expects the existing untracked analysis inputs
-`../onyxsdk-pen-native-classes.jar` and `../libneo_pen.so`. They remain external
-to Gradle production dependencies and are never copied into source control or
-the recovered release artifacts.
+The full surface/native audit expects the native API JAR under the explicit
+artifacts root and the neo-pen reference passed with `--neo-pen-reference`.
+They remain external to Gradle production dependencies and are never copied
+into source control or the recovered release artifacts.
 
 ## Guided pen comparison
 
 ```bash
-./run-comparison.sh --serial 2a9d2c67 --suite pen-live --duration-ms 30000
+device-validation/run-comparison.sh --artifacts-root /path/to/reference-artifacts \
+  --serial 2a9d2c67 --suite pen-live --duration-ms 30000
 ```
 
 During each capture, draw light and heavy strokes in the guide, use tilt, the
@@ -77,7 +80,7 @@ exposes several pen nodes.
 ## Guided operator protocol
 
 ```bash
-./run-comparison.sh --suite guided
+device-validation/run-comparison.sh --artifacts-root /path/to/reference-artifacts --suite guided
 ```
 
 Twelve scenarios (DU/GU/GC refresh, scribble mode, region limits, ghosting
@@ -106,7 +109,8 @@ Raw `results/` runs stay untracked. Promote a finished run into the
 git-tracked `fixtures/` directory with:
 
 ```bash
-python3 promote_fixture.py results/<run-dir> --name <fixture-name>
+python3 device-validation/promote_fixture.py device-validation/results/<run-dir> \
+  --name <fixture-name>
 ```
 
 The script normalizes host-volatile fields, scrubs identifying tokens
@@ -120,7 +124,7 @@ run after the next hardware session for a post-repair baseline.
 ## Host-side tests
 
 ```bash
-python3 -m unittest discover tests
+python3 -m unittest discover device-validation/tests
 ```
 
 covers the comparison taxonomy (`compare_results.py`), the guided-scenario

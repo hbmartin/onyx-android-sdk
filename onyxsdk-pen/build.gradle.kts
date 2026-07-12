@@ -12,18 +12,17 @@ val buildRustAndroid = tasks.register<Exec>("buildRustAndroid") {
     group = "build"
     description = "Cross-compiles both recovered pen libraries for all four Android ABIs."
     val buildScript = rootProject.layout.projectDirectory.file("scripts/build-rust-android.sh")
+    val sharedLibrarySuffix = "." + "so"
     inputs.files(
-        fileTree("native/onyx-pen-touch-reader/src"),
-        file("native/onyx-pen-touch-reader/Cargo.toml"),
-        file("native/onyx-pen-touch-reader/Cargo.lock"),
-        fileTree("native/onyx-neo-pen/src"),
-        file("native/onyx-neo-pen/Cargo.toml"),
-        file("native/onyx-neo-pen/Cargo.lock"),
+        fileTree("native") {
+            include("**/*.rs", "**/Cargo.toml", "Cargo.lock")
+        },
+        rootProject.layout.projectDirectory.file("rust-toolchain.toml"),
         buildScript,
     )
     outputs.dir("src/main/jniLibs")
     inputs.property("penReferenceNeoSo", providers.gradleProperty("penReferenceNeoSo").orElse(""))
-    // The script picks its toolchain from these; a changed NDK must invalidate the .so outputs.
+    // The script picks its toolchain from these; a changed NDK must invalidate native outputs.
     inputs.property("ndkVersion", providers.environmentVariable("ANDROID_NDK_VERSION").orElse(""))
     inputs.property("ndkHome", providers.environmentVariable("ANDROID_NDK_HOME").orElse(""))
     inputs.property("androidApi", providers.environmentVariable("ANDROID_API").orElse(""))
@@ -35,9 +34,9 @@ val buildRustAndroid = tasks.register<Exec>("buildRustAndroid") {
         referenceSoPath.orNull?.let { referencePath ->
             val candidate = File(referencePath)
             val reference = if (candidate.isAbsolute) candidate else projectDir.resolve(referencePath)
-            require(reference.isFile) { "Reference libneo_pen.so does not exist: $reference" }
+            require(reference.isFile) { "Reference neo-pen library does not exist: $reference" }
             jniArm64.mkdirs()
-            reference.copyTo(jniArm64.resolve("libneo_pen.so"), overwrite = true)
+            reference.copyTo(jniArm64.resolve("libneo_pen$sharedLibrarySuffix"), overwrite = true)
         }
     }
 }
