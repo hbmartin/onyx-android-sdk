@@ -5,12 +5,15 @@ classify() buckets, pen_summary() state grammar, and the end-to-end payload
 Run host-side, no device needed:  python3 -m unittest discover tests
 """
 
+import io
 import json
 import subprocess
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -168,6 +171,14 @@ class MainPayloadTest(unittest.TestCase):
         self.assertEqual(payload["replayHealth"]["classification"], "match")
         self.assertEqual(completed.returncode, 0, completed.stderr)
 
+    def test_null_replay_health_is_a_defect_instead_of_crashing(self):
+        invalid = record(case="replay_health", status="harness_error", output=None)
+        completed, payload = self.run_main([invalid], [invalid], "--require-clean")
+        assert payload is not None
+        self.assertEqual(payload["replayHealth"]["classification"], "recovery_defect")
+        self.assertNotEqual(completed.returncode, 0)
+        self.assertNotIn("AttributeError", completed.stderr)
+
     def test_missing_record_fails_require_clean(self):
         shared = record(case="shared", output=1)
         only_ref = record(case="only_ref", output=2)
@@ -226,6 +237,55 @@ class GuidedGatesTest(unittest.TestCase):
                           record(case="scenario_action", output=True)]
         self.assertTrue(any("scenario action" in f for f in self.check("pause-resume", base)))
         self.assertEqual(self.check("pause-resume", actions), [])
+
+
+class GuidedReportTest(unittest.TestCase):
+    def run_report(self, scenario, verdict, comparison=...):
+        output = Path(tempfile.mkdtemp())
+        (output / "operator-verdicts.jsonl").write_text(
+            json.dumps({"scenario": scenario["id"], "verdict": verdict, "notes": ""}) + "\n",
+            encoding="utf-8",
+        )
+        if comparison is not ...:
+            comparison_dir = output / f"{scenario['id']}-comparison"
+            comparison_dir.mkdir()
+            contents = comparison if isinstance(comparison, str) else json.dumps(comparison)
+            (comparison_dir / "comparison.json").write_text(contents, encoding="utf-8")
+        replay_dir = output / "replay-comparison"
+        replay_dir.mkdir()
+        (replay_dir / "comparison.json").write_text(
+            json.dumps({"counts": {"match": 1}}), encoding="utf-8"
+        )
+        with mock.patch.object(guided_scenarios, "SCENARIOS", [scenario]):
+            with redirect_stdout(io.StringIO()):
+                status = guided_scenarios.cmd_report(output)
+        return status, (output / "report.md").read_text(encoding="utf-8")
+
+    def test_required_skip_fails_but_optional_skip_passes(self):
+        required_status, _ = self.run_report({"id": "required"}, "skipped")
+        optional_status, _ = self.run_report(
+            {"id": "optional", "skippable": True}, "skipped"
+        )
+        self.assertEqual(required_status, 1)
+        self.assertEqual(optional_status, 0)
+
+    def test_missing_comparison_fails_same_verdict(self):
+        status, report = self.run_report({"id": "required"}, "same")
+        self.assertEqual(status, 1)
+        self.assertIn("comparison: not compared", report)
+
+    def test_malformed_comparison_fails_same_verdict(self):
+        status, report = self.run_report({"id": "required"}, "same", "{not-json")
+        self.assertEqual(status, 1)
+        self.assertIn("invalid comparison", report)
+
+    def test_recovery_defect_comparison_fails_same_verdict(self):
+        status, _ = self.run_report(
+            {"id": "required"},
+            "same",
+            {"counts": {"match": 1, "recovery_defect": 1}},
+        )
+        self.assertEqual(status, 1)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,37 @@
+{
+  "classes": {
+    "com.onyx.android.sdk.calendar.CalendarRemoteServiceConnection": {
+      "binary_breaking": [
+        "member flags changed: protected method asInterface (Landroid/os/IBinder;)Lcom/onyx/android/sdk/calendar/ICalendarService; ['ACC_PROTECTED'] -> ['ACC_PUBLIC']"
+      ]
+    },
+    "com.onyx.android.sdk.rx.RxBaseBenchmarkRequest": {
+      "binary_breaking": [
+        "missing member: public method execute ()V"
+      ],
+      "extra_public_surface": [
+        "extra member: public method execute ()Lkotlin/Unit;"
+      ]
+    },
+    "com.onyx.android.sdk.utils.ElementCounter": {
+      "binary_breaking": [
+        "missing bridge method: public method put (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"
+      ],
+      "source_generic": [
+        "generic signature: public method get (Ljava/lang/Object;)Ljava/lang/Integer; '(TT;)Ljava/lang/Integer;' -> None",
+        "generic signature: public method remove (Ljava/lang/Object;)Ljava/lang/Integer; '(TT;)Ljava/lang/Integer;' -> None"
+      ]
+    },
+    "com.onyx.android.sdk.utils.SimpleBitmapReferenceLruCache": {
+      "binary_breaking": [
+        "member flags changed: protected method sizeOf (Ljava/lang/String;Lcom/onyx/android/sdk/utils/SimpleBitmapReference;)I ['ACC_PROTECTED'] -> ['ACC_PUBLIC']",
+        "member flags changed: protected method getBitmap (Lcom/onyx/android/sdk/utils/SimpleBitmapReference;)Landroid/graphics/Bitmap; ['ACC_PROTECTED'] -> ['ACC_PUBLIC']",
+        "member flags changed: protected method isValid (Lcom/onyx/android/sdk/utils/SimpleBitmapReference;)Z ['ACC_PROTECTED'] -> ['ACC_PUBLIC']",
+        "member flags changed: protected method create (IILandroid/graphics/Bitmap$Config;)Lcom/onyx/android/sdk/utils/SimpleBitmapReference; ['ACC_PROTECTED'] -> ['ACC_PUBLIC']",
+        "member flags changed: protected method clearBitmap (Lcom/onyx/android/sdk/utils/SimpleBitmapReference;)V ['ACC_PROTECTED'] -> ['ACC_PUBLIC']",
+        "member flags changed: protected method cloneBitmapReference (Lcom/onyx/android/sdk/utils/SimpleBitmapReference;)Lcom/onyx/android/sdk/utils/SimpleBitmapReference; ['ACC_PROTECTED'] -> ['ACC_PUBLIC']"
+      ]
+    }
+  },
+  "extraClasses": []
+}

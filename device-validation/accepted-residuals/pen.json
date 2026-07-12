@@ -1,0 +1,13 @@
+{
+  "classes": {
+    "com.onyx.android.sdk.pen.PenBrushInk": {
+      "kotlin_metadata": [
+        "kotlin.Metadata annotation differs"
+      ]
+    }
+  },
+  "extraClasses": [
+    "com.onyx.android.sdk.geometry.data.BoxInfo",
+    "com.onyx.android.sdk.geometry.data.TouchData"
+  ]
+}

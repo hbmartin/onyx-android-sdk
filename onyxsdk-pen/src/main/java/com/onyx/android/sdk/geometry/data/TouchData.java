@@ -3,7 +3,7 @@ package com.onyx.android.sdk.geometry.data;
 import com.onyx.android.sdk.data.note.TouchPoint;
 
 /**
- * Immutable touch event consumed by {@code NeoPenRender}.
+ * Touch event consumed by {@code NeoPenRender}.
  *
  * <p>Intentional recovery extension: the reference
  * {@code NeoPenRender.onTouchData(com.onyx.android.sdk.geometry.data.TouchData)}

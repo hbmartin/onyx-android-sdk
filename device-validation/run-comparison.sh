@@ -48,14 +48,14 @@ ADB_CMD=("$ADB" -s "$SERIAL")
 "${ADB_CMD[@]}" get-state >/dev/null
 
 # The stylus digitizer node differs across BOOX models; find the device that
-# advertises BTN_TOOL_PEN instead of hardcoding an event index.
+# advertises a pen or stylus button instead of hardcoding an event index.
 if [[ "$INPUT_DEVICE" == "auto" ]]; then
   INPUT_DEVICE="$("${ADB_CMD[@]}" shell getevent -lp 2>/dev/null | tr -d '\r' | awk '
     /^add device / { device = $NF }
-    /BTN_TOOL_PEN/ { if (device != "") { print device; exit } }
+    /BTN_TOOL_PEN|BTN_STYLUS/ { if (device != "") { print device; exit } }
   ')"
   if [[ -z "$INPUT_DEVICE" ]]; then
-    echo "could not auto-detect a stylus input device (no node advertises BTN_TOOL_PEN);" >&2
+    echo "could not auto-detect a stylus input device (no node advertises BTN_TOOL_PEN or BTN_STYLUS);" >&2
     echo "pass --input-device /dev/input/eventN explicitly" >&2
     exit 1
   fi
@@ -118,7 +118,7 @@ DEVICE_EVENT_CAPTURE=/data/local/tmp/onyx-validation-getevent.txt
 # after the run so stopping the host process cannot truncate the stream.
 start_event_capture() {
   "${ADB_CMD[@]}" shell "rm -f $DEVICE_EVENT_CAPTURE; \
-    nohup getevent -lt $INPUT_DEVICE </dev/null >$DEVICE_EVENT_CAPTURE 2>&1 & echo \$!" | tr -d '\r'
+    setsid getevent -lt $INPUT_DEVICE </dev/null >$DEVICE_EVENT_CAPTURE 2>&1 & echo \$!" | tr -d '\r'
 }
 
 stop_event_capture() {

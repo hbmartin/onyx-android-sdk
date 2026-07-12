@@ -213,7 +213,7 @@ final class PenHarness {
                 break;
             case GuidedScenarios.RESTART:
                 postScenarioAction(durationMs / 2, "restart", () -> {
-                    quit();
+                    stopReader();
                     configure();
                     reader.start();
                     reader.resume();
@@ -283,10 +283,21 @@ final class PenHarness {
         recorder.value("pen", "mode", null, paused ? "paused" : "resumed");
     }
 
-    void quit() {
+    private void stopReader() {
         if (reader == null) return;
         try { reader.quit(); } catch (Throwable error) { recorder.failure("pen", "quit", error); }
         reader = null;
+        callback = null;
+    }
+
+    void quit() {
+        // This Handler belongs exclusively to the harness. Clear every live
+        // capture, guided-scenario, and replay-settle callback before releasing
+        // the activity and reader references so nothing can run post-destroy.
+        handler.removeCallbacksAndMessages(null);
+        scheduled.clear();
+        pendingFinish = null;
+        stopReader();
     }
 
     private boolean safeFdValid() {

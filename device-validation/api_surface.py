@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import tempfile
@@ -30,12 +31,17 @@ def classes(jar: Path) -> list[str]:
 def javap(jar: Path, names: list[str], classpath: list[Path]) -> dict[str, list[str]]:
     result: dict[str, list[str]] = {}
     errors: list[str] = []
-    cp = ":".join(str(path) for path in [jar, *classpath])
+    cp = os.pathsep.join(str(path) for path in [jar, *classpath])
     for offset in range(0, len(names), 80):
         command = ["javap", "-public", "-classpath", cp, *names[offset:offset + 80]]
         completed = subprocess.run(command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
         if completed.stderr.strip():
             errors.append(completed.stderr.strip())
+        if completed.returncode != 0:
+            detail = completed.stderr.strip() or "(javap reported no error text)"
+            raise SystemExit(
+                f"javap failed with exit code {completed.returncode} for {jar.name}: {detail}"
+            )
         current = None
         signature: list[str] = []
         for raw in completed.stdout.splitlines():

@@ -18,7 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
-final class ResultRecorder {
+final class ResultRecorder implements AutoCloseable {
     static final String MATCH = "match";
     static final String RECOVERY_DEFECT = "recovery_defect";
     static final String PLATFORM_VARIATION = "platform_variation";
@@ -89,6 +89,11 @@ final class ResultRecorder {
             writer.write(suite);
             writer.write('\n');
         }
+    }
+
+    @Override
+    public synchronized void close() throws IOException {
+        writer.close();
     }
 
     private void append(JSONObject object) throws IOException {

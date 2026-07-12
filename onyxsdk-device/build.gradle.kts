@@ -27,7 +27,6 @@ android {
         // minSdk/manifest; those pre-existing findings live in the checked-in
         // baseline. New permission, API-level, range, and resource-type
         // mistakes still warn.
-        disable += "GradleDependency"
         baseline = file("lint-baseline.xml")
     }
 

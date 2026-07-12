@@ -161,8 +161,14 @@ def main() -> None:
     # produced its callback within bounds; an unhealthy side is a defect even
     # when both sides are symmetric (both-unhealthy must not read as match).
     replay_health = None
-    ref_health = [r.get("output", {}) for r in reference_records if r.get("caseId") == "replay_health"]
-    rec_health = [r.get("output", {}) for r in recovered_records if r.get("caseId") == "replay_health"]
+    ref_health = [
+        output if isinstance(output := r.get("output"), dict) else {}
+        for r in reference_records if r.get("caseId") == "replay_health"
+    ]
+    rec_health = [
+        output if isinstance(output := r.get("output"), dict) else {}
+        for r in recovered_records if r.get("caseId") == "replay_health"
+    ]
     if ref_health or rec_health:
         healthy = (
             ref_health and rec_health

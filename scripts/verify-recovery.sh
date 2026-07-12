@@ -61,24 +61,24 @@ DEVICE_AAR="$ROOT/onyxsdk-device/build/outputs/aar/onyxsdk-device-release.aar"
 PEN_AAR="$ROOT/onyxsdk-pen/build/outputs/aar/onyxsdk-pen-release.aar"
 for aar in "$BASE_AAR" "$DEVICE_AAR" "$PEN_AAR"; do
   test -s "$aar" || fail "missing source-native AAR: $aar"
-  unzip -Z1 "$aar" | rg -q '^AndroidManifest.xml$' || fail "$aar has no manifest"
-  unzip -Z1 "$aar" | rg -q '^classes.jar$' || fail "$aar has no source-compiled classes.jar"
+  unzip -Z1 "$aar" | rg '^AndroidManifest.xml$' >/dev/null || fail "$aar has no manifest"
+  unzip -Z1 "$aar" | rg '^classes.jar$' >/dev/null || fail "$aar has no source-compiled classes.jar"
 done
 
 unzip -p "$BASE_AAR" classes.jar > "$TMP/base.jar"
 unzip -p "$DEVICE_AAR" classes.jar > "$TMP/device.jar"
 unzip -p "$PEN_AAR" classes.jar > "$TMP/pen.jar"
-jar tf "$TMP/base.jar" | rg -q 'com/onyx/android/sdk/utils/FileUtils.class' \
+jar tf "$TMP/base.jar" | rg 'com/onyx/android/sdk/utils/FileUtils.class' >/dev/null \
   || fail "base classes.jar is missing FileUtils"
-jar tf "$TMP/base.jar" | rg -q 'com/onyx/android/sdk/rx/RxUtils\$d.class' \
+jar tf "$TMP/base.jar" | rg 'com/onyx/android/sdk/rx/RxUtils\$d.class' >/dev/null \
   || fail "base classes.jar is missing RxUtils\$d"
-jar tf "$TMP/device.jar" | rg -q 'com/onyx/android/sdk/device/a.class' \
+jar tf "$TMP/device.jar" | rg 'com/onyx/android/sdk/device/a.class' >/dev/null \
   || fail "device classes.jar is missing the obfuscated class a"
 for class in RK32XXDevice IMX6Device RK33XXDevice SDMDevice RK31XXDevice; do
-  jar tf "$TMP/device.jar" | rg -q "com/onyx/android/sdk/device/$class.class" \
+  jar tf "$TMP/device.jar" | rg "com/onyx/android/sdk/device/$class.class" >/dev/null \
     || fail "device classes.jar is missing $class"
 done
-jar tf "$TMP/pen.jar" | rg -q 'com/onyx/android/sdk/pen/RawInputReader.class' \
+jar tf "$TMP/pen.jar" | rg 'com/onyx/android/sdk/pen/RawInputReader.class' >/dev/null \
   || fail "pen classes.jar is missing RawInputReader"
 # The contract list is byte-order sorted; force the same collation here so
 # comm never sees "disorder" under a UTF-8 host locale.
@@ -88,7 +88,9 @@ test -z "$missing_pen_classes" || fail "pen AAR is missing reference classes: $m
 echo "all AAR classes were compiled from recovered source"
 
 for aar in "$BASE_AAR" "$DEVICE_AAR" "$PEN_AAR"; do
-  if unzip -Z1 "$aar" | rg -q '^libs/.+\.jar$|onyxsdk-pen-native-classes\.jar|classes-original\.jar'; then
+  listing="$(unzip -Z1 "$aar")" || fail "could not list contents of $aar"
+  if printf '%s\n' "$listing" \
+      | rg '^libs/.+\.jar$|onyxsdk-pen-native-classes\.jar|classes-original\.jar' >/dev/null; then
     fail "$aar contains an embedded or reference JAR"
   fi
 done
@@ -97,7 +99,7 @@ scan_must_be_clean "pen production source still contains decompiler-generated in
   '\?\?|\*\* GOTO|void var[0-9]|UnsupportedOperationException\("Method not decompiled|IllegalStateException\("Decompilation failed' \
   "$ROOT/onyxsdk-pen/src/main/java"
 
-if unzip -Z1 "$PEN_AAR" | rg -q 'libc\+\+_shared\.so'; then
+if unzip -Z1 "$PEN_AAR" | rg 'libc\+\+_shared\.so' >/dev/null; then
   fail "pen AAR still contains libc++_shared.so"
 fi
 
@@ -141,7 +143,7 @@ for abi in armeabi-v7a arm64-v8a x86 x86_64; do
     test -s "$rebuilt" || fail "missing source-built $abi $library"
     "$LLVM_NM" -D --defined-only "$rebuilt" | awk '{print $3}' | rg '^Java_' | sort > "$TMP/$abi.$contract.exports"
     diff -u "$expected" "$TMP/$abi.$contract.exports" || fail "$abi $contract source contract differs"
-    if "$LLVM_READELF" -d "$rebuilt" | rg -q 'libc\+\+_shared'; then
+    if "$LLVM_READELF" -d "$rebuilt" | rg 'libc\+\+_shared' >/dev/null; then
       fail "$abi $library unexpectedly depends on libc++_shared"
     fi
     unzip -p "$PEN_AAR" "jni/$abi/$library" > "$TMP/$abi.$contract.aar.so"

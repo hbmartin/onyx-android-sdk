@@ -3,6 +3,7 @@ package com.onyx.recovery.validation;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -16,6 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public final class ValidationActivity extends Activity {
+    private static final String TAG = "OnyxValidation";
     private ResultRecorder recorder;
     private GuidedCanvasView canvas;
     private PenHarness pen;
@@ -102,6 +104,7 @@ public final class ValidationActivity extends Activity {
             ProbeRunner.inventory(this, recorder);
             if ("automated".equals(suite) || "base".equals(suite)) ProbeRunner.base(this, recorder);
             runOnUiThread(() -> {
+                if (isDestroyed() || isFinishing()) return;
                 if ("automated".equals(suite) || "device".equals(suite)) {
                     ProbeRunner.device(this, canvas, recorder);
                 }
@@ -114,11 +117,11 @@ public final class ValidationActivity extends Activity {
         });
     }
 
-    private void finishSuite(String suite) {
+    private synchronized void finishSuite(String suite) {
         if (finished) return;
-        finished = true;
         try {
             recorder.markDone(this, suite);
+            finished = true;
             status.setText("Complete: " + suite + " (" + BuildConfig.SDK_VARIANT + ")");
         } catch (IOException error) {
             status.setText("Could not finish: " + error);
@@ -129,6 +132,13 @@ public final class ValidationActivity extends Activity {
     protected void onDestroy() {
         if (pen != null) pen.quit();
         worker.shutdownNow();
+        if (recorder != null) {
+            try {
+                recorder.close();
+            } catch (IOException error) {
+                Log.e(TAG, "Could not close validation result recorder", error);
+            }
+        }
         super.onDestroy();
     }
 }
