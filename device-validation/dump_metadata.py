@@ -85,6 +85,8 @@ def read_element_value(data, offset, pool):
         index = struct.unpack_from(">H", data, offset)[0]
         offset += 2
         kind, value = pool[index]
+        if kind == "ref":
+            kind, value = pool[value]
         if kind == "utf8":
             value = modified_utf8(value)
         return (tag, value), offset

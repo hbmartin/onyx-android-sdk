@@ -139,6 +139,12 @@ SCENARIOS: list[dict[str, Any]] = [
 ]
 
 BY_ID = {scenario["id"]: scenario for scenario in SCENARIOS}
+DEFECT_CLASSIFICATIONS = (
+    "recovery_defect",
+    "missing_in_recovered",
+    "extra_in_recovered",
+    "harness_error",
+)
 
 
 def load_raw(path: Path) -> list[dict[str, Any]]:
@@ -238,12 +244,32 @@ def cmd_report(output_dir: Path) -> int:
         comparison_file = output_dir / f"{sid}-comparison" / "comparison.json"
         if verdict == "skipped":
             lines.append(f"- `{sid}`: **skipped** — {notes or 'not testable with this hardware'}")
+            if not scenario.get("skippable"):
+                failures.append(sid)
             continue
         counts = "not compared"
-        if comparison_file.is_file():
-            payload = json.loads(comparison_file.read_text(encoding="utf-8"))
-            counts = ", ".join(f"{k}={v}" for k, v in payload["counts"].items())
-        if verdict != "same":
+        comparison_failed = not comparison_file.is_file()
+        if not comparison_failed:
+            comparison_counts = None
+            comparison_error = None
+            try:
+                payload = json.loads(comparison_file.read_text(encoding="utf-8"))
+                comparison_counts = payload["counts"]
+                if not isinstance(comparison_counts, dict) or any(
+                        isinstance(value, bool) or not isinstance(value, int)
+                        for value in comparison_counts.values()):
+                    raise ValueError("counts must map classifications to integers")
+            except (OSError, json.JSONDecodeError, KeyError, TypeError, ValueError) as error:
+                comparison_error = error
+            if comparison_error is not None:
+                counts = f"invalid comparison ({comparison_error})"
+                comparison_failed = True
+            else:
+                assert comparison_counts is not None
+                counts = ", ".join(f"{k}={v}" for k, v in comparison_counts.items())
+                comparison_failed = any(comparison_counts.get(name, 0)
+                                        for name in DEFECT_CLASSIFICATIONS)
+        if verdict != "same" or comparison_failed:
             failures.append(sid)
         note_suffix = f" — {notes}" if notes else ""
         lines.append(f"- `{sid}`: operator verdict **{verdict}**; comparison: {counts}{note_suffix}")
@@ -253,8 +279,7 @@ def cmd_report(output_dir: Path) -> int:
     if replay_file.is_file():
         payload = json.loads(replay_file.read_text(encoding="utf-8"))
         counts = payload["counts"]
-        defects = sum(counts.get(k, 0) for k in
-                      ("recovery_defect", "missing_in_recovered", "extra_in_recovered", "harness_error"))
+        defects = sum(counts.get(k, 0) for k in DEFECT_CLASSIFICATIONS)
         parity = "exact" if defects == 0 else "BROKEN"
         if defects:
             failures.append("replay-parity")

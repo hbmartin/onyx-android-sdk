@@ -27,6 +27,7 @@ run the descriptor-level audit (after `./gradlew assembleRecovered`):
 ```bash
 python3 classify_api_differences.py --module base \
   --artifacts-root /path/to/onyx-artifacts --recovery-root .. \
+  --accepted-residuals accepted-residuals/base.json \
   --output base-classified.json --fail-on binary_breaking
 ```
 
@@ -37,6 +38,8 @@ most severe of: `binary_breaking`, `extra_public_surface`, `source_generic`,
 `kotlin_metadata`, `annotation_only`, `compiler_artifact`. The repaired base
 surface is additionally pinned by the in-tree unit test
 `RecoveredApiSurfaceRegressionTest`, which runs without any reference JAR.
+The accepted-residual file names each javac-inexpressible difference exactly;
+stale entries or any new unaccepted finding fail the audit.
 
 The full surface/native audit expects the existing untracked analysis inputs
 `../onyxsdk-pen-native-classes.jar` and `../libneo_pen.so`. They remain external

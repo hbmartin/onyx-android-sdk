@@ -84,8 +84,7 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeIsVali
             revents: 0,
         };
         let result = unsafe { libc::poll(&mut descriptor, 1, 0) };
-        return (result >= 0 && descriptor.revents & (libc::POLLHUP | libc::POLLNVAL) == 0)
-            as jboolean;
+        (result >= 0 && descriptor.revents & (libc::POLLHUP | libc::POLLNVAL) == 0) as jboolean
     }
     #[cfg(not(any(target_os = "android", target_os = "linux")))]
     0
@@ -234,7 +233,7 @@ fn open_pen_device() -> Option<(i32, f32)> {
                 .to_string_lossy()
                 .to_lowercase()
         } else {
-            String::new().into()
+            String::new()
         };
         if lower.contains("hanvon") || lower.contains("wacom") || lower.contains("onyx_emp") {
             let mut abs = [0i32; 6];

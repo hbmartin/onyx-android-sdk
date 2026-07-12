@@ -308,33 +308,49 @@ public class RecoveredApiSurfaceRegressionTest {
 
     private static Class<?>[] parameterTypes(String descriptor) throws Exception {
         List<Class<?>> types = new ArrayList<>();
-        int index = 1;
-        while (descriptor.charAt(index) != ')') {
-            int dimensions = 0;
-            while (descriptor.charAt(index) == '[') {
-                dimensions++;
-                index++;
-            }
-            char tag = descriptor.charAt(index);
-            String binaryName;
-            if (tag == 'L') {
-                int end = descriptor.indexOf(';', index);
-                binaryName = descriptor.substring(index + 1, end).replace('/', '.');
-                index = end + 1;
-            } else {
-                binaryName = String.valueOf(tag);
-                index++;
-            }
-            Class<?> type = primitive(binaryName);
-            if (type == null) {
-                type = Class.forName(binaryName);
-            }
-            for (int i = 0; i < dimensions; i++) {
-                type = java.lang.reflect.Array.newInstance(type, 0).getClass();
-            }
-            types.add(type);
+        int[] index = {1};
+        while (descriptor.charAt(index[0]) != ')') {
+            types.add(descriptorType(descriptor, index));
         }
         return types.toArray(new Class<?>[0]);
+    }
+
+    private static Class<?> returnType(String descriptor) throws Exception {
+        int[] index = {descriptor.indexOf(')') + 1};
+        return descriptorType(descriptor, index);
+    }
+
+    private static Class<?> fieldType(String descriptor) throws Exception {
+        int[] index = {0};
+        Class<?> type = descriptorType(descriptor, index);
+        assertEquals("complete field descriptor", descriptor.length(), index[0]);
+        return type;
+    }
+
+    private static Class<?> descriptorType(String descriptor, int[] index) throws Exception {
+        int dimensions = 0;
+        while (descriptor.charAt(index[0]) == '[') {
+            dimensions++;
+            index[0]++;
+        }
+        char tag = descriptor.charAt(index[0]);
+        String binaryName;
+        if (tag == 'L') {
+            int end = descriptor.indexOf(';', index[0]);
+            binaryName = descriptor.substring(index[0] + 1, end).replace('/', '.');
+            index[0] = end + 1;
+        } else {
+            binaryName = String.valueOf(tag);
+            index[0]++;
+        }
+        Class<?> type = primitive(binaryName);
+        if (type == null) {
+            type = Class.forName(binaryName);
+        }
+        for (int i = 0; i < dimensions; i++) {
+            type = java.lang.reflect.Array.newInstance(type, 0).getClass();
+        }
+        return type;
     }
 
     private static Class<?> primitive(String tag) {
@@ -364,14 +380,30 @@ public class RecoveredApiSurfaceRegressionTest {
 
     private static void assertMethod(Class<?> owner, String name, String descriptor,
             int modifiers) throws Exception {
-        Method method = owner.getDeclaredMethod(name, parameterTypes(descriptor));
+        Method method = declaredMethod(owner, name, descriptor);
         assertModifiers(owner.getName() + "#" + name + descriptor, modifiers,
                 method.getModifiers());
+    }
+
+    private static Method declaredMethod(Class<?> owner, String name, String descriptor)
+            throws Exception {
+        Class<?>[] parameters = parameterTypes(descriptor);
+        Class<?> returns = returnType(descriptor);
+        for (Method method : owner.getDeclaredMethods()) {
+            if (method.getName().equals(name)
+                    && java.util.Arrays.equals(method.getParameterTypes(), parameters)
+                    && method.getReturnType().equals(returns)) {
+                return method;
+            }
+        }
+        throw new NoSuchMethodException(owner.getName() + "#" + name + descriptor);
     }
 
     private static void assertField(String owner, String name, String descriptor,
             int modifiers) throws Exception {
         Field field = load(owner).getDeclaredField(name);
+        assertEquals(owner + "." + name + descriptor + ": field type",
+                fieldType(descriptor), field.getType());
         assertModifiers(owner + "." + name, modifiers, field.getModifiers());
     }
 
@@ -386,7 +418,7 @@ public class RecoveredApiSurfaceRegressionTest {
     private static void assertNoVisibleMethod(String owner, String name,
             String descriptor) throws Exception {
         try {
-            Method method = load(owner).getDeclaredMethod(name, parameterTypes(descriptor));
+            Method method = declaredMethod(load(owner), name, descriptor);
             assertEquals(owner + "#" + name + " must not be public/protected",
                     0, method.getModifiers() & (Modifier.PUBLIC | Modifier.PROTECTED));
         } catch (NoSuchMethodException absent) {

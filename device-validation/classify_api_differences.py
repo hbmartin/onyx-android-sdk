@@ -97,6 +97,52 @@ class ClassApi:
         return "ACC_PUBLIC" in self.flags or "ACC_PROTECTED" in self.flags
 
 
+@dataclass(frozen=True)
+class AcceptedResiduals:
+    class_findings: frozenset[tuple[str, str, str]] = frozenset()
+    extra_classes: frozenset[str] = frozenset()
+
+
+def strip_type_arguments(value: str) -> str:
+    """Remove javap's generic type arguments while preserving erased names."""
+    result = []
+    depth = 0
+    for char in value:
+        if char == "<":
+            depth += 1
+        elif char == ">":
+            depth = max(0, depth - 1)
+        elif depth == 0:
+            result.append(char)
+    return "".join(result)
+
+
+def class_hierarchy(api: ClassApi) -> tuple[str | None, tuple[str, ...]]:
+    """Return the erased superclass and interfaces from a javap declaration."""
+    declaration = " ".join(strip_type_arguments(api.declaration).split())
+    kind_match = re.search(r"\b(class|interface)\s+[\w.$]+", declaration)
+    if not kind_match:
+        return None, ()
+    kind = kind_match.group(1)
+    tail = declaration[kind_match.end():]
+    superclass = None
+    interfaces: tuple[str, ...] = ()
+    if kind == "interface":
+        match = re.search(r"\bextends\s+(.+?)(?:\s+permits\s+|$)", tail)
+        if match:
+            interfaces = tuple(part.strip() for part in match.group(1).split(","))
+    else:
+        extends = re.search(r"\bextends\s+([^\s,]+)", tail)
+        if extends:
+            superclass = extends.group(1)
+        elif api.name != "java.lang.Object":
+            superclass = "java.lang.Object"
+        implements = re.search(r"\bimplements\s+(.+?)(?:\s+permits\s+|$)", tail)
+        if implements:
+            interfaces = tuple(part.strip() for part in implements.group(1).split(","))
+    return superclass, tuple(sorted(interfaces))
+
+
 def class_names(jar: Path) -> list[str]:
     with zipfile.ZipFile(jar) as archive:
         return sorted(
@@ -229,7 +275,7 @@ def parse_javap(text: str) -> dict[str, ClassApi]:
                     if re.match(r"^\s+\d+: #\d+", upcoming):
                         index += 1
                         continue
-                    name_match = re.match(r"^\s+([\w.$]+)\(", upcoming)
+                    name_match = re.match(r"^\s+([\w.$/;]+)\(", upcoming)
                     if name_match and not upcoming.strip().startswith("0x"):
                         collected.append(name_match.group(1))
                         index += 1
@@ -266,6 +312,14 @@ def classify_class(reference: ClassApi, candidate: ClassApi) -> dict:
     if ref_class_flags != cand_class_flags:
         note("binary_breaking",
              f"class flags {sorted(ref_class_flags)} -> {sorted(cand_class_flags)}")
+    ref_superclass, ref_interfaces = class_hierarchy(reference)
+    cand_superclass, cand_interfaces = class_hierarchy(candidate)
+    if ref_superclass != cand_superclass:
+        note("binary_breaking",
+             f"superclass changed: {ref_superclass!r} -> {cand_superclass!r}")
+    if ref_interfaces != cand_interfaces:
+        note("binary_breaking",
+             f"interfaces changed: {list(ref_interfaces)} -> {list(cand_interfaces)}")
 
     for key, ref_member in ref_members.items():
         cand_member = cand_all.get(key)
@@ -353,6 +407,67 @@ def extract_classes_jar(aar: Path, workdir: Path) -> Path:
     return destination
 
 
+def load_accepted_residuals(path: Path | None) -> AcceptedResiduals:
+    if path is None:
+        return AcceptedResiduals()
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    findings = frozenset(
+        (class_name, bucket, message)
+        for class_name, buckets in payload.get("classes", {}).items()
+        for bucket, messages in buckets.items()
+        for message in messages
+    )
+    return AcceptedResiduals(
+        class_findings=findings,
+        extra_classes=frozenset(payload.get("extraClasses", [])),
+    )
+
+
+def validate_accepted_residuals(
+    accepted: AcceptedResiduals,
+    results: dict[str, dict],
+    extra_classes: list[str],
+) -> None:
+    actual_findings = {
+        (class_name, bucket, message)
+        for class_name, data in results.items()
+        for bucket, messages in data.get("buckets", {}).items()
+        for message in messages
+    }
+    stale_findings = sorted(accepted.class_findings - actual_findings)
+    stale_extras = sorted(accepted.extra_classes - set(extra_classes))
+    if stale_findings or stale_extras:
+        details = []
+        if stale_findings:
+            details.append(f"stale class findings: {stale_findings}")
+        if stale_extras:
+            details.append(f"stale extra classes: {stale_extras}")
+        raise ValueError("accepted residual file does not match the audit: " + "; ".join(details))
+
+
+def unaccepted_classification(
+    class_name: str,
+    data: dict,
+    accepted: AcceptedResiduals,
+) -> str:
+    for severity in SEVERITY[:-1]:
+        messages = data.get("buckets", {}).get(severity, [])
+        if any((class_name, severity, message) not in accepted.class_findings
+               for message in messages):
+            return severity
+    return "match"
+
+
+def gate_fails(unaccepted_counts: Counter[str], fail_on: str) -> bool:
+    threshold = SEVERITY.index(fail_on)
+    worst = min(
+        (SEVERITY.index(classification) for classification, count
+         in unaccepted_counts.items() if count),
+        default=len(SEVERITY) - 1,
+    )
+    return worst <= threshold
+
+
 def module_inputs(args: argparse.Namespace, workdir: Path) -> tuple[list[Path], list[Path]]:
     artifacts = Path(args.artifacts_root)
     recovery = Path(args.recovery_root)
@@ -378,6 +493,8 @@ def main() -> int:
     parser.add_argument("--candidate", action="append", type=Path, default=[])
     parser.add_argument("--output", type=Path)
     parser.add_argument("--fail-on", choices=SEVERITY[:-1])
+    parser.add_argument("--accepted-residuals", type=Path,
+                        help="JSON file of exact known findings/extensions that may not fail the gate")
     args = parser.parse_args()
 
     with tempfile.TemporaryDirectory() as tmp:
@@ -417,12 +534,33 @@ def main() -> int:
         name for name, api in candidate_api.items()
         if api.visible and name not in reference_api
     )
+    if extra_classes:
+        counts["extra_public_surface"] += len(extra_classes)
+    accepted = load_accepted_residuals(args.accepted_residuals)
+    try:
+        validate_accepted_residuals(accepted, results, extra_classes)
+    except ValueError as error:
+        raise SystemExit(str(error)) from error
+    unaccepted_counts: Counter[str] = Counter()
+    for class_name, data in results.items():
+        classification = unaccepted_classification(class_name, data, accepted)
+        if classification != "match":
+            unaccepted_counts[classification] += 1
+    unaccepted_extra_count = sum(
+        name not in accepted.extra_classes for name in extra_classes)
+    if unaccepted_extra_count:
+        unaccepted_counts["extra_public_surface"] += unaccepted_extra_count
 
     report = {
         "referenceClasses": sum(1 for a in reference_api.values() if a.visible),
         "candidateClasses": sum(1 for a in candidate_api.values() if a.visible),
         "counts": dict(counts),
+        "unacceptedCounts": dict(unaccepted_counts),
         "extraClasses": extra_classes,
+        "acceptedResiduals": {
+            "classes": sorted({name for name, _, _ in accepted.class_findings}),
+            "extraClasses": sorted(accepted.extra_classes),
+        },
         "classes": {
             name: data for name, data in results.items()
             if data["classification"] != "match"
@@ -441,12 +579,7 @@ def main() -> int:
         file=sys.stderr,
     )
     if args.fail_on:
-        threshold = SEVERITY.index(args.fail_on)
-        worst = min(
-            (SEVERITY.index(d["classification"]) for d in results.values()),
-            default=len(SEVERITY) - 1,
-        )
-        if worst <= threshold:
+        if gate_fails(unaccepted_counts, args.fail_on):
             return 1
     return 0
 

@@ -52,7 +52,7 @@ class FixtureRegressionTest(unittest.TestCase):
                     command.append("--live")
                 if api is not None:
                     command.extend(["--api-surface", str(api)])
-                subprocess.run(command, check=True)
+                subprocess.run(command, check=True, timeout=120)
                 fresh_counts = json.loads((out / "comparison.json").read_text(encoding="utf-8"))["counts"]
                 self.assertEqual(pinned_counts, fresh_counts,
                                  f"{fixture.name}/{pinned.name} no longer reproduces")
