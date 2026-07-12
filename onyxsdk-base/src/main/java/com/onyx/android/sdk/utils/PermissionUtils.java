@@ -85,6 +85,13 @@ public final class PermissionUtils
             this.a(context, onPermissionGranted, onShowRationale);
         }
     }
+
+    public static /* synthetic */ void checkAndRequestStoragePermission$default(final PermissionUtils permissionUtils, final Context context, Function0 onShowRationale, final Function0 onPermissionGranted, final int i, final Object obj) {
+        if ((i & 2) != 0) {
+            onShowRationale = PermissionUtils$a.a;
+        }
+        permissionUtils.checkAndRequestStoragePermission(context, onShowRationale, onPermissionGranted);
+    }
     
     public final boolean showPermissionRationale(@NotNull final Context context, @NotNull final String permission) {
         Intrinsics.checkNotNullParameter((Object)context, "context");

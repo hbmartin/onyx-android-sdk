@@ -106,9 +106,9 @@ public class NeoCharcoalPenV2Wrapper {
         NeoRenderPoint[] neoRenderPointArrComputeStrokeRenderPoints = computeStrokeRenderPoints(renderArgs, arrayList);
         Paint paint = null;
         if (renderArgs.isErase()) {
-            paint = paint;
             Paint paint2 = new Paint();
             paint2.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+            paint = paint2;
         }
         for (NeoRenderPoint neoRenderPoint : neoRenderPointArrComputeStrokeRenderPoints) {
             renderArgs.getCanvas().drawBitmap((Bitmap) arrayList.get(neoRenderPoint.bitmapIndex), neoRenderPoint.x, neoRenderPoint.y, paint);
@@ -148,9 +148,9 @@ public class NeoCharcoalPenV2Wrapper {
         }
         Paint paint = null;
         if (renderArgs.isErase()) {
-            paint = paint;
             Paint paint2 = new Paint();
             paint2.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+            paint = paint2;
         }
         int size = c + CollectionUtils.getSize(renderArgs.getPoints());
         c = size;

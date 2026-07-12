@@ -2,7 +2,15 @@ package com.onyx.android.sdk.geometry.data;
 
 import com.onyx.android.sdk.data.note.TouchPoint;
 
-/** Immutable touch event consumed by {@code NeoPenRender}. */
+/**
+ * Immutable touch event consumed by {@code NeoPenRender}.
+ *
+ * <p>Intentional recovery extension: the reference
+ * {@code NeoPenRender.onTouchData(com.onyx.android.sdk.geometry.data.TouchData)}
+ * signature names this class, but the original ships in a separate Onyx
+ * geometry artifact that was not supplied for recovery. This stand-in must
+ * stay public to preserve that reference method signature.
+ */
 public final class TouchData {
     private final int action;
     private final int toolType;

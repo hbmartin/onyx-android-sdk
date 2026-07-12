@@ -27,7 +27,7 @@ import com.onyx.android.sdk.data.Size;
 import org.jetbrains.annotations.NotNull;
 import kotlin.Metadata;
 
-@Metadata(mv = { 1, 6, 0 }, k = 1, xi = 48, d1 = { "\u0000Z\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\b\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0010\u000e\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0010\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\b\u00c6\u0002\u0018\u00002\u00020\u0001B\u0007\b\u0002¢\u0006\u0002\u0010\u0002J\u0010\u0010\u0005\u001a\u0004\u0018\u00010\u00062\u0006\u0010\u0007\u001a\u00020\bJ\u000e\u0010\t\u001a\u00020\u00062\u0006\u0010\u0007\u001a\u00020\bJ.\u0010\n\u001a\u0004\u0018\u00010\u00062\b\u0010\u000b\u001a\u0004\u0018\u00010\f2\u0006\u0010\r\u001a\u00020\u000e2\u0006\u0010\u000f\u001a\u00020\b2\n\b\u0002\u0010\u0010\u001a\u0004\u0018\u00010\u0011J@\u0010\n\u001a\u0004\u0018\u00010\u00062\b\u0010\u000b\u001a\u0004\u0018\u00010\f2\u0006\u0010\r\u001a\u00020\u000e2\u0006\u0010\u0012\u001a\u00020\b2\u0006\u0010\u000f\u001a\u00020\b2\b\u0010\u0013\u001a\u0004\u0018\u00010\u00142\n\b\u0002\u0010\u0010\u001a\u0004\u0018\u00010\u0011J\u0016\u0010\u0015\u001a\u00020\u00042\u0006\u0010\u0016\u001a\u00020\u00172\u0006\u0010\u0018\u001a\u00020\u0004J\u001c\u0010\u0019\u001a\u0004\u0018\u00010\u00062\b\u0010\u0016\u001a\u0004\u0018\u00010\u00172\b\b\u0002\u0010\u001a\u001a\u00020\u001bJ\u000e\u0010\u001c\u001a\u0004\u0018\u00010\u0006*\u0004\u0018\u00010\u0006J \u0010\u001d\u001a\u00020\u001e*\u0004\u0018\u00010\u00062\u0012\u0010\u001f\u001a\u000e\u0012\u0004\u0012\u00020\u0006\u0012\u0004\u0012\u00020\u001e0 R\u000e\u0010\u0003\u001a\u00020\u0004X\u0082\u0004¢\u0006\u0002\n\u0000¨\u0006!" }, d2 = { "Lcom/onyx/android/sdk/utils/Bitmaps;", "", "()V", "ENSURE_BITMAP_NOT_NULL_SIZE", "Lcom/onyx/android/sdk/data/Size;", "createBitmapOrNull", "Landroid/graphics/Bitmap;", "rectF", "Landroid/graphics/RectF;", "ensureBitmapNotNull", "getBitmapFromVectorDrawableBySize", "context", "Landroid/content/Context;", "drawableId", "", "displayRectF", "colorFilter", "Landroid/graphics/ColorFilter;", "originRectF", "matrix", "Landroid/graphics/Matrix;", "getPathThumbSize", "path", "", "defaultThumbSize", "loadBitmapFromFile", "options", "Landroid/graphics/BitmapFactory.Options;", "copy", "ifValid", "", "block", "Lkotlin/Function1;", "onyxsdk-base_release" })
+@Metadata(mv = { 1, 6, 0 }, k = 1, xi = 48, d1 = { "\u0000Z\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\b\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0010\u000e\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0010\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\b\u00c6\u0002\u0018\u00002\u00020\u0001B\u0007\b\u0002¢\u0006\u0002\u0010\u0002J\u0010\u0010\u0005\u001a\u0004\u0018\u00010\u00062\u0006\u0010\u0007\u001a\u00020\bJ\u000e\u0010\t\u001a\u00020\u00062\u0006\u0010\u0007\u001a\u00020\bJ.\u0010\n\u001a\u0004\u0018\u00010\u00062\b\u0010\u000b\u001a\u0004\u0018\u00010\f2\u0006\u0010\r\u001a\u00020\u000e2\u0006\u0010\u000f\u001a\u00020\b2\n\b\u0002\u0010\u0010\u001a\u0004\u0018\u00010\u0011J@\u0010\n\u001a\u0004\u0018\u00010\u00062\b\u0010\u000b\u001a\u0004\u0018\u00010\f2\u0006\u0010\r\u001a\u00020\u000e2\u0006\u0010\u0012\u001a\u00020\b2\u0006\u0010\u000f\u001a\u00020\b2\b\u0010\u0013\u001a\u0004\u0018\u00010\u00142\n\b\u0002\u0010\u0010\u001a\u0004\u0018\u00010\u0011J\u0016\u0010\u0015\u001a\u00020\u00042\u0006\u0010\u0016\u001a\u00020\u00172\u0006\u0010\u0018\u001a\u00020\u0004J\u001c\u0010\u0019\u001a\u0004\u0018\u00010\u00062\b\u0010\u0016\u001a\u0004\u0018\u00010\u00172\b\b\u0002\u0010\u001a\u001a\u00020\u001bJ\u000e\u0010\u001c\u001a\u0004\u0018\u00010\u0006*\u0004\u0018\u00010\u0006J \u0010\u001d\u001a\u00020\u001e*\u0004\u0018\u00010\u00062\u0012\u0010\u001f\u001a\u000e\u0012\u0004\u0012\u00020\u0006\u0012\u0004\u0012\u00020\u001e0 R\u000e\u0010\u0003\u001a\u00020\u0004X\u0082\u0004¢\u0006\u0002\n\u0000¨\u0006!" }, d2 = { "Lcom/onyx/android/sdk/utils/Bitmaps;", "", "()V", "ENSURE_BITMAP_NOT_NULL_SIZE", "Lcom/onyx/android/sdk/data/Size;", "createBitmapOrNull", "Landroid/graphics/Bitmap;", "rectF", "Landroid/graphics/RectF;", "ensureBitmapNotNull", "getBitmapFromVectorDrawableBySize", "context", "Landroid/content/Context;", "drawableId", "", "displayRectF", "colorFilter", "Landroid/graphics/ColorFilter;", "originRectF", "matrix", "Landroid/graphics/Matrix;", "getPathThumbSize", "path", "", "defaultThumbSize", "loadBitmapFromFile", "options", "Landroid/graphics/BitmapFactory$Options;", "copy", "ifValid", "", "block", "Lkotlin/Function1;", "onyxsdk-base_release" })
 public final class Bitmaps
 {
     @NotNull
@@ -90,7 +90,14 @@ public final class Bitmaps
         catch (final Exception ex5) {}
         return bitmap;
     }
-    
+
+    public static /* synthetic */ Bitmap getBitmapFromVectorDrawableBySize$default(final Bitmaps bitmaps, final Context context, final int drawableId, final RectF displayRectF, ColorFilter colorFilter, final int i, final Object obj) {
+        if ((i & 8) != 0) {
+            colorFilter = null;
+        }
+        return bitmaps.getBitmapFromVectorDrawableBySize(context, drawableId, displayRectF, colorFilter);
+    }
+
     @Nullable
     public final Bitmap getBitmapFromVectorDrawableBySize(@Nullable final Context context, int drawableId, @NotNull final RectF originRectF, @NotNull final RectF displayRectF, @Nullable final Matrix matrix, @Nullable final ColorFilter colorFilter) {
         Intrinsics.checkNotNullParameter((Object)originRectF, "originRectF");
@@ -142,7 +149,14 @@ public final class Bitmaps
         catch (final Exception ex5) {}
         return bitmap;
     }
-    
+
+    public static /* synthetic */ Bitmap getBitmapFromVectorDrawableBySize$default(final Bitmaps bitmaps, final Context context, final int drawableId, final RectF originRectF, final RectF displayRectF, final Matrix matrix, ColorFilter colorFilter, final int i, final Object obj) {
+        if ((i & 32) != 0) {
+            colorFilter = null;
+        }
+        return bitmaps.getBitmapFromVectorDrawableBySize(context, drawableId, originRectF, displayRectF, matrix, colorFilter);
+    }
+
     @Nullable
     public final Bitmap createBitmapOrNull(@NotNull final RectF rectF) {
         Intrinsics.checkNotNullParameter((Object)rectF, "rectF");
@@ -213,5 +227,12 @@ public final class Bitmaps
             return null;
         }
         return BitmapFactory.decodeFile(path, options);
+    }
+
+    public static /* synthetic */ Bitmap loadBitmapFromFile$default(final Bitmaps bitmaps, final String path, BitmapFactory.Options options, final int i, final Object obj) {
+        if ((i & 2) != 0) {
+            options = new BitmapFactory.Options();
+        }
+        return bitmaps.loadBitmapFromFile(path, options);
     }
 }

@@ -24,4 +24,35 @@ class UnsupportedOperationPathTest {
                 "Super calls with default arguments not supported in this target, function: onTouchDown",
                 failure.getMessage());
     }
+
+    @Test
+    void onTouchMoveGuardKeepsItsExactRecoveredMessage() {
+        UnsupportedOperationException failure = assertThrows(
+                UnsupportedOperationException.class,
+                () -> NeoPenRender.onTouchMove$default(
+                        new NeoPenRender(new NeoSegmentPathResultPen()),
+                        null,
+                        null,
+                        false,
+                        0,
+                        new Object()));
+        assertEquals(
+                "Super calls with default arguments not supported in this target, function: onTouchMove",
+                failure.getMessage());
+    }
+
+    @Test
+    void onTouchDoneGuardKeepsItsExactRecoveredMessage() {
+        UnsupportedOperationException failure = assertThrows(
+                UnsupportedOperationException.class,
+                () -> NeoPenRender.onTouchDone$default(
+                        new NeoPenRender(new NeoSegmentPathResultPen()),
+                        null,
+                        false,
+                        0,
+                        new Object()));
+        assertEquals(
+                "Super calls with default arguments not supported in this target, function: onTouchDone",
+                failure.getMessage());
+    }
 }

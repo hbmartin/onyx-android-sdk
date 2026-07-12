@@ -18,9 +18,8 @@ public enum TextAlignType {
     JUSTIFY_CENTER("center");
 
 
-    /* JADX INFO: renamed from: Companion, reason: from kotlin metadata */
     @NotNull
-    public static final Companion INSTANCE = new Companion(null);
+    public static final Companion Companion = new Companion(null);
 
     @NotNull
     private final String a;
@@ -31,9 +30,12 @@ public enum TextAlignType {
 
         /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/richtext/TextAlignType$Companion$WhenMappings.class */
         @Metadata(mv = {1, 6, 0}, k = 3, xi = 48)
-        public static /* synthetic */ class WhenMappings {
+        public static final /* synthetic */ class WhenMappings {
             public static final /* synthetic */ int[] $EnumSwitchMapping$0;
             public static final /* synthetic */ int[] $EnumSwitchMapping$1;
+
+            private WhenMappings() {
+            }
 
             static {
                 int[] iArr = new int[Layout.Alignment.values().length];

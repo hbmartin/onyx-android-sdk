@@ -492,14 +492,12 @@ public class WifiAdmin {
         addNetwork(createWifiConfiguration(ssid, password, securityType));
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public void a(RxCallback<List<AccessPoint>> callback) {
+    private void a(RxCallback<List<AccessPoint>> callback) {
         d dVar = new d();
         getRxManager().enqueue(dVar, new b(callback, dVar));
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public List<AccessPoint> a(Collection<ScanResult> scanResults) {
+    private List<AccessPoint> a(Collection<ScanResult> scanResults) {
         HashMap<String, AccessPoint> map = new HashMap<>();
         AccessPoint accessPoint = null;
         for (ScanResult scanResult : scanResults) {

@@ -9,6 +9,9 @@ import kotlin.Metadata;
 @Metadata(mv = { 1, 6, 0 }, k = 2, xi = 48, d1 = { "\u0000\u000e\n\u0000\n\u0002\u0010\u000b\n\u0002\u0010\f\n\u0002\b\u0005\u001a\n\u0010\u0000\u001a\u00020\u0001*\u00020\u0002\u001a\n\u0010\u0003\u001a\u00020\u0001*\u00020\u0002\u001a\n\u0010\u0004\u001a\u00020\u0001*\u00020\u0002\u001a\n\u0010\u0005\u001a\u00020\u0001*\u00020\u0002\u001a\n\u0010\u0006\u001a\u00020\u0001*\u00020\u0002¨\u0006\u0007" }, d2 = { "isAlpha", "", "", "isChinese", "isChineseCharacter", "isJapaneseCharacter", "isKoreanCharacter", "onyxsdk-base_release" })
 public final class CharKt
 {
+    private CharKt() {
+    }
+
     public static final boolean isChinese(final char $this$isChinese) {
         return ('\u3000' <= $this$isChinese && $this$isChinese < '\ud800') || ('\uf900' <= $this$isChinese && $this$isChinese < '\ufb00') || ('\ufe30' <= $this$isChinese && $this$isChinese < '\ufe4f') || ('\uff01' <= $this$isChinese && $this$isChinese < '\uff20');
     }

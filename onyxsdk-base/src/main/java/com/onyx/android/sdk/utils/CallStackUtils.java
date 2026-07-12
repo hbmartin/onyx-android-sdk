@@ -43,4 +43,11 @@ public final class CallStackUtils
         }
         Debug.i((Class)cls, sb.toString(), new Object[0]);
     }
+
+    public static /* synthetic */ void printCallStack$default(final CallStackUtils callStackUtils, final Class cls, int maxDepth, final int i, final Object obj) {
+        if ((i & 2) != 0) {
+            maxDepth = 5;
+        }
+        callStackUtils.printCallStack(cls, maxDepth);
+    }
 }

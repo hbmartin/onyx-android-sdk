@@ -63,9 +63,25 @@ public class NeoPenNativeDeviceTest {
         for (int i = 0; i < ink.getBitmaps().length; i++) {
             if (i > 0) result.append(',');
             android.graphics.Bitmap bitmap = ink.getBitmaps()[i];
-            result.append(bitmap == null ? "null" : bitmap.getWidth() + "x" + bitmap.getHeight());
+            result.append(bitmap == null ? "null"
+                    : bitmap.getWidth() + "x" + bitmap.getHeight()
+                            + "#" + Integer.toHexString(pixelDigest(bitmap)));
         }
         return result.append("]}").toString();
+    }
+
+    /**
+     * Content digest so the differential compares texture pixels, not just
+     * dimensions — an all-transparent stamp must not match a tinted one.
+     */
+    private static int pixelDigest(android.graphics.Bitmap bitmap) {
+        int digest = 1;
+        for (int y = 0; y < bitmap.getHeight(); y++) {
+            for (int x = 0; x < bitmap.getWidth(); x++) {
+                digest = 31 * digest + bitmap.getPixel(x, y);
+            }
+        }
+        return digest;
     }
 
     private static String resultSnapshot(NeoPenResult result) {

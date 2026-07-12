@@ -80,6 +80,8 @@ class DecompilerDisagreementTest {
                 "onyxsdk-base/src/main/java/com/onyx/android/sdk/rx/RxUtils.java"));
         assertTrue(rxUtils.contains("this.a.run();"));
         assertTrue(rxUtils.contains("catch (Exception exception)"));
+        assertTrue(rxUtils.contains(
+                "Debug.e(RxUtils.class, \"switchToUIThreadDispose\", exception);"));
         assertTrue(rxUtils.contains("finally"));
         assertTrue(rxUtils.contains("this.b.dispose();"));
     }

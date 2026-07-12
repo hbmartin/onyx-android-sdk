@@ -12,3 +12,8 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 jni = { version = "0.21", default-features = false }
 
+# A panic that unwinds out of an `extern "system"` JNI export is undefined
+# behavior on older toolchains; abort is the only sound failure mode there.
+[profile.release]
+panic = "abort"
+

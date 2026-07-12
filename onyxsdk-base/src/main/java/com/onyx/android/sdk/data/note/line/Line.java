@@ -60,6 +60,22 @@ public final class Line
     public final Line copy(final float startX, final float startY, final float endX, final float endY) {
         return new Line(startX, startY, endX, endY);
     }
+
+    public static /* synthetic */ Line copy$default(final Line line, float startX, float startY, float endX, float endY, final int i, final Object obj) {
+        if ((i & 1) != 0) {
+            startX = line.a;
+        }
+        if ((i & 2) != 0) {
+            startY = line.b;
+        }
+        if ((i & 4) != 0) {
+            endX = line.c;
+        }
+        if ((i & 8) != 0) {
+            endY = line.d;
+        }
+        return line.copy(startX, startY, endX, endY);
+    }
     
     @NotNull
     @Override

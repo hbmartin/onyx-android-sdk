@@ -837,13 +837,11 @@ public class RxWifiAdmin {
         runInScheduler(new r(wcg));
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public BroadcastReceiver a(ObservableEmitter<Integer> emitter) {
+    private BroadcastReceiver a(ObservableEmitter<Integer> emitter) {
         return new h(emitter);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public BroadcastReceiver b(ObservableEmitter<SupplicantState> emitter) {
+    private BroadcastReceiver b(ObservableEmitter<SupplicantState> emitter) {
         return new i(emitter);
     }
 

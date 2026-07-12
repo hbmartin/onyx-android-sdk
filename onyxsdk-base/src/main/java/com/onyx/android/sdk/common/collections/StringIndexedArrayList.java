@@ -187,7 +187,7 @@ public final class StringIndexedArrayList<E> extends ArrayList<E>
     }
     
     @Override
-    public boolean removeAll(@NotNull final Collection<?> elements) {
+    public boolean removeAll(@NotNull final Collection<? extends Object> elements) {
         Intrinsics.checkNotNullParameter((Object)elements, "elements");
         final boolean removeAll;
         if (removeAll = super.removeAll(elements)) {

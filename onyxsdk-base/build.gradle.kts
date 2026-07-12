@@ -27,21 +27,11 @@ android {
 
     lint {
         // The recovered library preserves the original vendor API, resources,
-        // hidden-service calls, and minSdk. Lint cannot model the firmware,
-        // consuming-app permissions, or decompiled annotation provenance, so
-        // keep those compatibility diagnostics from failing the source gate.
-        disable += setOf(
-            "GradleDependency",
-            "MissingPermission",
-            "MissingTranslation",
-            "NewApi",
-            "ProtectedPermissions",
-            "Range",
-            "ResourceType",
-            "SoonBlockedPrivateApi",
-            "UnspecifiedImmutableFlag",
-            "WrongConstant",
-        )
+        // hidden-service calls, and minSdk, which lint cannot model. Those
+        // pre-existing findings live in the checked-in baseline; new
+        // permission, API-level, range, and resource-type mistakes still warn.
+        disable += "GradleDependency"
+        baseline = file("lint-baseline.xml")
     }
 
     testOptions {

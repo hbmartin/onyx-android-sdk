@@ -1,0 +1,865 @@
+{
+  "candidateClasses": 744,
+  "classes": {
+    "com.onyx.android.sdk.base.extension.WebViewKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.calendar.CalendarRemoteServiceConnection": {
+      "buckets": {
+        "binary_breaking": [
+          "member flags changed: public method asInterface (Landroid/os/IBinder;)Landroid/os/IInterface; ['ACC_PUBLIC'] -> ['ACC_PROTECTED']"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.common.collections.StringIndexedArrayList": {
+      "buckets": {
+        "source_generic": [
+          "generic signature: public method removeAll (Ljava/util/Collection;)Z '(Ljava/util/Collection<+Ljava/lang/Object;>;)Z' -> '(Ljava/util/Collection<*>;)Z'"
+        ]
+      },
+      "classification": "source_generic"
+    },
+    "com.onyx.android.sdk.common.request.WakelockTimer": {
+      "buckets": {
+        "compiler_artifact": [
+          "missing synthetic accessor: public method access$getWakeLockHolder$p (Lcom/onyx/android/sdk/common/request/WakelockTimer;)Lcom/onyx/android/sdk/common/request/WakeLockHolder;"
+        ]
+      },
+      "classification": "compiler_artifact"
+    },
+    "com.onyx.android.sdk.common.request.WakelockTimer$Companion": {
+      "buckets": {
+        "kotlin_metadata": [
+          "kotlin.Metadata annotation differs"
+        ]
+      },
+      "classification": "kotlin_metadata"
+    },
+    "com.onyx.android.sdk.data.DelegatedValueProvider$DefaultImpls": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.data.LongKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.data.Orientation": {
+      "buckets": {
+        "binary_breaking": [
+          "missing member: public field Companion Lcom/onyx/android/sdk/data/Orientation$Companion;"
+        ],
+        "extra_public_surface": [
+          "extra member: public field INSTANCE Lcom/onyx/android/sdk/data/Orientation$Companion;"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.data.ProgressInfo": {
+      "buckets": {
+        "binary_breaking": [
+          "missing member: public field Companion Lcom/onyx/android/sdk/data/ProgressInfo$Companion;"
+        ],
+        "extra_public_surface": [
+          "extra member: public field INSTANCE Lcom/onyx/android/sdk/data/ProgressInfo$Companion;"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.data.ShapeDocumentArgs$Companion": {
+      "buckets": {
+        "binary_breaking": [
+          "visibility narrowed: public method <init> (Lkotlin/jvm/internal/DefaultConstructorMarker;)V -> ['ACC_PRIVATE']"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.data.StashShapeResourceArgs": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method getStashResourceFileName$default (Lcom/onyx/android/sdk/data/StashShapeResourceArgs;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.data.Tree": {
+      "buckets": {
+        "kotlin_metadata": [
+          "kotlin.Metadata annotation differs"
+        ]
+      },
+      "classification": "kotlin_metadata"
+    },
+    "com.onyx.android.sdk.data.Tree$Companion": {
+      "buckets": {
+        "kotlin_metadata": [
+          "kotlin.Metadata annotation differs"
+        ]
+      },
+      "classification": "kotlin_metadata"
+    },
+    "com.onyx.android.sdk.data.bitmap.SafeBitmap": {
+      "buckets": {
+        "binary_breaking": [
+          "missing member: public field Companion Lcom/onyx/android/sdk/data/bitmap/SafeBitmap$Companion;"
+        ],
+        "extra_public_surface": [
+          "extra member: public field INSTANCE Lcom/onyx/android/sdk/data/bitmap/SafeBitmap$Companion;"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.data.bitmap.SafeBitmap$Companion": {
+      "buckets": {
+        "kotlin_metadata": [
+          "kotlin.Metadata annotation differs"
+        ]
+      },
+      "classification": "kotlin_metadata"
+    },
+    "com.onyx.android.sdk.data.note.DisplayArgs": {
+      "buckets": {
+        "binary_breaking": [
+          "missing member: public field Companion Lcom/onyx/android/sdk/data/note/DisplayArgs$Companion;"
+        ],
+        "extra_public_surface": [
+          "extra member: public field INSTANCE Lcom/onyx/android/sdk/data/note/DisplayArgs$Companion;"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.data.note.EraserArgs": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method copy$default (Lcom/onyx/android/sdk/data/note/EraserArgs;Ljava/lang/String;ILjava/util/Map;ILjava/lang/Object;)Lcom/onyx/android/sdk/data/note/EraserArgs;"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.data.note.line.Line": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method copy$default (Lcom/onyx/android/sdk/data/note/line/Line;FFFFILjava/lang/Object;)Lcom/onyx/android/sdk/data/note/line/Line;"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.data.note.line.LineKt": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method isHorizontalLine$default (Lcom/onyx/android/sdk/data/note/line/Line;FILjava/lang/Object;)Z"
+        ],
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.data.reader.PageId": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method copy$default (Lcom/onyx/android/sdk/data/reader/PageId;Ljava/lang/String;Ljava/lang/String;IILjava/lang/Object;)Lcom/onyx/android/sdk/data/reader/PageId;"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.data.reader.PageIdKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.data.reader.ReaderExportDocumentsParam": {
+      "buckets": {
+        "binary_breaking": [
+          "missing member: public method <init> (Ljava/lang/String;Ljava/lang/String;Ljava/util/List;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V",
+          "missing Kotlin $default bridge: public method copy$default (Lcom/onyx/android/sdk/data/reader/ReaderExportDocumentsParam;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;ZILjava/lang/Object;)Lcom/onyx/android/sdk/data/reader/ReaderExportDocumentsParam;"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.data.reader.ReaderImportDocumentsParam": {
+      "buckets": {
+        "binary_breaking": [
+          "missing member: public method <init> (Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V",
+          "missing Kotlin $default bridge: public method copy$default (Lcom/onyx/android/sdk/data/reader/ReaderImportDocumentsParam;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/onyx/android/sdk/data/reader/ReaderImportDocumentsParam;"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.data.render.BaseRenderNode$DefaultImpls": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.data.richtext.TextAlignType": {
+      "buckets": {
+        "binary_breaking": [
+          "missing member: public field Companion Lcom/onyx/android/sdk/data/richtext/TextAlignType$Companion;"
+        ],
+        "extra_public_surface": [
+          "extra member: public field INSTANCE Lcom/onyx/android/sdk/data/richtext/TextAlignType$Companion;"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.data.richtext.TextAlignType$Companion$WhenMappings": {
+      "buckets": {
+        "binary_breaking": [
+          "class flags ['ACC_FINAL', 'ACC_PUBLIC'] -> ['ACC_PUBLIC']"
+        ],
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.extension.AnyKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.extension.ArraysKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.extension.BitmapKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.extension.BooleanKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.extension.CanvasKt": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method drawBitmapFloorLeftTop$default (Landroid/graphics/Canvas;Landroid/graphics/Bitmap;Landroid/graphics/Rect;Landroid/graphics/RectF;Landroid/graphics/Paint;ILjava/lang/Object;)V",
+          "missing Kotlin $default bridge: public method drawBitmapFloorLeftTop$default (Landroid/graphics/Canvas;Landroid/graphics/Bitmap;FFLandroid/graphics/Paint;ILjava/lang/Object;)V",
+          "missing Kotlin $default bridge: public method withMatrix$default (Landroid/graphics/Canvas;Landroid/graphics/Matrix;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V"
+        ],
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.extension.CharKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.extension.ClassKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.extension.CollectionKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.extension.ContextExtensionKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.extension.ContextKt": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method openWithLocalApplication$default (Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;ZILjava/lang/Object;)V",
+          "missing Kotlin $default bridge: public method getMetaData$default (Landroid/content/Context;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/String;"
+        ],
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.extension.DimensKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.extension.DrawableKt": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method toBitmap$default (Landroid/graphics/drawable/Drawable;IIILjava/lang/Object;)Landroid/graphics/Bitmap;"
+        ],
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.extension.EnumExtensionsKt": {
+      "buckets": {
+        "binary_breaking": [
+          "missing member: public method enumValueOfOrNull (Ljava/lang/String;)Ljava/lang/Enum;"
+        ],
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.extension.EventBusKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.extension.ExceptionsKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.extension.Files": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method fileNameInAssets$default (Lcom/onyx/android/sdk/extension/Files;Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;",
+          "missing Kotlin $default bridge: public method generateUniqueFileName$default (Lcom/onyx/android/sdk/extension/Files;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IILjava/lang/Object;)Ljava/lang/String;",
+          "missing Kotlin $default bridge: public method readContentOfFile$default (Lcom/onyx/android/sdk/extension/Files;Ljava/lang/String;ZILjava/lang/Object;)Ljava/lang/String;",
+          "missing Kotlin $default bridge: public method parallelFileMetadata$default (Lcom/onyx/android/sdk/extension/Files;Ljava/util/List;ILkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/util/List;"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.extension.FloatKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.extension.IntKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.extension.ListExtKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.extension.LooperKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.extension.MatrixKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.extension.MotionEventKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.extension.ObservableKt": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method subscribeWithDefault$default (Lio/reactivex/Observable;Lio/reactivex/functions/Consumer;Lio/reactivex/functions/Consumer;Lio/reactivex/functions/Action;ILjava/lang/Object;)Lio/reactivex/disposables/Disposable;"
+        ],
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.extension.PaintKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.extension.Paths": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method copyFile$default (Lcom/onyx/android/sdk/extension/Paths;Ljava/nio/file/Path;Ljava/nio/file/Path;ZILjava/lang/Object;)Z",
+          "missing Kotlin $default bridge: public method listFiles$default (Lcom/onyx/android/sdk/extension/Paths;Ljava/nio/file/Path;ZILjava/lang/Object;)Ljava/util/Collection;",
+          "missing Kotlin $default bridge: public method resample$default (Lcom/onyx/android/sdk/extension/Paths;Landroid/graphics/Path;Ljava/lang/Number;ILjava/lang/Object;)Ljava/util/List;"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.extension.RangeKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.extension.RectKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.extension.RxjavaKt": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method touchBuffer$default (Lio/reactivex/Observable;JILio/reactivex/Scheduler;ILjava/lang/Object;)Lio/reactivex/Observable;"
+        ],
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ],
+        "source_generic": [
+          "generic signature: public method flatMapIfTrue (Lio/reactivex/Observable;Lio/reactivex/Observable;)Lio/reactivex/Observable; '(Lio/reactivex/Observable<Ljava/lang/Boolean;>;Lio/reactivex/Observable<+Ljava/lang/Object;>;)Lio/reactivex/Observable<Ljava/lang/Object;>;' -> '(Lio/reactivex/Observable<Ljava/lang/Boolean;>;Lio/reactivex/Observable<*>;)Lio/reactivex/Observable<Ljava/lang/Object;>;'",
+          "generic signature: public method flatMapIfFalse (Lio/reactivex/Observable;Lio/reactivex/Observable;)Lio/reactivex/Observable; '(Lio/reactivex/Observable<Ljava/lang/Boolean;>;Lio/reactivex/Observable<+Ljava/lang/Object;>;)Lio/reactivex/Observable<Ljava/lang/Object;>;' -> '(Lio/reactivex/Observable<Ljava/lang/Boolean;>;Lio/reactivex/Observable<*>;)Lio/reactivex/Observable<Ljava/lang/Object;>;'",
+          "generic signature: public method flatMapIf (Lio/reactivex/Observable;Lkotlin/jvm/functions/Function1;Lio/reactivex/Observable;)Lio/reactivex/Observable; '<T:Ljava/lang/Object;>(Lio/reactivex/Observable<TT;>;Lkotlin/jvm/functions/Function1<-TT;Ljava/lang/Boolean;>;Lio/reactivex/Observable<+Ljava/lang/Object;>;)Lio/reactivex/Observable<Ljava/lang/Object;>;' -> '<T:Ljava/lang/Object;>(Lio/reactivex/Observable<TT;>;Lkotlin/jvm/functions/Function1<-TT;Ljava/lang/Boolean;>;Lio/reactivex/Observable<*>;)Lio/reactivex/Observable<Ljava/lang/Object;>;'",
+          "generic signature: public method flatMapIf (Lio/reactivex/Observable;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Lio/reactivex/Observable; '<T:Ljava/lang/Object;>(Lio/reactivex/Observable<TT;>;Lkotlin/jvm/functions/Function1<-TT;Ljava/lang/Boolean;>;Lkotlin/jvm/functions/Function1<-TT;+Lio/reactivex/Observable<+Ljava/lang/Object;>;>;Lkotlin/jvm/functions/Function1<-TT;+Lio/reactivex/Observable<+Ljava/lang/Object;>;>;)Lio/reactivex/Observable<Ljava/lang/Object;>;' -> '<T:Ljava/lang/Object;>(Lio/reactivex/Observable<TT;>;Lkotlin/jvm/functions/Function1<-TT;Ljava/lang/Boolean;>;Lkotlin/jvm/functions/Function1<-TT;+Lio/reactivex/Observable<*>;>;Lkotlin/jvm/functions/Function1<-TT;+Lio/reactivex/Observable<*>;>;)Lio/reactivex/Observable<Ljava/lang/Object;>;'",
+          "generic signature: public method flatMapIf (Lio/reactivex/Observable;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Lio/reactivex/Observable; '<T:Ljava/lang/Object;>(Lio/reactivex/Observable<TT;>;Lkotlin/jvm/functions/Function1<-TT;Ljava/lang/Boolean;>;Lkotlin/jvm/functions/Function1<-TT;+Lio/reactivex/Observable<+Ljava/lang/Object;>;>;)Lio/reactivex/Observable<Ljava/lang/Object;>;' -> '<T:Ljava/lang/Object;>(Lio/reactivex/Observable<TT;>;Lkotlin/jvm/functions/Function1<-TT;Ljava/lang/Boolean;>;Lkotlin/jvm/functions/Function1<-TT;+Lio/reactivex/Observable<*>;>;)Lio/reactivex/Observable<Ljava/lang/Object;>;'",
+          "generic signature: public method concatMapIfLast (Lio/reactivex/subjects/BehaviorSubject;Lkotlin/jvm/functions/Function1;)Lio/reactivex/Observable; '<T:Ljava/lang/Object;>(Lio/reactivex/subjects/BehaviorSubject<TT;>;Lkotlin/jvm/functions/Function1<-TT;+Lio/reactivex/Observable<+Ljava/lang/Object;>;>;)Lio/reactivex/Observable<Ljava/lang/Object;>;' -> '<T:Ljava/lang/Object;>(Lio/reactivex/subjects/BehaviorSubject<TT;>;Lkotlin/jvm/functions/Function1<-TT;+Lio/reactivex/Observable<*>;>;)Lio/reactivex/Observable<Ljava/lang/Object;>;'",
+          "generic signature: public method concatMapIf (Lio/reactivex/Observable;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Lio/reactivex/Observable; '<T:Ljava/lang/Object;>(Lio/reactivex/Observable<TT;>;Lkotlin/jvm/functions/Function1<-TT;Ljava/lang/Boolean;>;Lkotlin/jvm/functions/Function1<-TT;+Lio/reactivex/Observable<+Ljava/lang/Object;>;>;)Lio/reactivex/Observable<Ljava/lang/Object;>;' -> '<T:Ljava/lang/Object;>(Lio/reactivex/Observable<TT;>;Lkotlin/jvm/functions/Function1<-TT;Ljava/lang/Boolean;>;Lkotlin/jvm/functions/Function1<-TT;+Lio/reactivex/Observable<*>;>;)Lio/reactivex/Observable<Ljava/lang/Object;>;'"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.extension.SizeKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.extension.StringKt": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method getLastIntNumber$default (Ljava/lang/String;IILjava/lang/Object;)I"
+        ],
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.extension.SurfaceViewKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.extension.UriKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.extension.ViewKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.reader.TtsInitResultInfo$CREATOR": {
+      "buckets": {
+        "kotlin_metadata": [
+          "kotlin.Metadata annotation differs"
+        ]
+      },
+      "classification": "kotlin_metadata"
+    },
+    "com.onyx.android.sdk.reader.TtsReaderPosition$CREATOR": {
+      "buckets": {
+        "kotlin_metadata": [
+          "kotlin.Metadata annotation differs"
+        ]
+      },
+      "classification": "kotlin_metadata"
+    },
+    "com.onyx.android.sdk.rx.MultiThreadScheduler": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method newScheduler$default (Lcom/onyx/android/sdk/rx/MultiThreadScheduler;Ljava/lang/String;JLjava/util/concurrent/TimeUnit;ILjava/lang/Object;)Lio/reactivex/Scheduler;"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.rx.RxBaseBenchmarkRequest": {
+      "buckets": {
+        "binary_breaking": [
+          "missing member: public method execute ()V"
+        ],
+        "extra_public_surface": [
+          "extra member: public method execute ()Lkotlin/Unit;"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.rx.RxFirstDebounceWithReset": {
+      "buckets": {
+        "kotlin_metadata": [
+          "kotlin.Metadata annotation differs"
+        ],
+        "source_generic": [
+          "generic signature: public method access$getStateMachine$p (Lcom/onyx/android/sdk/rx/RxFirstDebounceWithReset;)Lcom/onyx/android/sdk/rx/RxFirstDebounceWithReset$a; None -> '(Lcom/onyx/android/sdk/rx/RxFirstDebounceWithReset<*>;)Lcom/onyx/android/sdk/rx/RxFirstDebounceWithReset<*>.a<*>;'"
+        ]
+      },
+      "classification": "source_generic"
+    },
+    "com.onyx.android.sdk.rx.RxFirstDebounceWithReset$Companion": {
+      "buckets": {
+        "kotlin_metadata": [
+          "kotlin.Metadata annotation differs"
+        ]
+      },
+      "classification": "kotlin_metadata"
+    },
+    "com.onyx.android.sdk.rx.RxFrameHandler": {
+      "buckets": {
+        "kotlin_metadata": [
+          "kotlin.Metadata annotation differs"
+        ]
+      },
+      "classification": "kotlin_metadata"
+    },
+    "com.onyx.android.sdk.rx.RxScheduler$Companion": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method newMultiThreadManager$default (Lcom/onyx/android/sdk/rx/RxScheduler$Companion;Ljava/lang/String;JILjava/lang/Object;)Lcom/onyx/android/sdk/rx/RxScheduler;"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.rx.RxScroller": {
+      "buckets": {
+        "binary_breaking": [
+          "missing member: public field Companion Lcom/onyx/android/sdk/rx/RxScroller$Companion;"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.rx.RxScroller$Companion": {
+      "buckets": {
+        "binary_breaking": [
+          "class missing from candidate"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.utils.BaseBitmapReferenceLruCache": {
+      "buckets": {
+        "kotlin_metadata": [
+          "kotlin.Metadata annotation differs"
+        ]
+      },
+      "classification": "kotlin_metadata"
+    },
+    "com.onyx.android.sdk.utils.BitmapLruCacheConfig": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method bitmapCacheMaxByteCount$default (Lcom/onyx/android/sdk/utils/BitmapLruCacheConfig;IILjava/lang/Object;)I"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.utils.BitmapLruCacheKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.utils.Bitmaps": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method getBitmapFromVectorDrawableBySize$default (Lcom/onyx/android/sdk/utils/Bitmaps;Landroid/content/Context;ILandroid/graphics/RectF;Landroid/graphics/ColorFilter;ILjava/lang/Object;)Landroid/graphics/Bitmap;",
+          "missing Kotlin $default bridge: public method getBitmapFromVectorDrawableBySize$default (Lcom/onyx/android/sdk/utils/Bitmaps;Landroid/content/Context;ILandroid/graphics/RectF;Landroid/graphics/RectF;Landroid/graphics/Matrix;Landroid/graphics/ColorFilter;ILjava/lang/Object;)Landroid/graphics/Bitmap;",
+          "missing Kotlin $default bridge: public method loadBitmapFromFile$default (Lcom/onyx/android/sdk/utils/Bitmaps;Ljava/lang/String;Landroid/graphics/BitmapFactory$Options;ILjava/lang/Object;)Landroid/graphics/Bitmap;"
+        ],
+        "kotlin_metadata": [
+          "kotlin.Metadata annotation differs"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.utils.CallStackUtils": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method printCallStack$default (Lcom/onyx/android/sdk/utils/CallStackUtils;Ljava/lang/Class;IILjava/lang/Object;)V"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.utils.Colors": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method calculateLuminance$default (Lcom/onyx/android/sdk/utils/Colors;ILjava/lang/Integer;ILjava/lang/Object;)D"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.utils.ElementCounter": {
+      "buckets": {
+        "binary_breaking": [
+          "member flags changed: public method put (Ljava/lang/Object;)I ['ACC_FINAL', 'ACC_PUBLIC'] -> ['ACC_PUBLIC']",
+          "member flags changed: public method reset (Ljava/lang/Object;)V ['ACC_FINAL', 'ACC_PUBLIC'] -> ['ACC_PUBLIC']",
+          "member flags changed: public method resetAll (Ljava/util/List;)V ['ACC_FINAL', 'ACC_PUBLIC'] -> ['ACC_PUBLIC']",
+          "member flags changed: public method toAscList ()Ljava/util/List; ['ACC_FINAL', 'ACC_PUBLIC'] -> ['ACC_PUBLIC']",
+          "member flags changed: public method toDescList ()Ljava/util/List; ['ACC_FINAL', 'ACC_PUBLIC'] -> ['ACC_PUBLIC']",
+          "member flags changed: public method printAscList ()Ljava/lang/String; ['ACC_FINAL', 'ACC_PUBLIC'] -> ['ACC_PUBLIC']",
+          "member flags changed: public method printDescList ()Ljava/lang/String; ['ACC_FINAL', 'ACC_PUBLIC'] -> ['ACC_PUBLIC']",
+          "missing bridge method: public method put (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+          "member flags changed: public method remove (Ljava/lang/Object;Ljava/lang/Object;)Z ['ACC_FINAL', 'ACC_PUBLIC'] -> ['ACC_PUBLIC']",
+          "member flags changed: public method containsValue (Ljava/lang/Object;)Z ['ACC_FINAL', 'ACC_PUBLIC'] -> ['ACC_PUBLIC']",
+          "member flags changed: public method entrySet ()Ljava/util/Set; ['ACC_FINAL', 'ACC_PUBLIC'] -> ['ACC_PUBLIC']",
+          "member flags changed: public method keySet ()Ljava/util/Set; ['ACC_FINAL', 'ACC_PUBLIC'] -> ['ACC_PUBLIC']",
+          "member flags changed: public method values ()Ljava/util/Collection; ['ACC_FINAL', 'ACC_PUBLIC'] -> ['ACC_PUBLIC']",
+          "member flags changed: public method size ()I ['ACC_FINAL', 'ACC_PUBLIC'] -> ['ACC_PUBLIC']"
+        ],
+        "kotlin_metadata": [
+          "kotlin.Metadata annotation differs"
+        ],
+        "source_generic": [
+          "generic signature: public method get (Ljava/lang/Object;)Ljava/lang/Integer; '(TT;)Ljava/lang/Integer;' -> None",
+          "generic signature: public method remove (Ljava/lang/Object;)Ljava/lang/Integer; '(TT;)Ljava/lang/Integer;' -> None"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.utils.ImageRender": {
+      "buckets": {
+        "kotlin_metadata": [
+          "kotlin.Metadata annotation differs"
+        ]
+      },
+      "classification": "kotlin_metadata"
+    },
+    "com.onyx.android.sdk.utils.LruCacheKt": {
+      "buckets": {
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.utils.MathUtilsKt": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method areApproximatelyEqual$default (Lcom/onyx/android/sdk/utils/MathUtilsKt;FFFILjava/lang/Object;)Z",
+          "missing Kotlin $default bridge: public method inRange$default (Lcom/onyx/android/sdk/utils/MathUtilsKt;Ljava/lang/Number;Ljava/lang/Number;Ljava/lang/Number;ZZZILjava/lang/Object;)Z"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.utils.PermissionUtils": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method checkAndRequestStoragePermission$default (Lcom/onyx/android/sdk/utils/PermissionUtils;Landroid/content/Context;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.utils.RxAlarm": {
+      "buckets": {
+        "extra_public_surface": [
+          "visibility widened: public method d ()V",
+          "visibility widened: public method c ()V"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.utils.SimpleBitmapReference$Companion": {
+      "buckets": {
+        "binary_breaking": [
+          "visibility narrowed: public method <init> (Lkotlin/jvm/internal/DefaultConstructorMarker;)V -> ['ACC_PRIVATE']"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.utils.SimpleBitmapReferenceLruCache": {
+      "buckets": {
+        "binary_breaking": [
+          "member flags changed: public method sizeOf (Ljava/lang/Object;Ljava/lang/Object;)I ['ACC_PUBLIC'] -> ['ACC_PROTECTED']",
+          "member flags changed: public method getBitmap (Ljava/lang/Object;)Landroid/graphics/Bitmap; ['ACC_PUBLIC'] -> ['ACC_PROTECTED']",
+          "member flags changed: public method isValid (Ljava/lang/Object;)Z ['ACC_PUBLIC'] -> ['ACC_PROTECTED']",
+          "member flags changed: public method create (IILandroid/graphics/Bitmap$Config;)Ljava/lang/Object; ['ACC_PUBLIC'] -> ['ACC_PROTECTED']",
+          "member flags changed: public method clearBitmap (Ljava/lang/Object;)V ['ACC_PUBLIC'] -> ['ACC_PROTECTED']",
+          "member flags changed: public method cloneBitmapReference (Ljava/lang/Object;)Ljava/lang/Object; ['ACC_PUBLIC'] -> ['ACC_PROTECTED']"
+        ],
+        "kotlin_metadata": [
+          "kotlin.Metadata annotation differs"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.utils.StorageTypeUtils": {
+      "buckets": {
+        "compiler_artifact": [
+          "missing synthetic accessor: public method access$getUsbKeywordList$p ()Ljava/util/List;"
+        ]
+      },
+      "classification": "compiler_artifact"
+    },
+    "com.onyx.android.sdk.utils.StorageTypeUtils$FilePathInferResult": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method copy$default (Lcom/onyx/android/sdk/utils/StorageTypeUtils$FilePathInferResult;Ljava/lang/String;Lcom/onyx/android/sdk/utils/StorageTypeUtils$StorageType;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/onyx/android/sdk/utils/StorageTypeUtils$FilePathInferResult;"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.utils.StorageTypeUtils$StorageType$WhenMappings": {
+      "buckets": {
+        "binary_breaking": [
+          "class flags ['ACC_FINAL', 'ACC_PUBLIC'] -> ['ACC_FINAL']",
+          "visibility narrowed: public field $EnumSwitchMapping$0 [I -> ['ACC_FINAL', 'ACC_STATIC']"
+        ],
+        "kotlin_metadata": [
+          "kotlin.Metadata annotation differs"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.utils.Times$TimedValue": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method copy$default (Lcom/onyx/android/sdk/utils/Times$TimedValue;Ljava/lang/Object;Ljava/lang/String;ILjava/lang/Object;)Lcom/onyx/android/sdk/utils/Times$TimedValue;"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.utils.ViewsKt": {
+      "buckets": {
+        "binary_breaking": [
+          "missing Kotlin $default bridge: public method setImageLimitBitmap$default (Landroid/widget/ImageView;Landroid/graphics/Bitmap;JILjava/lang/Object;)Z"
+        ],
+        "extra_public_surface": [
+          "unintended public default constructor (reference has none)"
+        ]
+      },
+      "classification": "binary_breaking"
+    },
+    "com.onyx.android.sdk.utils.font.FontFamilyClassifier": {
+      "buckets": {
+        "compiler_artifact": [
+          "missing synthetic accessor: public method access$createFamilyFont (Lcom/onyx/android/sdk/utils/font/FontFamilyClassifier;Ljava/util/List;)Lcom/onyx/android/sdk/data/FontInfo;"
+        ],
+        "extra_public_surface": [
+          "visibility widened: public method a (Ljava/util/List;)Lcom/onyx/android/sdk/data/FontInfo;"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.utils.font.FontFoldUtils": {
+      "buckets": {
+        "compiler_artifact": [
+          "missing synthetic accessor: public method access$sortByFontName (Lcom/onyx/android/sdk/utils/font/FontFoldUtils;Lcom/onyx/android/sdk/data/FontInfo;Lcom/onyx/android/sdk/data/FontInfo;)I"
+        ]
+      },
+      "classification": "compiler_artifact"
+    },
+    "com.onyx.android.sdk.wifi.RxWifiAdmin": {
+      "buckets": {
+        "extra_public_surface": [
+          "visibility widened: public method a (Lio/reactivex/ObservableEmitter;)Landroid/content/BroadcastReceiver;",
+          "visibility widened: public method b (Lio/reactivex/ObservableEmitter;)Landroid/content/BroadcastReceiver;"
+        ]
+      },
+      "classification": "extra_public_surface"
+    },
+    "com.onyx.android.sdk.wifi.WifiAdmin": {
+      "buckets": {
+        "extra_public_surface": [
+          "visibility widened: public method a (Lcom/onyx/android/sdk/rx/RxCallback;)V",
+          "visibility widened: public method a (Ljava/util/Collection;)Ljava/util/List;"
+        ]
+      },
+      "classification": "extra_public_surface"
+    }
+  },
+  "counts": {
+    "binary_breaking": 42,
+    "compiler_artifact": 3,
+    "extra_public_surface": 35,
+    "kotlin_metadata": 10,
+    "match": 654,
+    "source_generic": 2
+  },
+  "extraClasses": [],
+  "referenceClasses": 746
+}

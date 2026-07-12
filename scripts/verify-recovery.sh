@@ -10,6 +10,21 @@ fail() {
   exit 1
 }
 
+# rg exits 0 on match, 1 on no match, and 2 on error (e.g. a listed file is
+# missing); a plain `if rg` treats an error like a clean scan, so every
+# must-be-clean scan goes through this helper instead.
+scan_must_be_clean() {
+  local description="$1"
+  shift
+  local status=0
+  rg -n "$@" && status=0 || status=$?
+  if [[ "$status" -eq 0 ]]; then
+    fail "$description"
+  elif [[ "$status" -ne 1 ]]; then
+    fail "scan could not run: $description"
+  fi
+}
+
 for removed in \
   "$ROOT/onyxsdk-base/binary-reference" \
   "$ROOT/onyxsdk-device/binary-reference" \
@@ -23,17 +38,23 @@ tracked_binary="$({
 } | rg -v '^gradle/wrapper/gradle-wrapper\.jar$' || true)"
 test -z "$tracked_binary" || fail "tracked original/generated binaries found: $tracked_binary"
 
-if rg -n 'classes-original|binary-reference|from\(".*\.jar"\)|tasks\.register<Zip>' \
-    "$ROOT"/*.gradle.kts "$ROOT"/onyxsdk-*/build.gradle.kts; then
-  fail "binary injection build logic is still present"
-fi
+# Scans every Gradle script in the repository, including recovery-tests and
+# the onyxsdk-base support modules.
+scan_must_be_clean "binary injection build logic is still present" \
+  'classes-original|binary-reference|from\(".*\.jar"\)|tasks\.register<Zip>' \
+  --glob '*.gradle.kts' "$ROOT"
 
-if rg -n 'UnsupportedOperationException\("Method not decompiled|IllegalStateException\("Decompilation failed' \
-    "$ROOT/onyxsdk-base/src/main/java/com/onyx/android/sdk/rx/RxUtils.java" \
-    "$ROOT/onyxsdk-base/src/main/java/com/onyx/android/sdk/utils/FileUtils.java" \
-    "$ROOT/onyxsdk-device/src/main/java/com/onyx/android/sdk/device/"{RK32XXDevice,IMX6Device,RK33XXDevice,SDMDevice,RK31XXDevice}.java; then
-  fail "a repaired source site still contains a synthetic decompiler throw"
-fi
+repaired_sources=(
+  "$ROOT/onyxsdk-base/src/main/java/com/onyx/android/sdk/rx/RxUtils.java"
+  "$ROOT/onyxsdk-base/src/main/java/com/onyx/android/sdk/utils/FileUtils.java"
+  "$ROOT/onyxsdk-device/src/main/java/com/onyx/android/sdk/device/"{RK32XXDevice,IMX6Device,RK33XXDevice,SDMDevice,RK31XXDevice}.java
+)
+for source in "${repaired_sources[@]}"; do
+  test -f "$source" || fail "expected repaired source missing: $source"
+done
+scan_must_be_clean "a repaired source site still contains a synthetic decompiler throw" \
+  'UnsupportedOperationException\("Method not decompiled|IllegalStateException\("Decompilation failed' \
+  "${repaired_sources[@]}"
 
 BASE_AAR="$ROOT/onyxsdk-base/build/outputs/aar/onyxsdk-base-release.aar"
 DEVICE_AAR="$ROOT/onyxsdk-device/build/outputs/aar/onyxsdk-device-release.aar"
@@ -47,26 +68,34 @@ done
 unzip -p "$BASE_AAR" classes.jar > "$TMP/base.jar"
 unzip -p "$DEVICE_AAR" classes.jar > "$TMP/device.jar"
 unzip -p "$PEN_AAR" classes.jar > "$TMP/pen.jar"
-jar tf "$TMP/base.jar" | rg -q 'com/onyx/android/sdk/utils/FileUtils.class'
-jar tf "$TMP/base.jar" | rg -q 'com/onyx/android/sdk/rx/RxUtils\$d.class'
-jar tf "$TMP/device.jar" | rg -q 'com/onyx/android/sdk/device/a.class'
+jar tf "$TMP/base.jar" | rg -q 'com/onyx/android/sdk/utils/FileUtils.class' \
+  || fail "base classes.jar is missing FileUtils"
+jar tf "$TMP/base.jar" | rg -q 'com/onyx/android/sdk/rx/RxUtils\$d.class' \
+  || fail "base classes.jar is missing RxUtils\$d"
+jar tf "$TMP/device.jar" | rg -q 'com/onyx/android/sdk/device/a.class' \
+  || fail "device classes.jar is missing the obfuscated class a"
 for class in RK32XXDevice IMX6Device RK33XXDevice SDMDevice RK31XXDevice; do
-  jar tf "$TMP/device.jar" | rg -q "com/onyx/android/sdk/device/$class.class"
+  jar tf "$TMP/device.jar" | rg -q "com/onyx/android/sdk/device/$class.class" \
+    || fail "device classes.jar is missing $class"
 done
-jar tf "$TMP/pen.jar" | rg -q 'com/onyx/android/sdk/pen/RawInputReader.class'
-jar tf "$TMP/pen.jar" | rg '\.class$' | sort -u > "$TMP/pen-classes"
-missing_pen_classes="$(comm -23 "$ROOT/scripts/native-contracts/pen-classes.txt" "$TMP/pen-classes" || true)"
+jar tf "$TMP/pen.jar" | rg -q 'com/onyx/android/sdk/pen/RawInputReader.class' \
+  || fail "pen classes.jar is missing RawInputReader"
+# The contract list is byte-order sorted; force the same collation here so
+# comm never sees "disorder" under a UTF-8 host locale.
+jar tf "$TMP/pen.jar" | rg '\.class$' | LC_ALL=C sort -u > "$TMP/pen-classes"
+missing_pen_classes="$(LC_ALL=C comm -23 "$ROOT/scripts/native-contracts/pen-classes.txt" "$TMP/pen-classes")"
 test -z "$missing_pen_classes" || fail "pen AAR is missing reference classes: $missing_pen_classes"
 echo "all AAR classes were compiled from recovered source"
 
-if unzip -Z1 "$PEN_AAR" | rg -q 'onyxsdk-pen-native-classes\.jar|classes-original\.jar'; then
-  fail "pen AAR contains a reference JAR"
-fi
+for aar in "$BASE_AAR" "$DEVICE_AAR" "$PEN_AAR"; do
+  if unzip -Z1 "$aar" | rg -q '^libs/.+\.jar$|onyxsdk-pen-native-classes\.jar|classes-original\.jar'; then
+    fail "$aar contains an embedded or reference JAR"
+  fi
+done
 
-if rg -n '\?\?|\*\* GOTO|void var[0-9]|UnsupportedOperationException\("Method not decompiled|IllegalStateException\("Decompilation failed' \
-    "$ROOT/onyxsdk-pen/src/main/java"; then
-  fail "pen production source still contains decompiler-generated invalid or unfinished code"
-fi
+scan_must_be_clean "pen production source still contains decompiler-generated invalid or unfinished code" \
+  '\?\?|\*\* GOTO|void var[0-9]|UnsupportedOperationException\("Method not decompiled|IllegalStateException\("Decompilation failed' \
+  "$ROOT/onyxsdk-pen/src/main/java"
 
 if unzip -Z1 "$PEN_AAR" | rg -q 'libc\+\+_shared\.so'; then
   fail "pen AAR still contains libc++_shared.so"

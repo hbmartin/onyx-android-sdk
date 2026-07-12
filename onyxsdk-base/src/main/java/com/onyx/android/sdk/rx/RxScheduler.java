@@ -181,6 +181,16 @@ public final class RxScheduler
         public final RxScheduler newMultiThreadManager(@Nullable final String name, final long keepAliveTime) {
             return this.createScheduler(MultiThreadScheduler.INSTANCE.newScheduler(name, keepAliveTime, TimeUnit.SECONDS));
         }
+
+        public static /* synthetic */ RxScheduler newMultiThreadManager$default(final Companion companion, String name, long keepAliveTime, final int n, final Object o) {
+            if ((n & 0x1) != 0x0) {
+                name = null;
+            }
+            if ((n & 0x2) != 0x0) {
+                keepAliveTime = 5L;
+            }
+            return companion.newMultiThreadManager(name, keepAliveTime);
+        }
         
         @JvmStatic
         @JvmOverloads

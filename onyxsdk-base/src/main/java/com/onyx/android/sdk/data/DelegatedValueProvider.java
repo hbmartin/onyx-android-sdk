@@ -13,6 +13,9 @@ public interface DelegatedValueProvider<CONTEXT, RESULT> {
     /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/DelegatedValueProvider$DefaultImpls.class */
     @Metadata(mv = {1, 6, 0}, k = 3, xi = 48)
     public static final class DefaultImpls {
+        private DefaultImpls() {
+        }
+
         public static <CONTEXT, RESULT> RESULT getValue(@NotNull DelegatedValueProvider<CONTEXT, RESULT> delegatedValueProvider, CONTEXT context, @NotNull KProperty<?> kProperty) {
             Intrinsics.checkNotNullParameter(delegatedValueProvider, "this");
             Intrinsics.checkNotNullParameter(kProperty, "property");

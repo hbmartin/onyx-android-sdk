@@ -22,6 +22,9 @@ import kotlin.Metadata;
 @Metadata(mv = { 1, 6, 0 }, k = 2, xi = 48, d1 = { "\u0000\"\n\u0000\n\u0002\u0010\u0002\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0010\u0007\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\b\n\u0002\b\u0003\u001a\f\u0010\u0000\u001a\u00020\u0001*\u0004\u0018\u00010\u0002\u001a\f\u0010\u0003\u001a\u00020\u0001*\u0004\u0018\u00010\u0002\u001a\u0012\u0010\u0004\u001a\u00020\u0002*\u00020\u00022\u0006\u0010\u0005\u001a\u00020\u0006\u001a\f\u0010\u0007\u001a\u0004\u0018\u00010\b*\u00020\u0002\u001a\u0014\u0010\u0007\u001a\u0004\u0018\u00010\b*\u00020\u00022\u0006\u0010\t\u001a\u00020\n\u001a\u001e\u0010\u0007\u001a\u00020\b*\u00020\u00022\b\b\u0002\u0010\u000b\u001a\u00020\n2\b\b\u0002\u0010\f\u001a\u00020\n¨\u0006\r" }, d2 = { "animationStart", "", "Landroid/graphics/drawable/Drawable;", "animationStop", "scale", "scaleFactor", "", "toBitmap", "Landroid/graphics/Bitmap;", "color", "", "width", "height", "onyxsdk-base_release" })
 public final class DrawableKt
 {
+    private DrawableKt() {
+    }
+
     @Nullable
     public static final Bitmap toBitmap(@NotNull final Drawable $this$toBitmap) {
         Intrinsics.checkNotNullParameter((Object)$this$toBitmap, "<this>");
@@ -87,7 +90,17 @@ public final class DrawableKt
         Intrinsics.checkNotNullExpressionValue((Object)bitmap, "bitmap");
         return bitmap;
     }
-    
+
+    public static /* synthetic */ Bitmap toBitmap$default(final Drawable drawable, int width, int height, final int n, final Object o) {
+        if ((n & 0x1) != 0x0) {
+            width = -1;
+        }
+        if ((n & 0x2) != 0x0) {
+            height = -1;
+        }
+        return toBitmap(drawable, width, height);
+    }
+
     public static final void animationStart(@Nullable final Drawable $this$animationStart) {
         AnimationDrawable animationDrawable;
         if ($this$animationStart instanceof AnimationDrawable) {

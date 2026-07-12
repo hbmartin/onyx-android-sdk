@@ -40,6 +40,7 @@ def strings(value: str) -> tuple[str, ...]:
 
 def parse(path: Path) -> dict[tuple[int, bool, str, str], Ink]:
     output: dict[tuple[int, bool, str, str], Ink] = {}
+    seen_cases: set[tuple[int, bool]] = set()
     current: tuple[int, bool] | None = None
     for number, line in enumerate(path.read_text().splitlines(), 1):
         header = HEADER.match(line)
@@ -47,11 +48,16 @@ def parse(path: Path) -> dict[tuple[int, bool, str, str], Ink]:
             if header.group(3) != "1":
                 raise ValueError(f"{path}:{number}: pen creation failed: {line}")
             current = (int(header.group(1)), header.group(2) == "true")
+            if current in seen_cases:
+                raise ValueError(f"{path}:{number}: duplicate snapshot case: {line}")
+            seen_cases.add(current)
             continue
         event = EVENT.match(line)
         if not event or current is None:
             raise ValueError(f"{path}:{number}: unexpected snapshot line: {line}")
         phase = event.group(1)
+        if current + (phase, "real") in output:
+            raise ValueError(f"{path}:{number}: duplicate {phase} event for case {current}")
         output[current + (phase, "real")] = Ink(
             floats(event.group(2)), ints(event.group(3)), strings(event.group(4))
         )
@@ -68,7 +74,10 @@ def compare_values(
     if expected.sizes != actual.sizes:
         errors.append(f"{label}: record sizes differ: {expected.sizes} != {actual.sizes}")
     if expected.bitmaps != actual.bitmaps:
-        errors.append(f"{label}: bitmap geometry differs: {expected.bitmaps} != {actual.bitmaps}")
+        errors.append(
+            f"{label}: bitmap geometry/content differs: "
+            f"{expected.bitmaps} != {actual.bitmaps}"
+        )
     if len(expected.points) != len(actual.points):
         errors.append(
             f"{label}: point value count differs: {len(expected.points)} != {len(actual.points)}"
@@ -92,7 +101,19 @@ def compare_values(
     # geometric envelope without pretending randomized pencil rotations are
     # byte-identical.
     if expected.points:
+        if not expected.sizes:
+            errors.append(f"{label}: reference has point values but no record sizes")
+            return
         record_size = expected.sizes[0]
+        if any(size != record_size for size in expected.sizes):
+            errors.append(
+                f"{label}: mixed record sizes {sorted(set(expected.sizes))}; "
+                "channel envelope requires a uniform record size"
+            )
+            return
+        if len(expected.points) != sum(expected.sizes):
+            errors.append(f"{label}: reference point count does not match its record sizes")
+            return
         if record_size == 3:
             limits = (3.0, 3.0, 1.5)
         elif record_size == 5:

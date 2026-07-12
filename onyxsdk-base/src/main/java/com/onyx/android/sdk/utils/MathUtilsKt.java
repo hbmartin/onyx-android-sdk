@@ -81,7 +81,14 @@ public final class MathUtilsKt
     public final boolean areApproximatelyEqual(final float num1, final float num2, final float epsilon) {
         return Math.abs(num1 - num2) <= epsilon;
     }
-    
+
+    public static /* synthetic */ boolean areApproximatelyEqual$default(final MathUtilsKt mathUtilsKt, final float num1, final float num2, float epsilon, final int i, final Object obj) {
+        if ((i & 4) != 0) {
+            epsilon = 0.001f;
+        }
+        return mathUtilsKt.areApproximatelyEqual(num1, num2, epsilon);
+    }
+
     @NotNull
     public final <T extends Number> T average(@NotNull final T a, @NotNull final T b) {
         Intrinsics.checkNotNullParameter((Object)a, "a");
@@ -125,5 +132,18 @@ public final class MathUtilsKt
         final boolean b = includeStart ? ($this$inRange.doubleValue() >= doubleValue2) : ($this$inRange.doubleValue() > doubleValue2);
         final boolean b2 = includeEnd ? ($this$inRange.doubleValue() <= doubleValue) : ($this$inRange.doubleValue() < doubleValue);
         return b && b2;
+    }
+
+    public static /* synthetic */ boolean inRange$default(final MathUtilsKt mathUtilsKt, final Number n, final Number start, final Number end, boolean includeStart, boolean includeEnd, boolean autoSwap, final int i, final Object obj) {
+        if ((i & 4) != 0) {
+            includeStart = true;
+        }
+        if ((i & 8) != 0) {
+            includeEnd = true;
+        }
+        if ((i & 16) != 0) {
+            autoSwap = false;
+        }
+        return mathUtilsKt.inRange(n, start, end, includeStart, includeEnd, autoSwap);
     }
 }

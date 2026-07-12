@@ -35,4 +35,11 @@ public final class BitmapLruCacheConfig
     public final int bitmapCacheMaxByteCount(final int screenSize) {
         return (int)(screenSize * this.getBYTE_PER_SCREEN());
     }
+
+    public static /* synthetic */ int bitmapCacheMaxByteCount$default(final BitmapLruCacheConfig bitmapLruCacheConfig, int screenSize, final int i, final Object obj) {
+        if ((i & 1) != 0) {
+            screenSize = 3;
+        }
+        return bitmapLruCacheConfig.bitmapCacheMaxByteCount(screenSize);
+    }
 }

@@ -12,9 +12,8 @@ public enum Orientation {
     PORTRAIT(1);
 
 
-    /* JADX INFO: renamed from: Companion, reason: from kotlin metadata */
     @NotNull
-    public static final Companion INSTANCE = new Companion(null);
+    public static final Companion Companion = new Companion(null);
     private final int a;
 
     /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/Orientation$Companion.class */

@@ -398,6 +398,10 @@ public final class NeoPencilPen extends NeoNativePen {
                 if (neoPencilPenCreate == null) {
                     return;
                 }
+                // The catch block can only destroy what this alias references; a
+                // throw from resampleMultiSegmentPath before the first loop
+                // iteration would otherwise leak the freshly created handle.
+                neoPencilPen = neoPencilPenCreate;
                 Iterator it = PathKt.resampleMultiSegmentPath(path, 2).iterator();
                 while (it.hasNext()) {
                     neoPencilPen = neoPencilPenCreate;

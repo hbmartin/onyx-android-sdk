@@ -67,7 +67,14 @@ public final class Files
         }
         files.deleteDirectoryQuietly($this$deleteDirectoryQuietly, comparator, fileFilter);
     }
-    
+
+    public static /* synthetic */ String fileNameInAssets$default(final Files files, final Context context, final String fileBaseName, String path, final int n, final Object o) {
+        if ((n & 0x4) != 0x0) {
+            path = "";
+        }
+        return files.fileNameInAssets(context, fileBaseName, path);
+    }
+
     private final void a(final String localFilePath) {
         try {
             if (!FileUtils.fileExist(localFilePath)) {
@@ -81,7 +88,31 @@ public final class Files
             ex.printStackTrace();
         }
     }
-    
+
+    public static /* synthetic */ String generateUniqueFileName$default(final Files files, final String fileDir, final String fileBaseName, String fileExtension, int tryTimes, final int n, final Object o) {
+        if ((n & 0x4) != 0x0) {
+            fileExtension = "";
+        }
+        if ((n & 0x8) != 0x0) {
+            tryTimes = 254;
+        }
+        return files.generateUniqueFileName(fileDir, fileBaseName, fileExtension, tryTimes);
+    }
+
+    public static /* synthetic */ String readContentOfFile$default(final Files files, final String path, boolean keepLineBreak, final int n, final Object o) {
+        if ((n & 0x2) != 0x0) {
+            keepLineBreak = false;
+        }
+        return files.readContentOfFile(path, keepLineBreak);
+    }
+
+    public static /* synthetic */ List parallelFileMetadata$default(final Files files, final List $this$parallelFileMetadata, int chunkedSize, final Function1 consumer, final int n, final Object o) {
+        if ((n & 0x1) != 0x0) {
+            chunkedSize = files.calculateChunk($this$parallelFileMetadata.size());
+        }
+        return files.parallelFileMetadata($this$parallelFileMetadata, chunkedSize, consumer);
+    }
+
     private static final int a(final File f1, final File f2) {
         return Intrinsics.compare(f1.lastModified(), f2.lastModified());
     }

@@ -10,8 +10,13 @@ import android.view.View;
 
 import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.api.device.epd.UpdateMode;
+import com.onyx.android.sdk.data.Orientation;
+import com.onyx.android.sdk.data.note.line.Line;
 import com.onyx.android.sdk.device.Device;
+import com.onyx.android.sdk.extension.StringKt;
+import com.onyx.android.sdk.utils.Colors;
 import com.onyx.android.sdk.utils.DeviceUtils;
+import com.onyx.android.sdk.utils.ElementCounter;
 import com.onyx.android.sdk.utils.FileUtils;
 
 import java.io.File;
@@ -104,6 +109,44 @@ final class ProbeRunner {
         } catch (Throwable error) {
             recorder.failure("base", "proc_input_access", error);
         }
+
+        // Repaired Kotlin binary surface: the same code compiles against the
+        // reference JARs and the recovered AARs, so both variants must agree
+        // through the $default bridges, companion fields, and final members.
+        // The reference's $default bridges are ACC_SYNTHETIC, which javac
+        // refuses to resolve from source, so those go through reflection —
+        // exactly how a precompiled Kotlin caller would link against them.
+        probe(recorder, "base", "string_last_int_number", "page12",
+                () -> StringKt.getLastIntNumber("page12", 7));
+        probe(recorder, "base", "string_last_int_number_default", "page12",
+                () -> StringKt.class.getDeclaredMethod("getLastIntNumber$default",
+                        String.class, int.class, int.class, Object.class)
+                        .invoke(null, "page12", 7, 2, null));
+        probe(recorder, "base", "orientation_companion_linkage", null,
+                () -> Orientation.Companion.getClass().getName());
+        probe(recorder, "base", "line_copy_default", null, () -> {
+            Line line = new Line(1f, 2f, 3f, 4f);
+            Line copy = (Line) Line.class.getDeclaredMethod("copy$default",
+                    Line.class, float.class, float.class, float.class, float.class,
+                    int.class, Object.class)
+                    .invoke(null, line, 9f, 9f, 9f, 9f, 15, null);
+            return ResultRecorder.map(
+                    "startX", copy.getStartX(), "startY", copy.getStartY(),
+                    "endX", copy.getEndX(), "endY", copy.getEndY());
+        });
+        probe(recorder, "base", "colors_luminance_default", null,
+                () -> Colors.class.getDeclaredMethod("calculateLuminance$default",
+                        Colors.class, int.class, Integer.class, int.class, Object.class)
+                        .invoke(null, Colors.INSTANCE, 0xFF888888, null, 2, null));
+        probe(recorder, "base", "element_counter", null, () -> {
+            ElementCounter<String> counter = new ElementCounter<>();
+            counter.put("stylus");
+            counter.put("stylus");
+            counter.put("eraser");
+            return ResultRecorder.map(
+                    "stylus", counter.get("stylus"),
+                    "asc", counter.printAscList());
+        });
     }
 
     static void device(Activity activity, View host, ResultRecorder recorder) {

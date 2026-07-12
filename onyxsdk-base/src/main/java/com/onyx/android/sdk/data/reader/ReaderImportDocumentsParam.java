@@ -23,7 +23,11 @@ public final class ReaderImportDocumentsParam
         this.a = zipFilePath;
         this.b = storeDir;
     }
-    
+
+    public ReaderImportDocumentsParam(final String zipFilePath, final String storeDir, final int i, final DefaultConstructorMarker marker) {
+        this(zipFilePath, (i & 2) != 0 ? null : storeDir);
+    }
+
     @NotNull
     public final String getZipFilePath() {
         return this.a;
@@ -48,6 +52,16 @@ public final class ReaderImportDocumentsParam
     public final ReaderImportDocumentsParam copy(@NotNull final String zipFilePath, @Nullable final String storeDir) {
         Intrinsics.checkNotNullParameter((Object)zipFilePath, "zipFilePath");
         return new ReaderImportDocumentsParam(zipFilePath, storeDir);
+    }
+
+    public static /* synthetic */ ReaderImportDocumentsParam copy$default(final ReaderImportDocumentsParam readerImportDocumentsParam, String zipFilePath, String storeDir, final int i, final Object obj) {
+        if ((i & 1) != 0) {
+            zipFilePath = readerImportDocumentsParam.a;
+        }
+        if ((i & 2) != 0) {
+            storeDir = readerImportDocumentsParam.b;
+        }
+        return readerImportDocumentsParam.copy(zipFilePath, storeDir);
     }
     
     @NotNull

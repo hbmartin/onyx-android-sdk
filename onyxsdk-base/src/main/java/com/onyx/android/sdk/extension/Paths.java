@@ -44,10 +44,31 @@ public final class Paths
         return path.toAbsolutePath().toString();
     }
     
+    public static /* synthetic */ boolean copyFile$default(final Paths paths, final Path $this$copyFile, final Path dstPath, boolean override, final int n, final Object o) {
+        if ((n & 0x2) != 0x0) {
+            override = false;
+        }
+        return paths.copyFile($this$copyFile, dstPath, override);
+    }
+
+    public static /* synthetic */ Collection listFiles$default(final Paths paths, final Path $this$listFiles, boolean recursive, final int n, final Object o) {
+        if ((n & 0x1) != 0x0) {
+            recursive = true;
+        }
+        return paths.listFiles($this$listFiles, recursive);
+    }
+
+    public static /* synthetic */ List resample$default(final Paths paths, final android.graphics.Path $this$resample, Number step, final int n, final Object o) {
+        if ((n & 0x1) != 0x0) {
+            step = Dimens.INSTANCE.dp2PxFloat(2.0f);
+        }
+        return paths.resample($this$resample, step);
+    }
+
     static {
         INSTANCE = new Paths();
     }
-    
+
     @NotNull
     public final Path toPath(@NotNull final String $this$toPath) {
         Intrinsics.checkNotNullParameter((Object)$this$toPath, "<this>");

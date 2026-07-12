@@ -79,6 +79,34 @@ wait_done() {
   return 1
 }
 
+# Audible + visible countdown so the person holding the stylus knows exactly
+# when each timed capture starts.
+countdown() {
+  local label="$1" seconds="${2:-5}"
+  echo "$label"
+  for ((remaining = seconds; remaining > 0; remaining--)); do
+    printf '\a  starting in %d...\n' "$remaining"
+    sleep 1
+  done
+  printf '\a\aGO — draw now\n'
+}
+
+DEVICE_EVENT_CAPTURE=/data/local/tmp/onyx-validation-getevent.txt
+
+# getevent runs and buffers entirely on the device; the capture file is pulled
+# after the run so stopping the host process cannot truncate the stream.
+start_event_capture() {
+  "${ADB_CMD[@]}" shell "rm -f $DEVICE_EVENT_CAPTURE; \
+    nohup getevent -lt $INPUT_DEVICE </dev/null >$DEVICE_EVENT_CAPTURE 2>&1 & echo \$!" | tr -d '\r'
+}
+
+stop_event_capture() {
+  local device_pid="$1" destination="$2"
+  "${ADB_CMD[@]}" shell "kill $device_pid" 2>/dev/null || true
+  "${ADB_CMD[@]}" pull "$DEVICE_EVENT_CAPTURE" "$destination" >/dev/null
+  "${ADB_CMD[@]}" shell "rm -f $DEVICE_EVENT_CAPTURE"
+}
+
 run_variant() {
   local variant="$1" apk="$2" suite="$3" destination="$4" replay="${5:-}"
   echo "Running $variant $suite on $SERIAL"
@@ -93,8 +121,8 @@ run_variant() {
   fi
   local event_pid=""
   if [[ "$suite" == "pen-live" ]]; then
-    "${ADB_CMD[@]}" shell getevent -lt "$INPUT_DEVICE" > "$destination-getevent.txt" 2>&1 &
-    event_pid=$!
+    event_pid="$(start_event_capture)"
+    countdown "Get ready to draw the guided strokes on the $variant build ($((DURATION / 1000))s capture)"
   fi
   "${ADB_CMD[@]}" shell am start -W -n "$PACKAGE/.ValidationActivity" \
     --es suite "$suite" --el durationMs "$DURATION" > "$destination-am-start.txt"
@@ -103,15 +131,19 @@ run_variant() {
   if ! wait_done "$timeout"; then
     echo "$variant $suite timed out" >&2
     "${ADB_CMD[@]}" logcat -d > "$destination-logcat.txt"
-    [[ -z "$event_pid" ]] || kill "$event_pid" 2>/dev/null || true
+    [[ -z "$event_pid" ]] || stop_event_capture "$event_pid" "$destination-getevent.txt"
     return 1
   fi
   "${ADB_CMD[@]}" exec-out run-as "$PACKAGE" cat files/results.jsonl > "$destination.jsonl"
   "${ADB_CMD[@]}" logcat -d > "$destination-logcat.txt"
   "${ADB_CMD[@]}" shell am force-stop "$PACKAGE"
   if [[ -n "$event_pid" ]]; then
-    kill "$event_pid" 2>/dev/null || true
-    wait "$event_pid" 2>/dev/null || true
+    stop_event_capture "$event_pid" "$destination-getevent.txt"
+    if ! grep -q "EV_" "$destination-getevent.txt"; then
+      echo "ERROR: no stylus events were recorded from $INPUT_DEVICE during the $variant pen-live run." >&2
+      echo "Check that the stylus touched the panel during the capture window (raw log: $destination-getevent.txt)." >&2
+      return 1
+    fi
   fi
 }
 
@@ -120,6 +152,13 @@ REPLAY=""
 if [[ "$SUITE" == "pen-live" ]]; then
   REPLAY="$OUTPUT/reference-replay-input.jsonl"
   python3 "$ROOT/extract_replay.py" "$OUTPUT/reference.jsonl" "$REPLAY" > "$OUTPUT/replay-event-count.txt"
+  REPLAY_COUNT="$(cat "$OUTPUT/replay-event-count.txt")"
+  if [[ "$REPLAY_COUNT" == "0" ]]; then
+    echo "ERROR: the reference run captured zero raw JNI pen events; aborting before the recovered run." >&2
+    echo "Every later phase would compare empty streams. Re-run and draw during the capture window." >&2
+    exit 1
+  fi
+  echo "Reference run captured $REPLAY_COUNT raw pen events."
 fi
 run_variant recovered "$RECOVERED_APK" "$SUITE" "$OUTPUT/recovered"
 

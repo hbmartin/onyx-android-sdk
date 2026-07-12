@@ -20,7 +20,9 @@ The raw reader implements all 11 `RawInputReader` JNI entry points:
 The neo renderer implements both Java generations:
 
 - seven exported `NeoPenNative` functions for handle creation/destruction,
-  down/move/up rendering, logging, and bitmap setup;
+  down/move/up rendering, logging, and bitmap setup (five are declared
+  `native` methods on the recovered Java class; `nativeSetBitmapColor` and
+  `nativeSetLogLevel` exist to match the reference export surface);
 - seven exported `NeoPenWrapper` functions for the legacy static lifecycle,
   point rendering, offline list rendering, and texture retrieval.
 
@@ -47,7 +49,9 @@ the results, and finally runs the full candidate instrumentation suite. A trap
 always rebuilds the Rust candidate so the reference cannot remain in the
 working output.
 
-Types 1–5 are exact for the recovered trace. The independently implemented
-Wacom-style spline/brush pipeline for types 6–9 is validated for matching
-record counts, buffering/prediction semantics, bitmap behavior, finite values,
-and bounded geometry.
+Instrumentation tests pin exact recovered values for types 1–3; the texture
+types 4–5 are exact only under this optional hardware differential, whose
+snapshot format records each bitmap's dimensions plus a pixel-content digest.
+The independently implemented Wacom-style spline/brush pipeline for
+types 6–9 is validated for matching record counts, buffering/prediction
+semantics, bitmap behavior, finite values, and bounded geometry.

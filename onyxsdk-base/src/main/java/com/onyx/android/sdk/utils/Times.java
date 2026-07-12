@@ -81,6 +81,16 @@ public final class Times
             Intrinsics.checkNotNullParameter((Object)duration, "duration");
             return new TimedValue<T>(value, duration);
         }
+
+        public static /* synthetic */ TimedValue copy$default(final TimedValue timedValue, Object value, String duration, final int i, final Object obj) {
+            if ((i & 1) != 0) {
+                value = timedValue.a;
+            }
+            if ((i & 2) != 0) {
+                duration = timedValue.b;
+            }
+            return timedValue.copy(value, duration);
+        }
         
         @NotNull
         @Override
