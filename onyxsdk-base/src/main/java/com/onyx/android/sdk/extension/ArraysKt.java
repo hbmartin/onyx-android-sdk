@@ -14,6 +14,9 @@ import kotlin.Metadata;
 @Metadata(mv = { 1, 6, 0 }, k = 2, xi = 48, d1 = { "\u0000 \n\u0000\n\u0002\u0010\u000b\n\u0000\n\u0002\u0010\u0011\n\u0002\b\u0002\n\u0002\u0010\u0012\n\u0002\u0010\u0015\n\u0000\n\u0002\u0010\u000e\n\u0000\u001a0\u0010\u0000\u001a\u00020\u0001\"\u0004\b\u0000\u0010\u0002*\f\u0012\u0006\b\u0001\u0012\u0002H\u0002\u0018\u00010\u0003\u0082\u0002\u000e\n\f\b\u0000\u0012\u0002\u0018\u0000\u001a\u0004\b\u0003\u0010\u0000¢\u0006\u0002\u0010\u0004\u001a\f\u0010\u0005\u001a\u00020\u0001*\u0004\u0018\u00010\u0006\u001a\f\u0010\u0005\u001a\u00020\u0001*\u0004\u0018\u00010\u0007\u001a\f\u0010\b\u001a\u00020\t*\u0004\u0018\u00010\u0006¨\u0006\n" }, d2 = { "isNotEmpty", "", "T", "", "([Ljava/lang/Object;)Z", "isNullOrEmpty", "", "", "utf16le", "", "onyxsdk-base_release" })
 public final class ArraysKt
 {
+    private ArraysKt() {
+    }
+
     public static final boolean isNullOrEmpty(@Nullable final int[] $this$isNullOrEmpty) {
         return $this$isNullOrEmpty == null || $this$isNullOrEmpty.length == 0;
     }

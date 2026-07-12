@@ -33,10 +33,28 @@ if [[ -z "$SERIAL" ]]; then
   SERIAL="$1"
 fi
 
+# The reference library is injected only into arm64-v8a; on any other ABI the
+# device would load the Rust build twice and the differential would pass
+# without ever executing the reference.
+device_abi="$("$ADB" -s "$SERIAL" shell getprop ro.product.cpu.abi | tr -d '\r')"
+test "$device_abi" = "arm64-v8a" \
+  || fail "device $SERIAL is $device_abi; the reference comparison requires an arm64-v8a device"
+
 restore_candidate() {
+  local status=$?
   rm -rf "$TMP"
-  ANDROID_HOME="$SDK_ROOT" ANDROID_SDK_ROOT="$SDK_ROOT" \
-    "$ROOT/gradlew" -p "$ROOT" :onyxsdk-pen:assembleDebug >/dev/null 2>&1 || true
+  local restore_log
+  restore_log="$(mktemp)"
+  if ANDROID_HOME="$SDK_ROOT" ANDROID_SDK_ROOT="$SDK_ROOT" \
+    "$ROOT/gradlew" -p "$ROOT" :onyxsdk-pen:assembleDebug :onyxsdk-pen:assembleDebugAndroidTest \
+    >"$restore_log" 2>&1; then
+    rm -f "$restore_log"
+  else
+    echo "pen differential: candidate rebuild FAILED — build outputs may still contain the reference libneo_pen.so." >&2
+    echo "re-run: ./gradlew :onyxsdk-pen:assembleDebug :onyxsdk-pen:assembleDebugAndroidTest (gradle log: $restore_log)" >&2
+    exit 1
+  fi
+  exit "$status"
 }
 trap restore_candidate EXIT
 

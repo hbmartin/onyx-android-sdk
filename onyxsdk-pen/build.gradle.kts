@@ -1,3 +1,4 @@
+import java.io.File
 import org.gradle.api.tasks.Exec
 
 plugins {
@@ -10,6 +11,7 @@ version = "1.5.4-recovered-source"
 val buildRustAndroid = tasks.register<Exec>("buildRustAndroid") {
     group = "build"
     description = "Cross-compiles both recovered pen libraries for all four Android ABIs."
+    val buildScript = rootProject.layout.projectDirectory.file("scripts/build-rust-android.sh")
     inputs.files(
         fileTree("native/onyx-pen-touch-reader/src"),
         file("native/onyx-pen-touch-reader/Cargo.toml"),
@@ -17,19 +19,25 @@ val buildRustAndroid = tasks.register<Exec>("buildRustAndroid") {
         fileTree("native/onyx-neo-pen/src"),
         file("native/onyx-neo-pen/Cargo.toml"),
         file("native/onyx-neo-pen/Cargo.lock"),
+        buildScript,
     )
     outputs.dir("src/main/jniLibs")
     inputs.property("penReferenceNeoSo", providers.gradleProperty("penReferenceNeoSo").orElse(""))
-    commandLine("bash", rootProject.layout.projectDirectory.file("scripts/build-rust-android.sh").asFile)
+    // The script picks its toolchain from these; a changed NDK must invalidate the .so outputs.
+    inputs.property("ndkVersion", providers.environmentVariable("ANDROID_NDK_VERSION").orElse(""))
+    inputs.property("ndkHome", providers.environmentVariable("ANDROID_NDK_HOME").orElse(""))
+    inputs.property("androidApi", providers.environmentVariable("ANDROID_API").orElse(""))
+    commandLine("bash", buildScript.asFile)
+    val referenceSoPath = providers.gradleProperty("penReferenceNeoSo")
+    val projectDir = layout.projectDirectory.asFile
+    val jniArm64 = layout.projectDirectory.dir("src/main/jniLibs/arm64-v8a").asFile
     doLast {
-        providers.gradleProperty("penReferenceNeoSo").orNull?.let { referencePath ->
-            val reference = file(referencePath)
+        referenceSoPath.orNull?.let { referencePath ->
+            val candidate = File(referencePath)
+            val reference = if (candidate.isAbsolute) candidate else projectDir.resolve(referencePath)
             require(reference.isFile) { "Reference libneo_pen.so does not exist: $reference" }
-            copy {
-                from(reference)
-                into(file("src/main/jniLibs/arm64-v8a"))
-                rename { "libneo_pen.so" }
-            }
+            jniArm64.mkdirs()
+            reference.copyTo(jniArm64.resolve("libneo_pen.so"), overwrite = true)
         }
     }
 }
@@ -56,12 +64,17 @@ android {
     lint {
         disable += "GradleDependency"
     }
+
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
 }
 
 dependencies {
     api(project(":onyxsdk-base"))
     api("de.ruedigermoeller:fst:2.56")
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10")
+    testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test:runner:1.6.2")
 }

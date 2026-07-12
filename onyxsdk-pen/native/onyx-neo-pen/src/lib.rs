@@ -128,6 +128,9 @@ impl PenState {
     fn transform(&self, mut point: Touch) -> Touch {
         point.x *= self.config.display_scale_x;
         point.y *= self.config.display_scale_y;
+        if !point.pressure.is_finite() {
+            point.pressure = 0.0;
+        }
         point.pressure = point.pressure.clamp(0.0, 1.0);
         point
     }
@@ -152,33 +155,6 @@ impl PenState {
             1.0
         };
         self.config.width * factor
-    }
-
-    #[cfg(test)]
-    fn width_for(&self, previous: Option<Touch>, point: Touch) -> f32 {
-        let sensitivity = self.config.pressure_sensitivity.clamp(0.0, 1.0);
-        let pressure = point.pressure.max(0.001).powf(1.35 - sensitivity);
-        let pressure_width = self.config.width * (0.12 + (0.88 * pressure));
-        let velocity = previous
-            .map(|last| {
-                let distance = ((point.x - last.x).powi(2) + (point.y - last.y).powi(2)).sqrt();
-                let millis = ((point.timestamp - last.timestamp).abs() as f32).max(1.0);
-                distance / millis
-            })
-            .unwrap_or(0.0);
-        let velocity_factor = 1.0
-            - (velocity * self.config.velocity_sensitivity.clamp(0.0, 1.0) * 0.35).clamp(0.0, 0.7)
-            + self.config.velocity_amplifier.clamp(0.0, 1.0) * 0.1;
-        let tilt_factor = if self.config.tilt_enabled {
-            let tilt = (point.tilt_x.abs() + point.tilt_y.abs()).min(180.0) / 180.0;
-            1.0 + (tilt * self.config.tilt_scale.max(0.0) * 0.05)
-        } else {
-            1.0
-        };
-        (pressure_width * velocity_factor * tilt_factor).clamp(
-            self.config.min_width.max(0.001),
-            self.config.width.max(self.config.min_width),
-        )
     }
 
     fn push_point(ink: &mut InkData, point: Touch, width: f32) {
@@ -401,7 +377,10 @@ impl PenState {
                 .position(|range| target <= range[1])
                 .unwrap_or(points.len() - 2);
             let span = (distances[segment + 1] - distances[segment]).max(f32::EPSILON);
-            let t = (target - distances[segment]) / span;
+            // Floating-point rounding can push the last target past the total
+            // distance; on a degenerate final segment the raw ratio then far
+            // exceeds 1 and would index outside the interpolation buffer.
+            let t = ((target - distances[segment]) / span).clamp(0.0, 1.0);
             let a = points[segment];
             let b = points[segment + 1];
             let point = Self::interpolate_linear(a, b, 100)[(t * 99.0).round() as usize];
@@ -424,9 +403,12 @@ impl PenState {
         prediction: Option<Touch>,
         phase: Phase,
     ) -> (InkData, InkData) {
+        // Non-finite coordinates would otherwise flow into every downstream
+        // width/step computation and the committed float records.
         let transformed = input
             .iter()
             .map(|point| self.transform(*point))
+            .filter(|point| point.x.is_finite() && point.y.is_finite())
             .collect::<Vec<_>>();
         let mut real = InkData::default();
         let mut predicted = InkData::default();
@@ -458,8 +440,10 @@ impl PenState {
                             // The reference brush delays committed coordinates by one input
                             // batch and applies its tiny first-stage width relaxation to the
                             // delayed point.  The final up point still uses the direct pressure
-                            // curve below.
-                            self.last_width *= 1.00375;
+                            // curve below.  The relaxation is capped at the same upper bound
+                            // as brush_width so long strokes cannot grow without limit.
+                            self.last_width =
+                                (self.last_width * 1.00375).min(self.config.width * 2.0 + 3.0);
                             Self::push_point(&mut real, point, self.last_width);
                         }
                     }
@@ -470,7 +454,9 @@ impl PenState {
                                 let distance = ((point.x - start.x).powi(2)
                                     + (point.y - start.y).powi(2))
                                 .sqrt();
-                                let steps = (distance / 4.0).ceil().max(1.0) as usize;
+                                // Cap keeps a single absurd coordinate jump from
+                                // allocating an unbounded interpolation buffer.
+                                let steps = (distance / 4.0).ceil().clamp(1.0, 4096.0) as usize;
                                 let start_width = self.fountain_width(start);
                                 let end_width = self.fountain_width(point);
                                 for (index, sample) in Self::interpolate_linear(start, point, steps)
@@ -493,7 +479,7 @@ impl PenState {
                         }
                     }
                     4 => {
-                        if let Some(point) = previous_history.first().copied() {
+                        if let Some(point) = previous_history.last().copied() {
                             real.points
                                 .extend_from_slice(&[point.x - 3.0, point.y - 3.0]);
                             real.point_sizes.push(2);
@@ -542,7 +528,7 @@ impl PenState {
                         let start = self.history.last().copied().unwrap_or(end);
                         let distance =
                             ((end.x - start.x).powi(2) + (end.y - start.y).powi(2)).sqrt();
-                        let steps = (distance / 3.0).ceil().max(1.0) as usize;
+                        let steps = (distance / 3.0).ceil().clamp(1.0, 4096.0) as usize;
                         let start_width = self.fountain_width(start);
                         let end_width = self.fountain_width(end);
                         for (index, point) in Self::interpolate_linear(start, end, steps)
@@ -567,7 +553,7 @@ impl PenState {
                         });
                     }
                     5 => {
-                        let point = self.history.first().copied().unwrap_or(end);
+                        let point = self.history.last().copied().unwrap_or(end);
                         real.points
                             .extend_from_slice(&[point.x - 4.0, point.y - 4.0]);
                         real.point_sizes.push(2);
@@ -580,12 +566,19 @@ impl PenState {
                     6 if self.config.fast_mode => {
                         let mut points = self.history.clone();
                         points.push(end);
-                        for pair in [(0.22, 0), (0.86, 1), (0.73, points.len().saturating_sub(2))] {
-                            let index = pair.1.min(points.len().saturating_sub(2));
-                            let point =
-                                Self::interpolate_linear(points[index], points[index + 1], 100)
-                                    [(pair.0 * 99.0) as usize];
-                            Self::push_point(&mut real, point, 0.5 + 2.5 * point.pressure);
+                        if points.len() < 2 {
+                            // Up without a preceding down: nothing to interpolate.
+                            Self::push_point(&mut real, end, 0.5 + 2.5 * end.pressure);
+                        } else {
+                            for pair in
+                                [(0.22, 0), (0.86, 1), (0.73, points.len().saturating_sub(2))]
+                            {
+                                let index = pair.1.min(points.len().saturating_sub(2));
+                                let point =
+                                    Self::interpolate_linear(points[index], points[index + 1], 100)
+                                        [(pair.0 * 99.0) as usize];
+                                Self::push_point(&mut real, point, 0.5 + 2.5 * point.pressure);
+                            }
                         }
                     }
                     6 | 8 | 9 => real = self.vector_finish(end, self.pen_type == 6),
@@ -755,9 +748,11 @@ fn create_bitmap<'local>(
             ],
         )?
         .l()?;
-    let alpha = ((color as u32 >> 24) as u8).saturating_mul(stamp.alpha) / 255;
-    let argb = ((alpha as u32) << 24) | (color as u32 & 0x00ff_ffff);
+    let alpha = (color as u32 >> 24) * u32::from(stamp.alpha) / 255;
+    let argb = (alpha << 24) | (color as u32 & 0x00ff_ffff);
     env.call_method(&bitmap, "eraseColor", "(I)V", &[JValue::Int(argb as i32)])?;
+    env.delete_local_ref(config_class)?;
+    env.delete_local_ref(config)?;
     Ok(bitmap)
 }
 
@@ -778,6 +773,7 @@ fn build_pen_ink<'local>(
     for (index, stamp) in ink.stamps.iter().enumerate() {
         let bitmap = create_bitmap(env, stamp, color)?;
         env.set_object_array_element(&bitmaps, index as i32, &bitmap)?;
+        env.delete_local_ref(bitmap)?;
     }
     let points_object = JObject::from(points);
     let sizes_object = JObject::from(sizes);
@@ -994,54 +990,58 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenWrapper_nativeDestroy
     }
 }
 
+/// Decodes ink records into legacy (x, y, size, bitmapIndex) tuples using the
+/// exact per-record arity in `point_sizes`; the float-count divisibility of a
+/// mixed or repeated stream is ambiguous and must never be guessed from.
+fn legacy_records(ink: &InkData) -> Vec<(f32, f32, f32, i32)> {
+    let mut records = Vec::with_capacity(ink.point_sizes.len());
+    let mut offset = 0usize;
+    let mut stamp_index = 0usize;
+    for &size in &ink.point_sizes {
+        let size = size.max(0) as usize;
+        if size == 0 || offset + size > ink.points.len() {
+            break;
+        }
+        let chunk = &ink.points[offset..offset + size];
+        offset += size;
+        match size {
+            2 => {
+                let dimension = ink
+                    .stamps
+                    .get(stamp_index)
+                    .map(|stamp| stamp.width.max(stamp.height) as f32)
+                    .unwrap_or(1.0);
+                records.push((chunk[0], chunk[1], dimension, stamp_index as i32));
+                stamp_index += 1;
+            }
+            3 | 5 => records.push((chunk[0], chunk[1], chunk[2], 0)),
+            // Polygon record: indices 4/7 hold the segment end centre and
+            // 6 - 4 recovers the half width used by the encoder.
+            12 => records.push((chunk[4], chunk[7], (chunk[6] - chunk[4]).abs() * 2.0, 0)),
+            _ => {}
+        }
+    }
+    records
+}
+
 fn build_legacy_points<'local>(
     env: &mut JNIEnv<'local>,
     ink: &InkData,
 ) -> jni::errors::Result<JObjectArray<'local>> {
-    let count = match ink.points.len() {
-        0 => 0,
-        len if !ink.stamps.is_empty() => len / 2,
-        len if len % 5 == 0 => len / 5,
-        len if len % 3 == 0 => len / 3,
-        len => len / 2,
-    };
+    let records = legacy_records(ink);
     let array = env.new_object_array(
-        count as i32,
+        records.len() as i32,
         "com/onyx/android/sdk/pen/NeoRenderPoint",
         JObject::null(),
     )?;
-    for index in 0..count {
-        let (x, y, size, bitmap_index) = if !ink.stamps.is_empty() {
-            let stamp = &ink.stamps[index];
-            (
-                ink.points[index * 2],
-                ink.points[index * 2 + 1],
-                stamp.width.max(stamp.height) as f32,
-                index as i32,
-            )
-        } else if ink.points.len().is_multiple_of(5) {
-            (
-                ink.points[index * 5],
-                ink.points[index * 5 + 1],
-                ink.points[index * 5 + 2],
-                0,
-            )
-        } else if ink.points.len().is_multiple_of(3) {
-            (
-                ink.points[index * 3],
-                ink.points[index * 3 + 1],
-                ink.points[index * 3 + 2],
-                0,
-            )
-        } else {
-            (ink.points[index * 2], ink.points[index * 2 + 1], 1.0, 0)
-        };
+    for (index, (x, y, size, bitmap_index)) in records.into_iter().enumerate() {
         let point = env.new_object("com/onyx/android/sdk/pen/NeoRenderPoint", "()V", &[])?;
         env.set_field(&point, "x", "F", JValue::Float(x))?;
         env.set_field(&point, "y", "F", JValue::Float(y))?;
         env.set_field(&point, "size", "F", JValue::Float(size))?;
         env.set_field(&point, "bitmapIndex", "I", JValue::Int(bitmap_index))?;
         env.set_object_array_element(&array, index as i32, &point)?;
+        env.delete_local_ref(point)?;
     }
     Ok(array)
 }
@@ -1078,28 +1078,32 @@ fn legacy_compute(mut env: JNIEnv, points: JDoubleArray) -> jobjectArray {
             .unwrap_or_else(|_| JObjectArray::from(JObject::null()).into_raw());
     }
 
+    // Offline rendering runs on a scratch copy of the legacy pen so an
+    // in-progress interactive stroke on the shared handle is not reset.
+    let Some(mut scratch) = runtime()
+        .pens
+        .lock()
+        .ok()
+        .and_then(|pens| pens.get(&handle).cloned())
+    else {
+        return JObjectArray::from(JObject::null()).into_raw();
+    };
+    scratch.reset();
     let mut combined = InkData::default();
     let append = |target: &mut InkData, source: InkData| {
         target.points.extend(source.points);
         target.point_sizes.extend(source.point_sizes);
         target.stamps.extend(source.stamps);
     };
-    if let Some((down, _, _)) = process_handle(handle, &touches[..1], None, Phase::Down) {
-        append(&mut combined, down);
-    }
+    let (down, _) = scratch.process(&touches[..1], None, Phase::Down);
+    append(&mut combined, down);
     if touches.len() > 2 {
-        if let Some((moves, _, _)) =
-            process_handle(handle, &touches[1..touches.len() - 1], None, Phase::Move)
-        {
-            append(&mut combined, moves);
-        }
+        let (moves, _) = scratch.process(&touches[1..touches.len() - 1], None, Phase::Move);
+        append(&mut combined, moves);
     }
     if touches.len() > 1 {
-        if let Some((up, _, _)) =
-            process_handle(handle, &touches[touches.len() - 1..], None, Phase::Up)
-        {
-            append(&mut combined, up);
-        }
+        let (up, _) = scratch.process(&touches[touches.len() - 1..], None, Phase::Up);
+        append(&mut combined, up);
     }
     if let Ok(mut stamps) = runtime().legacy_bitmaps.lock() {
         *stamps = combined.stamps.clone();
@@ -1173,8 +1177,19 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenWrapper_nativeGetRend
         return JObjectArray::from(JObject::null()).into_raw();
     };
     for (index, stamp) in stamps.iter().enumerate() {
-        if let Ok(bitmap) = create_bitmap(&mut env, stamp, color) {
-            let _ = env.set_object_array_element(&array, index as i32, bitmap);
+        // A failed bitmap leaves a pending Java exception; issuing further
+        // JNI calls in that state is illegal, so surface it to the caller.
+        match create_bitmap(&mut env, stamp, color) {
+            Ok(bitmap) => {
+                if env
+                    .set_object_array_element(&array, index as i32, &bitmap)
+                    .is_err()
+                {
+                    return JObjectArray::from(JObject::null()).into_raw();
+                }
+                let _ = env.delete_local_ref(bitmap);
+            }
+            Err(_) => return JObjectArray::from(JObject::null()).into_raw(),
         }
     }
     array.into_raw()
@@ -1196,26 +1211,85 @@ mod tests {
 
     #[test]
     fn all_pen_types_emit_the_expected_encoding() {
-        for pen_type in 1..=9 {
+        let expected_arities: [(i32, &[i32]); 9] = [
+            (1, &[3]),
+            (2, &[3]),
+            (3, &[3]),
+            (4, &[2]),
+            (5, &[2]),
+            (6, &[12]),
+            (7, &[5]),
+            (8, &[12]),
+            (9, &[12]),
+        ];
+        for (pen_type, arities) in expected_arities {
             let mut pen = PenState::new(pen_type, PenConfig::default());
             let (down, _) = pen.process(&[touch(10.0, 20.0, 0.5, 1.0)], None, Phase::Down);
-            let (move_ink, _) = pen.process(&[touch(15.0, 25.0, 0.6, 2.0)], None, Phase::Move);
-            let (up, _) = pen.process(&[touch(20.0, 30.0, 0.4, 3.0)], None, Phase::Up);
-            assert!(
-                !down.points.is_empty() || !move_ink.points.is_empty() || !up.points.is_empty(),
-                "pen type {pen_type}"
-            );
+            let (first_move, _) = pen.process(&[touch(15.0, 25.0, 0.6, 2.0)], None, Phase::Move);
+            let (second_move, _) = pen.process(&[touch(30.0, 40.0, 0.6, 3.0)], None, Phase::Move);
+            let (up, _) = pen.process(&[touch(45.0, 55.0, 0.4, 4.0)], None, Phase::Up);
+            let mut produced = false;
+            for ink in [&down, &first_move, &second_move, &up] {
+                produced |= !ink.points.is_empty();
+                let float_count = ink.point_sizes.iter().map(|size| *size as usize).sum();
+                assert_eq!(
+                    ink.points.len(),
+                    float_count,
+                    "pen {pen_type}: floats must match declared record arities"
+                );
+                let stamp_records = ink.point_sizes.iter().filter(|size| **size == 2).count();
+                assert_eq!(
+                    ink.stamps.len(),
+                    stamp_records,
+                    "pen {pen_type}: one stamp per 2-value record"
+                );
+                for size in &ink.point_sizes {
+                    assert!(
+                        arities.contains(size),
+                        "pen {pen_type} emitted unexpected arity {size}"
+                    );
+                }
+                for value in &ink.points {
+                    assert!(value.is_finite(), "pen {pen_type} emitted non-finite value");
+                }
+            }
+            assert!(produced, "pen type {pen_type} emitted nothing");
         }
     }
 
     #[test]
-    fn prediction_does_not_advance_committed_state() {
-        let mut pen = PenState::new(2, PenConfig::default());
-        pen.process(&[touch(0.0, 0.0, 0.5, 1.0)], None, Phase::Down);
-        let committed = pen.last;
-        let (_, prediction) = pen.process(&[], Some(touch(20.0, 0.0, 0.5, 2.0)), Phase::Move);
-        assert!(prediction.points.is_empty());
-        assert_eq!(pen.last, committed);
+    fn prediction_never_advances_committed_state() {
+        let config = PenConfig::default();
+        let mut with_prediction = PenState::new(7, config.clone());
+        let mut without_prediction = PenState::new(7, config);
+        let down = [touch(0.0, 0.0, 0.5, 1.0)];
+        let moves = [touch(12.0, 5.0, 0.6, 2.0), touch(24.0, 9.0, 0.7, 3.0)];
+        let up = [touch(30.0, 12.0, 0.4, 5.0)];
+
+        let (down_a, _) = with_prediction.process(&down, None, Phase::Down);
+        let (down_b, _) = without_prediction.process(&down, None, Phase::Down);
+        assert_eq!(down_a.points, down_b.points);
+
+        let prediction = Some(touch(40.0, 16.0, 0.7, 4.0));
+        let (move_a, predicted) = with_prediction.process(&moves, prediction, Phase::Move);
+        let (move_b, _) = without_prediction.process(&moves, None, Phase::Move);
+        assert!(
+            !predicted.points.is_empty(),
+            "pencil must emit prediction ink"
+        );
+        assert_eq!(
+            move_a.points, move_b.points,
+            "prediction must not alter committed move ink"
+        );
+        assert_eq!(with_prediction.history, without_prediction.history);
+        assert_eq!(with_prediction.last, without_prediction.last);
+
+        let (up_a, _) = with_prediction.process(&up, None, Phase::Up);
+        let (up_b, _) = without_prediction.process(&up, None, Phase::Up);
+        assert_eq!(
+            up_a.points, up_b.points,
+            "prediction must not affect the finished stroke"
+        );
     }
 
     #[test]
@@ -1227,12 +1301,125 @@ mod tests {
     }
 
     #[test]
-    fn pressure_and_velocity_widths_are_bounded() {
-        let pen = PenState::new(1, PenConfig::default());
-        let low = pen.width_for(None, touch(0.0, 0.0, 0.0, 1.0));
-        let high = pen.width_for(None, touch(0.0, 0.0, 1.0, 1.0));
-        assert!(low >= pen.config.min_width);
-        assert!(high <= pen.config.width);
-        assert!(high > low);
+    fn brush_width_stays_bounded_on_long_strokes() {
+        let mut pen = PenState::new(1, PenConfig::default());
+        let cap = pen.config.width * 2.0 + 3.0;
+        pen.process(&[touch(0.0, 0.0, 0.9, 1.0)], None, Phase::Down);
+        let mut widths = Vec::new();
+        for index in 0..5000 {
+            let position = index as f32;
+            let (ink, _) = pen.process(
+                &[touch(position, position, 0.9, f64::from(position) + 2.0)],
+                None,
+                Phase::Move,
+            );
+            widths.extend(ink.points.chunks_exact(3).map(|record| record[2]));
+        }
+        assert!(!widths.is_empty());
+        for width in widths {
+            assert!(width.is_finite());
+            assert!(width <= cap + 1e-3, "width {width} exceeds cap {cap}");
+        }
+    }
+
+    #[test]
+    fn pencil_up_with_degenerate_tail_is_safe() {
+        let mut pen = PenState::new(7, PenConfig::default());
+        pen.process(&[touch(0.3, 0.7, 0.5, 1.0)], None, Phase::Down);
+        pen.process(&[touch(10.1, 7.3, 0.6, 2.0)], None, Phase::Move);
+        // Up repeating the previous point creates a zero-length final segment,
+        // the shape that used to index outside the interpolation buffer.
+        let (ink, _) = pen.process(&[touch(10.1, 7.3, 0.6, 3.0)], None, Phase::Up);
+        assert_eq!(ink.point_sizes.len(), 31);
+        assert!(ink.point_sizes.iter().all(|size| *size == 5));
+        assert!(ink.points.iter().all(|value| value.is_finite()));
+    }
+
+    #[test]
+    fn fast_mode_up_without_down_is_safe() {
+        let mut pen = PenState::new(
+            6,
+            PenConfig {
+                fast_mode: true,
+                ..PenConfig::default()
+            },
+        );
+        let (ink, _) = pen.process(&[touch(5.0, 6.0, 0.5, 1.0)], None, Phase::Up);
+        assert_eq!(ink.point_sizes, vec![3]);
+    }
+
+    #[test]
+    fn legacy_decoding_uses_exact_record_arities() {
+        // Five 3-value records are 15 floats — also divisible by five, the
+        // exact stream the old divisibility heuristic misparsed.
+        let point_pen_ink = InkData {
+            points: (0..15).map(|value| value as f32).collect(),
+            point_sizes: vec![3; 5],
+            stamps: Vec::new(),
+        };
+        let records = legacy_records(&point_pen_ink);
+        assert_eq!(records.len(), 5);
+        assert_eq!(records[1], (3.0, 4.0, 5.0, 0));
+
+        let mixed_ink = InkData {
+            points: vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0],
+            point_sizes: vec![2, 5],
+            stamps: vec![Stamp {
+                width: 13,
+                height: 14,
+                alpha: 180,
+            }],
+        };
+        assert_eq!(
+            legacy_records(&mixed_ink),
+            vec![(1.0, 2.0, 14.0, 0), (3.0, 4.0, 5.0, 0)]
+        );
+    }
+
+    #[test]
+    fn non_finite_and_absurd_inputs_are_bounded() {
+        let mut pen = PenState::new(2, PenConfig::default());
+        pen.process(&[touch(0.0, 0.0, 0.5, 1.0)], None, Phase::Down);
+        let (ink, _) = pen.process(
+            &[
+                touch(f32::NAN, 4.0, 0.5, 2.0),
+                touch(8.0, f32::INFINITY, 0.5, 3.0),
+                touch(1.0e9, 0.0, f32::NAN, 4.0),
+            ],
+            None,
+            Phase::Move,
+        );
+        assert!(ink.points.iter().all(|value| value.is_finite()));
+        assert!(ink.point_sizes.len() <= 4096);
+    }
+
+    #[test]
+    fn stale_and_double_destroyed_handles_are_safe() {
+        let handle = runtime().next_handle.fetch_add(1, Ordering::Relaxed);
+        runtime()
+            .pens
+            .lock()
+            .unwrap()
+            .insert(handle, PenState::new(1, PenConfig::default()));
+        assert!(process_handle(handle, &[touch(0.0, 0.0, 0.5, 1.0)], None, Phase::Down).is_some());
+        assert!(runtime().pens.lock().unwrap().remove(&handle).is_some());
+        assert!(process_handle(handle, &[touch(1.0, 1.0, 0.5, 2.0)], None, Phase::Move).is_none());
+        assert!(runtime().pens.lock().unwrap().remove(&handle).is_none());
+    }
+
+    #[test]
+    fn charcoal_stamps_track_the_stroke() {
+        let mut pen = PenState::new(4, PenConfig::default());
+        pen.process(&[touch(0.0, 0.0, 0.5, 1.0)], None, Phase::Down);
+        let (first_move, _) = pen.process(&[touch(50.0, 50.0, 0.5, 2.0)], None, Phase::Move);
+        let (second_move, _) = pen.process(&[touch(100.0, 100.0, 0.5, 3.0)], None, Phase::Move);
+        assert_eq!(first_move.points[0], -3.0);
+        assert_eq!(second_move.points[0], 47.0);
+
+        let mut v2 = PenState::new(5, PenConfig::default());
+        v2.process(&[touch(0.0, 0.0, 0.5, 1.0)], None, Phase::Down);
+        v2.process(&[touch(60.0, 0.0, 0.5, 2.0)], None, Phase::Move);
+        let (up, _) = v2.process(&[touch(60.0, 0.0, 0.5, 3.0)], None, Phase::Up);
+        assert_eq!(up.points[0], 56.0);
     }
 }

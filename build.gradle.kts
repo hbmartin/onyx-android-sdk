@@ -39,6 +39,11 @@ tasks.named("check") {
         ":onyxsdk-device:testDebugUnitTest",
         ":onyxsdk-pen:testDebugUnitTest",
         ":recovery-tests:testDebugUnitTest",
+        // Lint runs against the checked-in per-module baselines; only new
+        // findings fail the gate.
+        ":onyxsdk-base:lintRelease",
+        ":onyxsdk-device:lintRelease",
+        ":onyxsdk-pen:lintRelease",
         "nativeFormatCheck",
         "nativeTest",
         "nativeClippy",

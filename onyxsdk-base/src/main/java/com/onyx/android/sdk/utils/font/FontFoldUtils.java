@@ -233,7 +233,11 @@ public final class FontFoldUtils
         Intrinsics.checkNotNullParameter((Object)$tmp0, "$tmp0");
         return ((Number)$tmp0.invoke((Object)p0, (Object)p1)).intValue();
     }
-    
+
+    public static final int access$sortByFontName(final FontFoldUtils $this, final FontInfo f1, final FontInfo f2) {
+        return $this.a(f1, f2);
+    }
+
     static {
         INSTANCE = new FontFoldUtils();
         c = (Function0)FontFoldUtils$b.a;

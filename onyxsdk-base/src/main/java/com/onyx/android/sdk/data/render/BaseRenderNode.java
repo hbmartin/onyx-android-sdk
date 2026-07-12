@@ -15,6 +15,9 @@ public interface BaseRenderNode {
     /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/render/BaseRenderNode$DefaultImpls.class */
     @Metadata(mv = {1, 6, 0}, k = 3, xi = 48)
     public static final class DefaultImpls {
+        private DefaultImpls() {
+        }
+
         public static void setTranslationX(@NotNull BaseRenderNode baseRenderNode, float x) {
             Intrinsics.checkNotNullParameter(baseRenderNode, "this");
         }

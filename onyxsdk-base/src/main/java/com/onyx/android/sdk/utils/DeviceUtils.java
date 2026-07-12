@@ -183,6 +183,11 @@ public class DeviceUtils
         return n;
     }
     
+    // Faithful reference behavior, including its defect: on devices where the
+    // app cannot read /proc/bus/input/devices this falls back to event1 even
+    // when the digitizer lives elsewhere (a NoteAir4C stylus is event5). The
+    // reference SDK returns the same wrong path; the pen module's native
+    // reader performs its own event0-15 discovery and is unaffected.
     public static String detectInputDevicePath() {
         String format = "/dev/input/event1";
         final String detectInputDevicePath;

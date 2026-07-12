@@ -1,0 +1,817 @@
+{
+  "base": {
+    "changedSignatures": [
+      "com.onyx.android.sdk.base.extension.WebViewKt",
+      "com.onyx.android.sdk.calendar.CalendarRemoteServiceConnection",
+      "com.onyx.android.sdk.common.collections.StringIndexedArrayList",
+      "com.onyx.android.sdk.common.request.WakelockTimer",
+      "com.onyx.android.sdk.data.LongKt",
+      "com.onyx.android.sdk.data.Orientation",
+      "com.onyx.android.sdk.data.ProgressInfo",
+      "com.onyx.android.sdk.data.StashShapeResourceArgs",
+      "com.onyx.android.sdk.data.bitmap.SafeBitmap",
+      "com.onyx.android.sdk.data.note.DisplayArgs",
+      "com.onyx.android.sdk.data.note.EraserArgs",
+      "com.onyx.android.sdk.data.note.line.Line",
+      "com.onyx.android.sdk.data.note.line.LineKt",
+      "com.onyx.android.sdk.data.reader.PageId",
+      "com.onyx.android.sdk.data.reader.PageIdKt",
+      "com.onyx.android.sdk.data.reader.ReaderExportDocumentsParam",
+      "com.onyx.android.sdk.data.reader.ReaderImportDocumentsParam",
+      "com.onyx.android.sdk.data.richtext.TextAlignType",
+      "com.onyx.android.sdk.extension.AnyKt",
+      "com.onyx.android.sdk.extension.ArraysKt",
+      "com.onyx.android.sdk.extension.BitmapKt",
+      "com.onyx.android.sdk.extension.BooleanKt",
+      "com.onyx.android.sdk.extension.CanvasKt",
+      "com.onyx.android.sdk.extension.CharKt",
+      "com.onyx.android.sdk.extension.ClassKt",
+      "com.onyx.android.sdk.extension.CollectionKt",
+      "com.onyx.android.sdk.extension.ContextExtensionKt",
+      "com.onyx.android.sdk.extension.ContextKt",
+      "com.onyx.android.sdk.extension.DimensKt",
+      "com.onyx.android.sdk.extension.DrawableKt",
+      "com.onyx.android.sdk.extension.EnumExtensionsKt",
+      "com.onyx.android.sdk.extension.EventBusKt",
+      "com.onyx.android.sdk.extension.ExceptionsKt",
+      "com.onyx.android.sdk.extension.Files",
+      "com.onyx.android.sdk.extension.FloatKt",
+      "com.onyx.android.sdk.extension.IntKt",
+      "com.onyx.android.sdk.extension.ListExtKt",
+      "com.onyx.android.sdk.extension.LooperKt",
+      "com.onyx.android.sdk.extension.MatrixKt",
+      "com.onyx.android.sdk.extension.MotionEventKt",
+      "com.onyx.android.sdk.extension.ObservableKt",
+      "com.onyx.android.sdk.extension.PaintKt",
+      "com.onyx.android.sdk.extension.Paths",
+      "com.onyx.android.sdk.extension.RangeKt",
+      "com.onyx.android.sdk.extension.RectKt",
+      "com.onyx.android.sdk.extension.RxjavaKt",
+      "com.onyx.android.sdk.extension.SizeKt",
+      "com.onyx.android.sdk.extension.StringKt",
+      "com.onyx.android.sdk.extension.SurfaceViewKt",
+      "com.onyx.android.sdk.extension.UriKt",
+      "com.onyx.android.sdk.extension.ViewKt",
+      "com.onyx.android.sdk.firmware.utils.a",
+      "com.onyx.android.sdk.firmware.utils.b",
+      "com.onyx.android.sdk.rx.MultiThreadScheduler",
+      "com.onyx.android.sdk.rx.RxBaseBenchmarkRequest",
+      "com.onyx.android.sdk.rx.RxFirstDebounceWithReset",
+      "com.onyx.android.sdk.rx.RxScroller",
+      "com.onyx.android.sdk.utils.BitmapLruCacheConfig",
+      "com.onyx.android.sdk.utils.BitmapLruCacheKt",
+      "com.onyx.android.sdk.utils.Bitmaps",
+      "com.onyx.android.sdk.utils.CallStackUtils",
+      "com.onyx.android.sdk.utils.Colors",
+      "com.onyx.android.sdk.utils.ElementCounter",
+      "com.onyx.android.sdk.utils.LruCacheKt",
+      "com.onyx.android.sdk.utils.MathUtilsKt",
+      "com.onyx.android.sdk.utils.OptionsRepo",
+      "com.onyx.android.sdk.utils.PermissionUtils",
+      "com.onyx.android.sdk.utils.RxAlarm",
+      "com.onyx.android.sdk.utils.SimpleBitmapReferenceLruCache",
+      "com.onyx.android.sdk.utils.StorageTypeUtils",
+      "com.onyx.android.sdk.utils.ViewsKt",
+      "com.onyx.android.sdk.utils.font.FontFamilyClassifier",
+      "com.onyx.android.sdk.utils.font.FontFoldUtils",
+      "com.onyx.android.sdk.wifi.RxWifiAdmin",
+      "com.onyx.android.sdk.wifi.WifiAdmin"
+    ],
+    "extraClasses": [],
+    "missingClasses": [],
+    "recoveredOuterClasses": 588,
+    "referenceOuterClasses": 588,
+    "signatureDiffs": {
+      "com.onyx.android.sdk.base.extension.WebViewKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.base.extension.WebViewKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.base.extension.WebViewKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.base.extension.WebViewKt {"
+      },
+      "com.onyx.android.sdk.calendar.CalendarRemoteServiceConnection": {
+        "extraMembers": [],
+        "missingMembers": [
+          "public android.os.IInterface asInterface(android.os.IBinder);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.calendar.CalendarRemoteServiceConnection extends com.onyx.android.sdk.common.service.OnyxRemoteServiceConnection<com.onyx.android.sdk.calendar.ICalendarService> {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.calendar.CalendarRemoteServiceConnection extends com.onyx.android.sdk.common.service.OnyxRemoteServiceConnection<com.onyx.android.sdk.calendar.ICalendarService> {"
+      },
+      "com.onyx.android.sdk.common.collections.StringIndexedArrayList": {
+        "extraMembers": [
+          "public boolean removeAll(java.util.Collection<?>);"
+        ],
+        "missingMembers": [
+          "public boolean removeAll(java.util.Collection<? extends java.lang.Object>);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.common.collections.StringIndexedArrayList<E> extends java.util.ArrayList<E> {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.common.collections.StringIndexedArrayList<E> extends java.util.ArrayList<E> {"
+      },
+      "com.onyx.android.sdk.common.request.WakelockTimer": {
+        "extraMembers": [],
+        "missingMembers": [
+          "public static final com.onyx.android.sdk.common.request.WakeLockHolder access$getWakeLockHolder$p(com.onyx.android.sdk.common.request.WakelockTimer);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.common.request.WakelockTimer {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.common.request.WakelockTimer {"
+      },
+      "com.onyx.android.sdk.data.LongKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.data.LongKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.data.LongKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.data.LongKt {"
+      },
+      "com.onyx.android.sdk.data.Orientation": {
+        "extraMembers": [
+          "public static final com.onyx.android.sdk.data.Orientation$Companion INSTANCE;"
+        ],
+        "missingMembers": [
+          "public static final com.onyx.android.sdk.data.Orientation$Companion Companion;"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.data.Orientation extends java.lang.Enum<com.onyx.android.sdk.data.Orientation> {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.data.Orientation extends java.lang.Enum<com.onyx.android.sdk.data.Orientation> {"
+      },
+      "com.onyx.android.sdk.data.ProgressInfo": {
+        "extraMembers": [
+          "public static final com.onyx.android.sdk.data.ProgressInfo$Companion INSTANCE;"
+        ],
+        "missingMembers": [
+          "public static final com.onyx.android.sdk.data.ProgressInfo$Companion Companion;"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.data.ProgressInfo {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.data.ProgressInfo {"
+      },
+      "com.onyx.android.sdk.data.StashShapeResourceArgs": {
+        "extraMembers": [],
+        "missingMembers": [
+          "public static java.lang.String getStashResourceFileName$default(com.onyx.android.sdk.data.StashShapeResourceArgs, java.lang.String, int, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.data.StashShapeResourceArgs {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.data.StashShapeResourceArgs {"
+      },
+      "com.onyx.android.sdk.data.bitmap.SafeBitmap": {
+        "extraMembers": [
+          "public static final com.onyx.android.sdk.data.bitmap.SafeBitmap$Companion INSTANCE;"
+        ],
+        "missingMembers": [
+          "public static final com.onyx.android.sdk.data.bitmap.SafeBitmap$Companion Companion;"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.data.bitmap.SafeBitmap {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.data.bitmap.SafeBitmap {"
+      },
+      "com.onyx.android.sdk.data.note.DisplayArgs": {
+        "extraMembers": [
+          "public static final com.onyx.android.sdk.data.note.DisplayArgs$Companion INSTANCE;"
+        ],
+        "missingMembers": [
+          "public static final com.onyx.android.sdk.data.note.DisplayArgs$Companion Companion;"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.data.note.DisplayArgs {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.data.note.DisplayArgs {"
+      },
+      "com.onyx.android.sdk.data.note.EraserArgs": {
+        "extraMembers": [],
+        "missingMembers": [
+          "public static com.onyx.android.sdk.data.note.EraserArgs copy$default(com.onyx.android.sdk.data.note.EraserArgs, java.lang.String, int, java.util.Map, int, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.data.note.EraserArgs implements java.io.Serializable {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.data.note.EraserArgs implements java.io.Serializable {"
+      },
+      "com.onyx.android.sdk.data.note.line.Line": {
+        "extraMembers": [],
+        "missingMembers": [
+          "public static com.onyx.android.sdk.data.note.line.Line copy$default(com.onyx.android.sdk.data.note.line.Line, float, float, float, float, int, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.data.note.line.Line {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.data.note.line.Line {"
+      },
+      "com.onyx.android.sdk.data.note.line.LineKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.data.note.line.LineKt();"
+        ],
+        "missingMembers": [
+          "public static boolean isHorizontalLine$default(com.onyx.android.sdk.data.note.line.Line, float, int, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.data.note.line.LineKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.data.note.line.LineKt {"
+      },
+      "com.onyx.android.sdk.data.reader.PageId": {
+        "extraMembers": [],
+        "missingMembers": [
+          "public static com.onyx.android.sdk.data.reader.PageId copy$default(com.onyx.android.sdk.data.reader.PageId, java.lang.String, java.lang.String, int, int, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.data.reader.PageId {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.data.reader.PageId {"
+      },
+      "com.onyx.android.sdk.data.reader.PageIdKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.data.reader.PageIdKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.data.reader.PageIdKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.data.reader.PageIdKt {"
+      },
+      "com.onyx.android.sdk.data.reader.ReaderExportDocumentsParam": {
+        "extraMembers": [],
+        "missingMembers": [
+          "public com.onyx.android.sdk.data.reader.ReaderExportDocumentsParam(java.lang.String, java.lang.String, java.util.List, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker);",
+          "public static com.onyx.android.sdk.data.reader.ReaderExportDocumentsParam copy$default(com.onyx.android.sdk.data.reader.ReaderExportDocumentsParam, java.lang.String, java.lang.String, java.util.List, boolean, int, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.data.reader.ReaderExportDocumentsParam {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.data.reader.ReaderExportDocumentsParam {"
+      },
+      "com.onyx.android.sdk.data.reader.ReaderImportDocumentsParam": {
+        "extraMembers": [],
+        "missingMembers": [
+          "public com.onyx.android.sdk.data.reader.ReaderImportDocumentsParam(java.lang.String, java.lang.String, int, kotlin.jvm.internal.DefaultConstructorMarker);",
+          "public static com.onyx.android.sdk.data.reader.ReaderImportDocumentsParam copy$default(com.onyx.android.sdk.data.reader.ReaderImportDocumentsParam, java.lang.String, java.lang.String, int, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.data.reader.ReaderImportDocumentsParam {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.data.reader.ReaderImportDocumentsParam {"
+      },
+      "com.onyx.android.sdk.data.richtext.TextAlignType": {
+        "extraMembers": [
+          "public static final com.onyx.android.sdk.data.richtext.TextAlignType$Companion INSTANCE;"
+        ],
+        "missingMembers": [
+          "public static final com.onyx.android.sdk.data.richtext.TextAlignType$Companion Companion;"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.data.richtext.TextAlignType extends java.lang.Enum<com.onyx.android.sdk.data.richtext.TextAlignType> {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.data.richtext.TextAlignType extends java.lang.Enum<com.onyx.android.sdk.data.richtext.TextAlignType> {"
+      },
+      "com.onyx.android.sdk.extension.AnyKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.AnyKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.AnyKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.AnyKt {"
+      },
+      "com.onyx.android.sdk.extension.ArraysKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.ArraysKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.ArraysKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.ArraysKt {"
+      },
+      "com.onyx.android.sdk.extension.BitmapKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.BitmapKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.BitmapKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.BitmapKt {"
+      },
+      "com.onyx.android.sdk.extension.BooleanKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.BooleanKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.BooleanKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.BooleanKt {"
+      },
+      "com.onyx.android.sdk.extension.CanvasKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.CanvasKt();"
+        ],
+        "missingMembers": [
+          "public static void drawBitmapFloorLeftTop$default(android.graphics.Canvas, android.graphics.Bitmap, android.graphics.Rect, android.graphics.RectF, android.graphics.Paint, int, java.lang.Object);",
+          "public static void drawBitmapFloorLeftTop$default(android.graphics.Canvas, android.graphics.Bitmap, float, float, android.graphics.Paint, int, java.lang.Object);",
+          "public static void withMatrix$default(android.graphics.Canvas, android.graphics.Matrix, kotlin.jvm.functions.Function1, int, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.CanvasKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.CanvasKt {"
+      },
+      "com.onyx.android.sdk.extension.CharKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.CharKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.CharKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.CharKt {"
+      },
+      "com.onyx.android.sdk.extension.ClassKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.ClassKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.ClassKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.ClassKt {"
+      },
+      "com.onyx.android.sdk.extension.CollectionKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.CollectionKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.CollectionKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.CollectionKt {"
+      },
+      "com.onyx.android.sdk.extension.ContextExtensionKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.ContextExtensionKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.ContextExtensionKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.ContextExtensionKt {"
+      },
+      "com.onyx.android.sdk.extension.ContextKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.ContextKt();"
+        ],
+        "missingMembers": [
+          "public static java.lang.String getMetaData$default(android.content.Context, java.lang.String, kotlin.jvm.functions.Function0, int, java.lang.Object);",
+          "public static void openWithLocalApplication$default(android.content.Context, java.lang.String, java.lang.String, boolean, int, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.ContextKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.ContextKt {"
+      },
+      "com.onyx.android.sdk.extension.DimensKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.DimensKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.DimensKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.DimensKt {"
+      },
+      "com.onyx.android.sdk.extension.DrawableKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.DrawableKt();"
+        ],
+        "missingMembers": [
+          "public static android.graphics.Bitmap toBitmap$default(android.graphics.drawable.Drawable, int, int, int, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.DrawableKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.DrawableKt {"
+      },
+      "com.onyx.android.sdk.extension.EnumExtensionsKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.EnumExtensionsKt();"
+        ],
+        "missingMembers": [
+          "public static final <T extends java.lang.Enum<T>> T enumValueOfOrNull(java.lang.String);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.EnumExtensionsKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.EnumExtensionsKt {"
+      },
+      "com.onyx.android.sdk.extension.EventBusKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.EventBusKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.EventBusKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.EventBusKt {"
+      },
+      "com.onyx.android.sdk.extension.ExceptionsKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.ExceptionsKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.ExceptionsKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.ExceptionsKt {"
+      },
+      "com.onyx.android.sdk.extension.Files": {
+        "extraMembers": [],
+        "missingMembers": [
+          "public static java.lang.String fileNameInAssets$default(com.onyx.android.sdk.extension.Files, android.content.Context, java.lang.String, java.lang.String, int, java.lang.Object);",
+          "public static java.lang.String generateUniqueFileName$default(com.onyx.android.sdk.extension.Files, java.lang.String, java.lang.String, java.lang.String, int, int, java.lang.Object);",
+          "public static java.lang.String readContentOfFile$default(com.onyx.android.sdk.extension.Files, java.lang.String, boolean, int, java.lang.Object);",
+          "public static java.util.List parallelFileMetadata$default(com.onyx.android.sdk.extension.Files, java.util.List, int, kotlin.jvm.functions.Function1, int, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.Files {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.Files {"
+      },
+      "com.onyx.android.sdk.extension.FloatKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.FloatKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.FloatKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.FloatKt {"
+      },
+      "com.onyx.android.sdk.extension.IntKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.IntKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.IntKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.IntKt {"
+      },
+      "com.onyx.android.sdk.extension.ListExtKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.ListExtKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.ListExtKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.ListExtKt {"
+      },
+      "com.onyx.android.sdk.extension.LooperKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.LooperKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.LooperKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.LooperKt {"
+      },
+      "com.onyx.android.sdk.extension.MatrixKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.MatrixKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.MatrixKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.MatrixKt {"
+      },
+      "com.onyx.android.sdk.extension.MotionEventKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.MotionEventKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.MotionEventKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.MotionEventKt {"
+      },
+      "com.onyx.android.sdk.extension.ObservableKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.ObservableKt();"
+        ],
+        "missingMembers": [
+          "public static io.reactivex.disposables.Disposable subscribeWithDefault$default(io.reactivex.Observable, io.reactivex.functions.Consumer, io.reactivex.functions.Consumer, io.reactivex.functions.Action, int, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.ObservableKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.ObservableKt {"
+      },
+      "com.onyx.android.sdk.extension.PaintKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.PaintKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.PaintKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.PaintKt {"
+      },
+      "com.onyx.android.sdk.extension.Paths": {
+        "extraMembers": [],
+        "missingMembers": [
+          "public static boolean copyFile$default(com.onyx.android.sdk.extension.Paths, java.nio.file.Path, java.nio.file.Path, boolean, int, java.lang.Object);",
+          "public static java.util.Collection listFiles$default(com.onyx.android.sdk.extension.Paths, java.nio.file.Path, boolean, int, java.lang.Object);",
+          "public static java.util.List resample$default(com.onyx.android.sdk.extension.Paths, android.graphics.Path, java.lang.Number, int, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.Paths {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.Paths {"
+      },
+      "com.onyx.android.sdk.extension.RangeKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.RangeKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.RangeKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.RangeKt {"
+      },
+      "com.onyx.android.sdk.extension.RectKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.RectKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.RectKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.RectKt {"
+      },
+      "com.onyx.android.sdk.extension.RxjavaKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.RxjavaKt();",
+          "public static final <T> io.reactivex.Observable<java.lang.Object> concatMapIf(io.reactivex.Observable<T>, kotlin.jvm.functions.Function1<? super T, java.lang.Boolean>, kotlin.jvm.functions.Function1<? super T, ? extends io.reactivex.Observable<?>>);",
+          "public static final <T> io.reactivex.Observable<java.lang.Object> concatMapIfLast(io.reactivex.subjects.BehaviorSubject<T>, kotlin.jvm.functions.Function1<? super T, ? extends io.reactivex.Observable<?>>);",
+          "public static final <T> io.reactivex.Observable<java.lang.Object> flatMapIf(io.reactivex.Observable<T>, kotlin.jvm.functions.Function1<? super T, java.lang.Boolean>, io.reactivex.Observable<?>);",
+          "public static final <T> io.reactivex.Observable<java.lang.Object> flatMapIf(io.reactivex.Observable<T>, kotlin.jvm.functions.Function1<? super T, java.lang.Boolean>, kotlin.jvm.functions.Function1<? super T, ? extends io.reactivex.Observable<?>>);",
+          "public static final <T> io.reactivex.Observable<java.lang.Object> flatMapIf(io.reactivex.Observable<T>, kotlin.jvm.functions.Function1<? super T, java.lang.Boolean>, kotlin.jvm.functions.Function1<? super T, ? extends io.reactivex.Observable<?>>, kotlin.jvm.functions.Function1<? super T, ? extends io.reactivex.Observable<?>>);",
+          "public static final io.reactivex.Observable<java.lang.Object> flatMapIfFalse(io.reactivex.Observable<java.lang.Boolean>, io.reactivex.Observable<?>);",
+          "public static final io.reactivex.Observable<java.lang.Object> flatMapIfTrue(io.reactivex.Observable<java.lang.Boolean>, io.reactivex.Observable<?>);"
+        ],
+        "missingMembers": [
+          "public static final <T> io.reactivex.Observable<java.lang.Object> concatMapIf(io.reactivex.Observable<T>, kotlin.jvm.functions.Function1<? super T, java.lang.Boolean>, kotlin.jvm.functions.Function1<? super T, ? extends io.reactivex.Observable<? extends java.lang.Object>>);",
+          "public static final <T> io.reactivex.Observable<java.lang.Object> concatMapIfLast(io.reactivex.subjects.BehaviorSubject<T>, kotlin.jvm.functions.Function1<? super T, ? extends io.reactivex.Observable<? extends java.lang.Object>>);",
+          "public static final <T> io.reactivex.Observable<java.lang.Object> flatMapIf(io.reactivex.Observable<T>, kotlin.jvm.functions.Function1<? super T, java.lang.Boolean>, io.reactivex.Observable<? extends java.lang.Object>);",
+          "public static final <T> io.reactivex.Observable<java.lang.Object> flatMapIf(io.reactivex.Observable<T>, kotlin.jvm.functions.Function1<? super T, java.lang.Boolean>, kotlin.jvm.functions.Function1<? super T, ? extends io.reactivex.Observable<? extends java.lang.Object>>);",
+          "public static final <T> io.reactivex.Observable<java.lang.Object> flatMapIf(io.reactivex.Observable<T>, kotlin.jvm.functions.Function1<? super T, java.lang.Boolean>, kotlin.jvm.functions.Function1<? super T, ? extends io.reactivex.Observable<? extends java.lang.Object>>, kotlin.jvm.functions.Function1<? super T, ? extends io.reactivex.Observable<? extends java.lang.Object>>);",
+          "public static final io.reactivex.Observable<java.lang.Object> flatMapIfFalse(io.reactivex.Observable<java.lang.Boolean>, io.reactivex.Observable<? extends java.lang.Object>);",
+          "public static final io.reactivex.Observable<java.lang.Object> flatMapIfTrue(io.reactivex.Observable<java.lang.Boolean>, io.reactivex.Observable<? extends java.lang.Object>);",
+          "public static io.reactivex.Observable touchBuffer$default(io.reactivex.Observable, long, int, io.reactivex.Scheduler, int, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.RxjavaKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.RxjavaKt {"
+      },
+      "com.onyx.android.sdk.extension.SizeKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.SizeKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.SizeKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.SizeKt {"
+      },
+      "com.onyx.android.sdk.extension.StringKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.StringKt();"
+        ],
+        "missingMembers": [
+          "public static int getLastIntNumber$default(java.lang.String, int, int, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.StringKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.StringKt {"
+      },
+      "com.onyx.android.sdk.extension.SurfaceViewKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.SurfaceViewKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.SurfaceViewKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.SurfaceViewKt {"
+      },
+      "com.onyx.android.sdk.extension.UriKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.UriKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.UriKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.UriKt {"
+      },
+      "com.onyx.android.sdk.extension.ViewKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.extension.ViewKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.extension.ViewKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.extension.ViewKt {"
+      },
+      "com.onyx.android.sdk.firmware.utils.a": {
+        "extraMembers": [
+          "public okhttp3.RequestBody convert(T) throws java.io.IOException;"
+        ],
+        "missingMembers": [
+          "public okhttp3.RequestBody a(T) throws java.io.IOException;"
+        ],
+        "recoveredDeclaration": "final class com.onyx.android.sdk.firmware.utils.a<T> implements retrofit2.Converter<T, okhttp3.RequestBody> {",
+        "referenceDeclaration": "final class com.onyx.android.sdk.firmware.utils.a<T> implements retrofit2.Converter<T, okhttp3.RequestBody> {"
+      },
+      "com.onyx.android.sdk.firmware.utils.b": {
+        "extraMembers": [
+          "public T convert(okhttp3.ResponseBody) throws java.io.IOException;"
+        ],
+        "missingMembers": [
+          "public T a(okhttp3.ResponseBody) throws java.io.IOException;"
+        ],
+        "recoveredDeclaration": "final class com.onyx.android.sdk.firmware.utils.b<T> implements retrofit2.Converter<okhttp3.ResponseBody, T> {",
+        "referenceDeclaration": "final class com.onyx.android.sdk.firmware.utils.b<T> implements retrofit2.Converter<okhttp3.ResponseBody, T> {"
+      },
+      "com.onyx.android.sdk.rx.MultiThreadScheduler": {
+        "extraMembers": [],
+        "missingMembers": [
+          "public static io.reactivex.Scheduler newScheduler$default(com.onyx.android.sdk.rx.MultiThreadScheduler, java.lang.String, long, java.util.concurrent.TimeUnit, int, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.rx.MultiThreadScheduler {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.rx.MultiThreadScheduler {"
+      },
+      "com.onyx.android.sdk.rx.RxBaseBenchmarkRequest": {
+        "extraMembers": [
+          "public final kotlin.Unit execute() throws java.lang.Exception;",
+          "public java.lang.Object execute() throws java.lang.Exception;"
+        ],
+        "missingMembers": [
+          "public final void execute();",
+          "public java.lang.Object execute();"
+        ],
+        "recoveredDeclaration": "public abstract class com.onyx.android.sdk.rx.RxBaseBenchmarkRequest extends com.onyx.android.sdk.rx.RxBaseRequest<kotlin.Unit> {",
+        "referenceDeclaration": "public abstract class com.onyx.android.sdk.rx.RxBaseBenchmarkRequest extends com.onyx.android.sdk.rx.RxBaseRequest<kotlin.Unit> {"
+      },
+      "com.onyx.android.sdk.rx.RxFirstDebounceWithReset": {
+        "extraMembers": [
+          "public static final com.onyx.android.sdk.rx.RxFirstDebounceWithReset<?>.a<?> access$getStateMachine$p(com.onyx.android.sdk.rx.RxFirstDebounceWithReset<?>);"
+        ],
+        "missingMembers": [
+          "public static final com.onyx.android.sdk.rx.RxFirstDebounceWithReset$a access$getStateMachine$p(com.onyx.android.sdk.rx.RxFirstDebounceWithReset);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.rx.RxFirstDebounceWithReset<T> implements io.reactivex.disposables.Disposable {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.rx.RxFirstDebounceWithReset<T> implements io.reactivex.disposables.Disposable {"
+      },
+      "com.onyx.android.sdk.rx.RxScroller": {
+        "extraMembers": [],
+        "missingMembers": [
+          "public static final com.onyx.android.sdk.rx.RxScroller$Companion Companion;"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.rx.RxScroller {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.rx.RxScroller {"
+      },
+      "com.onyx.android.sdk.utils.BitmapLruCacheConfig": {
+        "extraMembers": [],
+        "missingMembers": [
+          "public static int bitmapCacheMaxByteCount$default(com.onyx.android.sdk.utils.BitmapLruCacheConfig, int, int, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.utils.BitmapLruCacheConfig {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.utils.BitmapLruCacheConfig {"
+      },
+      "com.onyx.android.sdk.utils.BitmapLruCacheKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.utils.BitmapLruCacheKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.utils.BitmapLruCacheKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.utils.BitmapLruCacheKt {"
+      },
+      "com.onyx.android.sdk.utils.Bitmaps": {
+        "extraMembers": [],
+        "missingMembers": [
+          "public static android.graphics.Bitmap getBitmapFromVectorDrawableBySize$default(com.onyx.android.sdk.utils.Bitmaps, android.content.Context, int, android.graphics.RectF, android.graphics.ColorFilter, int, java.lang.Object);",
+          "public static android.graphics.Bitmap getBitmapFromVectorDrawableBySize$default(com.onyx.android.sdk.utils.Bitmaps, android.content.Context, int, android.graphics.RectF, android.graphics.RectF, android.graphics.Matrix, android.graphics.ColorFilter, int, java.lang.Object);",
+          "public static android.graphics.Bitmap loadBitmapFromFile$default(com.onyx.android.sdk.utils.Bitmaps, java.lang.String, android.graphics.BitmapFactory$Options, int, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.utils.Bitmaps {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.utils.Bitmaps {"
+      },
+      "com.onyx.android.sdk.utils.CallStackUtils": {
+        "extraMembers": [],
+        "missingMembers": [
+          "public static void printCallStack$default(com.onyx.android.sdk.utils.CallStackUtils, java.lang.Class, int, int, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.utils.CallStackUtils {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.utils.CallStackUtils {"
+      },
+      "com.onyx.android.sdk.utils.Colors": {
+        "extraMembers": [],
+        "missingMembers": [
+          "public static double calculateLuminance$default(com.onyx.android.sdk.utils.Colors, int, java.lang.Integer, int, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.utils.Colors {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.utils.Colors {"
+      },
+      "com.onyx.android.sdk.utils.ElementCounter": {
+        "extraMembers": [
+          "public boolean containsValue(java.lang.Object);",
+          "public boolean remove(java.lang.Object, java.lang.Object);",
+          "public int put(T);",
+          "public int size();",
+          "public java.lang.Integer get(java.lang.Object);",
+          "public java.lang.Integer remove(java.lang.Object);",
+          "public java.lang.String printAscList();",
+          "public java.lang.String printDescList();",
+          "public java.util.Collection<java.lang.Integer> values();",
+          "public java.util.List<T> toAscList();",
+          "public java.util.List<T> toDescList();",
+          "public java.util.Set<T> keySet();",
+          "public java.util.Set<java.util.Map$Entry<T, java.lang.Integer>> entrySet();",
+          "public void reset(T);",
+          "public void resetAll(java.util.List<? extends T>);"
+        ],
+        "missingMembers": [
+          "public final boolean containsValue(java.lang.Object);",
+          "public final boolean remove(java.lang.Object, java.lang.Object);",
+          "public final int put(T);",
+          "public final int size();",
+          "public final java.lang.String printAscList();",
+          "public final java.lang.String printDescList();",
+          "public final java.util.Collection<java.lang.Integer> values();",
+          "public final java.util.List<T> toAscList();",
+          "public final java.util.List<T> toDescList();",
+          "public final java.util.Set<T> keySet();",
+          "public final java.util.Set<java.util.Map$Entry<T, java.lang.Integer>> entrySet();",
+          "public final void reset(T);",
+          "public final void resetAll(java.util.List<? extends T>);",
+          "public java.lang.Integer get(T);",
+          "public java.lang.Integer remove(T);",
+          "public java.lang.Object put(java.lang.Object, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.utils.ElementCounter<T> extends java.util.HashMap<T, java.lang.Integer> {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.utils.ElementCounter<T> extends java.util.HashMap<T, java.lang.Integer> {"
+      },
+      "com.onyx.android.sdk.utils.LruCacheKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.utils.LruCacheKt();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.utils.LruCacheKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.utils.LruCacheKt {"
+      },
+      "com.onyx.android.sdk.utils.MathUtilsKt": {
+        "extraMembers": [],
+        "missingMembers": [
+          "public static boolean areApproximatelyEqual$default(com.onyx.android.sdk.utils.MathUtilsKt, float, float, float, int, java.lang.Object);",
+          "public static boolean inRange$default(com.onyx.android.sdk.utils.MathUtilsKt, java.lang.Number, java.lang.Number, java.lang.Number, boolean, boolean, boolean, int, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.utils.MathUtilsKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.utils.MathUtilsKt {"
+      },
+      "com.onyx.android.sdk.utils.OptionsRepo": {
+        "extraMembers": [
+          "public java.lang.Object clone() throws java.lang.CloneNotSupportedException;"
+        ],
+        "missingMembers": [
+          "public java.lang.Object clone();"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.utils.OptionsRepo implements java.lang.Cloneable {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.utils.OptionsRepo implements java.lang.Cloneable {"
+      },
+      "com.onyx.android.sdk.utils.PermissionUtils": {
+        "extraMembers": [],
+        "missingMembers": [
+          "public static void checkAndRequestStoragePermission$default(com.onyx.android.sdk.utils.PermissionUtils, android.content.Context, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function0, int, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.utils.PermissionUtils {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.utils.PermissionUtils {"
+      },
+      "com.onyx.android.sdk.utils.RxAlarm": {
+        "extraMembers": [
+          "public void c();",
+          "public void d();"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public class com.onyx.android.sdk.utils.RxAlarm implements io.reactivex.disposables.Disposable {",
+        "referenceDeclaration": "public class com.onyx.android.sdk.utils.RxAlarm implements io.reactivex.disposables.Disposable {"
+      },
+      "com.onyx.android.sdk.utils.SimpleBitmapReferenceLruCache": {
+        "extraMembers": [],
+        "missingMembers": [
+          "public android.graphics.Bitmap getBitmap(java.lang.Object);",
+          "public boolean isValid(java.lang.Object);",
+          "public int sizeOf(java.lang.Object, java.lang.Object);",
+          "public java.lang.Object cloneBitmapReference(java.lang.Object);",
+          "public java.lang.Object create(int, int, android.graphics.Bitmap$Config);",
+          "public void clearBitmap(java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.utils.SimpleBitmapReferenceLruCache extends com.onyx.android.sdk.utils.BaseBitmapReferenceLruCache<com.onyx.android.sdk.utils.SimpleBitmapReference> {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.utils.SimpleBitmapReferenceLruCache extends com.onyx.android.sdk.utils.BaseBitmapReferenceLruCache<com.onyx.android.sdk.utils.SimpleBitmapReference> {"
+      },
+      "com.onyx.android.sdk.utils.StorageTypeUtils": {
+        "extraMembers": [],
+        "missingMembers": [
+          "public static final java.util.List access$getUsbKeywordList$p();"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.utils.StorageTypeUtils {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.utils.StorageTypeUtils {"
+      },
+      "com.onyx.android.sdk.utils.ViewsKt": {
+        "extraMembers": [
+          "public com.onyx.android.sdk.utils.ViewsKt();"
+        ],
+        "missingMembers": [
+          "public static boolean setImageLimitBitmap$default(android.widget.ImageView, android.graphics.Bitmap, long, int, java.lang.Object);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.utils.ViewsKt {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.utils.ViewsKt {"
+      },
+      "com.onyx.android.sdk.utils.font.FontFamilyClassifier": {
+        "extraMembers": [
+          "public final com.onyx.android.sdk.data.FontInfo a(java.util.List<? extends com.onyx.android.sdk.data.FontInfo>);"
+        ],
+        "missingMembers": [
+          "public static final com.onyx.android.sdk.data.FontInfo access$createFamilyFont(com.onyx.android.sdk.utils.font.FontFamilyClassifier, java.util.List);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.utils.font.FontFamilyClassifier {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.utils.font.FontFamilyClassifier {"
+      },
+      "com.onyx.android.sdk.utils.font.FontFoldUtils": {
+        "extraMembers": [],
+        "missingMembers": [
+          "public static final int access$sortByFontName(com.onyx.android.sdk.utils.font.FontFoldUtils, com.onyx.android.sdk.data.FontInfo, com.onyx.android.sdk.data.FontInfo);"
+        ],
+        "recoveredDeclaration": "public final class com.onyx.android.sdk.utils.font.FontFoldUtils {",
+        "referenceDeclaration": "public final class com.onyx.android.sdk.utils.font.FontFoldUtils {"
+      },
+      "com.onyx.android.sdk.wifi.RxWifiAdmin": {
+        "extraMembers": [
+          "public android.content.BroadcastReceiver a(io.reactivex.ObservableEmitter<java.lang.Integer>);",
+          "public android.content.BroadcastReceiver b(io.reactivex.ObservableEmitter<android.net.wifi.SupplicantState>);"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public class com.onyx.android.sdk.wifi.RxWifiAdmin {",
+        "referenceDeclaration": "public class com.onyx.android.sdk.wifi.RxWifiAdmin {"
+      },
+      "com.onyx.android.sdk.wifi.WifiAdmin": {
+        "extraMembers": [
+          "public java.util.List<com.onyx.android.sdk.wifi.AccessPoint> a(java.util.Collection<android.net.wifi.ScanResult>);",
+          "public void a(com.onyx.android.sdk.rx.RxCallback<java.util.List<com.onyx.android.sdk.wifi.AccessPoint>>);"
+        ],
+        "missingMembers": [],
+        "recoveredDeclaration": "public class com.onyx.android.sdk.wifi.WifiAdmin {",
+        "referenceDeclaration": "public class com.onyx.android.sdk.wifi.WifiAdmin {"
+      }
+    }
+  },
+  "device": {
+    "changedSignatures": [],
+    "extraClasses": [],
+    "missingClasses": [],
+    "recoveredOuterClasses": 72,
+    "referenceOuterClasses": 72,
+    "signatureDiffs": {}
+  },
+  "pen": {
+    "changedSignatures": [],
+    "extraClasses": [
+      "com.onyx.android.sdk.geometry.data.BoxInfo",
+      "com.onyx.android.sdk.geometry.data.TouchData",
+      "com.onyx.android.sdk.pen.PenBrushInkAccess"
+    ],
+    "missingClasses": [],
+    "recoveredOuterClasses": 99,
+    "referenceOuterClasses": 96,
+    "signatureDiffs": {}
+  }
+}

@@ -150,7 +150,7 @@ public final class FontFamilyClassifier {
         /* JADX INFO: renamed from: a, reason: merged with bridge method [inline-methods] */
         public final FontInfo invoke(@NotNull List<? extends FontInfo> list) {
             Intrinsics.checkNotNullParameter(list, "it");
-            return FontFamilyClassifier.INSTANCE.a(list);
+            return FontFamilyClassifier.access$createFamilyFont(FontFamilyClassifier.INSTANCE, list);
         }
     }
 
@@ -228,8 +228,7 @@ public final class FontFamilyClassifier {
         return str2;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public final FontInfo a(List<? extends FontInfo> list) {
+    private final FontInfo a(List<? extends FontInfo> list) {
         Object obj;
         String fontUniqueName;
         FontInfo fontInfo = (FontInfo) CollectionKt.minBy(list, d.a);
@@ -279,5 +278,10 @@ public final class FontFamilyClassifier {
         fontInfo3.setSupportCurrentLang(fontInfo.isSupportCurrentLang());
         fontInfo3.getChildFontList().addAll(list);
         return fontInfo3;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static final FontInfo access$createFamilyFont(FontFamilyClassifier $this, List list) {
+        return $this.a(list);
     }
 }

@@ -94,6 +94,19 @@ public final class EraserArgs implements Serializable
         Intrinsics.checkNotNullParameter((Object)eraseWidthMap, "eraseWidthMap");
         return new EraserArgs(id, type, eraseWidthMap);
     }
+
+    public static /* synthetic */ EraserArgs copy$default(final EraserArgs eraserArgs, String id, int type, Map eraseWidthMap, final int i, final Object obj) {
+        if ((i & 1) != 0) {
+            id = eraserArgs.a;
+        }
+        if ((i & 2) != 0) {
+            type = eraserArgs.b;
+        }
+        if ((i & 4) != 0) {
+            eraseWidthMap = eraserArgs.c;
+        }
+        return eraserArgs.copy(id, type, (Map<String, Float>)eraseWidthMap);
+    }
     
     @NotNull
     @Override

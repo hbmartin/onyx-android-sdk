@@ -7,3 +7,7 @@ onyxsdk-pen/src/main/jniLibs/
 .DS_Store
 local.properties
 recovery-evidence/
+__pycache__/
+# Raw device-validation runs stay local; promote_fixture.py copies the
+# sanitized, deterministic subset into device-validation/fixtures/ (tracked).
+device-validation/results/

@@ -109,6 +109,13 @@ public final class StashShapeResourceArgs
         Intrinsics.checkNotNullParameter((Object)suffix, "suffix");
         return this.a + '#' + this.b + '#' + this.c + '#' + this.d + suffix;
     }
+
+    public static /* synthetic */ String getStashResourceFileName$default(final StashShapeResourceArgs stashShapeResourceArgs, String suffix, final int i, final Object obj) {
+        if ((i & 1) != 0) {
+            suffix = "";
+        }
+        return stashShapeResourceArgs.getStashResourceFileName(suffix);
+    }
     
     @Metadata(mv = { 1, 6, 0 }, k = 1, xi = 48, d1 = { "\u0000(\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0002\n\u0002\u0010\b\n\u0000\n\u0002\u0010\u000e\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0000\b\u0086\u0003\u0018\u00002\u00020\u0001B\u0007\b\u0002¢\u0006\u0002\u0010\u0002J\u001a\u0010\u0007\u001a\u00020\u00042\b\u0010\b\u001a\u0004\u0018\u00010\t2\b\u0010\n\u001a\u0004\u0018\u00010\tJ\u0010\u0010\u000b\u001a\u0004\u0018\u00010\t2\u0006\u0010\f\u001a\u00020\rR\u000e\u0010\u0003\u001a\u00020\u0004X\u0082T¢\u0006\u0002\n\u0000R\u000e\u0010\u0005\u001a\u00020\u0006X\u0086T¢\u0006\u0002\n\u0000¨\u0006\u000e" }, d2 = { "Lcom/onyx/android/sdk/data/StashShapeResourceArgs$Companion;", "", "()V", "RESOURCE_FILE_NAME_SEGMENT_COUNT", "", "RESOURCE_FILE_SPLIT_CHAR", "", "descCompare", "args1", "Lcom/onyx/android/sdk/data/StashShapeResourceArgs;", "args2", "parseArgs", "resourceFile", "Ljava/io/File;", "onyxsdk-base_release" })
     public static final class Companion

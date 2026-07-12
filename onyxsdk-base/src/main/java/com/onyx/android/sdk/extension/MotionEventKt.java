@@ -13,6 +13,9 @@ import kotlin.Metadata;
 @Metadata(mv = { 1, 6, 0 }, k = 2, xi = 48, d1 = { "\u0000\u001c\n\u0000\n\u0002\u0010\u000b\n\u0002\u0018\u0002\n\u0002\b\n\n\u0002\u0010\b\n\u0002\b\u0002\n\u0002\u0010\u0002\n\u0000\u001a\n\u0010\u0000\u001a\u00020\u0001*\u00020\u0002\u001a\n\u0010\u0003\u001a\u00020\u0001*\u00020\u0002\u001a\n\u0010\u0004\u001a\u00020\u0001*\u00020\u0002\u001a\n\u0010\u0005\u001a\u00020\u0001*\u00020\u0002\u001a\n\u0010\u0006\u001a\u00020\u0001*\u00020\u0002\u001a\n\u0010\u0007\u001a\u00020\u0001*\u00020\u0002\u001a\n\u0010\b\u001a\u00020\u0001*\u00020\u0002\u001a\n\u0010\t\u001a\u00020\u0001*\u00020\u0002\u001a\n\u0010\n\u001a\u00020\u0001*\u00020\u0002\u001a\u0012\u0010\u000b\u001a\u00020\u0001*\u00020\u00022\u0006\u0010\f\u001a\u00020\r\u001a\n\u0010\u000e\u001a\u00020\u0001*\u00020\u0002\u001a\n\u0010\u000f\u001a\u00020\u0010*\u00020\u0002¨\u0006\u0011" }, d2 = { "isCancelAction", "", "Landroid/view/MotionEvent;", "isDownAction", "isEraserTouchType", "isFingerTouch", "isMouseTouchType", "isMultiTouch", "isPenTouchType", "isPointerDownAction", "isStylusTouchType", "isTouchType", "touchType", "", "isUpAction", "reportMotionEvent", "", "onyxsdk-base_release" })
 public final class MotionEventKt
 {
+    private MotionEventKt() {
+    }
+
     public static final boolean isPenTouchType(@NotNull final MotionEvent $this$isPenTouchType) {
         Intrinsics.checkNotNullParameter((Object)$this$isPenTouchType, "<this>");
         return isTouchType($this$isPenTouchType, 2) || isTouchType($this$isPenTouchType, 4);

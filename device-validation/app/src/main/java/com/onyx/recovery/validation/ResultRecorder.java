@@ -7,9 +7,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -24,16 +26,17 @@ final class ResultRecorder {
     static final String UNSUPPORTED_HARDWARE = "unsupported_hardware";
     static final String HARNESS_ERROR = "harness_error";
 
-    private final File output;
+    private final Writer writer;
     private final String variant;
     private long sequence;
 
     ResultRecorder(Context context) throws IOException {
         this.variant = BuildConfig.SDK_VARIANT;
-        this.output = new File(context.getFilesDir(), "results.jsonl");
-        if (output.exists() && !output.delete()) {
-            throw new IOException("Could not clear " + output);
-        }
+        // One writer for the app's lifetime, flushed per record: the runner
+        // only pulls results after the done marker, but a flush per line keeps
+        // partial output readable after a crash without reopening the file
+        // for every event during replay.
+        this.writer = new BufferedWriter(new FileWriter(new File(context.getFilesDir(), "results.jsonl"), false));
     }
 
     synchronized void record(String suite, String caseId, String phase, String status,
@@ -89,10 +92,9 @@ final class ResultRecorder {
     }
 
     private void append(JSONObject object) throws IOException {
-        try (FileWriter writer = new FileWriter(output, true)) {
-            writer.write(object.toString());
-            writer.write('\n');
-        }
+        writer.write(object.toString());
+        writer.write('\n');
+        writer.flush();
     }
 
     private static boolean isPermissionDenied(Throwable error) {

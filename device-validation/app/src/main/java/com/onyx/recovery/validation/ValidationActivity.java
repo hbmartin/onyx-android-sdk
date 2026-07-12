@@ -3,8 +3,6 @@ package com.onyx.recovery.validation;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -22,6 +20,9 @@ public final class ValidationActivity extends Activity {
     private GuidedCanvasView canvas;
     private PenHarness pen;
     private TextView status;
+    private String suite;
+    private String scenario;
+    private boolean finished;
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
 
     @Override
@@ -34,12 +35,12 @@ public final class ValidationActivity extends Activity {
         } catch (IOException error) {
             throw new IllegalStateException(error);
         }
+        suite = getIntent().getStringExtra("suite");
+        if (suite == null || suite.isEmpty()) suite = "automated";
+        scenario = getIntent().getStringExtra("scenario");
         buildUi();
         pen = new PenHarness(this, recorder, canvas);
-        String suite = getIntent().getStringExtra("suite");
-        if (suite == null || suite.isEmpty()) suite = "automated";
-        final String selected = suite;
-        canvas.post(() -> runSuite(selected));
+        canvas.post(() -> runSuite(suite));
     }
 
     private void buildUi() {
@@ -61,7 +62,12 @@ public final class ValidationActivity extends Activity {
         addButton(controls, "Single", () -> pen.setSingleMode());
         addButton(controls, "Pause", () -> pen.togglePause());
         addButton(controls, "Clear", () -> canvas.clearPaths());
-        addButton(controls, "Finish", () -> finishSuite("pen-live"));
+        if ("pen-live".equals(suite)) {
+            // Only live captures may finish early, and only through the pen
+            // harness so the capture timer is cancelled and the fd_valid
+            // observation still lands exactly once.
+            addButton(controls, "Finish", () -> pen.finishLiveEarly());
+        }
         root.addView(controls, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
@@ -83,8 +89,9 @@ public final class ValidationActivity extends Activity {
         status.setText("Running " + suite + " (" + BuildConfig.SDK_VARIANT + ")");
         if ("pen-live".equals(suite)) {
             long duration = getIntent().getLongExtra("durationMs", 30_000L);
-            status.setText("Draw guided strokes now; capture ends in " + duration / 1000 + " seconds");
-            pen.startLive(duration, () -> finishSuite(suite));
+            String label = scenario == null || scenario.isEmpty() ? "guided strokes" : scenario;
+            status.setText("Draw now — " + label + "; capture ends in " + duration / 1000 + " seconds");
+            pen.startLive(duration, scenario, () -> finishSuite(suite));
             return;
         }
         if ("pen-replay".equals(suite)) {
@@ -108,6 +115,8 @@ public final class ValidationActivity extends Activity {
     }
 
     private void finishSuite(String suite) {
+        if (finished) return;
+        finished = true;
         try {
             recorder.markDone(this, suite);
             status.setText("Complete: " + suite + " (" + BuildConfig.SDK_VARIANT + ")");

@@ -165,6 +165,8 @@ public class RawInputReader {
         });
     }
 
+    // Recovered solely so touch/g.java compiles: g is the only caller, and the
+    // original synthetic bridge that paired them is not recoverable.
     void B() {
         View hostView = getHostView();
         if (hostView != null) {
@@ -279,6 +281,9 @@ public class RawInputReader {
     }
 
     /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    // Faithful reference behavior: the native pause flush fires only when the
+    // pen state is below 2, and this class only ever sets state 4, so a stroke
+    // in progress continues across pause()/resume() without a forced release.
     public void pause() {
         nativePausePen();
         this.d = false;

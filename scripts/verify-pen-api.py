@@ -65,9 +65,15 @@ def main() -> int:
 
     checked = 0
     failures: list[str] = []
+    reference_names: set[str] = set()
     for reference in (args.old_reference, args.native_reference):
         for class_name in class_names(reference):
-            expected = javap_api(reference, class_name)
+            reference_names.add(class_name)
+            try:
+                expected = javap_api(reference, class_name)
+            except RuntimeError as error:
+                failures.append(f"reference JAR {reference}: {error}")
+                continue
             # Obfuscator-generated members of package-private implementation
             # classes are not part of the consumable SDK API.
             if not expected[0].startswith("public "):
@@ -94,6 +100,15 @@ def main() -> int:
     if failures:
         print("\n\n".join(failures), file=sys.stderr)
         return 1
+    # The comparison is intentionally one-directional (the rebuilt module is a
+    # superset of each single reference JAR); surface the extras so additions
+    # are at least visible.
+    candidate_only = sorted(set(class_names(args.candidate)) - reference_names)
+    if candidate_only:
+        print(
+            f"note: {len(candidate_only)} candidate classes exist in no reference JAR "
+            f"and were not compared: {', '.join(candidate_only)}"
+        )
     print(f"Pen JVM API matches {checked} public reference classes.")
     return 0
 

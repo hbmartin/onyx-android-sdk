@@ -1,0 +1,2 @@
+Physical size: 1860x2480
+Physical density: 300

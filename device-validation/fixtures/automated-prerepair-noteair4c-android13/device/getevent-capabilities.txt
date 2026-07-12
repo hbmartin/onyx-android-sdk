@@ -1,0 +1,13 @@
+add device 1: /dev/input/event5
+  name:     "onyx_emp_Wacom I2C Digitizer"
+  events:
+    KEY (0001): BTN_TOOL_RUBBER       BTN_TOOL_BRUSH        BTN_TOUCH             BTN_STYLUS           
+                BTN_STYLUS2           0152                  0153                 
+    ABS (0003): ABS_X                 : value 0, min 0, max 20832, fuzz 0, flat 0, resolution 0
+                ABS_Y                 : value 0, min 0, max 15624, fuzz 0, flat 0, resolution 0
+                ABS_PRESSURE          : value 0, min 0, max 4095, fuzz 0, flat 0, resolution 0
+                ABS_DISTANCE          : value 0, min 0, max 255, fuzz 0, flat 0, resolution 0
+                ABS_TILT_X            : value 0, min -63, max 63, fuzz 0, flat 0, resolution 0
+                ABS_TILT_Y            : value 0, min -63, max 63, fuzz 0, flat 0, resolution 0
+  input props:
+    INPUT_PROP_DIRECT

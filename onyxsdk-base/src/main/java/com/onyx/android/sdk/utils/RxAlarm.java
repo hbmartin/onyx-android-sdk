@@ -59,8 +59,7 @@ public class RxAlarm implements Disposable {
         this.b = (AlarmManager) context.getSystemService("alarm");
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public void d() {
+    private void d() {
         ObservableEmitter<Long> observableEmitter = this.h;
         if (observableEmitter == null) {
             return;
@@ -115,8 +114,7 @@ public class RxAlarm implements Disposable {
         return Observable.create(new a());
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public void c() {
+    private void c() {
         a();
         if (this.e <= 0) {
             return;

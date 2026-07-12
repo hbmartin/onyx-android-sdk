@@ -54,6 +54,10 @@ public final class StorageTypeUtils
         Intrinsics.checkNotNullParameter((Object)rawPath, "rawPath");
         return StorageTypeUtils.INSTANCE.inferFilePathInfo(rawPath).getStorageType();
     }
+
+    public static final List access$getUsbKeywordList$p() {
+        return StorageTypeUtils.a;
+    }
     
     private final String a(final String path) {
         String s2 = null;
@@ -173,8 +177,11 @@ public final class StorageTypeUtils
             return (n = WhenMappings.$EnumSwitchMapping$0[this.ordinal()]) == 1 || n == 2;
         }
 
-        static final class WhenMappings {
-            static final int[] $EnumSwitchMapping$0 = new int[StorageType.values().length];
+        @Metadata(mv = { 1, 6, 0 }, k = 3, xi = 48)
+        public static final class WhenMappings {
+            public static final int[] $EnumSwitchMapping$0 = new int[StorageType.values().length];
+            private WhenMappings() {
+            }
             static {
                 try { $EnumSwitchMapping$0[StorageType.TF_CARD.ordinal()] = 1; } catch (NoSuchFieldError ignored) {}
                 try { $EnumSwitchMapping$0[StorageType.USB.ordinal()] = 2; } catch (NoSuchFieldError ignored) {}
@@ -257,6 +264,22 @@ public final class StorageTypeUtils
             Intrinsics.checkNotNullParameter((Object)relativePath, "relativePath");
             Intrinsics.checkNotNullParameter((Object)rootPath, "rootPath");
             return new FilePathInferResult(absolutePath, storageType, relativePath, rootPath);
+        }
+
+        public static /* synthetic */ FilePathInferResult copy$default(final FilePathInferResult filePathInferResult, String absolutePath, StorageType storageType, String relativePath, String rootPath, final int i, final Object obj) {
+            if ((i & 1) != 0) {
+                absolutePath = filePathInferResult.a;
+            }
+            if ((i & 2) != 0) {
+                storageType = filePathInferResult.b;
+            }
+            if ((i & 4) != 0) {
+                relativePath = filePathInferResult.c;
+            }
+            if ((i & 8) != 0) {
+                rootPath = filePathInferResult.d;
+            }
+            return filePathInferResult.copy(absolutePath, storageType, relativePath, rootPath);
         }
         
         @NotNull

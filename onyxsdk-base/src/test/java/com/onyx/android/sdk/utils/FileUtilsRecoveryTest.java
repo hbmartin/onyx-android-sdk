@@ -37,4 +37,12 @@ public class FileUtilsRecoveryTest {
         assertEquals("1 MB", FileUtils.readableFileSize(1L << 20));
         assertEquals("1 TB", FileUtils.readableFileSize(1L << 40));
     }
+
+    @Test
+    public void formatsWithTheRecoveredSingleFractionDigitPattern() {
+        // 1792 bytes is 1.75 KB: the recovered "#,##0.#" pattern rounds to one
+        // fraction digit ("1.8 KB") while a default DecimalFormat would print
+        // "1.75 KB" — this is the case that distinguishes the two.
+        assertEquals("1.8 KB", FileUtils.readableFileSize(1792L));
+    }
 }

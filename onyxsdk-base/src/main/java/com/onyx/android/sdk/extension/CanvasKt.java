@@ -21,6 +21,9 @@ import kotlin.Metadata;
 @Metadata(mv = { 1, 6, 0 }, k = 2, xi = 48, d1 = { "\u0000L\n\u0000\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u0007\n\u0002\b\u0003\n\u0002\u0010\u000e\n\u0000\n\u0002\u0010\u0004\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0000\u001a\n\u0010\u0000\u001a\u00020\u0001*\u00020\u0002\u001a\n\u0010\u0003\u001a\u00020\u0004*\u00020\u0002\u001a.\u0010\u0005\u001a\u00020\u0006*\u00020\u00022\u0006\u0010\u0007\u001a\u00020\b2\u0006\u0010\t\u001a\u00020\u00012\u0006\u0010\n\u001a\u00020\u00042\n\b\u0002\u0010\u000b\u001a\u0004\u0018\u00010\f\u001a.\u0010\u0005\u001a\u00020\u0006*\u00020\u00022\u0006\u0010\u0007\u001a\u00020\b2\u0006\u0010\r\u001a\u00020\u000e2\u0006\u0010\u000f\u001a\u00020\u000e2\n\b\u0002\u0010\u000b\u001a\u0004\u0018\u00010\f\u001a*\u0010\u0010\u001a\u00020\u0006*\u00020\u00022\u0006\u0010\u000b\u001a\u00020\f2\u0006\u0010\u0011\u001a\u00020\u00122\u0006\u0010\u0013\u001a\u00020\u00142\u0006\u0010\u0015\u001a\u00020\u0014\u001a-\u0010\u0016\u001a\u00020\u0006*\u00020\u00022\b\b\u0002\u0010\u0017\u001a\u00020\u00182\u0017\u0010\u0019\u001a\u0013\u0012\u0004\u0012\u00020\u0002\u0012\u0004\u0012\u00020\u00060\u001a¢\u0006\u0002\b\u001b¨\u0006\u001c" }, d2 = { "boundingRect", "Landroid/graphics/Rect;", "Landroid/graphics/Canvas;", "boundingRectF", "Landroid/graphics/RectF;", "drawBitmapFloorLeftTop", "", "bitmap", "Landroid/graphics/Bitmap;", "src", "dst", "paint", "Landroid/graphics/Paint;", "left", "", "top", "drawTextFromCenter", "text", "", "centerX", "", "centerY", "withMatrix", "matrix", "Landroid/graphics/Matrix;", "block", "Lkotlin/Function1;", "Lkotlin/ExtensionFunctionType;", "onyxsdk-base_release" })
 public final class CanvasKt
 {
+    private CanvasKt() {
+    }
+
     @NotNull
     public static final Rect boundingRect(@NotNull final Canvas $this$boundingRect) {
         Intrinsics.checkNotNullParameter((Object)$this$boundingRect, "<this>");
@@ -43,7 +46,14 @@ public final class CanvasKt
         rectF.offsetTo(FloatKt.floor(rectF.left), FloatKt.floor(rectF2.top));
         $this$drawBitmapFloorLeftTop.drawBitmap(bitmap, src, rectF2, paint);
     }
-    
+
+    public static /* synthetic */ void drawBitmapFloorLeftTop$default(final Canvas canvas, final Bitmap bitmap, final Rect src, final RectF dst, Paint paint, final int n, final Object o) {
+        if ((n & 0x8) != 0x0) {
+            paint = null;
+        }
+        drawBitmapFloorLeftTop(canvas, bitmap, src, dst, paint);
+    }
+
     public static final void drawBitmapFloorLeftTop(@NotNull final Canvas $this$drawBitmapFloorLeftTop, @NotNull final Bitmap bitmap, float left, final float top, @Nullable final Paint paint) {
         final float $this$floor = left;
         Intrinsics.checkNotNullParameter((Object)$this$drawBitmapFloorLeftTop, "<this>");
@@ -52,7 +62,14 @@ public final class CanvasKt
         left = FloatKt.floor(top);
         $this$drawBitmapFloorLeftTop.drawBitmap(bitmap, floor, left, paint);
     }
-    
+
+    public static /* synthetic */ void drawBitmapFloorLeftTop$default(final Canvas canvas, final Bitmap bitmap, final float left, final float top, Paint paint, final int n, final Object o) {
+        if ((n & 0x8) != 0x0) {
+            paint = null;
+        }
+        drawBitmapFloorLeftTop(canvas, bitmap, left, top, paint);
+    }
+
     public static final void drawTextFromCenter(@NotNull final Canvas $this$drawTextFromCenter, @NotNull final Paint paint, @NotNull final String text, @NotNull final Number centerX, @NotNull final Number centerY) {
         Intrinsics.checkNotNullParameter((Object)$this$drawTextFromCenter, "<this>");
         Intrinsics.checkNotNullParameter((Object)paint, "paint");
@@ -80,5 +97,12 @@ public final class CanvasKt
         finally {
             $this$withMatrix.restoreToCount(saveCount);
         }
+    }
+
+    public static /* synthetic */ void withMatrix$default(final Canvas canvas, Matrix matrix, final Function1 block, final int n, final Object o) {
+        if ((n & 0x1) != 0x0) {
+            matrix = new Matrix();
+        }
+        withMatrix(canvas, matrix, block);
     }
 }

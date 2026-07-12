@@ -7,7 +7,8 @@
 | Complete pen class surface | 129 expected class entries checked in the release AAR |
 | Public JVM compatibility | `verify-pen-api.py` matches 118 public classes by `javap` descriptor |
 | Base recoveries | production-class unit tests for formatting and disposal branches |
-| Seven device recoveries | field-injection tests plus compiled-bytecode inspection |
+| Base JVM compatibility | classified descriptor/flags/signature/metadata audit (`device-validation/classify_api_differences.py`) plus `RecoveredApiSurfaceRegressionTest` pinning the repaired surface without reference JARs |
+| Seven device recoveries | field-injection unit tests covering the success, failure, and null-method branches |
 | Rust quality | locked tests, rustfmt, and Clippy for both crates |
 | Four Android ABIs | cross-build and AAR entry audit for both native libraries |
 | JNI consistency | 11 touch-reader and 14 neo-pen exports checked per ABI |
@@ -16,8 +17,14 @@
 | Legacy pen runtime | Android tests execute static wrapper down/move/up/offline rendering |
 | Raw reader JNI | Android test executes configuration, pause/resume, and close calls |
 | Native differential | original and Rust snapshots run through the same BOOX APK harness |
-| Exact simple pens | types 1–5 snapshot values match the reference exactly |
+| Exact simple pens | types 1–3 values asserted exactly by instrumentation tests |
+| Texture pens | types 4–5 exact only under the hardware differential gate; snapshots compare stamp positions plus bitmap dimensions and pixel digests |
 | Complex pen behavior | types 6–9 encoding, prediction, finiteness, and geometry bounds match |
+| Reader lifecycle endurance | 300 start/pause/resume/quit cycles asserting no fd leaks, no stuck reader threads, bounded native- and Java-heap growth |
+| Replay delivery health | per-run `replay_health` record: zero dropped callbacks, semantic callbacks observed, delivery latency within bounds; unhealthy runs classify as `recovery_defect` |
+| Comparison taxonomy | host unit tests pin `compare_results.py` (one-sided records, asymmetric denials, bool/number equivalence, state grammar) and guided-scenario gates |
+| Pinned device evidence | sanitized fixtures under `device-validation/fixtures/`; `tests/test_fixtures.py` re-compares each fixture against its committed counts |
+| Physical waveform correctness | operator-confirmed guided protocol (`run-comparison.sh --suite guided`, `docs/GUIDED_VALIDATION.md`): 12 scenarios with per-capture gates plus combined exact replay parity |
 
 Portable source-only gate:
 

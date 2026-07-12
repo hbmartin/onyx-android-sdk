@@ -65,4 +65,17 @@ public final class MultiThreadScheduler
         Intrinsics.checkNotNullExpressionValue((Object)from, "from(pool)");
         return from;
     }
+
+    public static /* synthetic */ Scheduler newScheduler$default(final MultiThreadScheduler multiThreadScheduler, String name, long keepAliveTime, TimeUnit unit, final int i, final Object obj) {
+        if ((i & 1) != 0) {
+            name = null;
+        }
+        if ((i & 2) != 0) {
+            keepAliveTime = 5L;
+        }
+        if ((i & 4) != 0) {
+            unit = TimeUnit.SECONDS;
+        }
+        return multiThreadScheduler.newScheduler(name, keepAliveTime, unit);
+    }
 }

@@ -31,7 +31,11 @@ public final class ReaderExportDocumentsParam
         this.c = pathList;
         this.d = convertToPDF;
     }
-    
+
+    public ReaderExportDocumentsParam(final String exportDir, final String exportFileName, final List pathList, final boolean convertToPDF, final int i, final DefaultConstructorMarker marker) {
+        this(exportDir, exportFileName, (List<String>)pathList, (i & 8) != 0 ? false : convertToPDF);
+    }
+
     @NotNull
     public final String getExportDir() {
         return this.a;
@@ -76,6 +80,22 @@ public final class ReaderExportDocumentsParam
         Intrinsics.checkNotNullParameter((Object)exportFileName, "exportFileName");
         Intrinsics.checkNotNullParameter((Object)pathList, "pathList");
         return new ReaderExportDocumentsParam(exportDir, exportFileName, pathList, convertToPDF);
+    }
+
+    public static /* synthetic */ ReaderExportDocumentsParam copy$default(final ReaderExportDocumentsParam readerExportDocumentsParam, String exportDir, String exportFileName, List pathList, boolean convertToPDF, final int i, final Object obj) {
+        if ((i & 1) != 0) {
+            exportDir = readerExportDocumentsParam.a;
+        }
+        if ((i & 2) != 0) {
+            exportFileName = readerExportDocumentsParam.b;
+        }
+        if ((i & 4) != 0) {
+            pathList = readerExportDocumentsParam.c;
+        }
+        if ((i & 8) != 0) {
+            convertToPDF = readerExportDocumentsParam.d;
+        }
+        return readerExportDocumentsParam.copy(exportDir, exportFileName, (List<String>)pathList, convertToPDF);
     }
     
     @NotNull

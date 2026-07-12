@@ -153,6 +153,9 @@ impl PenManager {
             .collect();
     }
 
+    // Mirrors the reference library: the forced release fires only for pen
+    // states below 2. The recovered Java surface only ever sets state 4, so a
+    // stroke in progress deliberately survives a pause()/resume() cycle.
     pub fn pause(&mut self) -> Vec<TouchEvent> {
         if self.pen_state < 2 {
             vec![self.report(6)]

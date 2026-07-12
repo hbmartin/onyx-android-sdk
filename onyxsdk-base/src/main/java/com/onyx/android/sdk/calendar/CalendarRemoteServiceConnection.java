@@ -36,7 +36,7 @@ public final class CalendarRemoteServiceConnection extends OnyxRemoteServiceConn
     
     @NotNull
     @Override
-    protected ICalendarService asInterface(@NotNull final IBinder serviceBinder) {
+    public ICalendarService asInterface(@NotNull final IBinder serviceBinder) {
         Intrinsics.checkNotNullParameter((Object)serviceBinder, "serviceBinder");
         final ICalendarService interface1 = ICalendarService.Stub.asInterface(serviceBinder);
         Intrinsics.checkNotNullExpressionValue((Object)interface1, "asInterface(serviceBinder)");

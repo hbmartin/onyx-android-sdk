@@ -119,7 +119,7 @@ public final class ShapeDocumentArgs
         private Companion() {
         }
 
-        private Companion(DefaultConstructorMarker marker) {
+        public Companion(DefaultConstructorMarker marker) {
             this();
         }
         

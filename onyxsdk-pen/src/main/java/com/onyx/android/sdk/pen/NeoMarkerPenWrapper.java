@@ -21,8 +21,7 @@ public class NeoMarkerPenWrapper {
             return;
         }
         Bitmap bitmapEnsurePenBitmapCreated = PenUtils.ensurePenBitmapCreated(new Rect(0, 0, canvas.getWidth(), canvas.getHeight()));
-        Canvas canvas2 = canvas;
-        Canvas canvas3 = new Canvas(bitmapEnsurePenBitmapCreated);
+        Canvas canvas2 = new Canvas(bitmapEnsurePenBitmapCreated);
         if (erase) {
             canvas2 = canvas;
         }
@@ -34,10 +33,9 @@ public class NeoMarkerPenWrapper {
         for (TouchPoint touchPoint : list) {
             Rect rect2 = rect;
             if (rect2 == null) {
-                rect = rect;
                 float f = touchPoint.x;
                 float f2 = touchPoint.y;
-                Rect rect3 = new Rect((int) f, (int) f2, (int) f, (int) f2);
+                rect = new Rect((int) f, (int) f2, (int) f, (int) f2);
             } else {
                 rect.union((int) touchPoint.x, (int) touchPoint.y);
             }

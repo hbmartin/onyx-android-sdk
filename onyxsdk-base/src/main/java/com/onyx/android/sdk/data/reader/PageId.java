@@ -93,6 +93,19 @@ public final class PageId
         Intrinsics.checkNotNullParameter((Object)pageReferenceId, "pageReferenceId");
         return new PageId(pageUUID, pageReferenceId, pageIndex);
     }
+
+    public static /* synthetic */ PageId copy$default(final PageId pageId, String pageUUID, String pageReferenceId, int pageIndex, final int i, final Object obj) {
+        if ((i & 1) != 0) {
+            pageUUID = pageId.a;
+        }
+        if ((i & 2) != 0) {
+            pageReferenceId = pageId.b;
+        }
+        if ((i & 4) != 0) {
+            pageIndex = pageId.c;
+        }
+        return pageId.copy(pageUUID, pageReferenceId, pageIndex);
+    }
     
     @NotNull
     @Override

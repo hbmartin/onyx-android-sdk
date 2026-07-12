@@ -63,7 +63,7 @@ public final class TouchPointListKt {
                 int i4 = (int) (((double) touchPoint.x) / dSqrt);
                 int i5 = (int) (((double) touchPoint.y) / dSqrt);
                 int i6 = -1;
-                while (true) {
+                scan: while (true) {
                     int i7 = i6;
                     if (i7 >= 2) {
                         linkedHashMap.put(TuplesKt.to(Integer.valueOf(i4), Integer.valueOf(i5)), touchPoint);
@@ -74,19 +74,20 @@ public final class TouchPointListKt {
                     int i9 = -1;
                     while (true) {
                         int i10 = i9;
-                        if (i10 < 2) {
-                            int i11 = i10 + 1;
-                            TouchPoint touchPoint2 = (TouchPoint) linkedHashMap.get(TuplesKt.to(Integer.valueOf(i4 + i7), Integer.valueOf(i5 + i10)));
-                            if (touchPoint2 != null) {
-                                float f2 = touchPoint2.x - touchPoint.x;
-                                float f3 = touchPoint2.y - touchPoint.y;
-                                if ((f2 * f2) + (f3 * f3) <= f) {
-                                    z = false;
-                                    break;
-                                }
-                            }
-                            i9 = i11;
+                        if (i10 >= 2) {
+                            break;
                         }
+                        int i11 = i10 + 1;
+                        TouchPoint touchPoint2 = (TouchPoint) linkedHashMap.get(TuplesKt.to(Integer.valueOf(i4 + i7), Integer.valueOf(i5 + i10)));
+                        if (touchPoint2 != null) {
+                            float f2 = touchPoint2.x - touchPoint.x;
+                            float f3 = touchPoint2.y - touchPoint.y;
+                            if ((f2 * f2) + (f3 * f3) <= f) {
+                                z = false;
+                                break scan;
+                            }
+                        }
+                        i9 = i11;
                     }
                     i6 = i8;
                 }

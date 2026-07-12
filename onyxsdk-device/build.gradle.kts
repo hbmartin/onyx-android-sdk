@@ -24,17 +24,11 @@ android {
 
     lint {
         // This SDK intentionally mirrors vendor/system APIs and its original
-        // minSdk/manifest. These checks flag Onyx service-name strings,
-        // privileged permissions, and model-gated newer APIs even though the
-        // consuming app/firmware supplies the relevant capability.
-        disable += setOf(
-            "GradleDependency",
-            "LongLogTag",
-            "MissingPermission",
-            "NewApi",
-            "ProtectedPermissions",
-            "WrongConstant",
-        )
+        // minSdk/manifest; those pre-existing findings live in the checked-in
+        // baseline. New permission, API-level, range, and resource-type
+        // mistakes still warn.
+        disable += "GradleDependency"
+        baseline = file("lint-baseline.xml")
     }
 
     testOptions {

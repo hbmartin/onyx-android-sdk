@@ -115,4 +115,11 @@ public final class Colors
         }
         return ColorUtils.calculateLuminance(foregroundColor);
     }
+
+    public static /* synthetic */ double calculateLuminance$default(final Colors colors, final int foregroundColor, Integer backgroundColor, final int i, final Object obj) {
+        if ((i & 2) != 0) {
+            backgroundColor = -1;
+        }
+        return colors.calculateLuminance(foregroundColor, backgroundColor);
+    }
 }
