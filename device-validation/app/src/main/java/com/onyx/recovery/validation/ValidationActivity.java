@@ -92,7 +92,8 @@ public final class ValidationActivity extends Activity {
         if ("pen-live".equals(suite)) {
             long duration = getIntent().getLongExtra("durationMs", 30_000L);
             String label = scenario == null || scenario.isEmpty() ? "guided strokes" : scenario;
-            status.setText("Draw now — " + label + "; capture ends in " + duration / 1000 + " seconds");
+            status.setText("Draw now — " + label + "; red/brown marks identify eraser events; "
+                    + "capture ends in " + duration / 1000 + " seconds");
             pen.startLive(duration, scenario, () -> finishSuite(suite));
             return;
         }

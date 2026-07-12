@@ -8,6 +8,7 @@ What is promoted:
     (monotonicNs/wallClockMs -> 0, thread -> "") so fixtures diff cleanly;
     device-produced payloads (pen timestamps, pressures) are untouched
   - raw evdev traces, replay inputs/counts, operator verdicts, api-surface
+    and operator notes
   - device metadata (getprop redacted, capabilities, display)
   - the neo-pen differential transcript
 
@@ -42,6 +43,7 @@ VERBATIM_PATTERNS = (
     "*-getevent.txt",
     "replay-event-count.txt",
     "operator-verdicts.jsonl",
+    "operator-notes.md",
     "api-surface.json",
     "neo-pen-differential.txt",
 )
