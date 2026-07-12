@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from collections import Counter
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -112,6 +113,55 @@ class AcceptedResidualTest(unittest.TestCase):
         accepted = classifier.load_accepted_residuals(path)
         classifier.validate_accepted_residuals(accepted, {}, ["example.Extension"])
         self.assertEqual(accepted.extra_classes, frozenset({"example.Extension"}))
+
+
+class ExtraPublicSurfaceReportTest(unittest.TestCase):
+    def run_main(self, *, accepted_extra=False, fail_on=None):
+        workdir = Path(tempfile.mkdtemp())
+        output = workdir / "classified.json"
+        reference = {"example.Base": api("example.Base", "public class example.Base")}
+        candidate = {
+            **reference,
+            "example.Extension": api("example.Extension", "public class example.Extension"),
+        }
+        argv = [
+            "classify_api_differences.py",
+            "--reference", str(workdir / "reference.jar"),
+            "--candidate", str(workdir / "candidate.jar"),
+            "--output", str(output),
+        ]
+        if accepted_extra:
+            accepted = workdir / "accepted.json"
+            accepted.write_text(json.dumps({
+                "classes": {},
+                "extraClasses": ["example.Extension"],
+            }))
+            argv += ["--accepted-residuals", str(accepted)]
+        if fail_on:
+            argv += ["--fail-on", fail_on]
+
+        with mock.patch.object(classifier, "load_surface", side_effect=[reference, candidate]):
+            with mock.patch.object(sys, "argv", argv):
+                return_code = classifier.main()
+        return return_code, json.loads(output.read_text(encoding="utf-8"))
+
+    def test_extra_class_is_separate_from_reference_counts(self):
+        return_code, payload = self.run_main()
+        self.assertEqual(return_code, 0)
+        self.assertEqual(payload["counts"], {"match": 1})
+        self.assertEqual(payload["unacceptedCounts"], {"extra_public_surface": 1})
+        self.assertEqual(payload["extraClasses"], ["example.Extension"])
+
+    def test_accepted_extra_class_does_not_appear_in_unaccepted_counts(self):
+        return_code, payload = self.run_main(accepted_extra=True)
+        self.assertEqual(return_code, 0)
+        self.assertEqual(payload["counts"], {"match": 1})
+        self.assertEqual(payload["unacceptedCounts"], {})
+
+    def test_unaccepted_extra_class_fails_extra_public_surface_gate(self):
+        return_code, payload = self.run_main(fail_on="extra_public_surface")
+        self.assertEqual(return_code, 1)
+        self.assertEqual(payload["unacceptedCounts"], {"extra_public_surface": 1})
 
 
 if __name__ == "__main__":

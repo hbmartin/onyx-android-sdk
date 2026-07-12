@@ -8,6 +8,7 @@ import json
 import os
 import re
 import subprocess
+import sys
 import tempfile
 import zipfile
 from pathlib import Path
@@ -120,6 +121,33 @@ def main() -> None:
                 "changedSignatures": changed,
                 "signatureDiffs": diffs,
             }
+        # The textual javap report above remains useful forensic detail, but
+        # it over-counts package-private classes, throws clauses, synthetic
+        # bridges, and the exact compiler residuals documented by this
+        # recovery. Attach the descriptor/flags/metadata audit so downstream
+        # reports gate only unaccepted compatibility differences.
+        classifier = Path(__file__).with_name("classify_api_differences.py")
+        residuals_dir = Path(__file__).with_name("accepted-residuals")
+        for name in modules:
+            classified_output = temp / f"{name}-classified.json"
+            command = [
+                sys.executable,
+                str(classifier),
+                "--module", name,
+                "--artifacts-root", str(args.artifacts_root),
+                "--recovery-root", str(args.recovery_root),
+                "--output", str(classified_output),
+            ]
+            accepted = residuals_dir / f"{name}.json"
+            if accepted.is_file():
+                command.extend(["--accepted-residuals", str(accepted)])
+            completed = subprocess.run(
+                command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+            if completed.returncode != 0:
+                detail = completed.stderr.strip() or completed.stdout.strip()
+                raise SystemExit(f"classified {name} API audit failed: {detail}")
+            payload[name]["classifiedAudit"] = json.loads(
+                classified_output.read_text(encoding="utf-8"))
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 

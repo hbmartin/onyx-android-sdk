@@ -46,11 +46,11 @@ def operator_action(record: dict[str, Any]) -> bool:
     return record.get("suite") == "pen" and record.get("caseId") == "mode"
 
 
-def replay_health_outputs(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def replay_health_outputs(records: list[Any]) -> list[dict[str, Any]]:
     """Dict outputs of replay_health records; malformed output becomes {} (unhealthy)."""
     outputs = []
     for record in records:
-        if record.get("caseId") == "replay_health":
+        if isinstance(record, dict) and record.get("caseId") == "replay_health":
             output = record.get("output")
             outputs.append(output if isinstance(output, dict) else {})
     return outputs
@@ -210,16 +210,36 @@ def main() -> None:
         api = json.loads(args.api_surface.read_text(encoding="utf-8"))
         api_summary = {}
         for module, values in api.items():
-            missing = len(values.get("missingClasses", []))
-            changed = len(values.get("changedSignatures", []))
-            extra = len(values.get("extraClasses", []))
-            counts["recovery_defect"] += missing + changed
-            counts["platform_variation"] += extra
+            audit = values.get("classifiedAudit")
+            if audit:
+                unaccepted = audit.get("unacceptedCounts", {})
+                defects = sum(unaccepted.values())
+                missing = sum(
+                    1 for details in audit.get("classes", {}).values()
+                    if "class missing from candidate" in
+                    details.get("buckets", {}).get("binary_breaking", []))
+                changed = max(0, defects - missing)
+                extra = len(audit.get("extraClasses", []))
+                accepted_classes = len(audit.get("acceptedResiduals", {}).get("classes", []))
+                accepted_extra = len(audit.get("acceptedResiduals", {}).get("extraClasses", []))
+                counts["recovery_defect"] += defects
+                counts["platform_variation"] += accepted_extra
+            else:
+                missing = len(values.get("missingClasses", []))
+                changed = len(values.get("changedSignatures", []))
+                extra = len(values.get("extraClasses", []))
+                accepted_classes = 0
+                accepted_extra = 0
+                defects = missing + changed
+                counts["recovery_defect"] += defects
+                counts["platform_variation"] += extra
             api_summary[module] = {
                 "missingClasses": missing,
                 "changedSignatures": changed,
                 "recoveryExtensions": extra,
-                "classification": "recovery_defect" if missing or changed else "match",
+                "acceptedCompilerResiduals": accepted_classes,
+                "acceptedExtensions": accepted_extra,
+                "classification": "recovery_defect" if defects else "match",
             }
 
     payload = {
@@ -255,7 +275,8 @@ def main() -> None:
                 f"- `{module}`: `{summary['classification']}` — "
                 f"{summary['missingClasses']} missing classes, "
                 f"{summary['changedSignatures']} changed class signatures, "
-                f"{summary['recoveryExtensions']} recovery extensions"
+                f"{summary['recoveryExtensions']} recovery extensions, "
+                f"{summary['acceptedCompilerResiduals']} accepted compiler residuals"
             )
         lines.extend(["", "Exact class names are recorded in `api-surface.json`."])
     mismatches = [item for item in comparisons if item["classification"] != "match"]

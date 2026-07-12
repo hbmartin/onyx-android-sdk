@@ -575,6 +575,7 @@ public class FileUtils
     }
     
     public static String readContentOfFile(final File fileForRead) {
+        Log.d(a, "readContentOfFile(file) path=" + String.valueOf(fileForRead));
         // 
         // This method could not be decompiled.
         // 
@@ -1919,6 +1920,24 @@ public class FileUtils
     }
     
     public static String readContentOfFile(final String path) {
+        Log.d(a, "readContentOfFile(path) path=" + path);
+        if (StringUtils.isNullOrEmpty(path)) {
+            Log.w(a, "readContentOfFile(path) received an empty path");
+            return null;
+        }
+        try (FileInputStream input = new FileInputStream(new File(path));
+             InputStreamReader streamReader = new InputStreamReader(input);
+             BufferedReader reader = new BufferedReader(streamReader)) {
+            StringBuilder content = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) content.append(line);
+            Log.d(a, "readContentOfFile(path) chars=" + content.length());
+            return content.toString();
+        } catch (Exception error) {
+            Log.w(a, "readContentOfFile(path) failed path=" + path, error);
+            return null;
+        }
+        /* Preserved original bytecode/decompiler diagnostics:
         // 
         // This method could not be decompiled.
         // 
@@ -2041,7 +2060,7 @@ public class FileUtils
         //     at com.strobel.decompiler.DecompilerDriver.decompileJar(DecompilerDriver.java:254)
         //     at com.strobel.decompiler.DecompilerDriver.main(DecompilerDriver.java:144)
         // 
-        throw new IllegalStateException("An error occurred while decompiling this method.");
+        */
     }
     
     public static String readContentOfInputStream(final FileInputStream input) {

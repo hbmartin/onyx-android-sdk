@@ -84,6 +84,18 @@ public class NeoPenNativeDeviceTest {
         return digest;
     }
 
+    private static String pixelRows(android.graphics.Bitmap bitmap) {
+        StringBuilder result = new StringBuilder();
+        for (int y = 0; y < bitmap.getHeight(); y++) {
+            if (y > 0) result.append('/');
+            for (int x = 0; x < bitmap.getWidth(); x++) {
+                if (x > 0) result.append(',');
+                result.append(Integer.toHexString(bitmap.getPixel(x, y)));
+            }
+        }
+        return result.toString();
+    }
+
     private static String resultSnapshot(NeoPenResult result) {
         if (result == null) {
             return "null";
@@ -163,6 +175,46 @@ public class NeoPenNativeDeviceTest {
         File snapshot = new File(
                 InstrumentationRegistry.getInstrumentation().getContext().getFilesDir(),
                 "pen-snapshot.txt");
+        try (FileOutputStream stream = new FileOutputStream(snapshot)) {
+            stream.write(output.toString().getBytes(StandardCharsets.UTF_8));
+        }
+    }
+
+    @Test
+    public void writeTexturePixelSnapshot() throws Exception {
+        StringBuilder output = new StringBuilder();
+        for (int penType : new int[]{4, 5}) {
+            NeoPenConfig config = new NeoPenConfig();
+            config.type = penType;
+            long handle = NeoPenNative.INSTANCE.createPen(penType, config);
+            try {
+                NeoPenNative.INSTANCE.onPenDown(handle, point(10f, 12f, 0.25f, 1_000L), false);
+                NeoPenResult move = NeoPenNative.INSTANCE.onPenMove(
+                        handle,
+                        Arrays.asList(point(12f, 14f, 0.5f, 1_008L),
+                                point(17f, 20f, 0.75f, 1_016L)),
+                        point(20f, 23f, 0.8f, 1_024L), false);
+                NeoPenResult up = NeoPenNative.INSTANCE.onPenUp(
+                        handle, point(22f, 25f, 0.2f, 1_032L), false);
+                for (String phase : new String[]{"move", "up"}) {
+                    PenInk ink = "move".equals(phase) ? move.getRealInk() : up.getRealInk();
+                    for (int i = 0; i < ink.getBitmaps().length; i++) {
+                        android.graphics.Bitmap bitmap = ink.getBitmaps()[i];
+                        output.append("type=").append(penType)
+                                .append(",phase=").append(phase)
+                                .append(",bitmap=").append(i)
+                                .append(",size=").append(bitmap.getWidth()).append('x')
+                                .append(bitmap.getHeight()).append(",pixels=")
+                                .append(pixelRows(bitmap)).append('\n');
+                    }
+                }
+            } finally {
+                NeoPenNative.INSTANCE.destroyPen(handle);
+            }
+        }
+        File snapshot = new File(
+                InstrumentationRegistry.getInstrumentation().getContext().getFilesDir(),
+                "texture-pixels.txt");
         try (FileOutputStream stream = new FileOutputStream(snapshot)) {
             stream.write(output.toString().getBytes(StandardCharsets.UTF_8));
         }

@@ -1,5 +1,6 @@
 package com.onyx.android.sdk.pen;
 
+import android.util.Log;
 import com.onyx.android.sdk.base.data.TouchPoint;
 import com.onyx.android.sdk.base.utils.Debug;
 import java.util.List;
@@ -15,7 +16,8 @@ public final class NeoPenNative {
 
     @NotNull
     public static final NeoPenNative INSTANCE = new NeoPenNative();
-    private static final boolean a = false;
+    private static final String TRACE_TAG = "OnyxNeoPen";
+    private static final boolean a = Log.isLoggable(TRACE_TAG, Log.DEBUG);
 
     static {
         System.loadLibrary("neo_pen");
@@ -51,10 +53,18 @@ public final class NeoPenNative {
 
     public final long createPen(int penType, @NotNull NeoPenConfig config) {
         Intrinsics.checkNotNullParameter(config, "config");
-        return nativeCreatePen(penType, config);
+        long handle = nativeCreatePen(penType, config);
+        if (a) {
+            Log.d(TRACE_TAG, "create handle=" + handle + " type=" + penType
+                    + " width=" + config.width + " minWidth=" + config.minWidth
+                    + " fast=" + config.fastMode + " color=0x"
+                    + Integer.toHexString(config.color));
+        }
+        return handle;
     }
 
     public final void destroyPen(long pen) {
+        if (a) Log.d(TRACE_TAG, "destroy handle=" + pen);
         nativeDestroyPen(pen);
     }
 
@@ -63,7 +73,7 @@ public final class NeoPenNative {
         Intrinsics.checkNotNullParameter(point, "point");
         NeoPenResult neoPenResultNativeOnPenDown = nativeOnPenDown(pen, com.onyx.android.sdk.pen.utils.PenUtils.getPointDoubleArray$default(com.onyx.android.sdk.pen.utils.PenUtils.INSTANCE, point, com.onyx.android.sdk.pen.utils.PenUtils.KEPLER_MIN_PRESSURE_SENSITIVITY, 2, (Object) null), repaint);
         if (a) {
-            Debug.INSTANCE.i(NeoPenNative.class, Intrinsics.stringPlus("onPenDown: ", point), new Object[0]);
+            Log.d(TRACE_TAG, "down handle=" + pen + " repaint=" + repaint + " point=" + point);
             a(neoPenResultNativeOnPenDown);
         }
         return neoPenResultNativeOnPenDown;
@@ -75,7 +85,9 @@ public final class NeoPenNative {
         com.onyx.android.sdk.pen.utils.PenUtils penUtils = com.onyx.android.sdk.pen.utils.PenUtils.INSTANCE;
         NeoPenResult neoPenResultNativeOnPenMove = nativeOnPenMove(pen, com.onyx.android.sdk.pen.utils.PenUtils.getPointDoubleArray$default(penUtils, points, com.onyx.android.sdk.pen.utils.PenUtils.KEPLER_MIN_PRESSURE_SENSITIVITY, 2, (Object) null), com.onyx.android.sdk.pen.utils.PenUtils.getPointDoubleArrayNullable$default(penUtils, prediction, com.onyx.android.sdk.pen.utils.PenUtils.KEPLER_MIN_PRESSURE_SENSITIVITY, 2, null), repaint);
         if (a) {
-            Debug.INSTANCE.i(NeoPenNative.class, "onPenMove: " + CollectionsKt.first(points) + ", prediction: " + prediction, new Object[0]);
+            Log.d(TRACE_TAG, "move handle=" + pen + " repaint=" + repaint
+                    + " count=" + points.size() + " first="
+                    + (points.isEmpty() ? null : points.get(0)) + " prediction=" + prediction);
             a(neoPenResultNativeOnPenMove);
         }
         return neoPenResultNativeOnPenMove;
@@ -86,10 +98,9 @@ public final class NeoPenNative {
         Intrinsics.checkNotNullParameter(point, "point");
         NeoPenResult neoPenResultNativeOnPenUp = nativeOnPenUp(pen, com.onyx.android.sdk.pen.utils.PenUtils.getPointDoubleArray$default(com.onyx.android.sdk.pen.utils.PenUtils.INSTANCE, point, com.onyx.android.sdk.pen.utils.PenUtils.KEPLER_MIN_PRESSURE_SENSITIVITY, 2, (Object) null), repaint);
         if (a) {
-            Debug.INSTANCE.i(NeoPenNative.class, Intrinsics.stringPlus("onPenUp: ", point), new Object[0]);
+            Log.d(TRACE_TAG, "up handle=" + pen + " repaint=" + repaint + " point=" + point);
             a(neoPenResultNativeOnPenUp);
         }
         return neoPenResultNativeOnPenUp;
     }
 }
-
