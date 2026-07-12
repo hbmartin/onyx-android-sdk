@@ -11,7 +11,7 @@ default-members = [
 ]
 
 [workspace.dependencies]
-jni = { version = "0.21", default-features = false }
+jni = { version = "0.22", default-features = false }
 libc = "0.2"
 
 # A panic that unwinds out of an `extern "system"` JNI export is undefined
