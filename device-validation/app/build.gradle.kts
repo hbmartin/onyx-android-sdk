@@ -97,8 +97,6 @@ dependencies {
     implementation("org.greenrobot:eventbus:3.0.0")
     implementation("com.tencent:mmkv:1.3.14")
     implementation("net.lingala.zip4j:zip4j:2.11.5")
-    implementation("joda-time:joda-time:2.10.14")
-    implementation("com.fasterxml.uuid:java-uuid-generator:4.1.0")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10")
 
     testImplementation("junit:junit:4.13.2")

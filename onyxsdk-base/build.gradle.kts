@@ -58,8 +58,6 @@ dependencies {
     api("org.greenrobot:eventbus:3.0.0")
     api("com.tencent:mmkv:1.3.14")
     api("net.lingala.zip4j:zip4j:2.11.5")
-    api("joda-time:joda-time:2.10.14")
-    api("com.fasterxml.uuid:java-uuid-generator:4.1.0")
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10")
 
     testImplementation("junit:junit:4.13.2")
