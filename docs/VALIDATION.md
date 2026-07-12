@@ -2,27 +2,40 @@
 
 | Requirement | Automated evidence |
 |---|---|
-| No original SDK binaries | tracked-file scan and removed-directory assertions |
-| No bytecode injection | Gradle-script scan rejects binary inputs and custom ZIP assembly |
-| Standard Android builds | AGP compiles three release AARs from `src/main` |
-| 705 raw Java sources retained | exact per-module source counts |
-| Seven device methods filled | mapping tests and repaired-source scan |
-| Two base methods rebuilt | formatting and finally/error branch tests |
-| Obfuscated behavior visible | `ObfuscatedCodePathTest` executes source-compiled `device.a` |
-| Unsupported-operation behavior | source-compiled guard and exact-message test |
-| Decompiler disagreements visible | documentation and `DecompilerDisagreementTest` |
-| Rust behavior | `cargo test --locked` |
-| Four Android ABI builds | NDK cross-build plus AAR entry audit |
-| JNI consistency | 11 exports compared with Java `NativeContract` for every ABI |
-| No C++ runtime bridge | dependency and AAR scans reject `libc++_shared.so` |
-| Repeatable CI | `.github/workflows/build.yml` |
+| No tracked reference SDK binaries | tracked-file scan and removed-directory assertions |
+| No bytecode/JAR injection | Gradle-script scan rejects binary inputs and custom AAR assembly |
+| Complete pen class surface | 129 expected class entries checked in the release AAR |
+| Public JVM compatibility | `verify-pen-api.py` matches 118 public classes by `javap` descriptor |
+| Base recoveries | production-class unit tests for formatting and disposal branches |
+| Seven device recoveries | field-injection tests plus compiled-bytecode inspection |
+| Rust quality | locked tests, rustfmt, and Clippy for both crates |
+| Four Android ABIs | cross-build and AAR entry audit for both native libraries |
+| JNI consistency | 11 touch-reader and 14 neo-pen exports checked per ABI |
+| No C++ runtime bridge | ELF dependency and AAR scans reject `libc++_shared.so` |
+| New pen runtime | Android tests execute all nine pen types and lifecycle/error cases |
+| Legacy pen runtime | Android tests execute static wrapper down/move/up/offline rendering |
+| Raw reader JNI | Android test executes configuration, pause/resume, and close calls |
+| Native differential | original and Rust snapshots run through the same BOOX APK harness |
+| Exact simple pens | types 1–5 snapshot values match the reference exactly |
+| Complex pen behavior | types 6–9 encoding, prediction, finiteness, and geometry bounds match |
 
-Run the complete gate with:
+Portable source-only gate:
 
 ```bash
-./gradlew clean check assembleRecovered
+./gradlew clean :check assembleRecovered
 ```
 
-The resulting AARs are source-native recovery artifacts. They do not claim the
-complete original SDK API until additional raw classes are repaired, reviewed,
-and promoted from recovery evidence.
+Reference API gate (references remain untracked):
+
+```bash
+scripts/verify-pen-api.py \
+  --old-reference /path/to/legacy/classes.jar \
+  --native-reference /path/to/onyxsdk-pen-native-classes.jar \
+  --candidate onyxsdk-pen/build/intermediates/aar_main_jar/release/syncReleaseLibJars/classes.jar
+```
+
+BOOX hardware gate:
+
+```bash
+scripts/device-pen-differential.sh /path/to/libneo_pen.so DEVICE_SERIAL
+```

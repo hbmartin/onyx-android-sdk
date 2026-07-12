@@ -436,7 +436,7 @@ public final class ResManager {
     @TargetApi(17)
     public final int getRealScreenHeight(@NotNull Context context) {
         Intrinsics.checkNotNullParameter(context, "context");
-        Object systemService = context.getSystemService("window");
+        Object systemService = context.getSystemService(Context.WINDOW_SERVICE);
         if (systemService == null) {
             throw new NullPointerException("null cannot be cast to non-null type android.view.WindowManager");
         }
@@ -469,7 +469,7 @@ public final class ResManager {
     @NotNull
     public final Rect getRealScreenRect(@Nullable Context context) {
         Intrinsics.checkNotNull(context);
-        Object systemService = context.getSystemService("window");
+        Object systemService = context.getSystemService(Context.WINDOW_SERVICE);
         if (systemService == null) {
             throw new NullPointerException("null cannot be cast to non-null type android.view.WindowManager");
         }
@@ -505,7 +505,7 @@ public final class ResManager {
     @NotNull
     public final Point getWindowDefaultSize(@Nullable Context context) {
         Intrinsics.checkNotNull(context);
-        Object systemService = context.getSystemService("window");
+        Object systemService = context.getSystemService(Context.WINDOW_SERVICE);
         if (systemService == null) {
             throw new NullPointerException("null cannot be cast to non-null type android.view.WindowManager");
         }
@@ -696,7 +696,7 @@ public final class ResManager {
     }
 
     public final int getRotation() {
-        WindowManager windowManager = (WindowManager) getAppContext().getSystemService("window");
+        WindowManager windowManager = (WindowManager) getAppContext().getSystemService(Context.WINDOW_SERVICE);
         if (windowManager == null) {
             return 0;
         }
@@ -727,7 +727,7 @@ public final class ResManager {
 
     public final double getScreenInchSize() {
         Context context = getContext();
-        Object systemService = context == null ? null : context.getSystemService("window");
+        Object systemService = context == null ? null : context.getSystemService(Context.WINDOW_SERVICE);
         if (systemService == null) {
             throw new NullPointerException("null cannot be cast to non-null type android.view.WindowManager");
         }

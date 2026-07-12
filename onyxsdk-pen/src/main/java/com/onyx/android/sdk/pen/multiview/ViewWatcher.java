@@ -1,72 +1,55 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  android.graphics.Rect
- *  android.view.View
- *  com.onyx.android.sdk.utils.ViewUtils
- */
 package com.onyx.android.sdk.pen.multiview;
 
 import android.graphics.Rect;
 import android.view.View;
-import com.onyx.android.sdk.pen.multiview.BaseViewWatcher;
 import com.onyx.android.sdk.utils.ViewUtils;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class ViewWatcher
-extends BaseViewWatcher<View> {
+/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/multiview/ViewWatcher.class */
+public class ViewWatcher extends BaseViewWatcher<View> {
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void a(View view, Rect rect) {
-        Rect rect2;
-        rect2 = ViewUtils.globalVisibleRect((View)rect2);
-        rect.offsetTo(rect2.left - this.getContainerViewScreenX(), rect2.top - this.getContainerViewScreenY());
+        Rect rectGlobalVisibleRect = ViewUtils.globalVisibleRect(view);
+        rect.offsetTo(rectGlobalVisibleRect.left - getContainerViewScreenX(), rectGlobalVisibleRect.top - getContainerViewScreenY());
     }
 
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.multiview.BaseViewWatcher
     public List<Rect> getRects() {
-        ViewWatcher this_;
-        ArrayList<Rect> arrayList;
-        ArrayList arrayList2;
-        ArrayList arrayList3 = arrayList2;
-        arrayList2 = new ArrayList();
-        ArrayList<Rect> arrayList4 = arrayList;
-        arrayList = new ArrayList<Rect>();
-        for (WeakReference weakReference : this_.getWatchedObjects()) {
-            Rect rect;
-            View view = (View)weakReference.get();
+        ArrayList arrayList = new ArrayList();
+        ArrayList arrayList2 = new ArrayList();
+        for (WeakReference<View> weakReference : getWatchedObjects()) {
+            View view = weakReference.get();
             if (view == null) {
-                arrayList3.add(weakReference);
-                continue;
+                arrayList.add(weakReference);
+            } else if (view.isShown()) {
+                Rect rect = new Rect();
+                view.getLocalVisibleRect(rect);
+                a(view, rect);
+                arrayList2.add(rect);
             }
-            if (!view.isShown()) continue;
-            Rect rect2 = rect;
-            rect = new Rect();
-            view.getLocalVisibleRect(rect2);
-            viewWatcher.a(view, rect2);
-            arrayList4.add(rect2);
         }
-        if (!arrayList3.isEmpty()) {
-            viewWatcher.getWatchedObjects().removeAll(arrayList3);
+        if (!arrayList.isEmpty()) {
+            getWatchedObjects().removeAll(arrayList);
         }
-        if (arrayList4.isEmpty()) {
-            Rect rect;
-            ViewWatcher viewWatcher = rect;
-            rect = new Rect(0, 0, 0, 0);
-            arrayList4.add((Rect)viewWatcher);
+        if (arrayList2.isEmpty()) {
+            arrayList2.add(new Rect(0, 0, 0, 0));
         }
-        return arrayList4;
+        return arrayList2;
     }
 
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.multiview.BaseViewWatcher
     public boolean hasVisibleObject() {
-        Iterator this_ = ((BaseViewWatcher)((Object)this_)).getWatchedObjects().iterator();
-        while (this_.hasNext()) {
-            View view = (View)((WeakReference)this_.next()).get();
-            if (view == null || !view.isShown()) continue;
-            return true;
+        Iterator<WeakReference<View>> it = getWatchedObjects().iterator();
+        while (it.hasNext()) {
+            View view = it.next().get();
+            if (view != null && view.isShown()) {
+                return true;
+            }
         }
         return false;
     }

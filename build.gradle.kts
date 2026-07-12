@@ -8,26 +8,22 @@ plugins {
 group = "com.onyx.android.sdk.recovered"
 version = "1.0.0"
 
-val nativeCrate = layout.projectDirectory.dir(
-    "onyxsdk-pen/native/onyx-pen-touch-reader"
-)
-
 tasks.register<Exec>("nativeFormatCheck") {
     group = "verification"
     description = "Checks formatting of the recovered Rust implementation."
-    commandLine(
-        "cargo", "fmt", "--check", "--manifest-path",
-        nativeCrate.file("Cargo.toml").asFile.absolutePath,
-    )
+    commandLine("bash", layout.projectDirectory.file("scripts/check-rust.sh").asFile, "fmt")
 }
 
 tasks.register<Exec>("nativeTest") {
     group = "verification"
     description = "Runs the recovered Rust state-machine tests."
-    commandLine(
-        "cargo", "test", "--locked", "--manifest-path",
-        nativeCrate.file("Cargo.toml").asFile.absolutePath,
-    )
+    commandLine("bash", layout.projectDirectory.file("scripts/check-rust.sh").asFile, "test")
+}
+
+tasks.register<Exec>("nativeClippy") {
+    group = "verification"
+    description = "Runs Clippy over both recovered Rust libraries."
+    commandLine("bash", layout.projectDirectory.file("scripts/check-rust.sh").asFile, "clippy")
 }
 
 val verifyRecovery = tasks.register<Exec>("verifyRecovery") {
@@ -39,16 +35,20 @@ val verifyRecovery = tasks.register<Exec>("verifyRecovery") {
 
 tasks.named("check") {
     dependsOn(
-        subprojects.map { "${it.path}:check" },
+        ":onyxsdk-base:testDebugUnitTest",
+        ":onyxsdk-device:testDebugUnitTest",
+        ":onyxsdk-pen:testDebugUnitTest",
+        ":recovery-tests:testDebugUnitTest",
         "nativeFormatCheck",
         "nativeTest",
+        "nativeClippy",
         verifyRecovery,
     )
 }
 
 tasks.register("assembleRecovered") {
     group = "build"
-    description = "Builds all three source-native AARs and decompilation evidence archives."
+    description = "Builds all three source-native release AARs."
     dependsOn(
         ":onyxsdk-base:assembleRecovered",
         ":onyxsdk-device:assembleRecovered",

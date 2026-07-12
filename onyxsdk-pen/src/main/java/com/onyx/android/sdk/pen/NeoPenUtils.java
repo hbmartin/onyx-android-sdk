@@ -1,41 +1,8 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  android.graphics.Bitmap
- *  android.graphics.Matrix
- *  com.onyx.android.sdk.base.data.TouchPoint
- *  com.onyx.android.sdk.data.note.TouchPoint
- *  com.onyx.android.sdk.pen.NeoBrushPen
- *  com.onyx.android.sdk.pen.NeoFountainPen
- *  com.onyx.android.sdk.pen.NeoMarkerPen
- *  com.onyx.android.sdk.pen.NeoPen
- *  com.onyx.android.sdk.pen.NeoPenConfig
- *  com.onyx.android.sdk.pen.PenPointInk
- *  com.onyx.android.sdk.pen.PenPointResult
- *  com.onyx.android.sdk.pen.PenResult
- *  com.onyx.android.sdk.pen.PenTextureInk
- *  com.onyx.android.sdk.pen.PenTextureResult
- *  com.onyx.android.sdk.utils.CollectionUtils
- *  com.onyx.android.sdk.utils.Debug
- *  kotlin.Pair
- */
 package com.onyx.android.sdk.pen;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
-import com.onyx.android.sdk.base.data.TouchPoint;
-import com.onyx.android.sdk.pen.NeoBrushPen;
-import com.onyx.android.sdk.pen.NeoFountainPen;
-import com.onyx.android.sdk.pen.NeoMarkerPen;
-import com.onyx.android.sdk.pen.NeoPen;
-import com.onyx.android.sdk.pen.NeoPenConfig;
-import com.onyx.android.sdk.pen.NeoRenderPoint;
-import com.onyx.android.sdk.pen.PenPointInk;
-import com.onyx.android.sdk.pen.PenPointResult;
-import com.onyx.android.sdk.pen.PenResult;
-import com.onyx.android.sdk.pen.PenTextureInk;
-import com.onyx.android.sdk.pen.PenTextureResult;
+import com.onyx.android.sdk.data.note.TouchPoint;
 import com.onyx.android.sdk.utils.CollectionUtils;
 import com.onyx.android.sdk.utils.Debug;
 import java.util.ArrayList;
@@ -43,165 +10,118 @@ import java.util.Iterator;
 import java.util.List;
 import kotlin.Pair;
 
+/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/NeoPenUtils.class */
 public class NeoPenUtils {
-    /*
-     * WARNING - void declaration
-     */
-    public static List<com.onyx.android.sdk.data.note.TouchPoint> computeStrokePoints(int type, List<com.onyx.android.sdk.data.note.TouchPoint> points, float strokeWidth, float maxTouchPressure) {
-        void var1_3;
-        ArrayList<com.onyx.android.sdk.data.note.TouchPoint> arrayList;
-        int n;
-        void var2_4;
-        NeoPenConfig neoPenConfig;
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    public static List<TouchPoint> computeStrokePoints(int type, List<TouchPoint> points, float strokeWidth, float maxTouchPressure) {
         if (points.size() < 2) {
-            return new ArrayList<com.onyx.android.sdk.data.note.TouchPoint>();
+            return new ArrayList();
         }
-        NeoPenConfig neoPenConfig2 = neoPenConfig;
-        neoPenConfig2();
-        neoPenConfig.setWidth((float)var2_4);
-        NeoPen neoPen = null;
-        if (n != 1) {
-            if (n != 2) {
-                if (n == 3) {
-                    neoPen = NeoMarkerPen.Companion.create(neoPenConfig2);
-                }
-            } else {
-                neoPen = NeoFountainPen.Companion.create(neoPenConfig2);
-            }
-        } else {
-            neoPen = NeoBrushPen.Companion.create(neoPenConfig2);
+        NeoPenConfig neoPenConfig = new NeoPenConfig();
+        neoPenConfig.setWidth(strokeWidth);
+        NeoPen neoPenCreate = null;
+        if (type == 1) {
+            neoPenCreate = NeoBrushPen.Companion.create(neoPenConfig);
+        } else if (type == 2) {
+            neoPenCreate = NeoFountainPen.Companion.create(neoPenConfig);
+        } else if (type == 3) {
+            neoPenCreate = NeoMarkerPen.Companion.create(neoPenConfig);
         }
-        if (neoPen == null) {
-            Object[] objectArray = new Object[]{};
-            Debug.e(NeoPenUtils.class, (String)("invalid pen type: " + n), (Object[])objectArray);
-            return new ArrayList<com.onyx.android.sdk.data.note.TouchPoint>();
+        if (neoPenCreate == null) {
+            Debug.e(NeoPenUtils.class, "invalid pen type: " + type, new Object[0]);
+            return new ArrayList();
         }
-        ArrayList<com.onyx.android.sdk.data.note.TouchPoint> arrayList2 = arrayList;
-        arrayList = new ArrayList<com.onyx.android.sdk.data.note.TouchPoint>();
-        for (int i = 0; i < var1_3.size(); ++i) {
-            void var3_6;
-            ((com.onyx.android.sdk.data.note.TouchPoint)var1_3.get((int)i)).pressure /= var3_6;
+        ArrayList arrayList = new ArrayList();
+        for (int i = 0; i < points.size(); i++) {
+            points.get(i).pressure /= maxTouchPressure;
         }
-        NeoPenUtils.readPointResult((Pair<PenResult, PenResult>)neoPen.onPenDown((TouchPoint)var1_3.get(0), true), arrayList2);
-        if (var1_3.size() > 2) {
-            void v2 = var1_3;
-            NeoPenUtils.readPointResult((Pair<PenResult, PenResult>)neoPen.onPenMove(v2.subList(1, v2.size() - 1), null, true), arrayList2);
+        readPointResult(neoPenCreate.onPenDown((com.onyx.android.sdk.base.data.TouchPoint) points.get(0), true), arrayList);
+        if (points.size() > 2) {
+            readPointResult(neoPenCreate.onPenMove(points.subList(1, points.size() - 1), null, true), arrayList);
         }
-        NeoPen neoPen2 = neoPen;
-        void v4 = var1_3;
-        NeoPenUtils.readPointResult((Pair<PenResult, PenResult>)neoPen2.onPenUp((TouchPoint)v4.get(v4.size() - 1), true), arrayList2);
-        neoPen2.destroy();
-        return arrayList2;
+        NeoPen neoPen = neoPenCreate;
+        readPointResult(neoPen.onPenUp((com.onyx.android.sdk.base.data.TouchPoint) points.get(points.size() - 1), true), arrayList);
+        neoPen.destroy();
+        return arrayList;
     }
 
-    public static ArrayList<com.onyx.android.sdk.data.note.TouchPoint> mapToPenCanvas(List<com.onyx.android.sdk.data.note.TouchPoint> points, Matrix screenMatrix) {
-        ArrayList<com.onyx.android.sdk.data.note.TouchPoint> arrayList;
-        ArrayList<com.onyx.android.sdk.data.note.TouchPoint> arrayList2;
-        List<com.onyx.android.sdk.data.note.TouchPoint> list;
-        int n;
-        float[] fArray = new float[points.size() * 2];
-        for (n = 0; n < list.size(); ++n) {
-            int n2 = n;
-            int n3 = n2 * 2;
-            fArray[n3] = list.get((int)n2).x;
-            fArray[++n3] = list.get((int)n).y;
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    public static ArrayList<TouchPoint> mapToPenCanvas(List<TouchPoint> points, Matrix screenMatrix) {
+        float[] fArr = new float[points.size() * 2];
+        for (int i = 0; i < points.size(); i++) {
+            int i2 = i;
+            int i3 = i2 * 2;
+            fArr[i3] = points.get(i2).x;
+            fArr[i3 + 1] = points.get(i).y;
         }
-        arrayList2.mapPoints(fArray);
-        arrayList2 = arrayList;
-        arrayList = new ArrayList<com.onyx.android.sdk.data.note.TouchPoint>();
-        for (n = 0; n < list.size(); ++n) {
-            com.onyx.android.sdk.data.note.TouchPoint touchPoint;
-            com.onyx.android.sdk.data.note.TouchPoint touchPoint2 = touchPoint;
-            touchPoint2(list.get(n));
-            int n4 = n * 2;
-            touchPoint2.x = fArray[n4];
-            touchPoint.y = fArray[n4 + 1];
-            arrayList2.add(touchPoint);
+        screenMatrix.mapPoints(fArr);
+        ArrayList<TouchPoint> arrayList = new ArrayList<>();
+        for (int i4 = 0; i4 < points.size(); i4++) {
+            TouchPoint touchPoint = new TouchPoint(points.get(i4));
+            int i5 = i4 * 2;
+            touchPoint.x = fArr[i5];
+            touchPoint.y = fArr[i5 + 1];
+            arrayList.add(touchPoint);
         }
-        return arrayList2;
+        return arrayList;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static NeoRenderPoint[] mapFromPenCanvas(NeoRenderPoint[] points, List<Bitmap> pixelBitmapPool, Matrix matrix) {
-        NeoRenderPoint[] neoRenderPointArray;
-        void var1_1;
-        int n;
-        NeoRenderPoint neoRenderPoint;
-        NeoRenderPoint[] neoRenderPointArray2;
-        int n2;
-        float[] fArray = new float[points.length * 2];
-        for (n2 = 0; n2 < neoRenderPointArray2.length; ++n2) {
-            neoRenderPoint = neoRenderPointArray2[n2];
-            n = n2 * 2;
-            fArray[n] = neoRenderPoint.x + (float)((Bitmap)var1_1.get(neoRenderPoint.bitmapIndex)).getWidth() / 2.0f;
-            fArray[n + 1] = neoRenderPoint.y + (float)((Bitmap)var1_1.get(neoRenderPoint.bitmapIndex)).getHeight() / 2.0f;
+        float[] fArr = new float[points.length * 2];
+        for (int i = 0; i < points.length; i++) {
+            NeoRenderPoint neoRenderPoint = points[i];
+            int i2 = i * 2;
+            fArr[i2] = neoRenderPoint.x + (pixelBitmapPool.get(neoRenderPoint.bitmapIndex).getWidth() / 2.0f);
+            fArr[i2 + 1] = neoRenderPoint.y + (pixelBitmapPool.get(neoRenderPoint.bitmapIndex).getHeight() / 2.0f);
         }
-        neoRenderPointArray.mapPoints(fArray);
-        neoRenderPointArray = new NeoRenderPoint[neoRenderPointArray2.length];
-        for (n2 = 0; n2 < neoRenderPointArray2.length; ++n2) {
-            neoRenderPoint = NeoRenderPoint.create(neoRenderPointArray2[n2]);
-            n = n2 * 2;
-            neoRenderPoint.x = fArray[n] - (float)((Bitmap)var1_1.get(neoRenderPoint.bitmapIndex)).getWidth() / 2.0f;
-            NeoRenderPoint.create(neoRenderPointArray2[n2]).y = fArray[n + 1] - (float)((Bitmap)var1_1.get(neoRenderPoint.bitmapIndex)).getHeight() / 2.0f;
-            neoRenderPointArray[n2] = neoRenderPoint;
+        matrix.mapPoints(fArr);
+        NeoRenderPoint[] neoRenderPointArr = new NeoRenderPoint[points.length];
+        for (int i3 = 0; i3 < points.length; i3++) {
+            NeoRenderPoint neoRenderPointCreate = NeoRenderPoint.create(points[i3]);
+            int i4 = i3 * 2;
+            neoRenderPointCreate.x = fArr[i4] - (pixelBitmapPool.get(neoRenderPointCreate.bitmapIndex).getWidth() / 2.0f);
+            neoRenderPointCreate.y = fArr[i4 + 1] - (pixelBitmapPool.get(neoRenderPointCreate.bitmapIndex).getHeight() / 2.0f);
+            neoRenderPointArr[i3] = neoRenderPointCreate;
         }
-        return neoRenderPointArray;
+        return neoRenderPointArr;
     }
 
-    /*
-     * WARNING - void declaration
-     */
-    public static void readPointResult(Pair<PenResult, PenResult> result, List<com.onyx.android.sdk.data.note.TouchPoint> points) {
-        Iterator iterator;
-        if (result != null && iterator.getFirst() != null && iterator.getFirst() instanceof PenPointResult) {
-            iterator = ((PenPointResult)iterator.getFirst()).getPoints().iterator();
-            while (iterator.hasNext()) {
-                void var1_1;
-                PenPointInk penPointInk;
-                PenPointInk penPointInk2 = penPointInk = (PenPointInk)iterator.next();
-                float f = penPointInk2.getX();
-                new com.onyx.android.sdk.data.note.TouchPoint(f, penPointInk2.getY()).size = penPointInk.getSize();
-                var1_1.add(new com.onyx.android.sdk.data.note.TouchPoint(f, penPointInk2.getY()));
-            }
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    public static void readPointResult(Pair<PenResult, PenResult> result, List<TouchPoint> points) {
+        if (result == null || result.getFirst() == null || !(result.getFirst() instanceof PenPointResult)) {
+            return;
+        }
+        for (PenPointInk penPointInk : ((PenPointResult) result.getFirst()).getPoints()) {
+            TouchPoint touchPoint = new TouchPoint(penPointInk.getX(), penPointInk.getY());
+            touchPoint.size = penPointInk.getSize();
+            points.add(touchPoint);
         }
     }
 
-    /*
-     * WARNING - void declaration
-     */
-    public static void readPointResults(List<Pair<PenResult, PenResult>> results, List<com.onyx.android.sdk.data.note.TouchPoint> points) {
-        Iterator<Pair<PenResult, PenResult>> iterator;
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    public static void readPointResults(List<Pair<PenResult, PenResult>> results, List<TouchPoint> points) {
         if (CollectionUtils.isNullOrEmpty(results)) {
             return;
         }
-        iterator = iterator.iterator();
-        while (iterator.hasNext()) {
-            void var1_1;
-            NeoPenUtils.readPointResult((Pair<PenResult, PenResult>)((Pair)iterator.next()), (List<com.onyx.android.sdk.data.note.TouchPoint>)var1_1);
+        Iterator<Pair<PenResult, PenResult>> it = results.iterator();
+        while (it.hasNext()) {
+            readPointResult(it.next(), points);
         }
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static void readTextureResult(Pair<PenResult, PenResult> result, List<Bitmap> indexedPixelBitmapsResult, ArrayList<NeoRenderPoint> resultPoints) {
-        Object object;
-        if (result != null && object.getFirst() != null) {
-            for (PenTextureInk penTextureInk : ((PenTextureResult)object.getFirst()).getTextures()) {
-                void var2_2;
-                NeoRenderPoint neoRenderPoint;
-                void var1_1;
-                var1_1.add(penTextureInk.getBitmap());
-                NeoRenderPoint neoRenderPoint2 = neoRenderPoint;
-                neoRenderPoint2();
-                neoRenderPoint2.x = penTextureInk.getX();
-                neoRenderPoint2.y = penTextureInk.getY();
-                neoRenderPoint.bitmapIndex = var1_1.size() - 1;
-                var2_2.add(neoRenderPoint);
-            }
+        if (result == null || result.getFirst() == null) {
+            return;
+        }
+        for (PenTextureInk penTextureInk : ((PenTextureResult) result.getFirst()).getTextures()) {
+            indexedPixelBitmapsResult.add(penTextureInk.getBitmap());
+            NeoRenderPoint neoRenderPoint = new NeoRenderPoint();
+            neoRenderPoint.x = penTextureInk.getX();
+            neoRenderPoint.y = penTextureInk.getY();
+            neoRenderPoint.bitmapIndex = indexedPixelBitmapsResult.size() - 1;
+            resultPoints.add(neoRenderPoint);
         }
     }
 }
-

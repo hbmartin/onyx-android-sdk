@@ -1190,16 +1190,11 @@ public class RK32XXDevice extends BaseDevice
     @Override
     public void penUp() {
         try {
-            final Method b0 = RK32XXDevice.b0;
-            final Object receiver = null;
-            try {
-                ReflectUtil.invokeMethodSafely(b0, receiver, new Object[0]);
-            }
-            catch (final Exception ex) {
-                ex.printStackTrace();
-            }
+            ReflectUtil.invokeMethodSafely(RK32XXDevice.b0, null, new Object[0]);
         }
-        catch (final Exception ex2) {}
+        catch (final Exception exception) {
+            exception.printStackTrace();
+        }
     }
     
     @Override
@@ -1469,16 +1464,11 @@ public class RK32XXDevice extends BaseDevice
     @Override
     public void resetEpdPost() {
         try {
-            final Method m0 = RK32XXDevice.m0;
-            final Object receiver = null;
-            try {
-                ReflectUtil.invokeMethodSafely(m0, receiver, new Object[0]);
-            }
-            catch (final Exception ex) {
-                ex.printStackTrace();
-            }
+            ReflectUtil.invokeMethodSafely(RK32XXDevice.m0, null, new Object[0]);
         }
-        catch (final Exception ex2) {}
+        catch (final Exception exception) {
+            exception.printStackTrace();
+        }
     }
     
     @Override

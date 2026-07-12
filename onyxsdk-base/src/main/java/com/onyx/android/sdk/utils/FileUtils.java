@@ -2373,22 +2373,11 @@ public class FileUtils
         if (size <= 0L) {
             return "0";
         }
-        final String[] array2;
-        final String[] array = array2 = new String[5];
-        array[0] = "B";
-        array[1] = "KB";
-        array[2] = "MB";
-        array[3] = "GB";
-        array[4] = "TB";
-        final double n2;
-        final int n = (int)(Math.log10(n2 = (double)size) / Math.log10(1024.0));
-        final StringBuilder sb = new StringBuilder();
-        final DecimalFormat decimalFormat = new java.text.DecimalFormat();
-        final DecimalFormat decimalFormat2 = decimalFormat;
-        final double n3 = n2;
-        final int n4 = n;
-        new DecimalFormat("#,##0.#");
-        return sb.append(decimalFormat.format(n3 / Math.pow(1024.0, n4))).append(" ").append(array2[n]).toString();
+        final String[] units = { "B", "KB", "MB", "GB", "TB" };
+        final double value = size;
+        final int digitGroup = (int)(Math.log10(value) / Math.log10(1024.0));
+        return new DecimalFormat("#,##0.#").format(
+                value / Math.pow(1024.0, digitGroup)) + " " + units[digitGroup];
     }
     
     public static String getDisplayFileSize(final String filePath) {

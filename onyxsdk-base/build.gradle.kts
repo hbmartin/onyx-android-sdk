@@ -28,6 +28,10 @@ android {
     lint {
         disable += "GradleDependency"
     }
+
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
 }
 
 configurations.configureEach {
@@ -59,17 +63,13 @@ dependencies {
     api("com.fasterxml.uuid:java-uuid-generator:4.1.0")
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10")
     api("com.jakewharton.hugo.fix:hugo-annotations:1.2.3")
-}
 
-val decompiledSourcesJar = tasks.register<Jar>("decompiledSourcesJar") {
-    group = "build"
-    description = "Archives the raw JADX recovery retained as analysis evidence."
-    archiveClassifier.set("decompiled-sources")
-    from(rootProject.file("recovery-evidence/decompilers/base/jadx"))
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.robolectric:robolectric:4.14.1")
 }
 
 tasks.register("assembleRecovered") {
     group = "build"
-    description = "Builds the source-native release AAR and decompilation evidence archive."
-    dependsOn("assembleRelease", decompiledSourcesJar)
+    description = "Builds the source-native release AAR."
+    dependsOn("assembleRelease")
 }

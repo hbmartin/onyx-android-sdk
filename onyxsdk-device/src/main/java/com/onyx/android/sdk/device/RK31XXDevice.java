@@ -1289,16 +1289,11 @@ public class RK31XXDevice extends BaseDevice
     @Override
     public void resetEpdPost() {
         try {
-            final Method i0 = RK31XXDevice.i0;
-            final Object receiver = null;
-            try {
-                ReflectUtil.invokeMethodSafely(i0, receiver, new Object[0]);
-            }
-            catch (final Exception ex) {
-                ex.printStackTrace();
-            }
+            ReflectUtil.invokeMethodSafely(RK31XXDevice.i0, null, new Object[0]);
         }
-        catch (final Exception ex2) {}
+        catch (final Exception exception) {
+            exception.printStackTrace();
+        }
     }
     
     public boolean supportScreenHandWriting() {

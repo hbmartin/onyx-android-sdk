@@ -1,36 +1,53 @@
 # Native recovery
 
-`onyxsdk-pen/native/onyx-pen-touch-reader` is a Rust behavioral reconstruction
-of the pen input driver. The repository contains no original native binary.
+The pen AAR contains two source-built Rust libraries and no supplied native
+binary.
 
-The recovery implements:
+## `libonyx_pen_touch_reader.so`
 
-- `/dev/input/event0` through `event15` device discovery;
-- Hanvon, Wacom, and `onyx_emp` device-name matching;
-- Linux input-event polling and `eventfd` wakeup;
-- pen, rubber, side-button erase, draw, move, up, pause, and sync states;
-- limit and exclusion regions with stroke-width margins;
-- sticky region mode and pressure-curve normalization;
-- `onTouchPointReceived(FFIIIZZZIJ)V` callback dispatch.
+The raw reader implements all 11 `RawInputReader` JNI entry points:
 
-## Source contract
+- `/dev/input/event0` through `event15` discovery for Hanvon, Wacom, and
+  `onyx_emp` devices;
+- Linux `input_event` polling with an `eventfd` wakeup;
+- draw, erase, side-button erase, move, up, pause, and sync states;
+- limit/exclusion regions, sticky region mode, and stroke-width margins;
+- pressure normalization and
+  `onTouchPointReceived(FFIIIZZZIJ)V` callback dispatch.
 
-The eleven JNI names are declared in the checked-in Java `NativeContract`,
-implemented by Rust exports, and consumed by the source-native
-`RawInputReader`. Validation checks that all three layers agree for every ABI.
-No comparison or packaging step reads an original `.so`.
+## `libneo_pen.so`
 
-## Android builds
+The neo renderer implements both Java generations:
 
-`scripts/build-rust-android.sh` uses API 21 NDK clang linkers and emits standard
-Android `jniLibs/<abi>/libonyx_pen_touch_reader.so` outputs for:
+- seven exported `NeoPenNative` functions for handle creation/destruction,
+  down/move/up rendering, logging, and bitmap setup;
+- seven exported `NeoPenWrapper` functions for the legacy static lifecycle,
+  point rendering, offline list rendering, and texture retrieval.
 
-- `armeabi-v7a`;
-- `arm64-v8a`;
-- `x86`;
-- `x86_64`.
+All nine configured pen types are implemented. Point pens return three-value
+records, pencil returns five-value records, path pens return 12-value polygon
+records, and texture pens return two-value positions with Android bitmaps.
+Prediction data is separate from committed data and never advances stroke
+state.
 
-The driver is pure Rust/JNI and does not link to `libc++_shared.so`. The Android
-library build packages only the generated Rust library. Host tests validate
-the state machine and ABI surface; BOOX hardware remains necessary to validate
-real vendor input devices and firmware behavior.
+## Builds and contracts
+
+`scripts/build-rust-android.sh` uses NDK API 21 linkers to build both crates for
+`armeabi-v7a`, `arm64-v8a`, `x86`, and `x86_64`. The checked-in export contracts
+under `scripts/native-contracts` contain 11 touch-reader names and 14 neo-pen
+names. `scripts/verify-recovery.sh` compares those contracts with every loose
+and packaged library and rejects `libc++_shared.so` dependencies.
+
+## Device differential
+
+`scripts/device-pen-differential.sh` temporarily builds an instrumentation APK
+with the untracked reference arm64 library, captures all nine pen behaviors,
+rebuilds the Rust candidate, captures it through the same Java calls, compares
+the results, and finally runs the full candidate instrumentation suite. A trap
+always rebuilds the Rust candidate so the reference cannot remain in the
+working output.
+
+Types 1–5 are exact for the recovered trace. The independently implemented
+Wacom-style spline/brush pipeline for types 6–9 is validated for matching
+record counts, buffering/prediction semantics, bitmap behavior, finite values,
+and bounded geometry.

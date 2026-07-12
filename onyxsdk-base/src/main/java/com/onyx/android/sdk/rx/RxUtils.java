@@ -100,8 +100,8 @@ public class RxUtils {
         public void run() {
             try {
                 this.a.run();
-            } catch (Exception error) {
-                Debug.e(RxUtils.class, "switchToUIThreadDispose", error);
+            } catch (Exception exception) {
+                Debug.e(RxUtils.class, "switchToUIThreadDispose", exception);
             } finally {
                 this.b.dispose();
             }

@@ -1,18 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  android.graphics.Bitmap
- *  android.graphics.Bitmap$Config
- *  android.graphics.Canvas
- *  android.graphics.Paint
- *  android.graphics.Paint$Cap
- *  android.graphics.Paint$Join
- *  android.graphics.Paint$Style
- *  android.graphics.Rect
- *  com.onyx.android.sdk.data.note.TouchPoint
- *  com.onyx.android.sdk.utils.ColorUtils
- */
 package com.onyx.android.sdk.pen;
 
 import android.graphics.Bitmap;
@@ -20,165 +5,122 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import com.onyx.android.sdk.data.note.TouchPoint;
-import com.onyx.android.sdk.pen.NeoRenderPoint;
 import com.onyx.android.sdk.utils.ColorUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/PenUtils.class */
 public class PenUtils {
     public static final float ERASE_EXTRA_STROKE_WIDTH = 1.0f;
     private static Bitmap a;
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static Bitmap ensurePenBitmapCreated(Rect drawRect) {
-        Rect rect;
         Bitmap bitmap = a;
-        if (bitmap == null || bitmap.getWidth() != rect.width() || a.getHeight() != rect.height()) {
-            a = Bitmap.createBitmap((int)rect.width(), (int)rect.height(), (Bitmap.Config)Bitmap.Config.ARGB_8888);
+        if (bitmap == null || bitmap.getWidth() != drawRect.width() || a.getHeight() != drawRect.height()) {
+            a = Bitmap.createBitmap(drawRect.width(), drawRect.height(), Bitmap.Config.ARGB_8888);
         }
         a.eraseColor(0);
         return a;
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static int getColorSafely(int shapeColor) {
-        int n;
-        if (!ColorUtils.isNeutralColor((int)shapeColor)) {
-            n = -16777216;
+        if (!ColorUtils.isNeutralColor(shapeColor)) {
+            shapeColor = -16777216;
         }
-        return n;
+        return shapeColor;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    /* JADX DEBUG: Move duplicate insns, count: 1 to block B:3:0x003d */
     public static void drawStrokeByPointSize(Canvas canvas, Paint paint, List<TouchPoint> points, boolean erase) {
-        void var1_1;
-        void var2_2;
-        Paint paint2 = paint;
-        int n = paint2.getColor();
-        Paint.Style style = paint2.getStyle();
-        Paint.Cap cap = paint2.getStrokeCap();
-        Paint.Join join = paint2.getStrokeJoin();
-        boolean bl = paint2.isAntiAlias();
-        float f = paint2.getStrokeWidth();
-        paint2.setStyle(Paint.Style.FILL_AND_STROKE);
-        paint2.setStrokeCap(Paint.Cap.ROUND);
-        paint2.setStrokeJoin(Paint.Join.ROUND);
-        paint2.setAntiAlias(true);
-        int n2 = 0;
-        while (n2 < var2_2.size() - 1) {
-            Canvas canvas2;
-            void var3_3;
-            int n3 = n2 + 1;
-            float f2 = ((TouchPoint)var2_2.get((int)n3)).size;
-            if (var3_3 != false) {
-                f2 += 1.0f;
+        int color = paint.getColor();
+        Paint.Style style = paint.getStyle();
+        Paint.Cap strokeCap = paint.getStrokeCap();
+        Paint.Join strokeJoin = paint.getStrokeJoin();
+        boolean zIsAntiAlias = paint.isAntiAlias();
+        float strokeWidth = paint.getStrokeWidth();
+        paint.setStyle(Paint.Style.FILL_AND_STROKE);
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setStrokeJoin(Paint.Join.ROUND);
+        paint.setAntiAlias(true);
+        int i = 0;
+        while (true) {
+            int i2 = i;
+            if (i2 >= points.size() - 1) {
+                paint.setColor(color);
+                paint.setStyle(style);
+                paint.setStrokeCap(strokeCap);
+                paint.setStrokeJoin(strokeJoin);
+                paint.setAntiAlias(zIsAntiAlias);
+                paint.setStrokeWidth(strokeWidth);
+                return;
             }
-            var1_1.setStrokeWidth(f2);
-            float f3 = ((TouchPoint)var2_2.get((int)n2)).x;
-            f2 = ((TouchPoint)var2_2.get((int)n2)).y;
-            float f4 = ((TouchPoint)var2_2.get((int)n3)).x;
-            float f5 = ((TouchPoint)var2_2.get((int)n3)).y;
-            canvas2.drawLine(f3, f2, f4, f5, (Paint)var1_1);
-            n2 = n3;
+            int i3 = i2 + 1;
+            float f = points.get(i3).size;
+            if (erase) {
+                f += 1.0f;
+            }
+            paint.setStrokeWidth(f);
+            canvas.drawLine(points.get(i2).x, points.get(i2).y, points.get(i3).x, points.get(i3).y, paint);
+            i = i3;
         }
-        void v1 = var1_1;
-        v1.setColor(n);
-        v1.setStyle(style);
-        v1.setStrokeCap(cap);
-        v1.setStrokeJoin(join);
-        v1.setAntiAlias(bl);
-        v1.setStrokeWidth(f);
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static ArrayList<TouchPoint> toTouchPoints(NeoRenderPoint[] points) {
-        ArrayList<TouchPoint> arrayList;
-        ArrayList<TouchPoint> arrayList2 = arrayList;
-        arrayList = new ArrayList<TouchPoint>();
-        int n = points.length;
-        for (int i = 0; i < n; ++i) {
-            TouchPoint touchPoint;
-            NeoRenderPoint[] neoRenderPointArray;
-            NeoRenderPoint neoRenderPoint = neoRenderPointArray[i];
-            TouchPoint touchPoint2 = touchPoint;
-            NeoRenderPoint neoRenderPoint2 = neoRenderPoint;
-            float f = neoRenderPoint2.x;
-            float f2 = neoRenderPoint2.y;
-            float f3 = neoRenderPoint2.size;
-            touchPoint = new TouchPoint(f, f2, 0.0f, f3, 0L);
-            arrayList2.add(touchPoint2);
+        ArrayList<TouchPoint> arrayList = new ArrayList<>();
+        for (NeoRenderPoint neoRenderPoint : points) {
+            arrayList.add(new TouchPoint(neoRenderPoint.x, neoRenderPoint.y, com.onyx.android.sdk.pen.utils.PenUtils.KEPLER_MIN_PRESSURE_SENSITIVITY, neoRenderPoint.size, 0L));
         }
-        return arrayList2;
+        return arrayList;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static float[] getPointArray(List<TouchPoint> points, float maxTouchPressure) {
-        List<TouchPoint> list;
-        float[] fArray = new float[points.size() * 5];
-        for (int i = 0; i < list.size(); ++i) {
-            void var1_1;
-            int n = i;
-            int n2 = n * 5;
-            fArray[n2] = list.get((int)n).x;
-            int n3 = n2 + 1;
-            fArray[n3] = list.get((int)i).y;
-            n3 = n2 + 2;
-            fArray[n3] = list.get((int)i).pressure / var1_1;
-            n3 = n2 + 3;
-            fArray[n3] = list.get((int)i).size;
-            fArray[n2 += 4] = list.get((int)i).timestamp;
+        float[] fArr = new float[points.size() * 5];
+        for (int i = 0; i < points.size(); i++) {
+            int i2 = i;
+            int i3 = i2 * 5;
+            fArr[i3] = points.get(i2).x;
+            fArr[i3 + 1] = points.get(i).y;
+            fArr[i3 + 2] = points.get(i).pressure / maxTouchPressure;
+            fArr[i3 + 3] = points.get(i).size;
+            fArr[i3 + 4] = points.get(i).timestamp;
         }
-        return fArray;
+        return fArr;
     }
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static double[] getPointDoubleArray(TouchPoint point, float maxTouchPressure) {
-        void var1_2;
-        double d;
-        TouchPoint touchPoint;
-        double d2;
-        double[] dArray = new double[5];
-        double[] dArray2 = dArray;
-        dArray2[0] = d2 = (double)touchPoint.x;
-        dArray2[1] = d2 = (double)touchPoint.y;
-        dArray2[2] = d = (double)(touchPoint.pressure / var1_2);
-        dArray2[3] = d = (double)touchPoint.size;
-        dArray2[4] = d = (double)touchPoint.tiltX;
-        dArray2[5] = d = (double)touchPoint.tiltY;
-        dArray[6] = d = (double)touchPoint.timestamp;
-        return dArray;
+        // The original 1.5.4 bytecode allocated five slots but wrote the
+        // seven-value native record (x, y, pressure, size, tiltX, tiltY,
+        // timestamp).  Allocate the record the JNI contract actually consumes.
+        double[] dArr = new double[7];
+        dArr[0] = point.x;
+        dArr[1] = point.y;
+        dArr[2] = point.pressure / maxTouchPressure;
+        dArr[3] = point.size;
+        dArr[4] = point.tiltX;
+        dArr[5] = point.tiltY;
+        dArr[6] = point.timestamp;
+        return dArr;
     }
 
-    /*
-     * WARNING - void declaration
-     */
     public static double[] getPointDoubleArray(List<TouchPoint> points, float maxTouchPressure) {
-        List<TouchPoint> list;
-        double[] dArray = new double[points.size() * 7];
-        for (int i = 0; i < list.size(); ++i) {
-            void var1_1;
-            double d;
-            double d2;
-            int n = i;
-            int n2 = n * 7;
-            dArray[n2] = d2 = (double)list.get((int)n).x;
-            int n3 = n2 + 1;
-            dArray[n3] = d = (double)list.get((int)i).y;
-            n3 = n2 + 2;
-            float f = list.get((int)i).pressure / var1_1;
-            dArray[n3] = Math.min(1.0f, f);
-            n3 = n2 + 3;
-            dArray[n3] = d = (double)list.get((int)i).size;
-            n3 = n2 + 4;
-            dArray[n3] = d = (double)list.get((int)i).tiltX;
-            n3 = n2 + 5;
-            dArray[n3] = d = (double)list.get((int)i).tiltY;
-            dArray[n2 += 6] = d2 = (double)list.get((int)i).timestamp;
+        double[] dArr = new double[points.size() * 7];
+        for (int i = 0; i < points.size(); i++) {
+            int i2 = i;
+            int i3 = i2 * 7;
+            dArr[i3] = points.get(i2).x;
+            dArr[i3 + 1] = points.get(i).y;
+            dArr[i3 + 2] = Math.min(1.0f, points.get(i).pressure / maxTouchPressure);
+            dArr[i3 + 3] = points.get(i).size;
+            dArr[i3 + 4] = points.get(i).tiltX;
+            dArr[i3 + 5] = points.get(i).tiltY;
+            dArr[i3 + 6] = points.get(i).timestamp;
         }
-        return dArray;
+        return dArr;
     }
 }
-

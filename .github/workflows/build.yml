@@ -42,7 +42,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: Build, test, and audit recovery
-        run: ./gradlew --no-daemon clean check assembleRecovered
+        run: ./gradlew --no-daemon clean :check assembleRecovered
 
       - name: Upload source-native artifacts and reports
         if: always()

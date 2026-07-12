@@ -1,25 +1,7 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  android.graphics.Canvas
- *  android.graphics.Paint
- *  com.onyx.android.sdk.pen.NeoPen
- *  com.onyx.android.sdk.pen.PenResult
- *  kotlin.Metadata
- *  kotlin.Pair
- *  kotlin.collections.CollectionsKt
- *  kotlin.jvm.internal.Intrinsics
- *  org.jetbrains.annotations.NotNull
- *  org.jetbrains.annotations.Nullable
- */
 package com.onyx.android.sdk.pen;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import com.onyx.android.sdk.pen.NeoPen;
-import com.onyx.android.sdk.pen.NeoPenRender;
-import com.onyx.android.sdk.pen.PenResult;
 import kotlin.Metadata;
 import kotlin.Pair;
 import kotlin.collections.CollectionsKt;
@@ -27,87 +9,80 @@ import kotlin.jvm.internal.Intrinsics;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@Metadata(mv={1, 6, 0}, k=1, xi=48, d1={"\u00006\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u000b\n\u0002\b\u0004\n\u0002\u0010\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\b\u0016\u0018\u00002\u00020\u0001B\u0015\u0012\u0006\u0010\u0002\u001a\u00020\u0003\u0012\u0006\u0010\u0004\u001a\u00020\u0005\u00a2\u0006\u0002\u0010\u0006J \u0010\t\u001a\u00020\n2\u0016\u0010\u000b\u001a\u0012\u0012\u0006\u0012\u0004\u0018\u00010\r\u0012\u0006\u0012\u0004\u0018\u00010\r0\fH\u0014J\n\u0010\u000e\u001a\u0004\u0018\u00010\rH\u0014J\u0018\u0010\u000f\u001a\u00020\n2\u0006\u0010\u0010\u001a\u00020\u00112\u0006\u0010\u0012\u001a\u00020\u0013H\u0016R\u0014\u0010\u0004\u001a\u00020\u0005X\u0084\u0004\u00a2\u0006\b\n\u0000\u001a\u0004\b\u0007\u0010\b\u00a8\u0006\u0014"}, d2={"Lcom/onyx/android/sdk/pen/NeoPenRenderWrapper;", "Lcom/onyx/android/sdk/pen/NeoPenRender;", "neoPen", "Lcom/onyx/android/sdk/pen/NeoPen;", "segment", "", "(Lcom/onyx/android/sdk/pen/NeoPen;Z)V", "getSegment", "()Z", "addPenResult", "", "pair", "Lkotlin/Pair;", "Lcom/onyx/android/sdk/pen/PenResult;", "appendPredictPenResult", "render", "canvas", "Landroid/graphics/Canvas;", "paint", "Landroid/graphics/Paint;", "onyxsdk-pen_release"})
-public class NeoPenRenderWrapper
-extends NeoPenRender {
+/* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/NeoPenRenderWrapper.class */
+@Metadata(mv = {1, 6, 0}, k = 1, xi = 48, d1 = {"\u00006\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u000b\n\u0002\b\u0004\n\u0002\u0010\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\b\u0016\u0018\u00002\u00020\u0001B\u0015\u0012\u0006\u0010\u0002\u001a\u00020\u0003\u0012\u0006\u0010\u0004\u001a\u00020\u0005¢\u0006\u0002\u0010\u0006J \u0010\t\u001a\u00020\n2\u0016\u0010\u000b\u001a\u0012\u0012\u0006\u0012\u0004\u0018\u00010\r\u0012\u0006\u0012\u0004\u0018\u00010\r0\fH\u0014J\n\u0010\u000e\u001a\u0004\u0018\u00010\rH\u0014J\u0018\u0010\u000f\u001a\u00020\n2\u0006\u0010\u0010\u001a\u00020\u00112\u0006\u0010\u0012\u001a\u00020\u0013H\u0016R\u0014\u0010\u0004\u001a\u00020\u0005X\u0084\u0004¢\u0006\b\n\u0000\u001a\u0004\b\u0007\u0010\b¨\u0006\u0014"}, d2 = {"Lcom/onyx/android/sdk/pen/NeoPenRenderWrapper;", "Lcom/onyx/android/sdk/pen/NeoPenRender;", "neoPen", "Lcom/onyx/android/sdk/pen/NeoPen;", "segment", "", "(Lcom/onyx/android/sdk/pen/NeoPen;Z)V", "getSegment", "()Z", "addPenResult", "", "pair", "Lkotlin/Pair;", "Lcom/onyx/android/sdk/pen/PenResult;", "appendPredictPenResult", "render", "canvas", "Landroid/graphics/Canvas;", "paint", "Landroid/graphics/Paint;", "onyxsdk-pen_release"})
+public class NeoPenRenderWrapper extends NeoPenRender {
     private final boolean e;
 
-    /*
-     * WARNING - void declaration
-     */
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    /* JADX WARN: 'super' call moved to the top of the method (can break code semantics) */
     public NeoPenRenderWrapper(@NotNull NeoPen neoPen, boolean segment) {
-        void var2_2;
-        void var1_1;
-        Intrinsics.checkNotNullParameter((Object)var1_1, (String)"neoPen");
-        super((NeoPen)var1_1);
-        this.e = var2_2;
-        if (!segment) {
-            this.setPointCountThreshold(Integer.MAX_VALUE);
+        super(neoPen);
+        Intrinsics.checkNotNullParameter(neoPen, "neoPen");
+        this.e = segment;
+        if (segment) {
+            return;
         }
+        setPointCountThreshold(Integer.MAX_VALUE);
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     protected final boolean getSegment() {
         return this.e;
     }
 
-    /*
-     * WARNING - void declaration
-     */
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.NeoPenRender
     public void render(@NotNull Canvas canvas, @NotNull Paint paint) {
-        void var2_2;
-        void var1_1;
-        Intrinsics.checkNotNullParameter((Object)var1_1, (String)"canvas");
-        Intrinsics.checkNotNullParameter((Object)var2_2, (String)"paint");
+        Intrinsics.checkNotNullParameter(canvas, "canvas");
+        Intrinsics.checkNotNullParameter(paint, "paint");
         if (this.e) {
-            super.render((Canvas)var1_1, (Paint)var2_2);
-            return;
+            super.render(canvas, paint);
+        } else {
+            renderResult(appendPredictPenResult(), canvas, paint);
         }
-        NeoPenRenderWrapper neoPenRenderWrapper = this;
-        neoPenRenderWrapper.renderResult(neoPenRenderWrapper.appendPredictPenResult(), (Canvas)var1_1, (Paint)var2_2);
     }
 
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     @Nullable
     protected PenResult appendPredictPenResult() {
-        if ((this = (Pair)CollectionsKt.lastOrNull(this.getPenResults())) == null) {
+        Pair pair = (Pair) CollectionsKt.lastOrNull(getPenResults());
+        if (pair == null) {
             return null;
         }
-        PenResult penResult = (PenResult)this.getFirst();
+        PenResult penResult = (PenResult) pair.getFirst();
+        PenResult penResultAppend = penResult;
         if (penResult == null) {
             return null;
         }
-        if ((this = (PenResult)this.getSecond()) != null) {
-            penResult = penResult.append((PenResult)this);
+        PenResult penResult2 = (PenResult) pair.getSecond();
+        if (penResult2 != null) {
+            penResultAppend = penResultAppend.append(penResult2);
         }
-        return penResult;
+        return penResultAppend;
     }
 
-    /*
-     * WARNING - void declaration
-     */
-    @Override
+    /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
+    @Override // com.onyx.android.sdk.pen.NeoPenRender
     protected void addPenResult(@NotNull Pair<? extends PenResult, ? extends PenResult> pair) {
-        Pair pair2;
-        void var1_1;
-        Intrinsics.checkNotNullParameter((Object)var1_1, (String)"pair");
-        if (!this.e) {
-            Pair pair3;
-            Object object = (Pair)CollectionsKt.lastOrNull(this.getPenResults());
-            if ((object == null ? null : (PenResult)object.getFirst()) != null) {
-                object = (Pair)CollectionsKt.lastOrNull(this.getPenResults());
-                object = object == null ? null : (PenResult)object.getFirst();
-                Intrinsics.checkNotNull((Object)object);
-                object = object.append((PenResult)var1_1.getFirst());
-            } else {
-                object = (PenResult)var1_1.getFirst();
-            }
-            pair2 = pair3;
-            pair3 = new Pair(object, var1_1.getSecond());
-            this.clearPenResults();
+        Pair<? extends PenResult, ? extends PenResult> pair2;
+        PenResult penResultAppend;
+        Intrinsics.checkNotNullParameter(pair, "pair");
+        if (this.e) {
+            pair2 = pair;
         } else {
-            pair2 = var1_1;
+            Pair pair3 = (Pair) CollectionsKt.lastOrNull(getPenResults());
+            if ((pair3 == null ? null : (PenResult) pair3.getFirst()) != null) {
+                Pair pair4 = (Pair) CollectionsKt.lastOrNull(getPenResults());
+                PenResult penResult = pair4 == null ? null : (PenResult) pair4.getFirst();
+                Intrinsics.checkNotNull(penResult);
+                penResultAppend = penResult.append((PenResult) pair.getFirst());
+            } else {
+                penResultAppend = (PenResult) pair.getFirst();
+            }
+            pair2 = new Pair<>(penResultAppend, pair.getSecond());
+            clearPenResults();
         }
-        super.addPenResult((Pair<? extends PenResult, ? extends PenResult>)pair2);
+        super.addPenResult(pair2);
     }
 }
-

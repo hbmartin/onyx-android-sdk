@@ -6,3 +6,7 @@
 -keepclassmembers class com.onyx.android.sdk.pen.RawInputReader {
     public void onTouchPointReceived(float, float, int, int, int, boolean, boolean, boolean, int, long);
 }
+
+# PenBrushResult bridges to Kotlin UByte accessors whose names are part of the
+# recovered binary contract.
+-keep class com.onyx.android.sdk.pen.PenBrushInk { *; }
