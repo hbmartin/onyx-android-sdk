@@ -82,7 +82,63 @@ struct Stamp {
     width: i32,
     height: i32,
     alpha: u8,
+    rows: Option<&'static [u32]>,
 }
+
+const CHARCOAL_MOVE_ROWS: &[u32] = &[
+    0b0000000000000,
+    0b0000000000000,
+    0b0000000000000,
+    0b0001010000000,
+    0b0000101000000,
+    0b0000010100000,
+    0b0001001000000,
+    0b0000010010000,
+    0b0000001101000,
+    0b0000000101000,
+    0b0000000100100,
+    0b0000000010010,
+    0b0000000000000,
+    0b0000000000000,
+];
+
+const CHARCOAL_UP_ROWS: &[u32] = &[
+    0b0000000000000,
+    0b0000000000000,
+    0b0000010000000,
+    0b0001010000000,
+    0b0001010000000,
+    0b0001011010000,
+    0b0000101000000,
+    0b0000010110100,
+    0b0000001000000,
+    0b0000000010000,
+    0b0000000001000,
+    0b0000000000000,
+    0b0000000000000,
+];
+
+const CHARCOAL_V2_UP_ROWS: &[u32] = &[
+    0b000000000000000000,
+    0b000001000000000000,
+    0b000011100000000000,
+    0b010101110000000000,
+    0b010100111100000000,
+    0b001010111100000000,
+    0b000101010001000000,
+    0b000101000101000000,
+    0b000011110010000000,
+    0b000000001110100000,
+    0b000000100100111000,
+    0b000000011100110100,
+    0b000000001001101000,
+    0b000000001000101110,
+    0b000000000100111100,
+    0b000000000101010100,
+    0b000000000000000100,
+    0b000000000000010000,
+    0b000000000000000100,
+];
 
 #[derive(Clone, Debug, Default)]
 struct InkData {
@@ -487,6 +543,7 @@ impl PenState {
                                 width: 13,
                                 height: 14,
                                 alpha: 180,
+                                rows: Some(CHARCOAL_MOVE_ROWS),
                             });
                         }
                     }
@@ -550,10 +607,11 @@ impl PenState {
                             width: 13,
                             height: 13,
                             alpha: 180,
+                            rows: Some(CHARCOAL_UP_ROWS),
                         });
                     }
                     5 => {
-                        let point = self.history.last().copied().unwrap_or(end);
+                        let point = self.history.first().copied().unwrap_or(end);
                         real.points
                             .extend_from_slice(&[point.x - 4.0, point.y - 4.0]);
                         real.point_sizes.push(2);
@@ -561,6 +619,7 @@ impl PenState {
                             width: 18,
                             height: 19,
                             alpha: 180,
+                            rows: Some(CHARCOAL_V2_UP_ROWS),
                         });
                     }
                     6 if self.config.fast_mode => {
@@ -748,9 +807,40 @@ fn create_bitmap<'local>(
             ],
         )?
         .l()?;
-    let alpha = (color as u32 >> 24) * u32::from(stamp.alpha) / 255;
-    let argb = (alpha << 24) | (color as u32 & 0x00ff_ffff);
-    env.call_method(&bitmap, "eraseColor", "(I)V", &[JValue::Int(argb as i32)])?;
+    if let Some(rows) = stamp.rows {
+        let width = stamp.width.max(1) as usize;
+        let height = stamp.height.max(1) as usize;
+        let mut pixels = Vec::with_capacity(width * height);
+        for y in 0..height {
+            let row = rows.get(y).copied().unwrap_or(0);
+            for x in 0..width {
+                let bit = 1u32 << (width - 1 - x);
+                pixels.push(if row & bit == 0 { 0 } else { color });
+            }
+        }
+        let colors: JIntArray = env.new_int_array(pixels.len() as i32)?;
+        env.set_int_array_region(&colors, 0, &pixels)?;
+        let colors_object = JObject::from(colors);
+        env.call_method(
+            &bitmap,
+            "setPixels",
+            "([IIIIIII)V",
+            &[
+                JValue::Object(&colors_object),
+                JValue::Int(0),
+                JValue::Int(stamp.width),
+                JValue::Int(0),
+                JValue::Int(0),
+                JValue::Int(stamp.width),
+                JValue::Int(stamp.height),
+            ],
+        )?;
+        env.delete_local_ref(colors_object)?;
+    } else {
+        let alpha = (color as u32 >> 24) * u32::from(stamp.alpha) / 255;
+        let argb = (alpha << 24) | (color as u32 & 0x00ff_ffff);
+        env.call_method(&bitmap, "eraseColor", "(I)V", &[JValue::Int(argb as i32)])?;
+    }
     env.delete_local_ref(config_class)?;
     env.delete_local_ref(config)?;
     Ok(bitmap)
@@ -1368,6 +1458,7 @@ mod tests {
                 width: 13,
                 height: 14,
                 alpha: 180,
+                rows: None,
             }],
         };
         assert_eq!(

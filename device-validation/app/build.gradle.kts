@@ -53,6 +53,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
+
     packaging {
         jniLibs {
             useLegacyPackaging = true
@@ -109,6 +113,8 @@ dependencies {
     implementation("com.fasterxml.uuid:java-uuid-generator:4.1.0")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10")
     implementation("com.jakewharton.hugo.fix:hugo-annotations:1.2.3")
+
+    testImplementation("junit:junit:4.13.2")
 }
 
 tasks.register("verifyInputs") {

@@ -5,6 +5,8 @@ import android.content.Context;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.os.Build;
+import android.os.SystemClock;
+import android.util.Log;
 import android.view.InputDevice;
 import android.view.View;
 
@@ -34,6 +36,7 @@ import java.util.Arrays;
 import java.util.List;
 
 final class ProbeRunner {
+    private static final String TAG = "OnyxValidation";
     private ProbeRunner() {}
 
     static void inventory(Activity activity, ResultRecorder recorder) {
@@ -305,9 +308,15 @@ final class ProbeRunner {
 
     private static void probe(ResultRecorder recorder, String suite, String caseId,
                               Object input, CheckedSupplier supplier) {
+        long startedNs = SystemClock.elapsedRealtimeNanos();
+        Log.d(TAG, "START " + suite + "/" + caseId + " input=" + String.valueOf(input));
         try {
             recorder.value(suite, caseId, input, supplier.get());
+            Log.d(TAG, "END " + suite + "/" + caseId + " elapsedMs="
+                    + ((SystemClock.elapsedRealtimeNanos() - startedNs) / 1_000_000.0));
         } catch (Throwable error) {
+            Log.e(TAG, "FAIL " + suite + "/" + caseId + " elapsedMs="
+                    + ((SystemClock.elapsedRealtimeNanos() - startedNs) / 1_000_000.0), error);
             // Unsupported and permission-denied outcomes are expected results
             // on some firmware, recorded explicitly so the comparison can pin
             // them instead of treating them as flaky failures.

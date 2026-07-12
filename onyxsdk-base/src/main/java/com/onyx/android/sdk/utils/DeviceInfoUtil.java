@@ -29,11 +29,15 @@ public class DeviceInfoUtil {
     private static final String f = "sys/onyx_misc/cpu_serial";
 
     public static File getExternalStorageDirectory() {
-        return Device.currentDevice.getExternalStorageDirectory();
+        File directory = Device.currentDevice.getExternalStorageDirectory();
+        Log.d(d, "external storage=" + directory);
+        return directory;
     }
 
     public static File getRemovableSDCardDirectory() {
-        return Device.currentDevice.getRemovableSDCardDirectory();
+        File directory = Device.currentDevice.getRemovableSDCardDirectory();
+        Log.d(d, "removable storage=" + directory);
+        return directory;
     }
 
     public static Point getScreenResolution(Context context) {
@@ -72,13 +76,18 @@ public class DeviceInfoUtil {
         String line = null;
         try {
             line = StringUtils.readLine(b);
+            Log.d(d, "kernel build-id readable=" + !StringUtils.isNullOrEmpty(line));
         } catch (IOException unused) {
+            Log.d(d, "kernel build-id unavailable at " + b);
         }
         if (!StringUtils.isNullOrEmpty(line)) {
             return line;
         }
         try {
-            return a(StringUtils.readLine(a));
+            String raw = StringUtils.readLine(a);
+            String parsed = a(raw);
+            Log.d(d, "kernel /proc fallback parsed=" + !"Unavailable".equals(parsed));
+            return parsed;
         } catch (IOException e2) {
             Log.e(d, "IO Exception when getting kernel version for Device Info screen", e2);
             return "Unavailable";
@@ -99,10 +108,14 @@ public class DeviceInfoUtil {
     }
 
     public static String getEMTPInfo() {
-        String strB = b(FileUtils.readContentOfFile("/sys/onyx_misc/stylus_fwver"));
+        String raw = FileUtils.readContentOfFile("/sys/onyx_misc/stylus_fwver");
+        Log.d(d, "stylus firmware sysfs readable=" + !StringUtils.isNullOrEmpty(raw));
+        String strB = b(raw);
         String str = strB;
         if (StringUtils.isNullOrEmpty(strB) || str.equals(e)) {
             str = OnyxSystemProperties.get("sys.onyx.emtp", TTFFont.UNKNOWN_FONT_NAME);
+            Log.d(d, "stylus firmware using system-property fallback, present="
+                    + !StringUtils.isNullOrEmpty(str));
         }
         return str;
     }
@@ -129,7 +142,9 @@ public class DeviceInfoUtil {
     }
 
     public static boolean isColorDevice() {
-        return Device.currentDevice().getColorType() > 0;
+        int colorType = Device.currentDevice().getColorType();
+        Log.d(d, "color type=" + colorType);
+        return colorType > 0;
     }
 
     @RequiresPermission("android.permission.READ_PHONE_STATE")

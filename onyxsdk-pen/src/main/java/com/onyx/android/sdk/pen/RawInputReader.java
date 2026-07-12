@@ -24,6 +24,7 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/RawInputReader.class */
 public class RawInputReader {
@@ -41,6 +42,7 @@ public class RawInputReader {
     private static final String H = "raw_input";
     private static final long I = 60;
     private static final ExecutorService J;
+    private static final AtomicLong READER_SESSIONS = new AtomicLong();
     private volatile Matrix h;
     private volatile TouchPointList i;
     private RawInputCallback l;
@@ -51,6 +53,7 @@ public class RawInputReader {
     private RxTimerUtil.TimerObserver t;
     private RxTimerUtil.TimerObserver u;
     private boolean v;
+    private volatile long readerSession;
     private volatile boolean a = false;
     private volatile boolean b = false;
     private volatile boolean c = false;
@@ -66,8 +69,11 @@ public class RawInputReader {
 
     /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/RawInputReader$a.class */
     class a implements Runnable {
+        private final long session;
+
         /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
-        a() {
+        a(long session) {
+            this.session = session;
         }
 
         /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
@@ -76,17 +82,17 @@ public class RawInputReader {
         @Override // java.lang.Runnable
         public void run() {
             try {
-                Debug.i(getClass(), "submitJob nativeRawReader " + Thread.currentThread().getName() + "-" + Thread.currentThread().getId(), new Object[0]);
-                RawInputReader.this.nativeRawReader();
-                Debug.i(getClass(), "submitJob finally closeRawInput " + Thread.currentThread().getName() + "-" + Thread.currentThread().getId(), new Object[0]);
-                RawInputReader.this.c();
-            } catch (Exception unused) {
-                Debug.i(getClass(), "submitJob finally closeRawInput " + Thread.currentThread().getName() + "-" + Thread.currentThread().getId(), new Object[0]);
-                RawInputReader.this.c();
+                Log.d(w, "reader enter session=" + session + " thread="
+                        + Thread.currentThread().getName() + "-" + Thread.currentThread().getId());
+                RawInputReader.this.nativeRawReader(session);
+            } catch (Exception error) {
+                Log.e(w, "reader failed session=" + session, error);
             } catch (Throwable th) {
-                Debug.i(th.getClass(), "submitJob finally closeRawInput " + Thread.currentThread().getName() + "-" + Thread.currentThread().getId(), new Object[0]);
-                RawInputReader.this.c();
+                Log.e(w, "reader crashed session=" + session, th);
                 throw th;
+            } finally {
+                Log.d(w, "reader exit session=" + session + " fdValid=" + isFdValid());
+                RawInputReader.this.c(session);
             }
         }
     }
@@ -127,9 +133,9 @@ public class RawInputReader {
     }
 
     /* JADX INFO: Access modifiers changed from: private */
-    private native void nativeRawReader();
+    private native void nativeRawReader(long session);
 
-    private native void nativeRawClose();
+    private native void nativeRawClose(long session);
 
     private native boolean nativeIsValid();
 
@@ -197,7 +203,10 @@ public class RawInputReader {
 
     /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     private void p() {
-        e().submit(new a());
+        long session = READER_SESSIONS.incrementAndGet();
+        this.readerSession = session;
+        Log.d(w, "queue reader session=" + session);
+        e().submit(new a(session));
     }
 
     /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
@@ -264,6 +273,8 @@ public class RawInputReader {
 
     /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void start() {
+        Log.d(w, "start requested previousSession=" + this.readerSession
+                + " fdValid=" + isFdValid());
         f();
         c();
         this.b = false;
@@ -274,6 +285,7 @@ public class RawInputReader {
 
     /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void resume() {
+        Log.d(w, "resume session=" + this.readerSession + " fdValid=" + isFdValid());
         f();
         nativeSetPenState(4);
         this.d = true;
@@ -285,6 +297,7 @@ public class RawInputReader {
     // pen state is below 2, and this class only ever sets state 4, so a stroke
     // in progress continues across pause()/resume() without a forced release.
     public void pause() {
+        Log.d(w, "pause session=" + this.readerSession + " fdValid=" + isFdValid());
         nativePausePen();
         this.d = false;
         a("pause");
@@ -292,6 +305,7 @@ public class RawInputReader {
 
     /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public void quit() {
+        Log.d(w, "quit requested session=" + this.readerSession + " fdValid=" + isFdValid());
         o();
         nativeSetPenState(4);
         this.l = null;
@@ -303,6 +317,7 @@ public class RawInputReader {
         this.b = true;
         this.c = false;
         a("quit");
+        Log.d(w, "quit completed session=" + this.readerSession + " fdValid=" + isFdValid());
     }
 
     /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
@@ -452,7 +467,12 @@ public class RawInputReader {
     /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 2 */
     /* JADX INFO: Access modifiers changed from: private */
     private void c() {
-        nativeRawClose();
+        c(this.readerSession);
+    }
+
+    private void c(long session) {
+        Log.d(w, "close native reader session=" + session);
+        nativeRawClose(session);
     }
 
     /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 2 */

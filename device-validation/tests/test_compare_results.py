@@ -74,6 +74,32 @@ class KeyedTest(unittest.TestCase):
         self.assertEqual(compare_results.keyed(records, live=True), {})
 
 
+class ReplayHealthOutputsTest(unittest.TestCase):
+    def test_preserves_dicts_and_normalizes_malformed_outputs(self):
+        valid = {"healthy": True, "delivered": 7}
+        missing = record(case="replay_health")
+        del missing["output"]
+        records = [
+            record(case="replay_health", output=valid),
+            missing,
+            record(case="replay_health", output=None),
+            record(case="replay_health", output=[]),
+            record(case="replay_health", output="invalid"),
+        ]
+
+        self.assertEqual(
+            compare_results.replay_health_outputs(records),
+            [valid, {}, {}, {}, {}],
+        )
+
+    def test_ignores_non_dictionary_records(self):
+        valid = {"caseId": "replay_health", "output": {"healthy": True}}
+        self.assertEqual(
+            compare_results.replay_health_outputs([[], "invalid", 42, None, valid]),
+            [{"healthy": True}],
+        )
+
+
 class ClassifyTest(unittest.TestCase):
     def test_one_sided_records_are_defects_not_harness_errors(self):
         # An extra or missing callback is precisely the divergence being

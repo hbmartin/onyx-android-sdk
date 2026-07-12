@@ -2,6 +2,7 @@ package com.onyx.recovery.validation;
 
 import android.content.Context;
 import android.os.SystemClock;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,6 +20,7 @@ import java.util.Locale;
 import java.util.Map;
 
 final class ResultRecorder implements AutoCloseable {
+    private static final String TAG = "OnyxValidation";
     static final String MATCH = "match";
     static final String RECOVERY_DEFECT = "recovery_defect";
     static final String PLATFORM_VARIATION = "platform_variation";
@@ -32,12 +34,17 @@ final class ResultRecorder implements AutoCloseable {
     private boolean closed;
 
     ResultRecorder(Context context) throws IOException {
-        this.variant = BuildConfig.SDK_VARIANT;
         // One writer for the app's lifetime, flushed per record: the runner
         // only pulls results after the done marker, but a flush per line keeps
         // partial output readable after a crash without reopening the file
         // for every event during replay.
-        this.writer = new BufferedWriter(new FileWriter(new File(context.getFilesDir(), "results.jsonl"), false));
+        this(new BufferedWriter(new FileWriter(
+                new File(context.getFilesDir(), "results.jsonl"), false)), BuildConfig.SDK_VARIANT);
+    }
+
+    ResultRecorder(Writer writer, String variant) {
+        this.writer = writer;
+        this.variant = variant;
     }
 
     synchronized void record(String suite, String caseId, String phase, String status,
@@ -45,7 +52,10 @@ final class ResultRecorder implements AutoCloseable {
         // onDestroy interrupts the worker without awaiting it; a probe still
         // running when the recorder closes must drop its record instead of
         // crashing the process on the closed writer.
-        if (closed) return;
+        if (closed) {
+            Log.w(TAG, "Dropping record after close: " + suite + "/" + caseId + "/" + phase);
+            return;
+        }
         JSONObject line = new JSONObject();
         try {
             line.put("sequence", sequence++);
@@ -66,6 +76,11 @@ final class ResultRecorder implements AutoCloseable {
                 line.put("exception", exception);
             }
             append(line);
+            if (error == null) {
+                Log.i(TAG, "RESULT " + line);
+            } else {
+                Log.e(TAG, "RESULT " + line, error);
+            }
         } catch (JSONException | IOException e) {
             throw new IllegalStateException("Could not record validation result", e);
         }
@@ -93,6 +108,7 @@ final class ResultRecorder implements AutoCloseable {
         // runner pull a stream that never says which suite finished.
         if (closed) throw new IOException("result recorder is closed");
         value("harness", "suite_complete", suite, true);
+        Log.i(TAG, "Writing done marker for suite=" + suite);
         try (FileWriter writer = new FileWriter(new File(context.getFilesDir(), "done"), false)) {
             writer.write(suite);
             writer.write('\n');
@@ -103,6 +119,7 @@ final class ResultRecorder implements AutoCloseable {
     public synchronized void close() throws IOException {
         if (closed) return;
         closed = true;
+        Log.i(TAG, "Closing result stream after " + sequence + " records");
         writer.close();
     }
 

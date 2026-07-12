@@ -3,7 +3,7 @@
 
 mod state;
 
-use std::sync::atomic::{AtomicBool, AtomicI32, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicI32, AtomicI64, Ordering};
 use std::sync::{Mutex, OnceLock};
 
 use jni::objects::{JFloatArray, JObject, JValue};
@@ -17,6 +17,7 @@ struct Runtime {
     input_fd: AtomicI32,
     wake_fd: AtomicI32,
     debug: AtomicBool,
+    cancelled_through: AtomicI64,
 }
 
 fn runtime() -> &'static Runtime {
@@ -27,6 +28,7 @@ fn runtime() -> &'static Runtime {
         input_fd: AtomicI32::new(-1),
         wake_fd: AtomicI32::new(-1),
         debug: AtomicBool::new(false),
+        cancelled_through: AtomicI64::new(0),
     })
 }
 
@@ -94,9 +96,14 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeIsVali
 pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeRawClose(
     _env: JNIEnv,
     _object: JObject,
+    session: i64,
 ) {
     let rt = runtime();
+    rt.cancelled_through.fetch_max(session, Ordering::SeqCst);
     rt.running.store(false, Ordering::SeqCst);
+    if rt.debug.load(Ordering::SeqCst) {
+        eprintln!("[onyx-touch-reader] close session={session}");
+    }
     #[cfg(any(target_os = "android", target_os = "linux"))]
     unsafe {
         let fd = rt.wake_fd.load(Ordering::SeqCst);
@@ -188,12 +195,13 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeEnable
 pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeRawReader(
     mut env: JNIEnv,
     object: JObject,
+    session: i64,
 ) {
     #[cfg(any(target_os = "android", target_os = "linux"))]
-    reader_loop(&mut env, &object);
+    reader_loop(&mut env, &object, session);
     #[cfg(not(any(target_os = "android", target_os = "linux")))]
     {
-        let _ = (&mut env, &object);
+        let _ = (&mut env, &object, session);
     }
 }
 
@@ -255,9 +263,18 @@ fn open_pen_device() -> Option<(i32, f32)> {
 }
 
 #[cfg(any(target_os = "android", target_os = "linux"))]
-fn reader_loop(env: &mut JNIEnv, object: &JObject) {
+fn reader_loop(env: &mut JNIEnv, object: &JObject, session: i64) {
     let rt = runtime();
+    if session <= rt.cancelled_through.load(Ordering::SeqCst) {
+        if rt.debug.load(Ordering::SeqCst) {
+            eprintln!("[onyx-touch-reader] skip cancelled session={session}");
+        }
+        return;
+    }
     let Some((input_fd, max_pressure)) = open_pen_device() else {
+        if rt.debug.load(Ordering::SeqCst) {
+            eprintln!("[onyx-touch-reader] no pen device session={session}");
+        }
         return;
     };
     let wake_fd = unsafe { libc::eventfd(0, libc::EFD_CLOEXEC) };
@@ -269,7 +286,24 @@ fn reader_loop(env: &mut JNIEnv, object: &JObject) {
     }
     rt.input_fd.store(input_fd, Ordering::SeqCst);
     rt.wake_fd.store(wake_fd, Ordering::SeqCst);
+    if session <= rt.cancelled_through.load(Ordering::SeqCst) {
+        unsafe {
+            libc::close(input_fd);
+            libc::close(wake_fd);
+        }
+        rt.input_fd.store(-1, Ordering::SeqCst);
+        rt.wake_fd.store(-1, Ordering::SeqCst);
+        if rt.debug.load(Ordering::SeqCst) {
+            eprintln!("[onyx-touch-reader] cancelled during open session={session}");
+        }
+        return;
+    }
     rt.running.store(true, Ordering::SeqCst);
+    if rt.debug.load(Ordering::SeqCst) {
+        eprintln!(
+            "[onyx-touch-reader] opened session={session} input_fd={input_fd} wake_fd={wake_fd} max_pressure={max_pressure}"
+        );
+    }
     {
         let mut manager = rt.manager.lock().unwrap();
         manager.set_max_pressure(max_pressure);
@@ -327,4 +361,7 @@ fn reader_loop(env: &mut JNIEnv, object: &JObject) {
     }
     rt.input_fd.store(-1, Ordering::SeqCst);
     rt.wake_fd.store(-1, Ordering::SeqCst);
+    if rt.debug.load(Ordering::SeqCst) {
+        eprintln!("[onyx-touch-reader] exited session={session}");
+    }
 }
