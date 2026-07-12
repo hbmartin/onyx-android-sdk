@@ -22,6 +22,29 @@ explicitly supplied artifacts directory.
 The automated suite also invokes the existing nine-pen-type native differential
 against the hash-pinned, untracked neo-pen reference library.
 
+## MMKV file compatibility
+
+The repository includes an MMKV data/CRC fixture written by
+`com.tencent:mmkv:1.0.19` on an ONYX NoteAir4C. The fixture contains string,
+integer, boolean, float, and long values plus present and removed keys; its
+manifest records the device provenance, expected values, byte sizes, and
+SHA-256 checksums. It contains no legacy AAR or SDK code.
+
+Run the compatibility gate after changing MMKV with:
+
+```bash
+device-validation/run-comparison.sh --artifacts-root /path/to/reference-artifacts \
+  --serial DEVICE_SERIAL --suite mmkv-compat
+```
+
+Each variant stages a fresh copy of the legacy files, opens them through
+`MMKVBuilder`, verifies every legacy value and default, and then exercises
+1.3.14 writes and removal. The runner requires the reference and recovered
+streams to compare cleanly. Regenerating the legacy fixture requires checking
+out a revision that still resolves 1.0.19 and launching `mmkv-compat` with the
+intent extra `--es mmkvMode write-fixture` before pulling the two files from
+`files/mmkv/`.
+
 For a classified JVM comparison that separates binary-breaking differences
 from source-level generics, kotlin.Metadata, and harmless compiler artifacts,
 run the descriptor-level audit (after `./gradlew assembleRecovered`):

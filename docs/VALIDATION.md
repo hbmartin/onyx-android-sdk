@@ -6,6 +6,7 @@
 | No bytecode/JAR injection | Gradle-script scan rejects binary inputs and custom AAR assembly |
 | Complete pen class surface | 129 expected class entries checked in the release AAR |
 | Public JVM compatibility | `verify-pen-api.py` matches 118 public classes by `javap` descriptor |
+| Kotlin migration ABI guard | `verifyJvmApiContracts` pins visible descriptors, inheritance, flags, signatures, annotations, and Kotlin metadata for all five production AARs |
 | Base recoveries | production-class unit tests for formatting and disposal branches |
 | Base JVM compatibility | classified descriptor/flags/signature/metadata audit (`device-validation/classify_api_differences.py`) plus `RecoveredApiSurfaceRegressionTest` pinning the repaired surface without reference JARs |
 | Seven device recoveries | field-injection unit tests covering the success, failure, and null-method branches |
@@ -27,6 +28,7 @@
 | Replay delivery health | per-run `replay_health` record: zero dropped callbacks, semantic callbacks observed, delivery latency within bounds; unhealthy runs classify as `recovery_defect` |
 | Comparison taxonomy | host unit tests pin `compare_results.py` (one-sided records, asymmetric denials, bool/number equivalence, state grammar) and guided-scenario gates |
 | Pinned device evidence | sanitized fixtures under `device-validation/fixtures/`; `tests/test_fixtures.py` re-compares each fixture against its committed counts |
+| MMKV file compatibility | a checksum-pinned 1.0.19 data/CRC fixture is read and extended under 1.3.14 by the `mmkv-compat` NoteAir4C suite |
 | Physical waveform correctness | operator-confirmed guided protocol (`run-comparison.sh --suite guided`, `docs/GUIDED_VALIDATION.md`): 12 scenarios with per-capture gates plus combined exact replay parity |
 
 Portable source-only gate:

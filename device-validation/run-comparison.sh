@@ -13,7 +13,7 @@ INPUT_DEVICE="auto"
 REFERENCE_NEO_LIBRARY=""
 
 usage() {
-  echo "usage: $0 --artifacts-root DIR [--neo-pen-reference FILE] [--serial SERIAL] [--suite automated|base|device|pen-replay|pen-live|neo-pen|guided] [--output DIR] [--duration-ms MS] [--input-device /dev/input/eventN]" >&2
+  echo "usage: $0 --artifacts-root DIR [--neo-pen-reference FILE] [--serial SERIAL] [--suite automated|base|device|mmkv-compat|pen-replay|pen-live|neo-pen|guided] [--output DIR] [--duration-ms MS] [--input-device /dev/input/eventN]" >&2
 }
 
 while [[ $# -gt 0 ]]; do
@@ -30,7 +30,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-case "$SUITE" in automated|base|device|pen-replay|pen-live|neo-pen|guided) ;; *) usage; exit 2 ;; esac
+case "$SUITE" in automated|base|device|mmkv-compat|pen-replay|pen-live|neo-pen|guided) ;; *) usage; exit 2 ;; esac
 [[ -n "$ARTIFACTS_ROOT" ]] || { usage; echo "--artifacts-root is required" >&2; exit 2; }
 ARTIFACTS_ROOT="$(cd "$ARTIFACTS_ROOT" && pwd)"
 if [[ "$SUITE" == "automated" || "$SUITE" == "neo-pen" ]]; then
@@ -60,7 +60,7 @@ ADB_CMD=("$ADB" -s "$SERIAL")
 
 # The stylus digitizer node differs across BOOX models; find the device that
 # advertises a pen or stylus button instead of hardcoding an event index.
-if [[ "$INPUT_DEVICE" == "auto" ]]; then
+if [[ "$INPUT_DEVICE" == "auto" && ("$SUITE" == "pen-live" || "$SUITE" == "guided") ]]; then
   INPUT_DEVICE="$("${ADB_CMD[@]}" shell getevent -lp 2>/dev/null | tr -d '\r' | awk '
     /^add device / { device = $NF }
     /BTN_TOOL_PEN|BTN_STYLUS/ { if (device != "") { print device; exit } }
@@ -85,8 +85,10 @@ echo "Building recovered SDK and validation APKs"
 (cd "$ROOT" && "$RECOVERY_ROOT/gradlew" -p . -POnyxArtifactsRoot="$ARTIFACTS_ROOT" \
   :app:assembleReferenceDebug :app:assembleRecoveredDebug)
 
-python3 "$ROOT/api_surface.py" --artifacts-root "$ARTIFACTS_ROOT" \
-  --recovery-root "$RECOVERY_ROOT" --output "$OUTPUT/api-surface.json"
+if [[ "$SUITE" != "mmkv-compat" ]]; then
+  python3 "$ROOT/api_surface.py" --artifacts-root "$ARTIFACTS_ROOT" \
+    --recovery-root "$RECOVERY_ROOT" --output "$OUTPUT/api-surface.json"
+fi
 
 "${ADB_CMD[@]}" shell getprop > "$OUTPUT/device/getprop.txt"
 "${ADB_CMD[@]}" shell dumpsys input > "$OUTPUT/device/dumpsys-input.txt"
@@ -297,6 +299,9 @@ run_variant recovered "$RECOVERED_APK" "$SUITE" "$OUTPUT/recovered"
 if [[ "$SUITE" == "pen-live" ]]; then
   python3 "$ROOT/compare_results.py" "$OUTPUT/reference.jsonl" "$OUTPUT/recovered.jsonl" \
     --output "$OUTPUT" --live --api-surface "$OUTPUT/api-surface.json"
+elif [[ "$SUITE" == "mmkv-compat" ]]; then
+  python3 "$ROOT/compare_results.py" "$OUTPUT/reference.jsonl" "$OUTPUT/recovered.jsonl" \
+    --output "$OUTPUT" --require-clean
 else
   python3 "$ROOT/compare_results.py" "$OUTPUT/reference.jsonl" "$OUTPUT/recovered.jsonl" \
     --output "$OUTPUT" --api-surface "$OUTPUT/api-surface.json"

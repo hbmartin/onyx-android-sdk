@@ -24,6 +24,7 @@ public final class ValidationActivity extends Activity {
     private TextView status;
     private String suite;
     private String scenario;
+    private String mmkvMode;
     private boolean finished;
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
 
@@ -40,6 +41,7 @@ public final class ValidationActivity extends Activity {
         suite = getIntent().getStringExtra("suite");
         if (suite == null || suite.isEmpty()) suite = "automated";
         scenario = getIntent().getStringExtra("scenario");
+        mmkvMode = getIntent().getStringExtra("mmkvMode");
         buildUi();
         pen = new PenHarness(this, recorder, canvas);
         canvas.post(() -> runSuite(suite));
@@ -104,6 +106,13 @@ public final class ValidationActivity extends Activity {
         worker.execute(() -> {
             ProbeRunner.inventory(this, recorder);
             if ("automated".equals(suite) || "base".equals(suite)) ProbeRunner.base(this, recorder);
+            if ("mmkv-compat".equals(suite)) {
+                if ("write-fixture".equals(mmkvMode)) {
+                    MmkvCompatibility.writeFixture(this, recorder);
+                } else {
+                    MmkvCompatibility.verifyFixture(this, recorder);
+                }
+            }
             runOnUiThread(() -> {
                 if (isDestroyed() || isFinishing()) return;
                 if ("automated".equals(suite) || "device".equals(suite)) {

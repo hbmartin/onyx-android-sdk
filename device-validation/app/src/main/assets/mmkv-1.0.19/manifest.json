@@ -1,0 +1,30 @@
+{
+  "artifact": "com.tencent:mmkv:1.0.19",
+  "generatedAt": "2026-07-12T14:19:34-07:00",
+  "storeId": "onyx-mmkv-compat-1-0-19",
+  "device": {
+    "manufacturer": "ONYX",
+    "model": "NoteAir4C",
+    "androidApi": 33,
+    "primaryAbi": "arm64-v8a"
+  },
+  "expected": {
+    "legacy_string": "onyx-mmkv-legacy",
+    "legacy_int": -2147483000,
+    "legacy_boolean": true,
+    "legacy_float": 123.5,
+    "legacy_long": 9876543210,
+    "legacy_present": "present",
+    "legacy_removed": null
+  },
+  "files": {
+    "onyx-mmkv-compat-1-0-19": {
+      "bytes": 4096,
+      "sha256": "af7335e388ec703a50ebae7d5309c29427b1e9bb1e0fc588e4a96c966f2e23c1"
+    },
+    "onyx-mmkv-compat-1-0-19.crc": {
+      "bytes": 4096,
+      "sha256": "0cfc3608a6ba375cd839d7038610ec799ba89542feabc04fd09e59d0ada560c2"
+    }
+  }
+}

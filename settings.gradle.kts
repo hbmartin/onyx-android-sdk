@@ -11,15 +11,6 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven {
-            name = "booxThirdPartyMirror"
-            url = uri("https://repo.boox.com/repository/maven-public/")
-            content {
-                includeGroup("pub.devrel")
-                includeGroup("com.tencent")
-                includeGroup("com.jakewharton.hugo.fix")
-            }
-        }
     }
 }
 
