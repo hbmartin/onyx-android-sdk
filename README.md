@@ -44,6 +44,14 @@ digest. Types 6–9 use an independent Wacom-style spline/brush implementation
 and are checked for the same buffering, prediction, record encoding, bitmap
 behavior, and bounded output geometry.
 
+The existing fountain renderer remains the default. An additive, opt-in
+reference-compatible renderer consumes smoothing, velocity, pressure, tilt,
+direction, and brush configuration while preserving both Java API generations
+and their JNI/record contracts. The device module also exposes advanced stroke
+configuration, capability checks, and a firmware-configured Binder transport
+that safely falls back to the normal framework path. See
+[`docs/STROKE_COMPATIBILITY.md`](docs/STROKE_COMPATIBILITY.md).
+
 ## Build and test
 
 Prerequisites are JDK 17+, Rust stable, Android SDK platform 35, and Android NDK

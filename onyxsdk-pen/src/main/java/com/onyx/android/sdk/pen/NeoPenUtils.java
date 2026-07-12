@@ -14,11 +14,21 @@ import kotlin.Pair;
 public class NeoPenUtils {
     /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static List<TouchPoint> computeStrokePoints(int type, List<TouchPoint> points, float strokeWidth, float maxTouchPressure) {
+        NeoPenConfig neoPenConfig = new NeoPenConfig();
+        neoPenConfig.setWidth(strokeWidth);
+        return computeStrokePoints(type, points, neoPenConfig, maxTouchPressure);
+    }
+
+    /**
+     * Computes a stroke with the supplied native configuration. Existing
+     * callers continue to use the recovered-v1 defaults through the overload
+     * above; this overload makes newer renderer features additive.
+     */
+    public static List<TouchPoint> computeStrokePoints(int type, List<TouchPoint> points, NeoPenConfig config, float maxTouchPressure) {
         if (points.size() < 2) {
             return new ArrayList();
         }
-        NeoPenConfig neoPenConfig = new NeoPenConfig();
-        neoPenConfig.setWidth(strokeWidth);
+        NeoPenConfig neoPenConfig = config == null ? new NeoPenConfig() : config;
         NeoPen neoPenCreate = null;
         if (type == 1) {
             neoPenCreate = NeoBrushPen.Companion.create(neoPenConfig);
@@ -32,15 +42,20 @@ public class NeoPenUtils {
             return new ArrayList();
         }
         ArrayList arrayList = new ArrayList();
-        for (int i = 0; i < points.size(); i++) {
-            points.get(i).pressure /= maxTouchPressure;
+        // The native APIs normalize against NeoPenConfig.maxTouchPressure.
+        // Keep the caller's point list unchanged so rendering is repeatable.
+        ArrayList<TouchPoint> normalizedPoints = new ArrayList<>(points.size());
+        for (TouchPoint point : points) {
+            TouchPoint copy = new TouchPoint(point);
+            copy.pressure = maxTouchPressure > 0.0f ? copy.pressure / maxTouchPressure : 0.0f;
+            normalizedPoints.add(copy);
         }
-        readPointResult(neoPenCreate.onPenDown((com.onyx.android.sdk.base.data.TouchPoint) points.get(0), true), arrayList);
-        if (points.size() > 2) {
-            readPointResult(neoPenCreate.onPenMove(points.subList(1, points.size() - 1), null, true), arrayList);
+        readPointResult(neoPenCreate.onPenDown(normalizedPoints.get(0), true), arrayList);
+        if (normalizedPoints.size() > 2) {
+            readPointResult(neoPenCreate.onPenMove(normalizedPoints.subList(1, normalizedPoints.size() - 1), null, true), arrayList);
         }
         NeoPen neoPen = neoPenCreate;
-        readPointResult(neoPen.onPenUp((com.onyx.android.sdk.base.data.TouchPoint) points.get(points.size() - 1), true), arrayList);
+        readPointResult(neoPen.onPenUp(normalizedPoints.get(normalizedPoints.size() - 1), true), arrayList);
         neoPen.destroy();
         return arrayList;
     }

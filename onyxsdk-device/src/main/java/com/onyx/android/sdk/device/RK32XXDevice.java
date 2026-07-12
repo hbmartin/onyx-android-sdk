@@ -337,19 +337,19 @@ public class RK32XXDevice extends BaseDevice
             array6[1] = String.class;
             RK32XXDevice.O = ReflectUtil.getMethodSafely(clazz5, "screenshot", (Class<?>[])parameterTypes8);
             RK32XXDevice.A0 = ReflectUtil.getMethodSafely(clazz5, "byPass", type);
-            RK32XXDevice.T = ReflectUtil.getMethodSafely(clazz5, "setStrokeColor", type);
-            RK32XXDevice.U = ReflectUtil.getMethodSafely(clazz5, "setStrokeStyle", type);
+            RK32XXDevice.T = ReflectUtil.getStaticMethodSafely(clazz5, "setStrokeColor", type);
+            RK32XXDevice.U = ReflectUtil.getStaticMethodSafely(clazz5, "setStrokeStyle", type);
             final Class[] parameterTypes9 = { null };
             final Class<Float> type3 = Float.TYPE;
             parameterTypes9[0] = type3;
-            RK32XXDevice.V = ReflectUtil.getMethodSafely(clazz5, "setLineWidth", (Class<?>[])parameterTypes9);
+            RK32XXDevice.V = ReflectUtil.getStaticMethodSafely(clazz5, "setLineWidth", (Class<?>[])parameterTypes9);
             final Class[] parameterTypes10;
             final Class[] array7 = parameterTypes10 = new Class[4];
             array7[0] = type2;
             array7[1] = Paint.Style.class;
             array7[2] = Paint.Join.class;
             array7[3] = Paint.Cap.class;
-            RK32XXDevice.W = ReflectUtil.getMethodSafely(clazz5, "setPainterStyle", (Class<?>[])parameterTypes10);
+            RK32XXDevice.W = ReflectUtil.getStaticMethodSafely(clazz5, "setPainterStyle", (Class<?>[])parameterTypes10);
             RK32XXDevice.P = ReflectUtil.getMethodSafely(clazz5, "supportRegal", (Class<?>[])new Class[0]);
             RK32XXDevice.Q = ReflectUtil.getMethodSafely(clazz5, "enableRegal", type2);
             final Class[] parameterTypes11;
@@ -438,19 +438,19 @@ public class RK32XXDevice extends BaseDevice
             array21[1] = (array21[0] = type3);
             array21[3] = (array21[2] = type3);
             array21[5] = (array21[4] = type3);
-            RK32XXDevice.v0 = ReflectUtil.getMethodSafely(clazz4, "startStroke", (Class<?>[])parameterTypes24);
+            RK32XXDevice.v0 = ReflectUtil.getStaticMethodSafely(clazz4, "startStroke", (Class<?>[])parameterTypes24);
             final Class[] parameterTypes25;
             final Class[] array22 = parameterTypes25 = new Class[6];
             array22[1] = (array22[0] = type3);
             array22[3] = (array22[2] = type3);
             array22[5] = (array22[4] = type3);
-            RK32XXDevice.w0 = ReflectUtil.getMethodSafely(clazz4, "addStrokePoint", (Class<?>[])parameterTypes25);
+            RK32XXDevice.w0 = ReflectUtil.getStaticMethodSafely(clazz4, "addStrokePoint", (Class<?>[])parameterTypes25);
             final Class[] parameterTypes26;
             final Class[] array23 = parameterTypes26 = new Class[6];
             array23[1] = (array23[0] = type3);
             array23[3] = (array23[2] = type3);
             array23[5] = (array23[4] = type3);
-            RK32XXDevice.x0 = ReflectUtil.getMethodSafely(clazz4, "finishStroke", (Class<?>[])parameterTypes26);
+            RK32XXDevice.x0 = ReflectUtil.getStaticMethodSafely(clazz4, "finishStroke", (Class<?>[])parameterTypes26);
             RK32XXDevice.I0 = ReflectUtil.getMethodSafely(clazz4, "invalidate", type);
             final Class[] parameterTypes27;
             final Class[] array24 = parameterTypes27 = new Class[5];
@@ -630,15 +630,15 @@ public class RK32XXDevice extends BaseDevice
             RK32XXDevice.I2 = ReflectUtil.getMethodSafely(RK32XXDevice.H2 = ReflectUtil.classForName("android.app.ActivityManagerNative"), "getDefault", (Class<?>[])new Class[0]);
             RK32XXDevice.K2 = ReflectUtil.getMethodSafely(RK32XXDevice.H2, "updatePersistentConfiguration", Configuration.class);
             RK32XXDevice.J2 = ReflectUtil.getMethodSafely(RK32XXDevice.H2, "getConfiguration", (Class<?>[])new Class[0]);
-            RK32XXDevice.L2 = ReflectUtil.getMethodSafely(View.class, "setEnablePenSideButton", type2);
-            RK32XXDevice.M2 = ReflectUtil.getMethodSafely(View.class, "setBrushRawDrawingEnabled", type2);
-            RK32XXDevice.N2 = ReflectUtil.getMethodSafely(View.class, "setEraserRawDrawingEnabled", type2);
-            RK32XXDevice.O2 = ReflectUtil.getMethodSafely(View.class, "getStrokeParameters", type);
+            RK32XXDevice.L2 = ReflectUtil.getStaticMethodSafely(View.class, "setEnablePenSideButton", type2);
+            RK32XXDevice.M2 = ReflectUtil.getStaticMethodSafely(View.class, "setBrushRawDrawingEnabled", type2);
+            RK32XXDevice.N2 = ReflectUtil.getStaticMethodSafely(View.class, "setEraserRawDrawingEnabled", type2);
+            RK32XXDevice.O2 = ReflectUtil.getStaticMethodSafely(View.class, "getStrokeParameters", type);
             final Class[] parameterTypes45;
             final Class[] array42 = parameterTypes45 = new Class[2];
             array42[0] = type;
             array42[1] = float[].class;
-            RK32XXDevice.P2 = ReflectUtil.getMethodSafely(View.class, "setStrokeParameters", (Class<?>[])parameterTypes45);
+            RK32XXDevice.P2 = ReflectUtil.getStaticMethodSafely(View.class, "setStrokeParameters", (Class<?>[])parameterTypes45);
             RK32XXDevice.Q2 = ReflectUtil.getMethodSafely(View.class, "getEpdToViewMatrix", (Class<?>[])new Class[0]);
             RK32XXDevice.G0 = ReflectUtil.getMethodSafely(ReflectUtil.classForName("android.onyx.pm.PMClientHelper"), "enableStandbyByPressPowerButton", type2);
             RK32XXDevice.R2 = ReflectUtil.getMethodSafely(clazz6, "getSystemRefreshMode", (Class<?>[])new Class[0]);
@@ -1420,6 +1420,29 @@ public class RK32XXDevice extends BaseDevice
         return baseWidth;
     }
     
+    @Override
+    boolean hasStrokeStyleConfigurationCapability() {
+        return ReflectUtil.isStaticMethodAvailable(RK32XXDevice.T)
+                && ReflectUtil.isStaticMethodAvailable(RK32XXDevice.U)
+                && ReflectUtil.isStaticMethodAvailable(RK32XXDevice.V);
+    }
+
+    @Override
+    boolean hasStrokeDataTransportCapability() {
+        return ReflectUtil.isStaticMethodAvailable(RK32XXDevice.v0)
+                && ReflectUtil.isStaticMethodAvailable(RK32XXDevice.w0)
+                && ReflectUtil.isStaticMethodAvailable(RK32XXDevice.x0);
+    }
+
+    @Override
+    boolean hasAdvancedStrokeConfigurationCapability() {
+        return ReflectUtil.isStaticMethodAvailable(RK32XXDevice.L2)
+                && ReflectUtil.isStaticMethodAvailable(RK32XXDevice.M2)
+                && ReflectUtil.isStaticMethodAvailable(RK32XXDevice.N2)
+                && ReflectUtil.isStaticMethodAvailable(RK32XXDevice.O2)
+                && ReflectUtil.isStaticMethodAvailable(RK32XXDevice.P2);
+    }
+
     @Override
     public void enterScribbleMode(final View view) {
         this.enablePost(view, 0);

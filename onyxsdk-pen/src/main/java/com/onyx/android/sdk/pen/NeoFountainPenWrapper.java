@@ -22,9 +22,27 @@ public class NeoFountainPenWrapper {
         PenUtils.drawStrokeByPointSize(canvas, paint, listComputeStrokePoints, erase);
     }
 
+    public static void drawStroke(Canvas canvas, Paint paint, List<TouchPoint> points,
+                                  float displayScale, float strokeWidth, float maxTouchPressure,
+                                  boolean erase, int rendererVersion) {
+        List<TouchPoint> computed = computeStrokePoints(
+                points, displayScale, strokeWidth, maxTouchPressure, rendererVersion);
+        if (computed != null) {
+            PenUtils.drawStrokeByPointSize(canvas, paint, computed, erase);
+        }
+    }
+
     /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
     public static List<TouchPoint> computeStrokePoints(List<TouchPoint> points, float displayScale, float strokeWidth, float maxTouchPressure) {
         return hasPressure(points) ? computeStrokePoints(points, strokeWidth, maxTouchPressure) : a(points, displayScale);
+    }
+
+    public static List<TouchPoint> computeStrokePoints(List<TouchPoint> points, float displayScale,
+                                                        float strokeWidth, float maxTouchPressure,
+                                                        int rendererVersion) {
+        return hasPressure(points)
+                ? computeStrokePoints(points, strokeWidth, maxTouchPressure, rendererVersion)
+                : a(points, displayScale);
     }
 
     /* JADX DEBUG: Don't trust debug lines info. Lines numbers was adjusted: min line is 1 */
@@ -51,5 +69,18 @@ public class NeoFountainPenWrapper {
     public static List<TouchPoint> computeStrokePoints(List<TouchPoint> points, float strokeWidth, float maxTouchPressure) {
         return NeoPenUtils.computeStrokePoints(2, points, strokeWidth, maxTouchPressure);
     }
-}
 
+    public static List<TouchPoint> computeStrokePoints(List<TouchPoint> points, float strokeWidth,
+                                                        float maxTouchPressure, int rendererVersion) {
+        NeoPenConfig config = new NeoPenConfig()
+                .setWidth(strokeWidth)
+                .setRendererVersion(rendererVersion);
+        return NeoPenUtils.computeStrokePoints(2, points, config, maxTouchPressure);
+    }
+
+    public static List<TouchPoint> computeStrokePoints(List<TouchPoint> points,
+                                                        NeoPenConfig config,
+                                                        float maxTouchPressure) {
+        return NeoPenUtils.computeStrokePoints(2, points, config, maxTouchPressure);
+    }
+}

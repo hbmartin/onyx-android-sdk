@@ -29,6 +29,10 @@ public final class NeoPenConfig implements Serializable {
     public static final int NEOPEN_PEN_TYPE_PENCIL = 7;
     public static final int NEOPEN_PEN_TYPE_SQUARE = 9;
     public static final float TILT_SCALE_VALUE = 5.0f;
+    /** Preserves the recovered renderer's established output. */
+    public static final int RENDERER_RECOVERED_V1 = 1;
+    /** Enables the configurable smoothing/velocity/tilt renderer. */
+    public static final int RENDERER_REFERENCE_COMPAT = 2;
 
     @Nullable
     private List<Bitmap> b;
@@ -44,6 +48,14 @@ public final class NeoPenConfig implements Serializable {
 
     @JvmField
     public boolean fastMode;
+
+    /**
+     * Selects the native rendering algorithm. The default deliberately keeps
+     * the behavior shipped by the recovered SDK; callers must opt in to the
+     * reference-compatible renderer.
+     */
+    @JvmField
+    public int rendererVersion = RENDERER_RECOVERED_V1;
 
     @JvmField
     public int rotateAngle;
@@ -149,6 +161,10 @@ public final class NeoPenConfig implements Serializable {
         return this.rotateAngle;
     }
 
+    public final int getRendererVersion() {
+        return this.rendererVersion;
+    }
+
     public final float getTiltScale() {
         return this.tiltScale;
     }
@@ -192,6 +208,16 @@ public final class NeoPenConfig implements Serializable {
     }
 
     @NotNull
+    public final NeoPenConfig setRendererVersion(int rendererVersion) {
+        if (rendererVersion != RENDERER_RECOVERED_V1
+                && rendererVersion != RENDERER_REFERENCE_COMPAT) {
+            throw new IllegalArgumentException("Unknown renderer version: " + rendererVersion);
+        }
+        this.rendererVersion = rendererVersion;
+        return this;
+    }
+
+    @NotNull
     public final NeoPenConfig setTiltEnabled(boolean tiltEnabled) {
         this.tiltEnabled = tiltEnabled;
         return this;
@@ -215,5 +241,4 @@ public final class NeoPenConfig implements Serializable {
         return this;
     }
 }
-
 

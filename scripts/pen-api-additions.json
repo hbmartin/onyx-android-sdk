@@ -1,0 +1,58 @@
+{
+  "__extraClasses__": [
+    "com.onyx.android.sdk.geometry.data.BoxInfo",
+    "com.onyx.android.sdk.geometry.data.TouchData",
+    "com.onyx.android.sdk.pen.NeoPenRendererOptions",
+    "com.onyx.android.sdk.pen.PenBrushInkAccess",
+    "com.onyx.android.sdk.pen.R",
+    "com.onyx.android.sdk.pen.R$id",
+    "com.onyx.android.sdk.pen.R$layout",
+    "com.onyx.android.sdk.pen.R$string"
+  ],
+  "com.onyx.android.sdk.pen.NeoFountainPenWrapper": [
+    [
+      "public static java.util.List<com.onyx.android.sdk.data.note.TouchPoint> computeStrokePoints(java.util.List<com.onyx.android.sdk.data.note.TouchPoint>, com.onyx.android.sdk.pen.NeoPenConfig, float);",
+      "descriptor: (Ljava/util/List;Lcom/onyx/android/sdk/pen/NeoPenConfig;F)Ljava/util/List;"
+    ],
+    [
+      "public static java.util.List<com.onyx.android.sdk.data.note.TouchPoint> computeStrokePoints(java.util.List<com.onyx.android.sdk.data.note.TouchPoint>, float, float, float, int);",
+      "descriptor: (Ljava/util/List;FFFI)Ljava/util/List;"
+    ],
+    [
+      "public static java.util.List<com.onyx.android.sdk.data.note.TouchPoint> computeStrokePoints(java.util.List<com.onyx.android.sdk.data.note.TouchPoint>, float, float, int);",
+      "descriptor: (Ljava/util/List;FFI)Ljava/util/List;"
+    ],
+    [
+      "public static void drawStroke(android.graphics.Canvas, android.graphics.Paint, java.util.List<com.onyx.android.sdk.data.note.TouchPoint>, float, float, float, boolean, int);",
+      "descriptor: (Landroid/graphics/Canvas;Landroid/graphics/Paint;Ljava/util/List;FFFZI)V"
+    ]
+  ],
+  "com.onyx.android.sdk.pen.NeoPenConfig": [
+    [
+      "public final com.onyx.android.sdk.pen.NeoPenConfig setRendererVersion(int);",
+      "descriptor: (I)Lcom/onyx/android/sdk/pen/NeoPenConfig;"
+    ],
+    [
+      "public final int getRendererVersion();",
+      "descriptor: ()I"
+    ],
+    [
+      "public int rendererVersion;",
+      "descriptor: I"
+    ],
+    [
+      "public static final int RENDERER_RECOVERED_V1;",
+      "descriptor: I"
+    ],
+    [
+      "public static final int RENDERER_REFERENCE_COMPAT;",
+      "descriptor: I"
+    ]
+  ],
+  "com.onyx.android.sdk.pen.NeoPenUtils": [
+    [
+      "public static java.util.List<com.onyx.android.sdk.data.note.TouchPoint> computeStrokePoints(int, java.util.List<com.onyx.android.sdk.data.note.TouchPoint>, com.onyx.android.sdk.pen.NeoPenConfig, float);",
+      "descriptor: (ILjava/util/List;Lcom/onyx/android/sdk/pen/NeoPenConfig;F)Ljava/util/List;"
+    ]
+  ]
+}
