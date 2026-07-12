@@ -23,7 +23,8 @@ final class RecordingRawInputCallback extends RawInputCallback {
     }
 
     static boolean rendersOnCanvas(String kind) {
-        return kind.startsWith("semantic_draw_") || kind.startsWith("semantic_erase_");
+        return kind != null
+                && (kind.startsWith("semantic_draw_") || kind.startsWith("semantic_erase_"));
     }
 
     private void point(String kind, boolean flag, TouchPoint point) {
