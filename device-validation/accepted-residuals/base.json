@@ -1,5 +1,20 @@
 {
   "classes": {
+    "com.onyx.android.sdk.firmware.api.OnyxOTAService": {
+      "binary_breaking": [
+        "missing member: public method firmwareUpdate (Ljava/lang/String;)Lretrofit2/Call;"
+      ]
+    },
+    "com.onyx.android.sdk.firmware.utils.FastJsonConverterFactory": {
+      "binary_breaking": [
+        "class missing from candidate"
+      ]
+    },
+    "com.onyx.android.sdk.firmware.utils.ServiceFactory": {
+      "binary_breaking": [
+        "class missing from candidate"
+      ]
+    },
     "com.onyx.android.sdk.calendar.CalendarRemoteServiceConnection": {
       "binary_breaking": [
         "member flags changed: protected method asInterface (Landroid/os/IBinder;)Lcom/onyx/android/sdk/calendar/ICalendarService; ['ACC_PROTECTED'] -> ['ACC_PUBLIC']"

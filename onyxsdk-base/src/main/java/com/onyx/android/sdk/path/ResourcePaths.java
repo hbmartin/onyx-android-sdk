@@ -6,13 +6,13 @@ package com.onyx.android.sdk.path;
 
 import kotlin.text.StringsKt;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.io.FilenameUtils;
+import com.onyx.android.sdk.commons.io.FilenameUtils;
 import org.jetbrains.annotations.Nullable;
 import java.util.Iterator;
 import java.util.Collection;
 import java.io.File;
 import java.util.LinkedHashSet;
-import org.apache.commons.io.FileUtils;
+import com.onyx.android.sdk.commons.io.FileUtils;
 import java.util.Set;
 import com.onyx.android.sdk.extension.Paths;
 import java.nio.file.Files;

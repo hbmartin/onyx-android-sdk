@@ -1,0 +1,40 @@
+{
+  "classes": {
+    "com.onyx.android.sdk.api.device.epd.EpdController": {
+      "extra_public_surface": [
+        "extra member: public method setEnablePenSideButton (Z)V",
+        "extra member: public method setBrushRawDrawingEnabled (Z)V",
+        "extra member: public method setEraserRawDrawingEnabled (ZI)V",
+        "extra member: public method getStrokeParameters (I)[F",
+        "extra member: public method setStrokeParameters (I[F)V",
+        "extra member: public method applyStrokeConfiguration (Lcom/onyx/android/sdk/api/device/epd/StrokeConfiguration;)V",
+        "extra member: public method supportsStrokeStyleConfiguration ()Z",
+        "extra member: public method supportsStrokeDataTransport ()Z",
+        "extra member: public method supportsAdvancedStrokeConfiguration ()Z",
+        "extra member: public method useFrameworkStrokeTransport ()V",
+        "extra member: public method useSurfaceFlingerStrokeTransport (Lcom/onyx/android/sdk/api/device/epd/StrokeTransportConfig;)Z",
+        "extra member: public method getStrokeTransportName ()Ljava/lang/String;"
+      ]
+    },
+    "com.onyx.android.sdk.device.BaseDevice": {
+      "extra_public_surface": [
+        "extra member: public method supportsStrokeStyleConfiguration ()Z",
+        "extra member: public method supportsStrokeDataTransport ()Z",
+        "extra member: public method supportsAdvancedStrokeConfiguration ()Z"
+      ]
+    },
+    "com.onyx.android.sdk.utils.ReflectUtil": {
+      "extra_public_surface": [
+        "extra member: public method getStaticMethodSafely (Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;",
+        "extra member: public method isStaticMethodAvailable (Ljava/lang/reflect/Method;)Z"
+      ]
+    }
+  },
+  "extraClasses": [
+    "com.onyx.android.sdk.api.device.epd.StrokeConfiguration",
+    "com.onyx.android.sdk.api.device.epd.StrokeTransportConfig",
+    "com.onyx.android.sdk.device.R",
+    "com.onyx.android.sdk.device.R$integer",
+    "com.onyx.android.sdk.device.R$string"
+  ]
+}

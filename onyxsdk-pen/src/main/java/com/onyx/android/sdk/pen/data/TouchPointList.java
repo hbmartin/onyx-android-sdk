@@ -16,13 +16,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import org.nustaq.serialization.annotations.Flat;
 
 /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/data/TouchPointList.class */
-@Flat
 public class TouchPointList implements Serializable, Cloneable {
 
-    @Flat
     private List<TouchPoint> a;
 
     /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/pen/data/TouchPointList$a.class */

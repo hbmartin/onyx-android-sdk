@@ -6,7 +6,7 @@ package com.onyx.android.sdk.extension;
 
 import com.onyx.android.sdk.utils.UriUtils;
 import org.jetbrains.annotations.Nullable;
-import org.apache.commons.io.FilenameUtils;
+import com.onyx.android.sdk.commons.io.FilenameUtils;
 import kotlin.jvm.internal.Lambda;
 import kotlin.jvm.functions.Function0;
 import android.webkit.MimeTypeMap;

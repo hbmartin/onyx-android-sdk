@@ -109,9 +109,22 @@ def metadata_hashes(class_name):
     return None
 
 
-# javac-inexpressible Kotlin compiler shapes (see RECOVERY_NOTES.md): these
-# reference facts cannot hold in the rebuilt classes, so they are not pinned.
+# Intentional source incompatibilities documented in API_INCOMPATIBILITIES.md.
+EXCLUDED_MEMBERS = frozenset({
+    (
+        "com.onyx.android.sdk.firmware.api.OnyxOTAService",
+        "firmwareUpdate",
+        "(Ljava/lang/String;)Lretrofit2/Call;",
+    ),
+})
+
+
+# Intentional removals and javac-inexpressible Kotlin compiler shapes are not
+# pinned into the generated regression test.
 def excluded(class_name, message):
+    if any(class_name == owner and f"{name} {descriptor}" in message
+           for owner, name, descriptor in EXCLUDED_MEMBERS):
+        return True
     if class_name == "com.onyx.android.sdk.rx.RxBaseBenchmarkRequest":
         return "execute" in message
     if class_name == "com.onyx.android.sdk.utils.ElementCounter":

@@ -39,6 +39,19 @@ MODULES = {
     "onyxsdk-pen": "onyxsdk-pen/build/outputs/aar/onyxsdk-pen-release.aar",
 }
 
+# Intentional source incompatibilities that are documented in
+# docs/API_INCOMPATIBILITIES.md and must not be reintroduced merely to satisfy
+# a generated contract. Tuple fields are module, class, kind, name, descriptor.
+EXCLUDED_MEMBERS = frozenset({
+    (
+        "onyxsdk-base",
+        "com.onyx.android.sdk.firmware.api.OnyxOTAService",
+        "method",
+        "firmwareUpdate",
+        "(Ljava/lang/String;)Lretrofit2/Call;",
+    ),
+})
+
 
 def metadata_hash(metadata: str | None) -> str | None:
     if metadata is None:
@@ -46,11 +59,13 @@ def metadata_hash(metadata: str | None) -> str | None:
     return hashlib.sha256(metadata.encode("utf-8")).hexdigest()
 
 
-def canonical_class(api: ClassApi) -> dict:
+def canonical_class(api: ClassApi, module: str | None = None) -> dict:
     superclass, interfaces = class_hierarchy(api)
     members = []
     for member in sorted(api.members.values(), key=lambda item: item.key):
         if not member.visible:
+            continue
+        if (module, api.name, *member.key) in EXCLUDED_MEMBERS:
             continue
         members.append({
             "kind": member.kind,
@@ -74,7 +89,7 @@ def contract_for_jar(jar: Path, module: str) -> dict:
     names = class_names(jar)
     parsed = parse_javap(run_javap(jar, names))
     visible = {
-        name: canonical_class(api)
+        name: canonical_class(api, module)
         for name, api in sorted(parsed.items())
         if api.visible
     }

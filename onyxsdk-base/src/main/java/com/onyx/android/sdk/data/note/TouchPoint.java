@@ -14,10 +14,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import org.nustaq.serialization.annotations.Flat;
 
 /* JADX INFO: loaded from: classes.jar:com/onyx/android/sdk/data/note/TouchPoint.class */
-@Flat
 public class TouchPoint extends com.onyx.android.sdk.base.data.TouchPoint {
     public static final int OBJECT_BYTE_COUNT = 32;
 
