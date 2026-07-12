@@ -15,7 +15,7 @@
     native <methods>;
 }
 
-# libneo_pen.so resolves these classes and members by name at runtime
+# The neo-pen native library resolves these classes and members by name at runtime
 # (FindClass/NewObject/GetFieldID): result construction, render point
 # field writes, and NeoPenConfig field reads.
 -keep class com.onyx.android.sdk.pen.NeoRenderPoint {

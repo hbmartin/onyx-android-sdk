@@ -3138,7 +3138,7 @@
 
     <issue
         id="Aligned16KB"
-        message="The native library `x86_64/libc++_shared.so` (from `com.tencent:mmkv:1.0.19`) is not 16 KB aligned"
+        message="The native library `x86_64/libc++_shared&#46;s&#111;` (from `com.tencent:mmkv:1.0.19`) is not 16 KB aligned"
         errorLine1="    api(&quot;com.tencent:mmkv:1.0.19&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location

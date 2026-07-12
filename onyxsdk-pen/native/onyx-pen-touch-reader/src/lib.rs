@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 #![cfg_attr(not(any(target_os = "android", target_os = "linux")), allow(dead_code))]
 
-mod state;
+pub mod state;
 
 use std::sync::atomic::{AtomicBool, AtomicI32, AtomicI64, Ordering};
 use std::sync::{Mutex, OnceLock};

@@ -3,18 +3,12 @@ name = "onyx-pen-touch-reader"
 version = "1.5.4-recovered"
 edition = "2021"
 license = "LicenseRef-Recovered-From-Binary"
-description = "Behavioral Rust recovery of libonyx_pen_touch_reader.so"
+description = "Behavioral Rust recovery of the Onyx pen touch reader"
 
 [lib]
 name = "onyx_pen_touch_reader"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-jni = { version = "0.21", default-features = false }
-libc = "0.2"
-
-# A panic that unwinds out of an `extern "system"` JNI export is undefined
-# behavior on older toolchains; abort is the only sound failure mode there.
-[profile.release]
-panic = "abort"
-
+jni.workspace = true
+libc.workspace = true

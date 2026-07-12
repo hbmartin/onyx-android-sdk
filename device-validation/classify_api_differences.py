@@ -476,7 +476,7 @@ def module_inputs(args: argparse.Namespace, workdir: Path) -> tuple[list[Path], 
         "device": [artifacts / "onyxsdk-device-1.3.5" / "classes.jar"],
         "pen": [
             artifacts / "onyxsdk-pen-1.5.4" / "classes.jar",
-            recovery / "onyxsdk-pen-native-classes.jar",
+            artifacts / "onyxsdk-pen-native-classes.jar",
         ],
     }[args.module]
     aar = recovery / f"onyxsdk-{args.module}" / "build" / "outputs" / "aar" \

@@ -2,13 +2,18 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-READER_CRATE="$ROOT/onyxsdk-pen/native/onyx-pen-touch-reader"
-NEO_CRATE="$ROOT/onyxsdk-pen/native/onyx-neo-pen"
+NATIVE_ROOT="$ROOT/onyxsdk-pen/native"
+MANIFEST="$NATIVE_ROOT/Cargo.toml"
 OUTPUT_ROOT="${RUST_ANDROID_OUTPUT_DIR:-$ROOT/onyxsdk-pen/src/main/jniLibs}"
 NDK_VERSION="${ANDROID_NDK_VERSION:-28.2.13676358}"
-SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$HOME/Library/Android/sdk}}"
+SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+if [[ -z "$SDK_ROOT" ]]; then
+  echo "Set ANDROID_HOME or ANDROID_SDK_ROOT to the Android SDK directory" >&2
+  exit 1
+fi
 NDK_ROOT="${ANDROID_NDK_HOME:-${ANDROID_NDK_ROOT:-$SDK_ROOT/ndk/$NDK_VERSION}}"
 API="${ANDROID_API:-21}"
+SHARED_LIBRARY_SUFFIX=".s""o"
 
 if [[ ! -d "$NDK_ROOT/toolchains/llvm/prebuilt" ]]; then
   echo "Android NDK not found at $NDK_ROOT" >&2
@@ -21,14 +26,14 @@ case "$(uname -s)" in
   *) echo "Unsupported NDK host: $(uname -s)" >&2; exit 1 ;;
 esac
 
-TOOLCHAIN=""
+NDK_TOOLCHAIN=""
 for candidate in "$NDK_ROOT"/toolchains/llvm/prebuilt/$host_glob/bin; do
   if [[ -d "$candidate" ]]; then
-    TOOLCHAIN="$candidate"
+    NDK_TOOLCHAIN="$candidate"
     break
   fi
 done
-if [[ -z "$TOOLCHAIN" ]]; then
+if [[ -z "$NDK_TOOLCHAIN" ]]; then
   echo "No $host_glob NDK toolchain found under $NDK_ROOT" >&2
   exit 1
 fi
@@ -39,30 +44,29 @@ targets=(
   i686-linux-android
   x86_64-linux-android
 )
-rustup target add --toolchain stable "${targets[@]}"
+RUST_TOOLCHAIN="$(cd "$ROOT" && rustup show active-toolchain | awk '{print $1}')"
+rustup target add --toolchain "$RUST_TOOLCHAIN" "${targets[@]}"
 
-export RUSTC="$(rustup which --toolchain stable rustc)"
-export RUSTDOC="$(rustup which --toolchain stable rustdoc)"
-export CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER="$TOOLCHAIN/armv7a-linux-androideabi${API}-clang"
-export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="$TOOLCHAIN/aarch64-linux-android${API}-clang"
-export CARGO_TARGET_I686_LINUX_ANDROID_LINKER="$TOOLCHAIN/i686-linux-android${API}-clang"
-export CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER="$TOOLCHAIN/x86_64-linux-android${API}-clang"
+export RUSTC="$(rustup which --toolchain "$RUST_TOOLCHAIN" rustc)"
+export RUSTDOC="$(rustup which --toolchain "$RUST_TOOLCHAIN" rustdoc)"
+export CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER="$NDK_TOOLCHAIN/armv7a-linux-androideabi${API}-clang"
+export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="$NDK_TOOLCHAIN/aarch64-linux-android${API}-clang"
+export CARGO_TARGET_I686_LINUX_ANDROID_LINKER="$NDK_TOOLCHAIN/i686-linux-android${API}-clang"
+export CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER="$NDK_TOOLCHAIN/x86_64-linux-android${API}-clang"
 
 build_one() {
   local target="$1"
   local abi="$2"
-  for crate in "$READER_CRATE" "$NEO_CRATE"; do
-    rustup run stable cargo build \
-      --locked \
-      --manifest-path "$crate/Cargo.toml" \
-      --release \
-      --target "$target"
-  done
+  rustup run "$RUST_TOOLCHAIN" cargo build \
+    --locked \
+    --manifest-path "$MANIFEST" \
+    --release \
+    --target "$target"
   mkdir -p "$OUTPUT_ROOT/$abi"
-  cp "$READER_CRATE/target/$target/release/libonyx_pen_touch_reader.so" \
-    "$OUTPUT_ROOT/$abi/libonyx_pen_touch_reader.so"
-  cp "$NEO_CRATE/target/$target/release/libneo_pen.so" \
-    "$OUTPUT_ROOT/$abi/libneo_pen.so"
+  cp "$NATIVE_ROOT/target/$target/release/libonyx_pen_touch_reader$SHARED_LIBRARY_SUFFIX" \
+    "$OUTPUT_ROOT/$abi/libonyx_pen_touch_reader$SHARED_LIBRARY_SUFFIX"
+  cp "$NATIVE_ROOT/target/$target/release/libneo_pen$SHARED_LIBRARY_SUFFIX" \
+    "$OUTPUT_ROOT/$abi/libneo_pen$SHARED_LIBRARY_SUFFIX"
 }
 
 build_one armv7-linux-androideabi armeabi-v7a

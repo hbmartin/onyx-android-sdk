@@ -3,17 +3,11 @@ name = "onyx-neo-pen"
 version = "1.5.4-recovered"
 edition = "2021"
 license = "LicenseRef-Recovered-From-Binary"
-description = "Source-native Rust reconstruction of libneo_pen.so"
+description = "Source-native Rust reconstruction of the Onyx neo pen renderer"
 
 [lib]
 name = "neo_pen"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-jni = { version = "0.21", default-features = false }
-
-# A panic that unwinds out of an `extern "system"` JNI export is undefined
-# behavior on older toolchains; abort is the only sound failure mode there.
-[profile.release]
-panic = "abort"
-
+jni.workspace = true

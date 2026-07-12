@@ -3,11 +3,12 @@ plugins {
 }
 
 val artifactsRoot = providers.gradleProperty("OnyxArtifactsRoot")
-    .orElse(rootProject.layout.projectDirectory.dir("../..").asFile.absolutePath)
+    .orNull
+    ?: error("Pass -POnyxArtifactsRoot=/absolute/path/to/reference-artifacts")
 val recoveryRoot = rootProject.layout.projectDirectory.dir("..").asFile
 
 fun recoveredAar(path: String) = file("${recoveryRoot.absolutePath}/$path")
-fun original(path: String) = file("${artifactsRoot.get()}/$path")
+fun original(path: String) = file("$artifactsRoot/$path")
 
 configurations.configureEach {
     // The legacy easypermissions artifact still advertises support-compat 24.x.
@@ -132,7 +133,7 @@ tasks.register("verifyInputs") {
         )
         val missing = required.filterNot { it.isFile }
         check(missing.isEmpty()) {
-            "Missing validation inputs:\n${missing.joinToString("\n")}. Run ../gradlew assembleRecovered first."
+            "Missing validation inputs:\n${missing.joinToString("\n")}. Build assembleRecovered with the repository Gradle wrapper first."
         }
     }
 }

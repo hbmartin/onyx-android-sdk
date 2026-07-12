@@ -12,7 +12,7 @@
 | Rust quality | locked tests, rustfmt, and Clippy for both crates |
 | Four Android ABIs | cross-build and AAR entry audit for both native libraries |
 | JNI consistency | 11 touch-reader and 14 neo-pen exports checked per ABI |
-| No C++ runtime bridge | ELF dependency and AAR scans reject `libc++_shared.so` |
+| No C++ runtime bridge | ELF dependency and AAR scans reject the shared C++ runtime |
 | New pen runtime | Android tests execute all nine pen types and lifecycle/error cases |
 | Legacy pen runtime | Android tests execute static wrapper down/move/up/offline rendering |
 | Raw reader JNI | Android test executes configuration, pause/resume, and close calls |
@@ -47,5 +47,5 @@ scripts/verify-pen-api.py \
 BOOX hardware gate:
 
 ```bash
-scripts/device-pen-differential.sh /path/to/libneo_pen.so DEVICE_SERIAL
+scripts/device-pen-differential.sh /path/to/reference/neo-pen-library DEVICE_SERIAL
 ```
