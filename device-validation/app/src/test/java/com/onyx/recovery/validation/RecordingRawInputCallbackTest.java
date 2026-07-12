@@ -17,5 +17,6 @@ public class RecordingRawInputCallbackTest {
 
         assertFalse(RecordingRawInputCallback.rendersOnCanvas("semantic_pen_active"));
         assertFalse(RecordingRawInputCallback.rendersOnCanvas("semantic_pen_refresh"));
+        assertFalse(RecordingRawInputCallback.rendersOnCanvas(null));
     }
 }

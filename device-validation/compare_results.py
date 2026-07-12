@@ -132,18 +132,19 @@ def classify(reference: dict[str, Any] | None, recovered: dict[str, Any] | None,
 
 def classified_audit_summary(audit: dict[str, Any]) -> dict[str, int]:
     """Decompose unaccepted audit findings without counting accepted residuals."""
-    unaccepted = audit.get("unacceptedCounts", {})
-    accepted_classes = set(audit.get("acceptedResiduals", {}).get("classes", []))
-    accepted_extra_classes = set(
-        audit.get("acceptedResiduals", {}).get("extraClasses", []))
+    unaccepted = audit.get("unacceptedCounts") or {}
+    accepted_residuals = audit.get("acceptedResiduals") or {}
+    accepted_classes = set(accepted_residuals.get("classes") or [])
+    accepted_extra_classes = set(accepted_residuals.get("extraClasses") or [])
     missing = sum(
-        1 for name, details in audit.get("classes", {}).items()
+        1 for name, details in (audit.get("classes") or {}).items()
         if name not in accepted_classes
+        and details
         and "class missing from candidate" in
-        details.get("buckets", {}).get("binary_breaking", [])
+        ((details.get("buckets") or {}).get("binary_breaking") or [])
     )
     unaccepted_extra_classes = len(
-        set(audit.get("extraClasses", [])) - accepted_extra_classes)
+        set(audit.get("extraClasses") or []) - accepted_extra_classes)
     extra_public_surface = unaccepted.get("extra_public_surface", 0)
     defects = sum(unaccepted.values())
     return {
@@ -241,9 +242,10 @@ def main() -> None:
                 missing = audit_summary["missing"]
                 changed = audit_summary["changed"]
                 extra_public_surface = audit_summary["extraPublicSurface"]
-                extra = len(audit.get("extraClasses", []))
-                accepted_classes = len(audit.get("acceptedResiduals", {}).get("classes", []))
-                accepted_extra = len(audit.get("acceptedResiduals", {}).get("extraClasses", []))
+                extra = len(audit.get("extraClasses") or [])
+                accepted_residuals = audit.get("acceptedResiduals") or {}
+                accepted_classes = len(accepted_residuals.get("classes") or [])
+                accepted_extra = len(accepted_residuals.get("extraClasses") or [])
                 counts["recovery_defect"] += defects
                 counts["platform_variation"] += accepted_extra
             else:

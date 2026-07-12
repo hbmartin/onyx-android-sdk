@@ -145,6 +145,21 @@ class ClassifyTest(unittest.TestCase):
 
 
 class ClassifiedAuditSummaryTest(unittest.TestCase):
+    def test_null_collections_are_treated_as_empty(self):
+        audit = {
+            "unacceptedCounts": None,
+            "acceptedResiduals": None,
+            "classes": None,
+            "extraClasses": None,
+        }
+
+        self.assertEqual(compare_results.classified_audit_summary(audit), {
+            "defects": 0,
+            "missing": 0,
+            "changed": 0,
+            "extraPublicSurface": 0,
+        })
+
     def test_accepted_missing_residual_does_not_hide_changed_signature(self):
         audit = {
             "unacceptedCounts": {"binary_breaking": 1},
@@ -220,19 +235,48 @@ class PenSummaryTest(unittest.TestCase):
 
 
 class MainPayloadTest(unittest.TestCase):
-    def run_main(self, reference, recovered, *flags):
+    def run_main(self, reference, recovered, *flags, api_surface=None):
         out = Path(tempfile.mkdtemp())
         ref = out / "reference.jsonl"
         rec = out / "recovered.jsonl"
         ref.write_text("\n".join(json.dumps(r) for r in reference) + "\n", encoding="utf-8")
         rec.write_text("\n".join(json.dumps(r) for r in recovered) + "\n", encoding="utf-8")
+        api_flags = []
+        if api_surface is not None:
+            api = out / "api-surface.json"
+            api.write_text(json.dumps(api_surface), encoding="utf-8")
+            api_flags = ["--api-surface", str(api)]
         completed = subprocess.run(
             [sys.executable, str(Path(__file__).resolve().parent.parent / "compare_results.py"),
-             str(ref), str(rec), "--output", str(out), *flags],
+             str(ref), str(rec), "--output", str(out), *api_flags, *flags],
             capture_output=True, text=True)
         payload = json.loads((out / "comparison.json").read_text(encoding="utf-8")) \
             if (out / "comparison.json").is_file() else None
         return completed, payload
+
+    def test_null_classified_audit_collections_do_not_crash_reporting(self):
+        completed, payload = self.run_main([], [], api_surface={
+            "onyxsdk-base": {
+                "classifiedAudit": {
+                    "unacceptedCounts": {},
+                    "acceptedResiduals": None,
+                    "classes": None,
+                    "extraClasses": None,
+                },
+            },
+        })
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        assert payload is not None
+        self.assertEqual(payload["apiSurface"]["onyxsdk-base"], {
+            "missingClasses": 0,
+            "changedSignatures": 0,
+            "extraPublicSurface": 0,
+            "recoveryExtensions": 0,
+            "acceptedCompilerResiduals": 0,
+            "acceptedExtensions": 0,
+            "classification": "match",
+        })
 
     def test_unhealthy_replay_is_a_defect_even_when_symmetric(self):
         unhealthy = record(case="replay_health",

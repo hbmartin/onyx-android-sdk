@@ -2,6 +2,9 @@ package com.onyx.android.sdk.utils;
 
 import static org.junit.Assert.assertEquals;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Locale;
 import org.junit.After;
 import org.junit.Before;
@@ -44,5 +47,18 @@ public class FileUtilsRecoveryTest {
         // fraction digit ("1.8 KB") while a default DecimalFormat would print
         // "1.75 KB" — this is the case that distinguishes the two.
         assertEquals("1.8 KB", FileUtils.readableFileSize(1792L));
+    }
+
+    @Test
+    public void stringPathReadPreservesUtf8AndStripsLineSeparators() throws Exception {
+        Path path = Files.createTempFile("onyx-file-utils", ".txt");
+        try {
+            Files.write(path, "café\nβeta".getBytes(StandardCharsets.UTF_8));
+
+            assertEquals("caféβeta", FileUtils.readContentOfFile(path.toString()));
+        }
+        finally {
+            Files.deleteIfExists(path);
+        }
     }
 }

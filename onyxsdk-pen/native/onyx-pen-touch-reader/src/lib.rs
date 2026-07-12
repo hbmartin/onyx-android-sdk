@@ -11,11 +11,34 @@ use jni::sys::{jboolean, jfloat, jint};
 use jni::JNIEnv;
 use state::{PenManager, TouchEvent};
 
+struct WakeFd {
+    fd: Mutex<i32>,
+}
+
+impl WakeFd {
+    fn new() -> Self {
+        Self { fd: Mutex::new(-1) }
+    }
+
+    fn set(&self, fd: i32) {
+        *self.fd.lock().unwrap() = fd;
+    }
+
+    fn with_fd<T>(&self, action: impl FnOnce(i32) -> T) -> Option<T> {
+        let fd = self.fd.lock().unwrap();
+        (*fd >= 0).then(|| action(*fd))
+    }
+
+    fn take(&self) -> i32 {
+        std::mem::replace(&mut *self.fd.lock().unwrap(), -1)
+    }
+}
+
 struct Runtime {
     manager: Mutex<PenManager>,
     running: AtomicBool,
     input_fd: AtomicI32,
-    wake_fd: AtomicI32,
+    wake_fd: WakeFd,
     debug: AtomicBool,
     cancelled_through: AtomicI64,
 }
@@ -26,7 +49,7 @@ fn runtime() -> &'static Runtime {
         manager: Mutex::new(PenManager::default()),
         running: AtomicBool::new(false),
         input_fd: AtomicI32::new(-1),
-        wake_fd: AtomicI32::new(-1),
+        wake_fd: WakeFd::new(),
         debug: AtomicBool::new(false),
         cancelled_through: AtomicI64::new(0),
     })
@@ -105,12 +128,11 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeRawClo
         eprintln!("[onyx-touch-reader] close session={session}");
     }
     #[cfg(any(target_os = "android", target_os = "linux"))]
-    unsafe {
-        let fd = rt.wake_fd.load(Ordering::SeqCst);
-        if fd >= 0 {
+    {
+        rt.wake_fd.with_fd(|fd| unsafe {
             let one: u64 = 1;
             libc::write(fd, &one as *const u64 as *const _, 8);
-        }
+        });
     }
 }
 
@@ -285,10 +307,10 @@ fn reader_loop(env: &mut JNIEnv, object: &JObject, session: i64) {
         return;
     }
     rt.input_fd.store(input_fd, Ordering::SeqCst);
-    rt.wake_fd.store(wake_fd, Ordering::SeqCst);
+    rt.wake_fd.set(wake_fd);
     if session <= rt.cancelled_through.load(Ordering::SeqCst) {
         let input_fd = rt.input_fd.swap(-1, Ordering::SeqCst);
-        let wake_fd = rt.wake_fd.swap(-1, Ordering::SeqCst);
+        let wake_fd = rt.wake_fd.take();
         unsafe {
             if input_fd >= 0 {
                 libc::close(input_fd);
@@ -360,7 +382,7 @@ fn reader_loop(env: &mut JNIEnv, object: &JObject, session: i64) {
     }
     rt.running.store(false, Ordering::SeqCst);
     let input_fd = rt.input_fd.swap(-1, Ordering::SeqCst);
-    let wake_fd = rt.wake_fd.swap(-1, Ordering::SeqCst);
+    let wake_fd = rt.wake_fd.take();
     unsafe {
         if input_fd >= 0 {
             libc::close(input_fd);
@@ -371,5 +393,71 @@ fn reader_loop(env: &mut JNIEnv, object: &JObject, session: i64) {
     }
     if rt.debug.load(Ordering::SeqCst) {
         eprintln!("[onyx-touch-reader] exited session={session}");
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::WakeFd;
+    use std::sync::{mpsc, Arc};
+    use std::time::Duration;
+
+    #[test]
+    fn wake_action_and_descriptor_take_are_mutually_exclusive() {
+        let wake_fd = Arc::new(WakeFd::new());
+        wake_fd.set(41);
+        let (action_entered_tx, action_entered_rx) = mpsc::channel();
+        let (release_action_tx, release_action_rx) = mpsc::channel();
+        let action_fd = Arc::clone(&wake_fd);
+        let action = std::thread::spawn(move || {
+            assert_eq!(
+                action_fd.with_fd(|fd| {
+                    assert_eq!(fd, 41);
+                    action_entered_tx.send(()).unwrap();
+                    release_action_rx.recv().unwrap();
+                }),
+                Some(())
+            );
+        });
+        action_entered_rx
+            .recv_timeout(Duration::from_secs(1))
+            .unwrap();
+
+        let (take_started_tx, take_started_rx) = mpsc::channel();
+        let (take_finished_tx, take_finished_rx) = mpsc::channel();
+        let take_fd = Arc::clone(&wake_fd);
+        let take = std::thread::spawn(move || {
+            take_started_tx.send(()).unwrap();
+            take_finished_tx.send(take_fd.take()).unwrap();
+        });
+        take_started_rx
+            .recv_timeout(Duration::from_secs(1))
+            .unwrap();
+        assert!(matches!(
+            take_finished_rx.recv_timeout(Duration::from_millis(100)),
+            Err(mpsc::RecvTimeoutError::Timeout)
+        ));
+
+        release_action_tx.send(()).unwrap();
+        action.join().unwrap();
+        assert_eq!(
+            take_finished_rx
+                .recv_timeout(Duration::from_secs(1))
+                .unwrap(),
+            41
+        );
+        take.join().unwrap();
+    }
+
+    #[test]
+    fn wake_action_is_skipped_after_descriptor_is_taken() {
+        let wake_fd = WakeFd::new();
+        wake_fd.set(19);
+
+        assert_eq!(wake_fd.take(), 19);
+        assert_eq!(
+            wake_fd.with_fd(|_| panic!("closed descriptor reused")),
+            None
+        );
     }
 }
