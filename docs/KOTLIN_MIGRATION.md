@@ -1,10 +1,17 @@
 # Kotlin migration guardrails
 
 The production sources remain a mixed Java/Kotlin recovery. Android Gradle
-Plugin 9 supplies built-in Kotlin support to Android modules, so this project
-must not add `org.jetbrains.kotlin.android` or a separate Kotlin Android plugin.
-The current Java 8 targets and explicit Kotlin standard-library API dependencies
-remain unchanged until a migration change demonstrates why they should move.
+Plugin 9's built-in Kotlin support is disabled with the temporary legacy
+opt-out flags so the three Kotlin-bearing Android modules can use the external
+Kotlin Android plugin 2.0.21. The build-logic classpath excludes AGP's bundled
+Kotlin Gradle plugin artifacts and supplies 2.0.21 from the version catalog;
+the Kotlin standard-library metadata is aligned to the same version.
+
+All Android source now compiles for Java 21. The Android and Kotlin JVM
+toolchains and Java/Kotlin bytecode targets must remain aligned at 21. The
+local resolver may select JBR 21, while GitHub Actions deliberately installs
+Temurin 21. `build-logic` continues to use Gradle's embedded `kotlin-dsl`
+compiler rather than replacing it with the Android Kotlin compiler.
 
 ## Migration order
 
@@ -48,6 +55,11 @@ artifacts while allowing the original Java/Kotlin types to interoperate.
 `scripts/jvm-api-contracts/` pin visible classes and members, descriptors,
 inheritance, access flags, generic signatures, annotations, and Kotlin metadata
 hashes. A difference fails with a unified diff.
+
+`./gradlew detektTypeCheck` runs Detekt 1.23.8's typed `detektMain` and
+`detektTest` tasks for every Kotlin-bearing Android module and `build-logic`.
+Current findings are captured in source-set/variant baselines; new typed
+findings fail the CI gate and produce XML, HTML, and SARIF reports.
 
 For an intentional API change, first test both a Java consumer and a Kotlin
 consumer against the old and new AARs. Then run

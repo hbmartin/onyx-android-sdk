@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MagicNumber:PenBrushInk.kt$PenBrushInk$255</ID>
+  </CurrentIssues>
+</SmellBaseline>

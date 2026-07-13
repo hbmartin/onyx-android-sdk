@@ -1,18 +1,12 @@
 plugins {
     id("onyx.android-library")
     id("onyx.kdoc")
+    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.detekt)
 }
 
 android {
     namespace = "com.onyx.android.sdk.ktx"
-
-    defaultConfig {
-        minSdk = 24
-    }
-
-    testOptions {
-        unitTests.isReturnDefaultValues = true
-    }
 }
 
 dependencies {

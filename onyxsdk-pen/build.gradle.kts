@@ -4,6 +4,8 @@ import org.gradle.api.tasks.Exec
 plugins {
     id("onyx.android-library")
     id("onyx.kdoc")
+    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.detekt)
 }
 
 val buildRustAndroid = tasks.register<Exec>("buildRustAndroid") {
@@ -49,17 +51,8 @@ android {
     namespace = "com.onyx.android.sdk.pen"
 
     defaultConfig {
-        minSdk = 24
         consumerProguardFiles("consumer-rules.pro")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    lint {
-        disable += "GradleDependency"
-    }
-
-    testOptions {
-        unitTests.isReturnDefaultValues = true
     }
 }
 
@@ -67,8 +60,8 @@ dependencies {
     api(project(":onyxsdk-base"))
     api(libs.kotlin.stdlib.jdk8)
     testImplementation(libs.junit4)
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.runner)
 }
 
 configurations.configureEach {

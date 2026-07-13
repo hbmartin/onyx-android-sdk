@@ -48,6 +48,13 @@ class OnyxKdocPlugin : Plugin<Project> {
             }
 
             dokkaSourceSets.configureEach {
+                // The external Kotlin Android plugin and AGP both register the same Android
+                // sources with Dokka. Keep AGP's release source set because it carries the
+                // Android compilation classpath, and suppress the duplicate Kotlin view.
+                if (name == "main") {
+                    suppress.set(true)
+                }
+
                 documentedVisibilities.set(setOf(VisibilityModifier.Public))
                 reportUndocumented.set(true)
                 skipDeprecated.set(false)

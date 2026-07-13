@@ -17,14 +17,11 @@ android {
         baseline = file("lint-baseline.xml")
     }
 
-    testOptions {
-        unitTests.isReturnDefaultValues = true
-    }
 }
 
 dependencies {
     api(libs.fastjson)
-    api(libs.androidx.annotation)
+    api(libs.androidx.annotation.legacy)
 
     testImplementation(libs.junit4)
 }

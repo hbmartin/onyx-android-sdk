@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:OnyxModuleRegistry.kt$OnyxModuleRegistry$fun load(rootDir: File, validatePaths: Boolean = true): OnyxRegistry</ID>
+    <ID>LongMethod:OnyxAndroidLibraryPlugin.kt$OnyxAndroidLibraryPlugin$private fun Project.configurePublication(registry: OnyxRegistry, module: OnyxModule)</ID>
+    <ID>LongMethod:OnyxDeviceValidationPlugin.kt$OnyxDeviceValidationPlugin$override fun apply(target: Project)</ID>
+    <ID>LongMethod:OnyxModuleRegistry.kt$OnyxModuleRegistry$fun load(rootDir: File, validatePaths: Boolean = true): OnyxRegistry</ID>
+    <ID>LongMethod:OnyxRootPlugin.kt$OnyxRootPlugin$override fun apply(target: Project)</ID>
+    <ID>MagicNumber:AndroidConvention.kt$21</ID>
+    <ID>MagicNumber:AndroidConvention.kt$24</ID>
+    <ID>MagicNumber:AndroidConvention.kt$35</ID>
+    <ID>ThrowsCount:OnyxModuleRegistry.kt$OnyxModuleRegistry$fun load(rootDir: File, validatePaths: Boolean = true): OnyxRegistry</ID>
+    <ID>TooGenericExceptionCaught:OnyxModuleRegistry.kt$OnyxModuleRegistry$error: Exception</ID>
+    <ID>TooManyFunctions:OnyxModuleRegistry.kt$OnyxModuleRegistry</ID>
+    <ID>UnreachableCode:OnyxDeviceValidationPlugin.kt$OnyxDeviceValidationPlugin$afterEvaluate { dependencies.add("implementation", files(commonModules.map(::recovered))) dependencies.add( "referenceImplementation", files(comparedModules.flatMap { it.deviceValidation.referenceCompileJars.map(::original) }), ) dependencies.add("recoveredImplementation", files(comparedModules.map(::recovered))) val referenceJniDirs = comparedModules.mapNotNull { it.deviceValidation.referenceJniDir?.let(::original) } android.sourceSets .getByName("reference") .jniLibs .directories .addAll(referenceJniDirs.map(File::getAbsolutePath)) }</ID>
+    <ID>UnreachableCode:OnyxDeviceValidationPlugin.kt$OnyxDeviceValidationPlugin$fun original(relativePath: String): File</ID>
+    <ID>UnreachableCode:OnyxDeviceValidationPlugin.kt$OnyxDeviceValidationPlugin$fun recovered(module: OnyxModule): File</ID>
+    <ID>UnreachableCode:OnyxDeviceValidationPlugin.kt$OnyxDeviceValidationPlugin$resolve(relativePath)</ID>
+    <ID>UnreachableCode:OnyxDeviceValidationPlugin.kt$OnyxDeviceValidationPlugin$tasks.matching { it.name == "preBuild" }.configureEach { dependsOn(verifyInputs) }</ID>
+    <ID>UnreachableCode:OnyxDeviceValidationPlugin.kt$OnyxDeviceValidationPlugin$val artifactsRoot = providers.gradleProperty("OnyxArtifactsRoot").orNull ?.let(::File) ?.let { if (it.isAbsolute) it else rootProject.projectDir.resolve(it) } ?.canonicalFile ?: throw GradleException( "Pass -POnyxArtifactsRoot=/absolute/path/to/reference-artifacts", )</ID>
+    <ID>UnreachableCode:OnyxDeviceValidationPlugin.kt$OnyxDeviceValidationPlugin$val commonModules = registry.publishedModules.filter { it.deviceValidation.commonRecovered }</ID>
+    <ID>UnreachableCode:OnyxDeviceValidationPlugin.kt$OnyxDeviceValidationPlugin$val comparedModules = registry.publishedModules.filter { it.deviceValidation.referenceCompileJars.isNotEmpty() }</ID>
+    <ID>UnreachableCode:OnyxDeviceValidationPlugin.kt$OnyxDeviceValidationPlugin$val verifyInputs = tasks.register("verifyInputs") { group = "verification" description = "Checks registry-declared reference and recovered validation inputs." doLast { val requiredFiles = buildList { addAll(commonModules.map(::recovered)) addAll(comparedModules.map(::recovered)) comparedModules.forEach { module -&gt; val references = module.deviceValidation.referenceCompileJars + module.deviceValidation.apiReferenceJars addAll(references.distinct().map(::original)) } } val requiredDirectories = comparedModules.mapNotNull { module -&gt; module.deviceValidation.referenceJniDir?.let(::original) } val missing = buildList { addAll(requiredFiles.filterNot(File::isFile)) addAll(requiredDirectories.filterNot(File::isDirectory)) } if (missing.isNotEmpty()) { throw GradleException( "Missing validation inputs:\n${missing.joinToString("\n")}. " + "Build assembleRecovered with the repository Gradle wrapper first.", ) } } }</ID>
+    <ID>UnreachableCode:OnyxModuleRegistry.kt$OnyxModuleRegistry$requireRegistry( target.published, "${module.id} has a production dependency on non-published ${target.id}", )</ID>
+    <ID>UnreachableCode:OnyxModuleRegistry.kt$OnyxModuleRegistry$val target = byId[dependency.target] ?: throw GradleException("${module.id} depends on unknown module ${dependency.target}")</ID>
+    <ID>UnsafeCallOnNullableType:OnyxModuleRegistry.kt$OnyxModuleRegistry$value!!</ID>
+  </CurrentIssues>
+</SmellBaseline>
