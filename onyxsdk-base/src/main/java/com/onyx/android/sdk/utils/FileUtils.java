@@ -1888,15 +1888,8 @@ public class FileUtils
     }
     
     public static List<String> readStringListOfFile(final File fileForRead) {
-        try (FileInputStream input = new FileInputStream(fileForRead);
-                InputStreamReader streamReader = new InputStreamReader(input, StandardCharsets.UTF_8);
-                BufferedReader reader = new BufferedReader(streamReader)) {
-            List<String> lines = new ArrayList<>();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                lines.add(line);
-            }
-            return lines;
+        try {
+            return com.onyx.android.sdk.commons.io.FileUtils.readLines(fileForRead, StandardCharsets.UTF_8);
         }
         catch (IOException exception) {
             exception.printStackTrace();
@@ -2033,15 +2026,8 @@ public class FileUtils
     }
     
     public static byte[] readBytesOfFile(final String filePath) {
-        try (FileInputStream input = new FileInputStream(filePath);
-                ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-            byte[] buffer = new byte[10240];
-            int count;
-            while ((count = input.read(buffer)) != -1) {
-                output.write(buffer, 0, count);
-            }
-            output.flush();
-            return output.toByteArray();
+        try {
+            return com.onyx.android.sdk.commons.io.FileUtils.readFileToByteArray(new File(filePath));
         }
         catch (Exception exception) {
             exception.printStackTrace();
@@ -2061,15 +2047,10 @@ public class FileUtils
     }
     
     public static List<String> readAssetsContent(final Context context, final String fileName) {
-        try (InputStream input = context.getResources().getAssets().open(fileName);
-                InputStreamReader streamReader = new InputStreamReader(input, StandardCharsets.UTF_8);
-                BufferedReader reader = new BufferedReader(streamReader)) {
-            List<String> lines = new ArrayList<>();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                lines.add(line.trim());
-            }
-            return lines;
+        try (InputStream input = context.getResources().getAssets().open(fileName)) {
+            return IOUtils.readLines(input, StandardCharsets.UTF_8).stream()
+                    .map(String::trim)
+                    .collect(Collectors.toList());
         }
         catch (IOException exception) {
             exception.printStackTrace();
@@ -2114,15 +2095,8 @@ public class FileUtils
     }
     
     public static String readContentFromFile(final String path) {
-        try (FileInputStream input = new FileInputStream(new File(path));
-                InputStreamReader streamReader = new InputStreamReader(input, StandardCharsets.UTF_8);
-                BufferedReader reader = new BufferedReader(streamReader)) {
-            StringBuilder content = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                content.append(line);
-            }
-            return content.toString();
+        try (FileInputStream input = new FileInputStream(new File(path))) {
+            return StringUtils.join(IOUtils.readLines(input, StandardCharsets.UTF_8), "");
         }
         catch (IOException exception) {
             exception.printStackTrace();
