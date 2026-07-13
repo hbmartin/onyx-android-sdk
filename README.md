@@ -256,26 +256,34 @@ python3 -m unittest discover device-validation/tests
   `onyxsdk-base/support/onyxsdk-baselite`.
 - Apache Commons IO 2.5 recovered and package-relocated source in
   `onyxsdk-base/support/onyxsdk-commons-io`.
-- Gradle Wrapper 9.4.1 bootstrap files in `gradle/wrapper`.
+- Gradle Wrapper 9.6.1 bootstrap files in `gradle/wrapper`.
 
 ### Gradle
 
 The version catalog and module build scripts declare the following external
 Gradle dependencies; Gradle resolves their transitive dependencies:
 
-- Build plugin: `com.android.application` / `com.android.library` 9.2.1.
+- Build plugins: Android application/library 9.2.1, Kotlin Android 2.0.21,
+  Dokka 2.2.0, Detekt 1.23.8, and Ben Manes Versions 0.54.0.
 - AndroidX: `annotation` 1.0.0 and 1.9.1, `appcompat` 1.7.1,
   `databinding-common` 4.1.3, `dynamicanimation` 1.1.0-alpha03,
   `fragment` 1.8.8, Test JUnit extension 1.2.1, and Test Runner 1.6.2.
-- Data, networking, and storage: Fastjson2 2.0.48.android8, Retrofit 2.1.0,
-  OkHttp logging interceptor 4.10.0, MMKV 1.3.14, Zip4j 2.11.5,
-  Java UUID Generator 4.1.0, and FST 2.56.
-- Utilities: Commons Codec 1.13, Commons IO 2.13.0, Commons Text 1.4,
-  EventBus 3.0.0, Joda-Time 2.10.14, Kotlin standard library JDK 8 1.6.10,
-  Kotlin coroutines 1.6.4, Hugo annotations 1.2.1,
-  RxJava 2.1.13, and RxAndroid 2.1.0.
+- Data and storage: Fastjson2 2.0.48.android8, MMKV 1.3.14, and Zip4j 2.11.5.
+- Utilities: Commons Lang 3.18.0, EventBus 3.0.0, Kotlin standard library
+  JDK 8 2.0.21, Kotlin coroutines 1.6.4, RxJava 2.1.13, and RxAndroid 2.1.0.
 - Tests: JUnit 4.13.2, JUnit BOM 5.11.4 with JUnit Jupiter and the JUnit
   Platform Launcher, Robolectric 4.14.1, and JSON-java 20240303.
+
+All Gradle/Maven coordinates and plugin versions live in
+`gradle/libs.versions.toml`, apart from the Foojay settings-bootstrap plugin,
+whose version must be available before catalogs are resolved. To inspect
+available stable dependency and Gradle updates, run:
+
+```bash
+./gradlew --no-parallel dependencyUpdates
+```
+
+Gradle 9 requires this task to run without parallel project execution.
 
 EasyPermissions was previously exposed accidentally through `onyxsdk-base`'s
 Gradle `api` configuration even though no production source used it. Its

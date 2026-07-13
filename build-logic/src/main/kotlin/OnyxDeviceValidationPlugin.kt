@@ -7,6 +7,9 @@ import org.gradle.kotlin.dsl.getByType
 
 class OnyxDeviceValidationPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
+        val android = extensions.getByType<ApplicationExtension>()
+        configureAndroidConvention(android)
+
         val recoveryRoot = rootProject.layout.projectDirectory.dir("..").asFile.canonicalFile
         val registry = OnyxModuleRegistry.load(recoveryRoot)
         val artifactsRoot = providers.gradleProperty("OnyxArtifactsRoot").orNull
@@ -40,8 +43,7 @@ class OnyxDeviceValidationPlugin : Plugin<Project> {
             val referenceJniDirs = comparedModules.mapNotNull {
                 it.deviceValidation.referenceJniDir?.let(::original)
             }
-            extensions.getByType<ApplicationExtension>()
-                .sourceSets
+            android.sourceSets
                 .getByName("reference")
                 .jniLibs
                 .directories

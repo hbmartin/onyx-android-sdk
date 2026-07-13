@@ -28,7 +28,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
@@ -56,8 +56,11 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
 
+      - name: Run typed Detekt analysis
+        run: ./gradlew --no-daemon clean detektTypeCheck
+
       - name: Build, test, and audit recovery
-        run: ./gradlew --no-daemon clean :check assembleRecovered stageGithubRelease
+        run: ./gradlew --no-daemon :check assembleRecovered stageGithubRelease
 
       - name: Build signed Maven Central bundle
         if: startsWith(github.ref, 'refs/tags/v')
@@ -78,6 +81,7 @@ jobs:
             build/distributions/github/
             build/distributions/central/
             recovery-tests/build/reports/tests/
+            **/build/reports/detekt/
 
   fuzz-touch-reader:
     runs-on: ubuntu-latest

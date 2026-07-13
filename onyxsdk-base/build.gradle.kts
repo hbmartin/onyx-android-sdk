@@ -7,10 +7,6 @@ plugins {
 android {
     namespace = "com.onyx.android.sdk"
 
-    defaultConfig {
-        minSdk = 24
-    }
-
     buildFeatures {
         dataBinding = true
     }
@@ -20,35 +16,19 @@ android {
         // hidden-service calls, and minSdk, which lint cannot model. Those
         // pre-existing findings live in the checked-in baseline; new
         // permission, API-level, range, and resource-type mistakes still warn.
-        disable += "GradleDependency"
         baseline = file("lint-baseline.xml")
-    }
-
-    testOptions {
-        unitTests.isReturnDefaultValues = true
     }
 }
 
 configurations.configureEach {
-    resolutionStrategy.force("androidx.databinding:databinding-common:4.1.3")
+    resolutionStrategy.force(libs.androidx.databinding.common.get())
 }
 
 dependencies {
     api(project(":onyxsdk-device"))
     api(project(":onyxsdk-base:support:onyxsdk-baselite"))
     api(project(":onyxsdk-base:support:onyxsdk-commons-io"))
-    api("androidx.fragment:fragment:1.8.8")
-    api("androidx.appcompat:appcompat:1.7.1")
-    api("androidx.databinding:databinding-common:4.1.3")
-    api(libs.fastjson)
-    api("org.apache.commons:commons-lang3:3.18.0")
-    api("io.reactivex.rxjava2:rxjava:2.1.13")
-    api("io.reactivex.rxjava2:rxandroid:2.1.0")
-    api("androidx.dynamicanimation:dynamicanimation:1.1.0-alpha03")
-    api("org.greenrobot:eventbus:3.0.0")
-    api("com.tencent:mmkv:1.3.14")
-    api("net.lingala.zip4j:zip4j:2.11.5")
-    api(libs.kotlin.stdlib.jdk8)
+    api(libs.bundles.onyx.runtime)
 
     testImplementation(libs.junit4)
     testImplementation(libs.robolectric)
