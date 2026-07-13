@@ -95,9 +95,6 @@ public final class PenBrushResult extends PenResult {
             this.b = paint;
         }
 
-          (wrap int:?: TERNARY null = ((wrap int:0x0002: ARITH (r7v0 int) & (1 int) A[WRAPPED]) != (0 int)) ? (-16777216 int) : (r5v0 int))
-          (r6v0 int)
-         A[MD:(int, int):void (m)] call: com.onyx.android.sdk.pen.PenBrushResult.a.<init>(int, int):void type: THIS */
         public /* synthetic */ a(int i, int i2, int i3, DefaultConstructorMarker defaultConstructorMarker) {
             this((i3 & 1) != 0 ? -16777216 : i, i2);
         }
