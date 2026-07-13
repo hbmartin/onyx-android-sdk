@@ -11,6 +11,7 @@ androidx-test-runner = "1.6.2"
 commons-lang3 = "3.18.0"
 coroutines = "1.6.4"
 detekt = "1.23.8"
+hbmartin-detekt-rules = "1.0.0"
 dokka = "2.2.0"
 eventbus = "3.0.0"
 fastjson = "2.0.48.android8"
@@ -41,6 +42,7 @@ coroutines-rx2 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-rx2", vers
 dokka-gradle-plugin = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka" }
 eventbus = { module = "org.greenrobot:eventbus", version.ref = "eventbus" }
 fastjson = { module = "com.alibaba.fastjson2:fastjson2", version.ref = "fastjson" }
+hbmartin-detekt-rules = { module = "me.haroldmartin:hbmartin-detekt-rules", version.ref = "hbmartin-detekt-rules" }
 json-java = { module = "org.json:json", version.ref = "json-java" }
 junit4 = { module = "junit:junit", version.ref = "junit4" }
 junit5-bom = { module = "org.junit:junit-bom", version.ref = "junit5" }

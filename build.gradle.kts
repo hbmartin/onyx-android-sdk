@@ -1,6 +1,5 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import io.gitlab.arturbosch.detekt.Detekt
-import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import org.gradle.api.tasks.Exec
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -16,20 +15,42 @@ plugins {
 
 version = "0.0.2"
 
+val detektTypeCheck = tasks.register("detektTypeCheck") {
+    group = "verification"
+    description = "Runs baseline-free typed Detekt analysis for every Kotlin production and test source set."
+    dependsOn(
+        gradle.includedBuild("build-logic").task(":detektMain"),
+        gradle.includedBuild("build-logic").task(":detektTest"),
+    )
+}
+
 subprojects {
     pluginManager.withPlugin("org.jetbrains.kotlin.android") {
+        pluginManager.apply("io.gitlab.arturbosch.detekt")
+
         extensions.configure<KotlinAndroidProjectExtension> {
             jvmToolchain(21)
             compilerOptions {
                 jvmTarget.set(JvmTarget.JVM_21)
             }
         }
+
+        val modulePath = path
+        detektTypeCheck.configure {
+            dependsOn("$modulePath:detektMain", "$modulePath:detektTest")
+        }
     }
 
     pluginManager.withPlugin("io.gitlab.arturbosch.detekt") {
+        dependencies.add("detektPlugins", libs.hbmartin.detekt.rules)
+
         extensions.configure<DetektExtension> {
             toolVersion = libs.versions.detekt.get()
             basePath = rootProject.projectDir.absolutePath
+            buildUponDefaultConfig = true
+            config.setFrom(rootProject.layout.projectDirectory.file("config/detekt/detekt.yml"))
+            baseline = null
+            autoCorrect = false
         }
 
         val detektReportDirectory = layout.buildDirectory.dir("reports/detekt")
@@ -45,9 +66,6 @@ subprojects {
                 md.required.set(false)
             }
         }
-        tasks.withType<DetektCreateBaselineTask>().configureEach {
-            jvmTarget = "21"
-        }
     }
 }
 
@@ -58,21 +76,6 @@ tasks.withType<DependencyUpdatesTask> {
             candidate.version.contains(word)
         }
     }
-}
-
-tasks.register("detektTypeCheck") {
-    group = "verification"
-    description = "Runs typed Detekt analysis for production and test Kotlin source sets."
-    dependsOn(
-        ":onyxsdk-base:support:onyxsdk-baselite:detektMain",
-        ":onyxsdk-base:support:onyxsdk-baselite:detektTest",
-        ":onyxsdk-ktx:detektMain",
-        ":onyxsdk-ktx:detektTest",
-        ":onyxsdk-pen:detektMain",
-        ":onyxsdk-pen:detektTest",
-        gradle.includedBuild("build-logic").task(":detektMain"),
-        gradle.includedBuild("build-logic").task(":detektTest"),
-    )
 }
 
 tasks.register<Exec>("nativeFormatCheck") {

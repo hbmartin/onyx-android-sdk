@@ -2,6 +2,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.tasks.Delete
@@ -9,6 +10,7 @@ import org.gradle.api.tasks.Exec
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.register
 
@@ -55,7 +57,17 @@ class OnyxRootPlugin : Plugin<Project> {
         require(this == rootProject) { "onyx.root may only be applied to the root project" }
         val registry = OnyxModuleRegistry.load(layout.projectDirectory.asFile)
         group = registry.distribution.group
+        val releaseTasks = registry.publishedModules.map(OnyxModule::releaseTask)
 
+        registerRecoveryTasks(releaseTasks)
+        val verifyDependencies = registerDependencyVerification(registry)
+        registerValidationTasks(registry, releaseTasks, verifyDependencies)
+        registerGithubDistribution(registry, releaseTasks)
+        val stageCentral = registerCentralStaging(registry)
+        registerCentralBundle(registry, stageCentral)
+    }
+
+    private fun Project.registerRecoveryTasks(releaseTasks: List<String>) {
         tasks.register<Exec>("validateModuleRegistry") {
             group = "verification"
             description = "Validates the single module/distribution registry."
@@ -68,7 +80,6 @@ class OnyxRootPlugin : Plugin<Project> {
             )
         }
 
-        val releaseTasks = registry.publishedModules.map(OnyxModule::releaseTask)
         tasks.register("assembleRecovered") {
             group = "build"
             description = "Builds all six source-native release AARs."
@@ -99,7 +110,11 @@ class OnyxRootPlugin : Plugin<Project> {
                 "--update",
             )
         }
+    }
 
+    private fun Project.registerDependencyVerification(
+        registry: OnyxRegistry,
+    ): TaskProvider<VerifyModuleDependenciesTask> {
         val expectedDependencies = registry.modules.flatMap { module ->
             module.projectDependencies.map { dependency ->
                 "${module.id}|${dependency.configuration}|${registry.module(dependency.target).projectPath}"
@@ -130,7 +145,14 @@ class OnyxRootPlugin : Plugin<Project> {
                 this.actualDependencies.set(actualDependencies.sorted())
             }
         }
+        return verifyDependencies
+    }
 
+    private fun Project.registerValidationTasks(
+        registry: OnyxRegistry,
+        releaseTasks: List<String>,
+        verifyDependencies: TaskProvider<VerifyModuleDependenciesTask>,
+    ) {
         tasks.register<Exec>("pythonValidationTest") {
             group = "verification"
             description = "Runs registry, boundary, and Central uploader unit tests."
@@ -174,7 +196,12 @@ class OnyxRootPlugin : Plugin<Project> {
                 layout.projectDirectory.asFile,
             )
         }
+    }
 
+    private fun Project.registerGithubDistribution(
+        registry: OnyxRegistry,
+        releaseTasks: List<String>,
+    ) {
         tasks.register<Sync>("stageGithubRelease") {
             group = "distribution"
             description = "Stages versioned standalone AARs and license metadata for GitHub Releases."
@@ -190,7 +217,9 @@ class OnyxRootPlugin : Plugin<Project> {
             from(layout.projectDirectory.file("LICENSES/Apache-2.0.txt"))
             from(layout.projectDirectory.file("gradle/onyx-modules.json"))
         }
+    }
 
+    private fun Project.registerCentralStaging(registry: OnyxRegistry): TaskProvider<Task> {
         val cleanCentral = tasks.register<Delete>("cleanCentralStaging") {
             delete(layout.buildDirectory.dir("central-staging"))
         }
@@ -217,6 +246,13 @@ class OnyxRootPlugin : Plugin<Project> {
                     }
             }
         }
+        return stageCentral
+    }
+
+    private fun Project.registerCentralBundle(
+        registry: OnyxRegistry,
+        stageCentral: TaskProvider<Task>,
+    ) {
         val centralBundle = tasks.register<Zip>("centralBundle") {
             group = "distribution"
             description = "Creates the signed Maven Central Portal deployment bundle."
@@ -254,6 +290,5 @@ class OnyxRootPlugin : Plugin<Project> {
                 "--verify-only",
             )
         }
-        Unit
     }
 }
