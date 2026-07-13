@@ -102,7 +102,21 @@ def package_of_class(class_name: str) -> str:
     return class_name.rsplit(".", 1)[0] if "." in class_name else ""
 
 
+def top_level_class(class_name: str) -> str:
+    return class_name.split("$", 1)[0]
+
+
 def verify_aars(registry: Registry) -> dict[str, int]:
+    package_owners = {
+        package: module.id
+        for module in registry.published_modules
+        for package in module.owned_packages
+    }
+    legacy_owners = {
+        type_name: module.id
+        for module in registry.published_modules
+        for type_name in module.legacy_owned_types
+    }
     owners: dict[str, list[str]] = defaultdict(list)
     entries_by_module: dict[str, set[str]] = {}
     for module in registry.published_modules:
@@ -118,6 +132,19 @@ def verify_aars(registry: Registry) -> dict[str, int]:
         f"Duplicate class {entry}: {', '.join(modules)}"
         for entry, modules in sorted(duplicates.items())
     ]
+
+    for module_id, entries in sorted(entries_by_module.items()):
+        for entry in sorted(entries):
+            owner_key = top_level_class(entry)
+            expected_owner = legacy_owners.get(owner_key)
+            if expected_owner is None:
+                expected_owner = package_owners.get(package_of_class(owner_key))
+            if expected_owner is None:
+                failures.append(f"Class {entry} has no registry owner")
+            elif expected_owner != module_id:
+                failures.append(
+                    f"Class {entry} belongs to {expected_owner}, not {module_id}"
+                )
 
     base_entries = entries_by_module.get("base", set())
     support_packages = {

@@ -1,6 +1,7 @@
 import org.gradle.api.GradleException
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class VerifyModuleDependenciesTaskTest {
@@ -34,6 +35,17 @@ class VerifyModuleDependenciesTaskTest {
                 actual = listOf("base|api|:device", "device|implementation|:base"),
             ).verify()
         }
-        check("device|implementation|:base" in error.message.orEmpty())
+        assertTrue("device|implementation|:base" in error.message.orEmpty())
+    }
+
+    @Test
+    fun rejectsMissingRegistryDependencies() {
+        val error = assertThrows(GradleException::class.java) {
+            task(
+                expected = listOf("base|api|:device"),
+                actual = emptyList(),
+            ).verify()
+        }
+        assertTrue("base|api|:device" in error.message.orEmpty())
     }
 }

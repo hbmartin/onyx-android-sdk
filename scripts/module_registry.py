@@ -155,6 +155,15 @@ def _parse_module(raw: Any, index: int, default_license: str) -> Module:
     )
 
 
+def _has_device_validation_roles(validation: dict[str, Any]) -> bool:
+    return bool(
+        validation.get("commonRecovered", False)
+        or validation.get("referenceCompileJars", [])
+        or validation.get("apiReferenceJars", [])
+        or validation.get("referenceJniDir")
+    )
+
+
 def load_registry(root: Path = DEFAULT_ROOT, *, validate_paths: bool = True) -> Registry:
     root = root.resolve()
     path = root / REGISTRY_PATH
@@ -213,8 +222,22 @@ def load_registry(root: Path = DEFAULT_ROOT, *, validate_paths: bool = True) -> 
     for module in modules:
         if module.license not in licenses:
             raise RegistryError(f"{module.id} refers to unknown license {module.license}")
-        if validate_paths and not (root / module.project_dir).is_dir():
-            raise RegistryError(f"{module.id} project directory does not exist: {module.project_dir}")
+        if validate_paths:
+            raw_project_dir = Path(module.project_dir)
+            project_dir = (root / raw_project_dir).resolve()
+            if (
+                raw_project_dir.is_absolute()
+                or ".." in raw_project_dir.parts
+                or (project_dir != root and root not in project_dir.parents)
+            ):
+                raise RegistryError(
+                    f"{module.id} project directory must remain within the repository: "
+                    f"{module.project_dir}"
+                )
+            if not project_dir.is_dir():
+                raise RegistryError(
+                    f"{module.id} project directory does not exist: {module.project_dir}"
+                )
         for _, target in module.project_dependencies:
             if target not in by_id:
                 raise RegistryError(f"{module.id} depends on unknown module {target}")
@@ -226,7 +249,7 @@ def load_registry(root: Path = DEFAULT_ROOT, *, validate_paths: bool = True) -> 
     legacy_owners: dict[str, str] = {}
     for module in modules:
         if not module.published:
-            if module.device_validation:
+            if _has_device_validation_roles(module.device_validation):
                 raise RegistryError(
                     f"Non-published module {module.id} cannot define device validation roles")
             continue
@@ -247,7 +270,8 @@ def load_registry(root: Path = DEFAULT_ROOT, *, validate_paths: bool = True) -> 
         for type_name in module.legacy_owned_types:
             package = type_name.rsplit(".", 1)[0]
             if package not in package_owners and not any(
-                    package in candidate.owned_packages for candidate in modules):
+                    candidate.published and package in candidate.owned_packages
+                    for candidate in modules):
                 raise RegistryError(
                     f"Legacy type {type_name} has no default package owner")
             previous = legacy_owners.setdefault(type_name, module.id)
@@ -265,11 +289,16 @@ def main() -> int:
     for name in ("aar", "release-task", "module"):
         command = subparsers.add_parser(name)
         command.add_argument("module_id")
+    subparsers.add_parser("published-aars")
     subparsers.add_parser("validate")
     args = parser.parse_args()
     registry = load_registry(args.root)
     if args.command == "validate":
         print(f"Validated {len(registry.modules)} modules ({len(registry.published_modules)} published)")
+        return 0
+    if args.command == "published-aars":
+        for published_module in registry.published_modules:
+            print(registry.root / published_module.aar_relative_path)
         return 0
     module = registry.module(args.module_id)
     if args.command == "aar":

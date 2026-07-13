@@ -504,7 +504,11 @@ def main() -> int:
         if args.module:
             if not (args.artifacts_root and args.recovery_root):
                 parser.error("--module requires --artifacts-root and --recovery-root")
-            reference_jars, candidate_jars = module_inputs(args, workdir)
+            try:
+                reference_jars, candidate_jars = module_inputs(args, workdir)
+            except RegistryError as error:
+                print(f"API classification failed: {error}", file=sys.stderr)
+                return 1
         else:
             if not (args.reference and args.candidate):
                 parser.error("pass --module or both --reference and --candidate")

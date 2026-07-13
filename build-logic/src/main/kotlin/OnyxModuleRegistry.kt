@@ -73,7 +73,7 @@ data class OnyxRegistry(
 
 object OnyxModuleRegistry {
     private const val REGISTRY_PATH = "gradle/onyx-modules.json"
-    private val productionConfigurations = setOf("api", "implementation", "compileOnly", "runtimeOnly")
+    internal val productionConfigurations = setOf("api", "implementation", "compileOnly", "runtimeOnly")
 
     fun load(rootDir: File, validatePaths: Boolean = true): OnyxRegistry {
         val canonicalRoot = rootDir.canonicalFile
@@ -139,8 +139,16 @@ object OnyxModuleRegistry {
         modules.forEach { module ->
             requireRegistry(module.license in licenses, "${module.id} uses unknown license ${module.license}")
             if (validatePaths) {
+                val rawProjectDir = File(module.projectDir)
+                val resolvedProjectDir = canonicalRoot.resolve(rawProjectDir).canonicalFile
                 requireRegistry(
-                    canonicalRoot.resolve(module.projectDir).isDirectory,
+                    !rawProjectDir.isAbsolute &&
+                        rawProjectDir.toPath().none { it.toString() == ".." } &&
+                        resolvedProjectDir.toPath().startsWith(canonicalRoot.toPath()),
+                    "${module.id} project directory must remain within the repository: ${module.projectDir}",
+                )
+                requireRegistry(
+                    resolvedProjectDir.isDirectory,
                     "${module.id} project directory does not exist: ${module.projectDir}",
                 )
             }

@@ -12,6 +12,11 @@ from module_registry import REGISTRY_PATH, RegistryError, load_registry
 
 
 class ModuleRegistryTest(unittest.TestCase):
+    def write_registry(self, root, payload):
+        registry_path = Path(root) / REGISTRY_PATH
+        registry_path.parent.mkdir(parents=True, exist_ok=True)
+        registry_path.write_text(json.dumps(payload), encoding="utf-8")
+
     def test_checked_in_registry_has_expected_distribution_and_derived_paths(self):
         registry = load_registry(ROOT)
 
@@ -68,6 +73,61 @@ class ModuleRegistryTest(unittest.TestCase):
             registry_path.write_text(json.dumps(unsafe_reference), encoding="utf-8")
             with self.assertRaisesRegex(RegistryError, "normalized relative path"):
                 load_registry(temp_root, validate_paths=False)
+
+    def test_rejects_project_directories_outside_repository(self):
+        payload = json.loads((ROOT / REGISTRY_PATH).read_text(encoding="utf-8"))
+        with tempfile.TemporaryDirectory() as temporary:
+            temp_root = Path(temporary) / "repository"
+            outside = Path(temporary) / "outside"
+            outside.mkdir()
+
+            parent_traversal = json.loads(json.dumps(payload))
+            parent_traversal["modules"][0]["projectDir"] = "../outside"
+            self.write_registry(temp_root, parent_traversal)
+            with self.assertRaisesRegex(RegistryError, "remain within the repository"):
+                load_registry(temp_root)
+
+            absolute = json.loads(json.dumps(payload))
+            absolute["modules"][0]["projectDir"] = str(outside)
+            self.write_registry(temp_root, absolute)
+            with self.assertRaisesRegex(RegistryError, "remain within the repository"):
+                load_registry(temp_root)
+
+            symlink = temp_root / "escaping-link"
+            symlink.symlink_to(outside, target_is_directory=True)
+            symlink_escape = json.loads(json.dumps(payload))
+            symlink_escape["modules"][0]["projectDir"] = symlink.name
+            self.write_registry(temp_root, symlink_escape)
+            with self.assertRaisesRegex(RegistryError, "remain within the repository"):
+                load_registry(temp_root)
+
+    def test_non_published_modules_allow_disabled_device_validation(self):
+        payload = json.loads((ROOT / REGISTRY_PATH).read_text(encoding="utf-8"))
+        recovery_tests = next(
+            module for module in payload["modules"] if module["id"] == "recovery-tests"
+        )
+        recovery_tests["deviceValidation"] = {
+            "commonRecovered": False,
+            "referenceCompileJars": [],
+            "apiReferenceJars": [],
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            self.write_registry(temporary, payload)
+            registry = load_registry(Path(temporary), validate_paths=False)
+        self.assertFalse(registry.module("recovery-tests").published)
+
+    def test_unpublished_modules_cannot_supply_package_ownership(self):
+        payload = json.loads((ROOT / REGISTRY_PATH).read_text(encoding="utf-8"))
+        base = next(module for module in payload["modules"] if module["id"] == "base")
+        recovery_tests = next(
+            module for module in payload["modules"] if module["id"] == "recovery-tests"
+        )
+        base["legacyOwnedTypes"] = ["example.unpublished.Legacy"]
+        recovery_tests["ownedPackages"] = ["example.unpublished"]
+        with tempfile.TemporaryDirectory() as temporary:
+            self.write_registry(temporary, payload)
+            with self.assertRaisesRegex(RegistryError, "has no default package owner"):
+                load_registry(Path(temporary), validate_paths=False)
 
 
 if __name__ == "__main__":
