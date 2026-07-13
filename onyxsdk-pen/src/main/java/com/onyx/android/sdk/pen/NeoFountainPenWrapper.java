@@ -70,6 +70,14 @@ public class NeoFountainPenWrapper {
         return NeoPenUtils.computeStrokePoints(2, points, strokeWidth, maxTouchPressure);
     }
 
+    public static List<TouchPoint> computeStrokePoints(List<TouchPoint> points, float strokeWidth,
+                                                        float maxTouchPressure, int rendererVersion) {
+        NeoPenConfig config = new NeoPenConfig()
+                .setWidth(strokeWidth)
+                .setRendererVersion(rendererVersion);
+        return NeoPenUtils.computeStrokePoints(2, points, config, maxTouchPressure);
+    }
+
     public static List<TouchPoint> computeStrokePoints(List<TouchPoint> points,
                                                         NeoPenConfig config,
                                                         float maxTouchPressure) {
