@@ -19,10 +19,6 @@
       "descriptor: (Ljava/util/List;FFFI)Ljava/util/List;"
     ],
     [
-      "public static java.util.List<com.onyx.android.sdk.data.note.TouchPoint> computeStrokePoints(java.util.List<com.onyx.android.sdk.data.note.TouchPoint>, float, float, int);",
-      "descriptor: (Ljava/util/List;FFI)Ljava/util/List;"
-    ],
-    [
       "public static void drawStroke(android.graphics.Canvas, android.graphics.Paint, java.util.List<com.onyx.android.sdk.data.note.TouchPoint>, float, float, float, boolean, int);",
       "descriptor: (Landroid/graphics/Canvas;Landroid/graphics/Paint;Ljava/util/List;FFFZI)V"
     ]

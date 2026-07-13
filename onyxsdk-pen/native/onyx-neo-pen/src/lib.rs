@@ -79,71 +79,54 @@ impl Default for PenConfig {
     }
 }
 
+impl PenConfig {
+    fn sanitized(mut self) -> Self {
+        let defaults = Self::default();
+        self.renderer_version = self.renderer_version.clamp(1, 2);
+        self.width = finite_or(self.width, defaults.width).max(0.001);
+        self.min_width = finite_or(self.min_width, defaults.min_width).max(0.001);
+        self.dpi = finite_or(self.dpi, defaults.dpi);
+        self.display_scale_x = finite_or(self.display_scale_x, defaults.display_scale_x);
+        self.display_scale_y = finite_or(self.display_scale_y, defaults.display_scale_y);
+        self.scale_precision = finite_or(self.scale_precision, defaults.scale_precision);
+        self.brush_spacing = finite_or(self.brush_spacing, defaults.brush_spacing).clamp(0.1, 1.0);
+        self.brush_ratio = finite_or(self.brush_ratio, defaults.brush_ratio);
+        self.brush_angle = finite_or(self.brush_angle, defaults.brush_angle);
+        self.pressure_sensitivity =
+            finite_or(self.pressure_sensitivity, defaults.pressure_sensitivity).clamp(0.0, 1.0);
+        self.velocity_sensitivity =
+            finite_or(self.velocity_sensitivity, defaults.velocity_sensitivity).clamp(0.0, 1.0);
+        self.velocity_amplifier =
+            finite_or(self.velocity_amplifier, defaults.velocity_amplifier).clamp(0.0, 1.0);
+        self.velocity_lower_bound =
+            finite_or(self.velocity_lower_bound, defaults.velocity_lower_bound).clamp(0.0, 50.0);
+        self.velocity_upper_bound =
+            finite_or(self.velocity_upper_bound, defaults.velocity_upper_bound).clamp(0.0, 50.0);
+        self.velocity_ignore_threshold = finite_or(
+            self.velocity_ignore_threshold,
+            defaults.velocity_ignore_threshold,
+        )
+        .clamp(0.0, self.velocity_lower_bound);
+        self.smooth_level = finite_or(self.smooth_level, defaults.smooth_level).clamp(0.0, 1.0);
+        self.tilt_scale = finite_or(self.tilt_scale, defaults.tilt_scale);
+        self
+    }
+}
+
+fn finite_or(value: f32, fallback: f32) -> f32 {
+    if value.is_finite() {
+        value
+    } else {
+        fallback
+    }
+}
+
 #[derive(Clone, Debug)]
 struct Stamp {
     width: i32,
     height: i32,
     alpha: u8,
-    rows: Option<&'static [u32]>,
 }
-
-// Reference-device pixel snapshots show that the three masked charcoal
-// textures are fully opaque. Their opacity is part of the mask pixels, not
-// the 180/255 solid-fill opacity used by other stamps.
-const CHARCOAL_MOVE_ROWS: &[u32] = &[
-    0b0000000000000,
-    0b0000000000000,
-    0b0000000000000,
-    0b0001010000000,
-    0b0000101000000,
-    0b0000010100000,
-    0b0001001000000,
-    0b0000010010000,
-    0b0000001101000,
-    0b0000000101000,
-    0b0000000100100,
-    0b0000000010010,
-    0b0000000000000,
-    0b0000000000000,
-];
-
-const CHARCOAL_UP_ROWS: &[u32] = &[
-    0b0000000000000,
-    0b0000000000000,
-    0b0000010000000,
-    0b0001010000000,
-    0b0001010000000,
-    0b0001011010000,
-    0b0000101000000,
-    0b0000010110100,
-    0b0000001000000,
-    0b0000000010000,
-    0b0000000001000,
-    0b0000000000000,
-    0b0000000000000,
-];
-
-const CHARCOAL_V2_UP_ROWS: &[u32] = &[
-    0b000000000000000000,
-    0b000001000000000000,
-    0b000011100000000000,
-    0b010101110000000000,
-    0b010100111100000000,
-    0b001010111100000000,
-    0b000101010001000000,
-    0b000101000101000000,
-    0b000011110010000000,
-    0b000000001110100000,
-    0b000000100100111000,
-    0b000000011100110100,
-    0b000000001001101000,
-    0b000000001000101110,
-    0b000000000100111100,
-    0b000000000101010100,
-    0b000000000000000100,
-    0b000000000000010000,
-    0b000000000000000100,
-];
 
 #[derive(Clone, Debug, Default)]
 struct InkData {
@@ -170,6 +153,7 @@ enum Phase {
 
 impl PenState {
     fn new(pen_type: i32, config: PenConfig) -> Self {
+        let config = config.sanitized();
         let last_width = config.width.max(config.min_width);
         Self {
             pen_type,
@@ -703,8 +687,7 @@ impl PenState {
                             real.stamps.push(Stamp {
                                 width: 13,
                                 height: 14,
-                                alpha: 255,
-                                rows: Some(CHARCOAL_MOVE_ROWS),
+                                alpha: 180,
                             });
                         }
                     }
@@ -767,22 +750,18 @@ impl PenState {
                         real.stamps.push(Stamp {
                             width: 13,
                             height: 13,
-                            alpha: 255,
-                            rows: Some(CHARCOAL_UP_ROWS),
+                            alpha: 180,
                         });
                     }
                     5 => {
-                        // Reference-device differential output anchors charcoal-v2's final
-                        // texture at the stroke origin rather than the latest move point.
-                        let point = self.history.first().copied().unwrap_or(end);
+                        let point = self.history.last().copied().unwrap_or(end);
                         real.points
                             .extend_from_slice(&[point.x - 4.0, point.y - 4.0]);
                         real.point_sizes.push(2);
                         real.stamps.push(Stamp {
                             width: 18,
                             height: 19,
-                            alpha: 255,
-                            rows: Some(CHARCOAL_V2_UP_ROWS),
+                            alpha: 180,
                         });
                     }
                     6 if self.config.fast_mode => {
@@ -858,27 +837,19 @@ fn get_bool(env: &mut JNIEnv, object: &JObject, name: &str, default: bool) -> bo
 
 fn read_config(env: &mut JNIEnv, object: &JObject) -> PenConfig {
     let defaults = PenConfig::default();
-    let lower_bound = get_float(
-        env,
-        object,
-        "velocityLowerBound",
-        defaults.velocity_lower_bound,
-    )
-    .clamp(0.0, 50.0);
     PenConfig {
         renderer_version: get_int(env, object, "rendererVersion", defaults.renderer_version)
             .clamp(1, 2),
         color: get_int(env, object, "color", defaults.color),
-        width: get_float(env, object, "width", defaults.width).max(0.001),
-        min_width: get_float(env, object, "minWidth", defaults.min_width).max(0.001),
+        width: get_float(env, object, "width", defaults.width),
+        min_width: get_float(env, object, "minWidth", defaults.min_width),
         dpi: get_float(env, object, "dpi", defaults.dpi),
         display_scale_x: get_float(env, object, "displayScaleX", defaults.display_scale_x),
         display_scale_y: get_float(env, object, "displayScaleY", defaults.display_scale_y),
         scale_precision: get_float(env, object, "scalePrecision", defaults.scale_precision),
         rotate_angle: get_int(env, object, "rotateAngle", defaults.rotate_angle),
         brush_shape: get_int(env, object, "brushShape", defaults.brush_shape),
-        brush_spacing: get_float(env, object, "brushSpacing", defaults.brush_spacing)
-            .clamp(0.1, 1.0),
+        brush_spacing: get_float(env, object, "brushSpacing", defaults.brush_spacing),
         brush_ratio: get_float(env, object, "brushRatio", defaults.brush_ratio),
         brush_angle: get_float(env, object, "brushAngle", defaults.brush_angle),
         pressure_sensitivity: get_float(
@@ -886,43 +857,44 @@ fn read_config(env: &mut JNIEnv, object: &JObject) -> PenConfig {
             object,
             "pressureSensitivity",
             defaults.pressure_sensitivity,
-        )
-        .clamp(0.0, 1.0),
+        ),
         velocity_sensitivity: get_float(
             env,
             object,
             "velocitySensitivity",
             defaults.velocity_sensitivity,
-        )
-        .clamp(0.0, 1.0),
+        ),
         velocity_amplifier: get_float(
             env,
             object,
             "velocityAmplifier",
             defaults.velocity_amplifier,
-        )
-        .clamp(0.0, 1.0),
+        ),
         velocity_ignore_threshold: get_float(
             env,
             object,
             "velocityIgnoreThreshold",
             defaults.velocity_ignore_threshold,
-        )
-        .clamp(0.0, lower_bound),
-        velocity_lower_bound: lower_bound,
+        ),
+        velocity_lower_bound: get_float(
+            env,
+            object,
+            "velocityLowerBound",
+            defaults.velocity_lower_bound,
+        ),
         velocity_upper_bound: get_float(
             env,
             object,
             "velocityUpperBound",
             defaults.velocity_upper_bound,
-        )
-        .clamp(0.0, 50.0),
-        smooth_level: get_float(env, object, "smoothLevel", defaults.smooth_level).clamp(0.0, 1.0),
+        ),
+        smooth_level: get_float(env, object, "smoothLevel", defaults.smooth_level),
         tilt_enabled: get_bool(env, object, "tiltEnabled", defaults.tilt_enabled),
         tilt_scale: get_float(env, object, "tiltScale", defaults.tilt_scale),
         direction_enabled: get_bool(env, object, "directionEnabled", defaults.direction_enabled),
         fast_mode: get_bool(env, object, "fastMode", defaults.fast_mode),
     }
+    .sanitized()
 }
 
 fn read_touches(env: &mut JNIEnv, array: JDoubleArray) -> Vec<Touch> {
@@ -952,23 +924,6 @@ fn scale_color_alpha(color: i32, stamp_alpha: u8) -> i32 {
     ((alpha << 24) | (color as u32 & 0x00ff_ffff)) as i32
 }
 
-fn masked_stamp_pixels(stamp: &Stamp, color: i32) -> Option<Vec<i32>> {
-    let rows = stamp.rows?;
-    let width = stamp.width.max(1) as usize;
-    let height = stamp.height.max(1) as usize;
-    let scaled_color = scale_color_alpha(color, stamp.alpha);
-    let mut pixels = Vec::with_capacity(width * height);
-    for y in 0..height {
-        let row = rows.get(y).copied().unwrap_or(0);
-        for x in 0..width {
-            let bit_shift = width - 1 - x;
-            let active = bit_shift < u32::BITS as usize && row & (1u32 << bit_shift) != 0;
-            pixels.push(if active { scaled_color } else { 0 });
-        }
-    }
-    Some(pixels)
-}
-
 fn create_bitmap<'local>(
     env: &mut JNIEnv<'local>,
     stamp: &Stamp,
@@ -994,29 +949,8 @@ fn create_bitmap<'local>(
             ],
         )?
         .l()?;
-    if let Some(pixels) = masked_stamp_pixels(stamp, color) {
-        let colors: JIntArray = env.new_int_array(pixels.len() as i32)?;
-        env.set_int_array_region(&colors, 0, &pixels)?;
-        let colors_object = JObject::from(colors);
-        env.call_method(
-            &bitmap,
-            "setPixels",
-            "([IIIIIII)V",
-            &[
-                JValue::Object(&colors_object),
-                JValue::Int(0),
-                JValue::Int(stamp.width),
-                JValue::Int(0),
-                JValue::Int(0),
-                JValue::Int(stamp.width),
-                JValue::Int(stamp.height),
-            ],
-        )?;
-        env.delete_local_ref(colors_object)?;
-    } else {
-        let argb = scale_color_alpha(color, stamp.alpha);
-        env.call_method(&bitmap, "eraseColor", "(I)V", &[JValue::Int(argb)])?;
-    }
+    let argb = scale_color_alpha(color, stamp.alpha);
+    env.call_method(&bitmap, "eraseColor", "(I)V", &[JValue::Int(argb)])?;
     env.delete_local_ref(config_class)?;
     env.delete_local_ref(config)?;
     Ok(bitmap)
@@ -1733,7 +1667,6 @@ mod tests {
                 width: 13,
                 height: 14,
                 alpha: 180,
-                rows: None,
             }],
         };
         assert_eq!(
@@ -1743,41 +1676,11 @@ mod tests {
     }
 
     #[test]
-    fn masked_stamp_pixels_apply_stamp_alpha() {
-        const ROWS: &[u32] = &[0b10];
-        let stamp = Stamp {
-            width: 2,
-            height: 1,
-            alpha: 180,
-            rows: Some(ROWS),
-        };
-
-        assert_eq!(
-            masked_stamp_pixels(&stamp, 0xff12_3456u32 as i32),
-            Some(vec![0xb412_3456u32 as i32, 0]),
-        );
+    fn stamp_alpha_scales_the_configured_color() {
         assert_eq!(
             scale_color_alpha(0x8012_3456u32 as i32, 180),
             0x5a12_3456u32 as i32
         );
-    }
-
-    #[test]
-    fn masked_stamp_pixels_treat_bits_beyond_u32_as_inactive() {
-        const ROWS: &[u32] = &[u32::MAX];
-        let stamp = Stamp {
-            width: 33,
-            height: 1,
-            alpha: 255,
-            rows: Some(ROWS),
-        };
-
-        let pixels = masked_stamp_pixels(&stamp, 0xff12_3456u32 as i32).unwrap();
-        assert_eq!(pixels.len(), 33);
-        assert_eq!(pixels[0], 0);
-        assert!(pixels[1..]
-            .iter()
-            .all(|pixel| *pixel == 0xff12_3456u32 as i32));
     }
 
     #[test]
@@ -1819,16 +1722,41 @@ mod tests {
         let (second_move, _) = pen.process(&[touch(100.0, 100.0, 0.5, 3.0)], None, Phase::Move);
         assert_eq!(first_move.points[0], -3.0);
         assert_eq!(second_move.points[0], 47.0);
-        assert_eq!(first_move.stamps[0].alpha, 255);
+        assert_eq!(first_move.stamps[0].alpha, 180);
 
         let mut v2 = PenState::new(5, PenConfig::default());
         v2.process(&[touch(0.0, 0.0, 0.5, 1.0)], None, Phase::Down);
         v2.process(&[touch(60.0, 0.0, 0.5, 2.0)], None, Phase::Move);
         let (up, _) = v2.process(&[touch(60.0, 0.0, 0.5, 3.0)], None, Phase::Up);
-        // The BOOX differential pins charcoal-v2's final texture to the
-        // stroke origin, not the most recent move point.
-        assert_eq!(up.points, [-4.0, -4.0]);
-        assert_eq!(up.stamps[0].alpha, 255);
-        assert_eq!(up.stamps[0].rows, Some(CHARCOAL_V2_UP_ROWS));
+        assert_eq!(up.points, [56.0, -4.0]);
+        assert_eq!(up.stamps[0].alpha, 180);
+    }
+
+    #[test]
+    fn reference_fountain_sanitizes_non_finite_configuration() {
+        let config = PenConfig {
+            renderer_version: 2,
+            dpi: f32::NAN,
+            scale_precision: f32::NAN,
+            brush_spacing: f32::NAN,
+            brush_ratio: f32::NAN,
+            brush_angle: f32::NAN,
+            pressure_sensitivity: f32::NAN,
+            velocity_sensitivity: f32::NAN,
+            velocity_amplifier: f32::NAN,
+            velocity_ignore_threshold: f32::NAN,
+            velocity_lower_bound: f32::NAN,
+            velocity_upper_bound: f32::NAN,
+            smooth_level: f32::NAN,
+            tilt_enabled: true,
+            tilt_scale: f32::NAN,
+            direction_enabled: true,
+            ..PenConfig::default()
+        };
+        let mut pen = PenState::new(2, config);
+        pen.process(&[touch(0.0, 0.0, 0.5, 1.0)], None, Phase::Down);
+        let (ink, _) = pen.process(&[touch(20.0, 10.0, 0.8, 2.0)], None, Phase::Up);
+        assert!(!ink.points.is_empty());
+        assert!(ink.points.iter().all(|value| value.is_finite()));
     }
 }

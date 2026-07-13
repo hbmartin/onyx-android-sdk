@@ -259,8 +259,10 @@ public abstract class EpdController {
 
     /**
      * Enables direct Binder transport only when the configured service exists.
-     * Failures during later transactions automatically fall back to the normal
-     * framework path.
+     * A rejected start falls back to the framework path for that whole stroke.
+     * If Binder fails after a successful start, the stroke is aborted rather
+     * than sending an unmatched add/finish sequence through another transport;
+     * Binder resolution is retried at the next stroke boundary.
      */
     public static boolean useSurfaceFlingerStrokeTransport(StrokeTransportConfig config) {
         if (config == null) {

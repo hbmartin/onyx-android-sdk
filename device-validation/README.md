@@ -20,7 +20,7 @@ inventory, an API-surface report, both JSONL result streams, `comparison.json`,
 and `report.md`. Original SDK files are read only from the required,
 explicitly supplied artifacts directory.
 The automated suite also invokes the existing nine-pen-type native differential
-against the hash-pinned, untracked neo-pen reference library.
+against the hash-pinned, untracked `libneo_pen.so` reference.
 
 ## MMKV file compatibility
 

@@ -1,5 +1,26 @@
 {
   "classes": {
+    "com.onyx.android.sdk.pen.NeoFountainPenWrapper": {
+      "extra_public_surface": [
+        "extra member: public method drawStroke (Landroid/graphics/Canvas;Landroid/graphics/Paint;Ljava/util/List;FFFZI)V",
+        "extra member: public method computeStrokePoints (Ljava/util/List;FFFI)Ljava/util/List;",
+        "extra member: public method computeStrokePoints (Ljava/util/List;Lcom/onyx/android/sdk/pen/NeoPenConfig;F)Ljava/util/List;"
+      ]
+    },
+    "com.onyx.android.sdk.pen.NeoPenConfig": {
+      "extra_public_surface": [
+        "extra member: public field RENDERER_RECOVERED_V1 I",
+        "extra member: public field RENDERER_REFERENCE_COMPAT I",
+        "extra member: public field rendererVersion I",
+        "extra member: public method getRendererVersion ()I",
+        "extra member: public method setRendererVersion (I)Lcom/onyx/android/sdk/pen/NeoPenConfig;"
+      ]
+    },
+    "com.onyx.android.sdk.pen.NeoPenUtils": {
+      "extra_public_surface": [
+        "extra member: public method computeStrokePoints (ILjava/util/List;Lcom/onyx/android/sdk/pen/NeoPenConfig;F)Ljava/util/List;"
+      ]
+    },
     "com.onyx.android.sdk.pen.PenBrushInk": {
       "kotlin_metadata": [
         "kotlin.Metadata annotation differs"
@@ -8,6 +29,7 @@
   },
   "extraClasses": [
     "com.onyx.android.sdk.geometry.data.BoxInfo",
-    "com.onyx.android.sdk.geometry.data.TouchData"
+    "com.onyx.android.sdk.geometry.data.TouchData",
+    "com.onyx.android.sdk.pen.NeoPenRendererOptions"
   ]
 }

@@ -129,7 +129,7 @@ exactly and must not be "fixed":
 - `onyx-pen-touch-reader` exports the 11 `RawInputReader` JNI methods.
 - `onyx-neo-pen` exports seven `NeoPenNative` methods and seven legacy
   `NeoPenWrapper` methods.
-- Both crates build for four Android ABIs without a shared C++ runtime.
+- Both crates build for four Android ABIs without `libc++_shared.so`.
 - Export lists in `scripts/native-contracts` are checked against loose binaries
   and the packaged release AAR.
 

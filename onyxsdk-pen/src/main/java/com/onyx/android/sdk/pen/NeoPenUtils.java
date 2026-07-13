@@ -12,9 +12,17 @@ import kotlin.Pair;
 
 public class NeoPenUtils {
     public static List<TouchPoint> computeStrokePoints(int type, List<TouchPoint> points, float strokeWidth, float maxTouchPressure) {
+        if (points.size() < 2) {
+            return new ArrayList();
+        }
         NeoPenConfig neoPenConfig = new NeoPenConfig();
         neoPenConfig.setWidth(strokeWidth);
-        return computeStrokePoints(type, points, neoPenConfig, maxTouchPressure);
+        NeoPen neoPen = createPen(type, neoPenConfig);
+        if (neoPen == null) {
+            return new ArrayList();
+        }
+        normalizePressureInPlace(points, maxTouchPressure);
+        return computeNormalizedStrokePoints(neoPen, points);
     }
 
     /**
@@ -27,6 +35,32 @@ public class NeoPenUtils {
             return new ArrayList();
         }
         NeoPenConfig neoPenConfig = config == null ? new NeoPenConfig() : config;
+        NeoPen neoPen = createPen(type, neoPenConfig);
+        if (neoPen == null) {
+            return new ArrayList();
+        }
+        return computeNormalizedStrokePoints(
+                neoPen, normalizedPressureCopies(points, maxTouchPressure));
+    }
+
+    static void normalizePressureInPlace(List<TouchPoint> points, float maxTouchPressure) {
+        for (TouchPoint point : points) {
+            point.pressure /= maxTouchPressure;
+        }
+    }
+
+    static ArrayList<TouchPoint> normalizedPressureCopies(
+            List<TouchPoint> points, float maxTouchPressure) {
+        ArrayList<TouchPoint> normalized = new ArrayList<>(points.size());
+        for (TouchPoint point : points) {
+            TouchPoint copy = new TouchPoint(point);
+            copy.pressure = maxTouchPressure > 0.0f ? copy.pressure / maxTouchPressure : 0.0f;
+            normalized.add(copy);
+        }
+        return normalized;
+    }
+
+    private static NeoPen createPen(int type, NeoPenConfig neoPenConfig) {
         NeoPen neoPenCreate = null;
         if (type == 1) {
             neoPenCreate = NeoBrushPen.Companion.create(neoPenConfig);
@@ -37,18 +71,14 @@ public class NeoPenUtils {
         }
         if (neoPenCreate == null) {
             Debug.e(NeoPenUtils.class, "invalid pen type: " + type, new Object[0]);
-            return new ArrayList();
         }
+        return neoPenCreate;
+    }
+
+    private static List<TouchPoint> computeNormalizedStrokePoints(
+            NeoPen neoPenCreate, List<TouchPoint> normalizedPoints) {
         ArrayList arrayList = new ArrayList();
         try {
-            // The native APIs normalize against NeoPenConfig.maxTouchPressure.
-            // Keep the caller's point list unchanged so rendering is repeatable.
-            ArrayList<TouchPoint> normalizedPoints = new ArrayList<>(points.size());
-            for (TouchPoint point : points) {
-                TouchPoint copy = new TouchPoint(point);
-                copy.pressure = maxTouchPressure > 0.0f ? copy.pressure / maxTouchPressure : 0.0f;
-                normalizedPoints.add(copy);
-            }
             readPointResult(neoPenCreate.onPenDown(normalizedPoints.get(0), true), arrayList);
             if (normalizedPoints.size() > 2) {
                 readPointResult(neoPenCreate.onPenMove(normalizedPoints.subList(1, normalizedPoints.size() - 1), null, true), arrayList);
