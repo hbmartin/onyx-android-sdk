@@ -40,8 +40,11 @@ jobs:
         run: sudo apt-get update && sudo apt-get install --yes ripgrep
 
       - name: Set up pinned Rust toolchain
-        uses: dtolnay/rust-toolchain@1.96.1
+        # Keep the action ref separate from the compiler version: Dependabot treats
+        # refs in `uses` as action releases, not as Rust toolchain versions.
+        uses: dtolnay/rust-toolchain@master
         with:
+          toolchain: 1.96.1
           components: clippy,rustfmt
           targets: armv7-linux-androideabi,aarch64-linux-android,i686-linux-android,x86_64-linux-android
 

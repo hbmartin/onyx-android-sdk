@@ -5,8 +5,8 @@ use std::sync::atomic::{AtomicI32, AtomicI64, Ordering};
 use std::sync::{Mutex, OnceLock};
 
 use jni::objects::{JDoubleArray, JFloatArray, JIntArray, JObject, JObjectArray, JValue};
-use jni::sys::{jboolean, jint, jlong, jobject, jobjectArray};
 use jni::strings::JNIString;
+use jni::sys::{jboolean, jint, jlong, jobject, jobjectArray};
 use jni::{jni_sig, jni_str, Env, EnvUnowned};
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
@@ -1092,8 +1092,7 @@ fn render_call(
     if touches.is_empty() {
         return JObject::null().into_raw();
     }
-    let predicted_touch =
-        prediction.and_then(|array| read_touches(env, array).into_iter().next());
+    let predicted_touch = prediction.and_then(|array| read_touches(env, array).into_iter().next());
     let Some((real, predicted, color)) = process_handle(handle, &touches, predicted_touch, phase)
     else {
         return JObject::null().into_raw();
@@ -1281,12 +1280,7 @@ fn build_legacy_points<'local>(
         )?;
         env.set_field(&point, jni_str!("x"), jni_sig!("F"), JValue::Float(x))?;
         env.set_field(&point, jni_str!("y"), jni_sig!("F"), JValue::Float(y))?;
-        env.set_field(
-            &point,
-            jni_str!("size"),
-            jni_sig!("F"),
-            JValue::Float(size),
-        )?;
+        env.set_field(&point, jni_str!("size"), jni_sig!("F"), JValue::Float(size))?;
         env.set_field(
             &point,
             jni_str!("bitmapIndex"),
@@ -1406,15 +1400,15 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenWrapper_nativeOnPenUp
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenWrapper_nativeComputeRenderPoints<'local>(
+pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenWrapper_nativeComputeRenderPoints<
+    'local,
+>(
     mut unowned_env: EnvUnowned<'local>,
     _class: JObject<'local>,
     points: JDoubleArray<'local>,
 ) -> jobjectArray {
     unowned_env
-        .with_env(|env| -> jni::errors::Result<jobjectArray> {
-            Ok(legacy_compute(env, points))
-        })
+        .with_env(|env| -> jni::errors::Result<jobjectArray> { Ok(legacy_compute(env, points)) })
         .resolve::<jni::errors::LogErrorAndDefault>()
 }
 
@@ -1449,7 +1443,7 @@ fn rendered_bitmaps(env: &mut Env) -> jobjectArray {
                 if array.set_element(env, index, &bitmap).is_err() {
                     return JObjectArray::<JObject>::null().into_raw();
                 }
-                let _ = env.delete_local_ref(bitmap);
+                env.delete_local_ref(bitmap);
             }
             Err(_) => return JObjectArray::<JObject>::null().into_raw(),
         }
@@ -1458,7 +1452,9 @@ fn rendered_bitmaps(env: &mut Env) -> jobjectArray {
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenWrapper_nativeGetRenderedBitmaps<'local>(
+pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenWrapper_nativeGetRenderedBitmaps<
+    'local,
+>(
     mut unowned_env: EnvUnowned<'local>,
     _class: JObject<'local>,
 ) -> jobjectArray {

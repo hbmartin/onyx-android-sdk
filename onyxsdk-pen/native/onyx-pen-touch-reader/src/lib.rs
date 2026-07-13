@@ -169,7 +169,9 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeSetLim
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeSetExcludeRegion<'local>(
+pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeSetExcludeRegion<
+    'local,
+>(
     mut unowned_env: EnvUnowned<'local>,
     _object: JObject<'local>,
     array: JFloatArray<'local>,
