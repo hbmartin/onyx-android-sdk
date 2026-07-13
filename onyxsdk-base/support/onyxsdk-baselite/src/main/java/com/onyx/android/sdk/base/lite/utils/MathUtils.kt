@@ -1,9 +1,13 @@
 package com.onyx.android.sdk.base.lite.utils
 
 import android.graphics.Matrix
-import java.math.BigInteger
 import kotlin.math.atan2
 import kotlin.math.hypot
+
+private const val RIGHT_ANGLE = 90.0f
+private const val DIAGONAL_ANGLE = 45.0f
+private const val FULL_ROTATION = 360.0
+private const val DEGREES_PER_BUCKET = 10.0
 
 /** Numeric and geometry helpers retained by the recovered baselite API. */
 object MathUtils {
@@ -36,12 +40,10 @@ object MathUtils {
      * vertical axis, in degrees from `0` through `45`.
      */
     fun lineNearAngle(x1: Float, y1: Float, x2: Float, y2: Float): Float {
-        val rightAngle = Math.toDegrees(Math.PI / 2.0).toFloat()
-        val diagonalAngle = Math.toDegrees(Math.PI / (2.0 * 2.0)).toFloat()
         val angle = kotlin.math.abs(
             Math.toDegrees(atan2((y2 - y1).toDouble(), (x2 - x1).toDouble())).toFloat(),
-        ) % rightAngle
-        return if (angle > diagonalAngle) rightAngle - angle else angle
+        ) % RIGHT_ANGLE
+        return if (angle > DIAGONAL_ANGLE) RIGHT_ANGLE - angle else angle
     }
 
     /**
@@ -73,9 +75,8 @@ object MathUtils {
      */
     fun normalizeAngleTo36(angle: Double): UByte {
         require(angle.isFinite()) { "Angle must be finite: $angle" }
-        val fullRotation = Math.toDegrees(Math.PI * 2.0)
-        val normalizedDegrees = ((angle % fullRotation) + fullRotation) % fullRotation
-        return (normalizedDegrees / BigInteger.TEN.toDouble()).toInt().toUByte()
+        val normalizedDegrees = ((angle % FULL_ROTATION) + FULL_ROTATION) % FULL_ROTATION
+        return (normalizedDegrees / DEGREES_PER_BUCKET).toInt().toUByte()
     }
 
     /** Returns this value or [max], whichever is smaller. */

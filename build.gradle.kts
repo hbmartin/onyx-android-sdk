@@ -22,6 +22,11 @@ val detektTypeCheck = tasks.register("detektTypeCheck") {
         gradle.includedBuild("build-logic").task(":detektMain"),
         gradle.includedBuild("build-logic").task(":detektTest"),
     )
+    subprojects.forEach { subproject ->
+        subproject.pluginManager.withPlugin("org.jetbrains.kotlin.android") {
+            dependsOn("${subproject.path}:detektMain", "${subproject.path}:detektTest")
+        }
+    }
 }
 
 subprojects {
@@ -33,11 +38,6 @@ subprojects {
             compilerOptions {
                 jvmTarget.set(JvmTarget.JVM_21)
             }
-        }
-
-        val modulePath = path
-        detektTypeCheck.configure {
-            dependsOn("$modulePath:detektMain", "$modulePath:detektTest")
         }
     }
 

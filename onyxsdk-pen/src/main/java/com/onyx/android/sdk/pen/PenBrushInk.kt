@@ -60,7 +60,7 @@ class PenBrushInk(
 
     /** Returns a hash derived from all position and brush values. */
     override fun hashCode(): Int {
-        val multiplier = Int.SIZE_BITS - 1
+        val multiplier = 31
         val xHash = if (x == 0.0f) 0 else x.toBits()
         val yHash = if (y == 0.0f) 0 else y.toBits()
         return (((xHash * multiplier + yHash) * multiplier + size.toInt()) * multiplier +
