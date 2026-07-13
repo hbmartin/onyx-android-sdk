@@ -62,7 +62,12 @@ public class DictionaryUtil {
                     }
                     return new DictionaryQuery(-2);
                 }
-                int i = cursorQuery.getInt(cursorQuery.getColumnIndex("state"));
+                int stateColumn = cursorQuery.getColumnIndex("state");
+                if (stateColumn < 0) {
+                    cursorQuery.close();
+                    return new DictionaryQuery(-2);
+                }
+                int i = cursorQuery.getInt(stateColumn);
                 if (i != 0) {
                     DictionaryQuery dictionaryQuery3 = new DictionaryQuery(i);
                     if (cursorQuery != null) {

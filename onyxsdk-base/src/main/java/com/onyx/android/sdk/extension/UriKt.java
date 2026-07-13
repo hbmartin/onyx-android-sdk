@@ -50,9 +50,17 @@ public final class UriKt
                         final Cursor query;
                         if ((query = context.getContentResolver().query($this$getFileSize, (String[])null, (String)null, (String[])null, (String)null, (CancellationSignal)null)) != null) {
                             final Cursor cursor = query;
-                            cursor.moveToFirst();
-                            long1 = cursor.getLong(cursor.getColumnIndex("_size"));
-                            cursor.close();
+                            try {
+                                if (cursor.moveToFirst()) {
+                                    final int sizeColumn = cursor.getColumnIndex("_size");
+                                    if (sizeColumn >= 0) {
+                                        long1 = cursor.getLong(sizeColumn);
+                                    }
+                                }
+                            }
+                            finally {
+                                cursor.close();
+                            }
                         }
                         return long1;
                     }
@@ -91,9 +99,17 @@ public final class UriKt
                         final Cursor query;
                         if ((query = context.getContentResolver().query($this$getFileName, (String[])null, (String)null, (String[])null, (String)null, (CancellationSignal)null)) != null) {
                             final Cursor cursor = query;
-                            cursor.moveToFirst();
-                            s = cursor.getString(cursor.getColumnIndex("_display_name"));
-                            cursor.close();
+                            try {
+                                if (cursor.moveToFirst()) {
+                                    final int displayNameColumn = cursor.getColumnIndex("_display_name");
+                                    if (displayNameColumn >= 0) {
+                                        s = cursor.getString(displayNameColumn);
+                                    }
+                                }
+                            }
+                            finally {
+                                cursor.close();
+                            }
                         }
                         if (s == null) {
                             s = getDefaultName($this$getFileName, context);

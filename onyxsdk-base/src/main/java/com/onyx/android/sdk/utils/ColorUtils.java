@@ -205,8 +205,10 @@ public class ColorUtils {
     }
 
     public static int applyAlphaToColor(int alphaColor, int sourceColor) {
-        Color colorValueOf = Color.valueOf(alphaColor);
-        Color colorValueOf2 = Color.valueOf(sourceColor);
-        return Color.argb(colorValueOf.alpha(), colorValueOf2.red(), colorValueOf2.green(), colorValueOf2.blue());
+        return Color.argb(
+                Color.alpha(alphaColor),
+                Color.red(sourceColor),
+                Color.green(sourceColor),
+                Color.blue(sourceColor));
     }
 }

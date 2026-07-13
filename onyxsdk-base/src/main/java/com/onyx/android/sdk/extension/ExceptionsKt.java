@@ -3,6 +3,7 @@
 
 package com.onyx.android.sdk.extension;
 
+import android.os.Build;
 import java.nio.file.FileAlreadyExistsException;
 import kotlin.jvm.internal.Intrinsics;
 import org.jetbrains.annotations.NotNull;
@@ -17,6 +18,8 @@ public final class ExceptionsKt
 
     public static final boolean isFileAlreadyExistsException(@NotNull final IOException $this$isFileAlreadyExistsException) {
         Intrinsics.checkNotNullParameter((Object)$this$isFileAlreadyExistsException, "<this>");
-        return $this$isFileAlreadyExistsException instanceof FileAlreadyExistsException || $this$isFileAlreadyExistsException instanceof kotlin.io.FileAlreadyExistsException;
+        return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                && $this$isFileAlreadyExistsException instanceof FileAlreadyExistsException)
+                || $this$isFileAlreadyExistsException instanceof kotlin.io.FileAlreadyExistsException;
     }
 }
