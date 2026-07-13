@@ -86,9 +86,6 @@ public class PenUtils {
     }
 
     public static double[] getPointDoubleArray(TouchPoint point, float maxTouchPressure) {
-        // The original 1.5.4 bytecode allocated five slots but wrote the
-        // seven-value native record (x, y, pressure, size, tiltX, tiltY,
-        // timestamp).  Allocate the record the JNI contract actually consumes.
         double[] dArr = new double[7];
         dArr[0] = point.x;
         dArr[1] = point.y;

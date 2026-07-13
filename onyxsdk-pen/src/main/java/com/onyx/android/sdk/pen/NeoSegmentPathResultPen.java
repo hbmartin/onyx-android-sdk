@@ -32,8 +32,6 @@ public final class NeoSegmentPathResultPen extends NeoPen {
         this.c = new TouchPoint(com.onyx.android.sdk.pen.utils.PenUtils.KEPLER_MIN_PRESSURE_SENSITIVITY, com.onyx.android.sdk.pen.utils.PenUtils.KEPLER_MIN_PRESSURE_SENSITIVITY, com.onyx.android.sdk.pen.utils.PenUtils.KEPLER_MIN_PRESSURE_SENSITIVITY, com.onyx.android.sdk.pen.utils.PenUtils.KEPLER_MIN_PRESSURE_SENSITIVITY, 0, 0, 0L, 127, (DefaultConstructorMarker) null);
     }
 
-      (wrap long:?: TERNARY null = ((wrap int:0x0002: ARITH (r7v0 int) & (1 int) A[WRAPPED]) != (0 int)) ? (0 long) : (r5v0 long))
-     A[MD:(long):void (m)] call: com.onyx.android.sdk.pen.NeoSegmentPathResultPen.<init>(long):void type: THIS */
     public /* synthetic */ NeoSegmentPathResultPen(long j, int i, DefaultConstructorMarker defaultConstructorMarker) {
         this((i & 1) != 0 ? 0L : j);
     }

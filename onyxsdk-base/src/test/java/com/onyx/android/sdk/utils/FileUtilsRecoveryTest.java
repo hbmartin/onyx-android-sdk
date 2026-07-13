@@ -1,10 +1,17 @@
 package com.onyx.android.sdk.utils;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
+import android.graphics.Bitmap;
+import android.net.Uri;
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Locale;
 import org.junit.After;
 import org.junit.Before;
@@ -56,6 +63,62 @@ public class FileUtilsRecoveryTest {
             Files.write(path, "café\nβeta".getBytes(StandardCharsets.UTF_8));
 
             assertEquals("caféβeta", FileUtils.readContentOfFile(path.toString()));
+        }
+        finally {
+            Files.deleteIfExists(path);
+        }
+    }
+
+    @Test
+    public void recoveredFileReadersPreserveTheirDistinctContracts() throws Exception {
+        Path path = Files.createTempFile("onyx-recovered-readers", ".txt");
+        byte[] bytes = "first\n café \nβeta".getBytes(StandardCharsets.UTF_8);
+        try {
+            Files.write(path, bytes);
+
+            assertArrayEquals(bytes, FileUtils.readBytesOfFile(path.toString()));
+            assertEquals(Arrays.asList("first", " café ", "βeta"),
+                    FileUtils.readStringListOfFile(path.toFile()));
+            assertEquals("first café βeta", FileUtils.readContentFromFile(path.toString()));
+        }
+        finally {
+            Files.deleteIfExists(path);
+        }
+    }
+
+    @Test
+    public void recoveredFileReadersRetainFailureValues() {
+        File missing = new File("missing-" + System.nanoTime());
+
+        assertNull(FileUtils.readBytesOfFile(missing.getAbsolutePath()));
+        assertNull(FileUtils.readStringListOfFile(missing));
+        assertEquals("", FileUtils.readContentFromFile(missing.getAbsolutePath()));
+        assertEquals("", FileUtils.getRealFilePathFromUriByContentResolver(null, null, "_data"));
+    }
+
+    @Test
+    public void bitmapCompressionFailureReturnsFalse() {
+        Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+        try {
+            assertFalse(FileUtils.saveBitmapToMemoryFile(
+                    bitmap, null, Bitmap.CompressFormat.PNG, 100));
+        }
+        finally {
+            bitmap.recycle();
+        }
+    }
+
+    @Test
+    public void recoveredUriFileOperationsHandleFileAndUnknownSchemes() throws Exception {
+        Path path = Files.createTempFile("onyx-uri-utils", ".txt");
+        try {
+            Files.write(path, new byte[] { 1, 2, 3 });
+            Uri fileUri = Uri.fromFile(path.toFile());
+
+            assertEquals(path.toString(), UriUtils.getRealFilePath(null, fileUri));
+            assertEquals(3L, UriUtils.length(null, fileUri));
+            assertEquals(0L, UriUtils.length(null, Uri.parse("relative-path")));
+            assertEquals(0L, UriUtils.length(null, null));
         }
         finally {
             Files.deleteIfExists(path);

@@ -13,8 +13,6 @@ public final class NeoMarkerPenV2 extends NeoSinglePathResultPen {
         super(j);
     }
 
-      (wrap long:?: TERNARY null = ((wrap int:0x0002: ARITH (r7v0 int) & (1 int) A[WRAPPED]) != (0 int)) ? (0 long) : (r5v0 long))
-     A[MD:(long):void (m)] call: com.onyx.android.sdk.pen.NeoMarkerPenV2.<init>(long):void type: THIS */
     public /* synthetic */ NeoMarkerPenV2(long j, int i, DefaultConstructorMarker defaultConstructorMarker) {
         this((i & 1) != 0 ? 0L : j);
     }
