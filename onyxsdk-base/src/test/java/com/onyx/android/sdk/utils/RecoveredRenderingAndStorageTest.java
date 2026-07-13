@@ -38,6 +38,13 @@ public class RecoveredRenderingAndStorageTest {
     }
 
     @Test
+    public void alphaCompositionWorksWithoutApi26ColorObjects() {
+        assertEquals(
+                Color.argb(0x40, 0x11, 0x22, 0x33),
+                ColorUtils.applyAlphaToColor(0x40123456, 0xff112233));
+    }
+
+    @Test
     public void scaledBitmapDrawsIntoReturnedBitmap() {
         Bitmap source = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
         source.eraseColor(Color.RED);

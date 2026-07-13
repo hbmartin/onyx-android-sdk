@@ -8,107 +8,8 @@
         errorLine2="                                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/EnvironmentUtil.java"
-            line="108"
+            line="107"
             column="77"/>
-    </issue>
-
-    <issue
-        id="MissingPermission"
-        message="Missing permissions required by ConnectivityManager.getActiveNetworkInfo: android.permission.ACCESS_NETWORK_STATE"
-        errorLine1="        return isWiFiConnected(((ConnectivityManager) context.getApplicationContext().getSystemService(&quot;connectivity&quot;)).getActiveNetworkInfo());"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="39"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="MissingPermission"
-        message="Missing permissions required by ConnectivityManager.getActiveNetworkInfo: android.permission.ACCESS_NETWORK_STATE"
-        errorLine1="        NetworkInfo activeNetworkInfo = ((ConnectivityManager) context.getApplicationContext().getSystemService(&quot;connectivity&quot;)).getActiveNetworkInfo();"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="52"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="MissingPermission"
-        message="Missing permissions required by ConnectivityManager.getActiveNetworkInfo: android.permission.ACCESS_NETWORK_STATE"
-        errorLine1="        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="232"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="MissingPermission"
-        message="Missing permissions required by ConnectivityManager.getActiveNetwork: android.permission.ACCESS_NETWORK_STATE"
-        errorLine1="            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());"
-        errorLine2="                                                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="238"
-            column="98"/>
-    </issue>
-
-    <issue
-        id="MissingPermission"
-        message="Missing permissions required by ConnectivityManager.getNetworkCapabilities: android.permission.ACCESS_NETWORK_STATE"
-        errorLine1="            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());"
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="238"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="MissingPermission"
-        message="Missing permissions required by ConnectivityManager.getActiveNetwork: android.permission.ACCESS_NETWORK_STATE"
-        errorLine1="            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());"
-        errorLine2="                                                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="253"
-            column="98"/>
-    </issue>
-
-    <issue
-        id="MissingPermission"
-        message="Missing permissions required by ConnectivityManager.getNetworkCapabilities: android.permission.ACCESS_NETWORK_STATE"
-        errorLine1="            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());"
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="253"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="MissingPermission"
-        message="Missing permissions required by ConnectivityManager.getNetworkInfo: android.permission.ACCESS_NETWORK_STATE"
-        errorLine1="        NetworkInfo networkInfo = connectivityManager.getNetworkInfo(0);"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="256"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="MissingPermission"
-        message="Missing permissions required by ConnectivityManager.getNetworkInfo: android.permission.ACCESS_NETWORK_STATE"
-        errorLine1="        if (connectivityManager == null || (networkInfo = connectivityManager.getNetworkInfo(1)) == null) {"
-        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="263"
-            column="59"/>
     </issue>
 
     <issue
@@ -118,7 +19,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/BaseDevice.java"
-            line="1081"
+            line="1086"
             column="20"/>
     </issue>
 
@@ -129,7 +30,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/CompatibilityUtil.java"
-            line="12"
+            line="11"
             column="27"/>
     </issue>
 
@@ -140,7 +41,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/CompatibilityUtil.java"
-            line="16"
+            line="15"
             column="27"/>
     </issue>
 
@@ -151,7 +52,7 @@
         errorLine2="                                                     ~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/BaseDevice.java"
-            line="856"
+            line="861"
             column="54"/>
     </issue>
 
@@ -162,7 +63,7 @@
         errorLine2="                                     ~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/EnvironmentUtil.java"
-            line="167"
+            line="166"
             column="38"/>
     </issue>
 
@@ -173,7 +74,7 @@
         errorLine2="                                                ~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="92"
+            line="91"
             column="49"/>
     </issue>
 
@@ -184,7 +85,7 @@
         errorLine2="                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="142"
+            line="141"
             column="42"/>
     </issue>
 
@@ -195,7 +96,7 @@
         errorLine2="                                                                                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/device/screensaver/b.java"
-            line="163"
+            line="162"
             column="106"/>
     </issue>
 
@@ -217,7 +118,7 @@
         errorLine2="                                                                                              ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/BaseDevice.java"
-            line="1313"
+            line="1345"
             column="95"/>
     </issue>
 
@@ -228,7 +129,7 @@
         errorLine2="                                                                                                                                                                                 ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/BaseDevice.java"
-            line="1313"
+            line="1345"
             column="178"/>
     </issue>
 
@@ -239,7 +140,7 @@
         errorLine2="                                                                                                                                                                                                                                                                                                        ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/BaseDevice.java"
-            line="1313"
+            line="1345"
             column="297"/>
     </issue>
 
@@ -250,7 +151,7 @@
         errorLine2="                                                                                            ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/BaseDevice.java"
-            line="1321"
+            line="1353"
             column="93"/>
     </issue>
 
@@ -261,7 +162,7 @@
         errorLine2="                                                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="238"
+            line="237"
             column="75"/>
     </issue>
 
@@ -272,7 +173,7 @@
         errorLine2="                                                                                                                     ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="238"
+            line="237"
             column="118"/>
     </issue>
 
@@ -283,7 +184,7 @@
         errorLine2="                                                         ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="239"
+            line="238"
             column="58"/>
     </issue>
 
@@ -294,7 +195,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="240"
+            line="239"
             column="59"/>
     </issue>
 
@@ -305,7 +206,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/device/screensaver/b.java"
-            line="29"
+            line="28"
             column="42"/>
     </issue>
 
@@ -316,7 +217,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/device/screensaver/b.java"
-            line="37"
+            line="36"
             column="36"/>
     </issue>
 
@@ -327,7 +228,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/device/screensaver/b.java"
-            line="38"
+            line="37"
             column="20"/>
     </issue>
 
@@ -338,7 +239,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/device/screensaver/b.java"
-            line="42"
+            line="41"
             column="20"/>
     </issue>
 
@@ -349,7 +250,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/device/screensaver/b.java"
-            line="49"
+            line="48"
             column="20"/>
     </issue>
 
@@ -360,7 +261,7 @@
         errorLine2="                      ~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/device/screensaver/b.java"
-            line="55"
+            line="54"
             column="23"/>
     </issue>
 
@@ -371,7 +272,7 @@
         errorLine2="                      ~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/device/screensaver/b.java"
-            line="61"
+            line="60"
             column="23"/>
     </issue>
 
@@ -382,7 +283,7 @@
         errorLine2="                      ~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/device/screensaver/b.java"
-            line="67"
+            line="66"
             column="23"/>
     </issue>
 
@@ -393,7 +294,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/RK3026Device.java"
-            line="151"
+            line="149"
             column="29"/>
     </issue>
 
@@ -404,7 +305,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/RK3026Device.java"
-            line="184"
+            line="182"
             column="33"/>
     </issue>
 
@@ -415,7 +316,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/RK3026Device.java"
-            line="520"
+            line="518"
             column="28"/>
     </issue>
 
@@ -426,7 +327,7 @@
         errorLine2="                                                              ~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/BaseDevice.java"
-            line="147"
+            line="146"
             column="63"/>
     </issue>
 
@@ -437,7 +338,7 @@
         errorLine2="                                                                                ~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/BaseDevice.java"
-            line="161"
+            line="160"
             column="81"/>
     </issue>
 
@@ -448,7 +349,7 @@
         errorLine2="                                                                                ~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/BaseDevice.java"
-            line="165"
+            line="164"
             column="81"/>
     </issue>
 
@@ -459,7 +360,7 @@
         errorLine2="                                                                               ~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/BaseDevice.java"
-            line="590"
+            line="593"
             column="80"/>
     </issue>
 
@@ -470,7 +371,7 @@
         errorLine2="                                                                                                                        ~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/EnvironmentUtil.java"
-            line="108"
+            line="107"
             column="121"/>
     </issue>
 
@@ -481,7 +382,7 @@
         errorLine2="                                                                                                       ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="39"
+            line="38"
             column="104"/>
     </issue>
 
@@ -492,7 +393,7 @@
         errorLine2="                                                                         ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="43"
+            line="42"
             column="74"/>
     </issue>
 
@@ -503,7 +404,7 @@
         errorLine2="                                                ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="48"
+            line="47"
             column="49"/>
     </issue>
 
@@ -514,7 +415,7 @@
         errorLine2="                                                                                                                ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="52"
+            line="51"
             column="113"/>
     </issue>
 
@@ -525,7 +426,7 @@
         errorLine2="                                                                                                 ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="84"
+            line="83"
             column="98"/>
     </issue>
 
@@ -536,7 +437,7 @@
         errorLine2="                                                                                                 ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="156"
+            line="155"
             column="98"/>
     </issue>
 
@@ -547,7 +448,7 @@
         errorLine2="                                                                                                 ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="193"
+            line="192"
             column="98"/>
     </issue>
 
@@ -558,7 +459,7 @@
         errorLine2="                                                                                                 ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="198"
+            line="197"
             column="98"/>
     </issue>
 
@@ -569,7 +470,7 @@
         errorLine2="                                                                                                                         ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="231"
+            line="230"
             column="122"/>
     </issue>
 
@@ -580,7 +481,7 @@
         errorLine2="                                                                       ~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="239"
+            line="238"
             column="72"/>
     </issue>
 
@@ -591,7 +492,7 @@
         errorLine2="                                                                        ~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="240"
+            line="239"
             column="73"/>
     </issue>
 
@@ -602,7 +503,7 @@
         errorLine2="                                                                                                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="251"
+            line="250"
             column="98"/>
     </issue>
 
@@ -613,7 +514,7 @@
         errorLine2="                                                                                   ~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="254"
+            line="253"
             column="84"/>
     </issue>
 
@@ -624,7 +525,7 @@
         errorLine2="                                                                                                                         ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="262"
+            line="261"
             column="122"/>
     </issue>
 
@@ -635,7 +536,7 @@
         errorLine2="                                                                                                 ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="270"
+            line="269"
             column="98"/>
     </issue>
 
@@ -646,7 +547,7 @@
         errorLine2="                                                        ~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/RK3026Device.java"
-            line="300"
+            line="298"
             column="57"/>
     </issue>
 
@@ -657,7 +558,7 @@
         errorLine2="                                        ~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/RK31XXDevice.java"
-            line="608"
+            line="607"
             column="41"/>
     </issue>
 
@@ -668,7 +569,7 @@
         errorLine2="                                        ~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/RK32XXDevice.java"
-            line="735"
+            line="734"
             column="41"/>
     </issue>
 
@@ -679,7 +580,7 @@
         errorLine2="                                        ~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/RK32XXDevice.java"
-            line="739"
+            line="738"
             column="41"/>
     </issue>
 
@@ -690,7 +591,7 @@
         errorLine2="                                        ~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/RK33XXDevice.java"
-            line="658"
+            line="657"
             column="41"/>
     </issue>
 
@@ -701,7 +602,7 @@
         errorLine2="                                        ~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/RK33XXDevice.java"
-            line="662"
+            line="661"
             column="41"/>
     </issue>
 
@@ -712,7 +613,7 @@
         errorLine2="                                        ~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/SDMDevice.java"
-            line="946"
+            line="945"
             column="41"/>
     </issue>
 
@@ -723,7 +624,7 @@
         errorLine2="                                        ~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/SDMDevice.java"
-            line="950"
+            line="949"
             column="41"/>
     </issue>
 
@@ -734,7 +635,7 @@
         errorLine2="                                                                              ~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/SDMDevice.java"
-            line="3296"
+            line="3276"
             column="79"/>
     </issue>
 
@@ -745,7 +646,7 @@
         errorLine2="                                                               ~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/SDMDevice.java"
-            line="3323"
+            line="3303"
             column="64"/>
     </issue>
 
@@ -756,7 +657,7 @@
         errorLine2="                                                                                                       ~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/device/screensaver/ScreenUtils.java"
-            line="29"
+            line="28"
             column="104"/>
     </issue>
 
@@ -767,7 +668,7 @@
         errorLine2="                  ~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/device/GlobalContrastController.java"
-            line="22"
+            line="21"
             column="19"/>
     </issue>
 
@@ -778,7 +679,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="6"
+            line="7"
             column="22"/>
     </issue>
 
@@ -789,7 +690,7 @@
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/RK32XXDevice.java"
-            line="733"
+            line="732"
             column="5"/>
     </issue>
 
@@ -800,7 +701,7 @@
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/RK33XXDevice.java"
-            line="656"
+            line="655"
             column="5"/>
     </issue>
 
@@ -822,7 +723,7 @@
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/SDMDevice.java"
-            line="944"
+            line="943"
             column="5"/>
     </issue>
 
@@ -833,7 +734,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/EnvironmentUtil.java"
-            line="104"
+            line="103"
             column="31"/>
     </issue>
 
@@ -844,7 +745,7 @@
         errorLine2="                                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/EnvironmentUtil.java"
-            line="108"
+            line="107"
             column="77"/>
     </issue>
 
@@ -855,7 +756,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/utils/NetworkUtil.java"
-            line="157"
+            line="156"
             column="38"/>
     </issue>
 
@@ -866,7 +767,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/device/screensaver/a.java"
-            line="46"
+            line="45"
             column="17"/>
     </issue>
 
@@ -877,19 +778,8 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/device/screensaver/a.java"
-            line="48"
+            line="47"
             column="21"/>
-    </issue>
-
-    <issue
-        id="OutdatedLibrary"
-        message="androidx.annotation:annotation version 1.0.0 has been reported as outdated by its author.&#xA;The library author recommends using versions:&#xA;  - 1.0.1 or higher"
-        errorLine1="    api(&quot;androidx.annotation:annotation:1.0.0&quot;)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="build.gradle.kts"
-            line="41"
-            column="9"/>
     </issue>
 
     <issue
@@ -899,7 +789,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/IMX6Device.java"
-            line="609"
+            line="608"
             column="13"/>
     </issue>
 
@@ -910,7 +800,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/IMX6Device.java"
-            line="618"
+            line="617"
             column="13"/>
     </issue>
 
@@ -921,7 +811,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/RK32XXDevice.java"
-            line="565"
+            line="564"
             column="17"/>
     </issue>
 
@@ -932,7 +822,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/device/RK33XXDevice.java"
-            line="525"
+            line="524"
             column="17"/>
     </issue>
 
@@ -954,7 +844,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/api/device/screensaver/ScreenUtils.java"
-            line="34"
+            line="33"
             column="13"/>
     </issue>
 

@@ -4,6 +4,7 @@
 package com.onyx.android.sdk.rx.rxbroadcast;
 
 import android.content.Context;
+import android.os.Build;
 import androidx.annotation.NonNull;
 import java.util.Iterator;
 import com.onyx.android.sdk.utils.Debug;
@@ -46,7 +47,12 @@ public class RxBroadcastChangeObservable extends Observable<Intent>
         try {
             final a listener;
             observer.onSubscribe((Disposable)(listener = this.createListener(observer)));
-            ResManager.getAppContext().registerReceiver((BroadcastReceiver)listener, intentFilter, this.b);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                ResManager.getAppContext().registerReceiver((BroadcastReceiver)listener, intentFilter, this.b);
+            }
+            else {
+                ResManager.getAppContext().registerReceiver((BroadcastReceiver)listener, intentFilter);
+            }
         }
         catch (final Exception ex) {
             Debug.e((Throwable)ex);

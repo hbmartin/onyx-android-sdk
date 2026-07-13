@@ -120,7 +120,11 @@ public class RxAlarm implements Disposable {
         long jCurrentTimeMillis = System.currentTimeMillis() + this.e;
         Debug.d(getClass(), "setAlarm, count = " + this.f + ",alarmTime:" + DateTimeUtil.formatDate(jCurrentTimeMillis), new Object[0]);
         Intent intent = new Intent(this.d);
-        this.c = PendingIntent.getBroadcast(this.a, this.g, intent, 268435456);
+        this.c = PendingIntent.getBroadcast(
+                this.a,
+                this.g,
+                intent,
+                PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         BroadcastHelper.ensureRegisterReceiver(this.a, this.j, new IntentFilter(intent.getAction()));
         this.b.setExact(0, jCurrentTimeMillis, this.c);
     }

@@ -8,7 +8,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/wifi/AccessPoint.java"
-            line="224"
+            line="223"
             column="54"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/wifi/AccessPoint.java"
-            line="224"
+            line="223"
             column="54"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceUtils.java"
-            line="93"
+            line="91"
             column="77"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                                                                                                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceUtils.java"
-            line="428"
+            line="426"
             column="141"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/RxAlarm.java"
-            line="128"
+            line="129"
             column="9"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/wifi/WifiAdmin.java"
-            line="195"
+            line="186"
             column="38"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/wifi/WifiAdmin.java"
-            line="195"
+            line="186"
             column="38"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/wifi/WifiAdmin.java"
-            line="287"
+            line="278"
             column="54"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/wifi/WifiAdmin.java"
-            line="287"
+            line="278"
             column="54"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/wifi/WifiAdmin.java"
-            line="604"
+            line="595"
             column="54"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/wifi/WifiAdmin.java"
-            line="604"
+            line="595"
             column="54"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/wifi/WifiUtil.java"
-            line="185"
+            line="183"
             column="54"/>
     </issue>
 
@@ -140,7 +140,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/wifi/WifiUtil.java"
-            line="185"
+            line="183"
             column="54"/>
     </issue>
 
@@ -164,28 +164,6 @@
             file="src/main/AndroidManifest.xml"
             line="12"
             column="36"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type id"
-        errorLine1="            if ((viewById = dialog2.findViewById(16908332)) != null) {"
-        errorLine2="                                                 ~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/utils/ActivityUtil.java"
-            line="381"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type id"
-        errorLine1="        if ((viewById = activity.findViewById(16908332)) != null) {"
-        errorLine2="                                              ~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/utils/ActivityUtil.java"
-            line="407"
-            column="47"/>
     </issue>
 
     <issue
@@ -217,7 +195,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/rx/RxUtils.java"
-            line="136"
+            line="130"
             column="9"/>
     </issue>
 
@@ -228,7 +206,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/rx/RxUtils.java"
-            line="140"
+            line="134"
             column="9"/>
     </issue>
 
@@ -239,7 +217,7 @@
         errorLine2="                                                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/BitmapUtils.java"
-            line="295"
+            line="280"
             column="74"/>
     </issue>
 
@@ -250,7 +228,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceUtils.java"
-            line="179"
+            line="177"
             column="37"/>
     </issue>
 
@@ -261,7 +239,7 @@
         errorLine2="                                                 ~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DictionaryUtil.java"
-            line="102"
+            line="105"
             column="50"/>
     </issue>
 
@@ -272,7 +250,7 @@
         errorLine2="                                                 ~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DictionaryUtil.java"
-            line="103"
+            line="106"
             column="50"/>
     </issue>
 
@@ -327,7 +305,7 @@
         errorLine2="                                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/MimeTypeUtils.java"
-            line="145"
+            line="144"
             column="55"/>
     </issue>
 
@@ -338,7 +316,7 @@
         errorLine2="                                                            ~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/MimeTypeUtils.java"
-            line="149"
+            line="148"
             column="61"/>
     </issue>
 
@@ -360,7 +338,7 @@
         errorLine2="                                          ~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/RawResourceUtil.java"
-            line="247"
+            line="134"
             column="43"/>
     </issue>
 
@@ -371,7 +349,7 @@
         errorLine2="                                  ~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/SpannableStringUtils.java"
-            line="37"
+            line="34"
             column="35"/>
     </issue>
 
@@ -382,7 +360,7 @@
         errorLine2="                                                                 ~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/SpannableStringUtils.java"
-            line="37"
+            line="34"
             column="66"/>
     </issue>
 
@@ -393,7 +371,7 @@
         errorLine2="                 ~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/StringUtils.java"
-            line="909"
+            line="952"
             column="18"/>
     </issue>
 
@@ -404,7 +382,7 @@
         errorLine2="                 ~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/StringUtils.java"
-            line="916"
+            line="959"
             column="18"/>
     </issue>
 
@@ -415,7 +393,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DatabaseUtils.java"
-            line="42"
+            line="41"
             column="41"/>
     </issue>
 
@@ -426,7 +404,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DatabaseUtils.java"
-            line="56"
+            line="55"
             column="41"/>
     </issue>
 
@@ -437,7 +415,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/WebViewUtils.java"
-            line="158"
+            line="157"
             column="35"/>
     </issue>
 
@@ -448,7 +426,7 @@
         errorLine2="       ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/BitmapUtils.java"
-            line="31"
+            line="28"
             column="8"/>
     </issue>
 
@@ -459,7 +437,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceUtils.java"
-            line="387"
+            line="385"
             column="27"/>
     </issue>
 
@@ -470,7 +448,7 @@
         errorLine2="                               ~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ApplicationUtil.java"
-            line="811"
+            line="810"
             column="32"/>
     </issue>
 
@@ -481,7 +459,7 @@
         errorLine2="                                                               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ApplicationUtil.java"
-            line="811"
+            line="810"
             column="64"/>
     </issue>
 
@@ -492,7 +470,7 @@
         errorLine2="                                                                                                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ApplicationUtil.java"
-            line="811"
+            line="810"
             column="98"/>
     </issue>
 
@@ -503,7 +481,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ApplicationUtil.java"
-            line="816"
+            line="815"
             column="40"/>
     </issue>
 
@@ -514,85 +492,8 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ApplicationUtil.java"
-            line="817"
+            line="816"
             column="21"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 24): `android.graphics.Color#valueOf`"
-        errorLine1="        Color colorValueOf = Color.valueOf(alphaColor);"
-        errorLine2="                                   ~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/utils/ColorUtils.java"
-            line="210"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 24): `android.graphics.Color#valueOf`"
-        errorLine1="        Color colorValueOf2 = Color.valueOf(sourceColor);"
-        errorLine2="                                    ~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/utils/ColorUtils.java"
-            line="211"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 24): `android.graphics.Color#alpha`"
-        errorLine1="        return Color.argb(colorValueOf.alpha(), colorValueOf2.red(), colorValueOf2.green(), colorValueOf2.blue());"
-        errorLine2="                                       ~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/utils/ColorUtils.java"
-            line="212"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 24): `android.graphics.Color#argb`"
-        errorLine1="        return Color.argb(colorValueOf.alpha(), colorValueOf2.red(), colorValueOf2.green(), colorValueOf2.blue());"
-        errorLine2="                     ~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/utils/ColorUtils.java"
-            line="212"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 24): `android.graphics.Color#blue`"
-        errorLine1="        return Color.argb(colorValueOf.alpha(), colorValueOf2.red(), colorValueOf2.green(), colorValueOf2.blue());"
-        errorLine2="                                                                                                          ~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/utils/ColorUtils.java"
-            line="212"
-            column="107"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 24): `android.graphics.Color#green`"
-        errorLine1="        return Color.argb(colorValueOf.alpha(), colorValueOf2.red(), colorValueOf2.green(), colorValueOf2.blue());"
-        errorLine2="                                                                                   ~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/utils/ColorUtils.java"
-            line="212"
-            column="84"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 24): `android.graphics.Color#red`"
-        errorLine1="        return Color.argb(colorValueOf.alpha(), colorValueOf2.red(), colorValueOf2.green(), colorValueOf2.blue());"
-        errorLine2="                                                              ~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/utils/ColorUtils.java"
-            line="212"
-            column="63"/>
     </issue>
 
     <issue
@@ -602,7 +503,7 @@
         errorLine2="                                               ~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/CommonPaths.java"
-            line="174"
+            line="173"
             column="48"/>
     </issue>
 
@@ -613,7 +514,7 @@
         errorLine2="                                               ~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/CommonPaths.java"
-            line="193"
+            line="192"
             column="48"/>
     </issue>
 
@@ -624,7 +525,7 @@
         errorLine2="                                               ~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/CommonPaths.java"
-            line="228"
+            line="227"
             column="48"/>
     </issue>
 
@@ -635,7 +536,7 @@
         errorLine2="                                               ~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/CommonPaths.java"
-            line="240"
+            line="239"
             column="48"/>
     </issue>
 
@@ -646,7 +547,7 @@
         errorLine2="                      ~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/CommonPaths.java"
-            line="253"
+            line="252"
             column="23"/>
     </issue>
 
@@ -657,7 +558,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/CommonPaths.java"
-            line="257"
+            line="256"
             column="44"/>
     </issue>
 
@@ -668,7 +569,7 @@
         errorLine2="                                                                                                                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/CommonPaths.java"
-            line="266"
+            line="265"
             column="142"/>
     </issue>
 
@@ -679,7 +580,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/CommonPaths.java"
-            line="275"
+            line="274"
             column="34"/>
     </issue>
 
@@ -690,7 +591,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/CoverPaths.java"
-            line="27"
+            line="26"
             column="26"/>
     </issue>
 
@@ -701,7 +602,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/CoverPaths.java"
-            line="97"
+            line="96"
             column="26"/>
     </issue>
 
@@ -712,7 +613,7 @@
         errorLine2="                                                                                                   ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/DataRepositoryPaths.java"
-            line="27"
+            line="26"
             column="100"/>
     </issue>
 
@@ -723,7 +624,7 @@
         errorLine2="                                                                                                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/DataRepositoryPaths.java"
-            line="33"
+            line="32"
             column="102"/>
     </issue>
 
@@ -734,7 +635,7 @@
         errorLine2="                                          ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DateTimeUtil.java"
-            line="748"
+            line="746"
             column="43"/>
     </issue>
 
@@ -745,7 +646,7 @@
         errorLine2="                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DateTimeUtil.java"
-            line="748"
+            line="746"
             column="24"/>
     </issue>
 
@@ -756,7 +657,7 @@
         errorLine2="                                                        ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DateTimeUtil.java"
-            line="748"
+            line="746"
             column="57"/>
     </issue>
 
@@ -767,19 +668,8 @@
         errorLine2="                                                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DateTimeUtil.java"
-            line="748"
+            line="746"
             column="74"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 26, or core library desugaring (current min is 24): `java.nio.file.FileAlreadyExistsException`"
-        errorLine1="        return $this$isFileAlreadyExistsException instanceof FileAlreadyExistsException || $this$isFileAlreadyExistsException instanceof kotlin.io.FileAlreadyExistsException;"
-        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/extension/ExceptionsKt.java"
-            line="21"
-            column="62"/>
     </issue>
 
     <issue
@@ -789,7 +679,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/data/render/GraphicsRenderNode.java"
-            line="26"
+            line="25"
             column="18"/>
     </issue>
 
@@ -800,7 +690,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/data/render/GraphicsRenderNode.java"
-            line="36"
+            line="35"
             column="23"/>
     </issue>
 
@@ -811,7 +701,7 @@
         errorLine2="                      ~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/data/render/GraphicsRenderNode.java"
-            line="41"
+            line="40"
             column="23"/>
     </issue>
 
@@ -822,7 +712,7 @@
         errorLine2="                      ~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/data/render/GraphicsRenderNode.java"
-            line="46"
+            line="45"
             column="23"/>
     </issue>
 
@@ -833,7 +723,7 @@
         errorLine2="                      ~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/data/render/GraphicsRenderNode.java"
-            line="51"
+            line="50"
             column="23"/>
     </issue>
 
@@ -844,7 +734,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/data/render/GraphicsRenderNode.java"
-            line="56"
+            line="55"
             column="23"/>
     </issue>
 
@@ -855,7 +745,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/data/render/GraphicsRenderNode.java"
-            line="61"
+            line="60"
             column="23"/>
     </issue>
 
@@ -866,7 +756,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/data/render/GraphicsRenderNode.java"
-            line="66"
+            line="65"
             column="16"/>
     </issue>
 
@@ -877,7 +767,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/data/render/GraphicsRenderNode.java"
-            line="71"
+            line="70"
             column="16"/>
     </issue>
 
@@ -888,7 +778,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/data/render/GraphicsRenderNode.java"
-            line="76"
+            line="75"
             column="16"/>
     </issue>
 
@@ -899,7 +789,7 @@
         errorLine2="               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/data/render/GraphicsRenderNode.java"
-            line="82"
+            line="81"
             column="16"/>
     </issue>
 
@@ -910,7 +800,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/data/render/GraphicsRenderNode.java"
-            line="88"
+            line="87"
             column="16"/>
     </issue>
 
@@ -921,7 +811,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/data/render/GraphicsRenderNode.java"
-            line="94"
+            line="93"
             column="31"/>
     </issue>
 
@@ -932,7 +822,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/data/render/GraphicsRenderNode.java"
-            line="94"
+            line="93"
             column="16"/>
     </issue>
 
@@ -943,7 +833,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/data/render/GraphicsRenderNode.java"
-            line="100"
+            line="99"
             column="16"/>
     </issue>
 
@@ -954,7 +844,7 @@
         errorLine2="                                                                                        ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/NotePagePaths.java"
-            line="61"
+            line="60"
             column="89"/>
     </issue>
 
@@ -965,7 +855,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/Paths.java"
-            line="44"
+            line="43"
             column="21"/>
     </issue>
 
@@ -976,7 +866,7 @@
         errorLine2="                                               ~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/Paths.java"
-            line="75"
+            line="74"
             column="48"/>
     </issue>
 
@@ -987,7 +877,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/Paths.java"
-            line="83"
+            line="82"
             column="38"/>
     </issue>
 
@@ -998,7 +888,7 @@
         errorLine2="                                                                ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/Paths.java"
-            line="92"
+            line="91"
             column="65"/>
     </issue>
 
@@ -1009,7 +899,7 @@
         errorLine2="                                               ~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/Paths.java"
-            line="92"
+            line="91"
             column="48"/>
     </issue>
 
@@ -1020,7 +910,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/Paths.java"
-            line="99"
+            line="98"
             column="54"/>
     </issue>
 
@@ -1031,7 +921,7 @@
         errorLine2="                                                                        ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/Paths.java"
-            line="105"
+            line="104"
             column="73"/>
     </issue>
 
@@ -1042,7 +932,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/Paths.java"
-            line="112"
+            line="111"
             column="62"/>
     </issue>
 
@@ -1053,7 +943,7 @@
         errorLine2="                                                                                   ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/Paths.java"
-            line="126"
+            line="125"
             column="84"/>
     </issue>
 
@@ -1064,7 +954,7 @@
         errorLine2="                                ~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/Paths.java"
-            line="138"
+            line="137"
             column="33"/>
     </issue>
 
@@ -1075,7 +965,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/Paths.java"
-            line="141"
+            line="140"
             column="46"/>
     </issue>
 
@@ -1086,7 +976,7 @@
         errorLine2="                                            ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/Paths.java"
-            line="144"
+            line="143"
             column="45"/>
     </issue>
 
@@ -1097,7 +987,7 @@
         errorLine2="                                               ~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/Paths.java"
-            line="164"
+            line="163"
             column="48"/>
     </issue>
 
@@ -1108,7 +998,7 @@
         errorLine2="                                                                        ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/Paths.java"
-            line="176"
+            line="175"
             column="73"/>
     </issue>
 
@@ -1119,7 +1009,7 @@
         errorLine2="                                ~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/Paths.java"
-            line="182"
+            line="181"
             column="33"/>
     </issue>
 
@@ -1130,7 +1020,7 @@
         errorLine2="                                                                                                           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/PointPaths.java"
-            line="95"
+            line="94"
             column="108"/>
     </issue>
 
@@ -1141,7 +1031,7 @@
         errorLine2="                                                                            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/ResourcePaths.java"
-            line="73"
+            line="72"
             column="77"/>
     </issue>
 
@@ -1152,7 +1042,7 @@
         errorLine2="                                                                                               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/ResourcePaths.java"
-            line="88"
+            line="87"
             column="96"/>
     </issue>
 
@@ -1163,7 +1053,7 @@
         errorLine2="                                                                                                                                        ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/ResourcePaths.java"
-            line="175"
+            line="174"
             column="137"/>
     </issue>
 
@@ -1174,7 +1064,7 @@
         errorLine2="                                                                                                ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/ResourcePaths.java"
-            line="181"
+            line="180"
             column="97"/>
     </issue>
 
@@ -1185,7 +1075,7 @@
         errorLine2="                                                                                                                                                                                                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/ResourcePaths.java"
-            line="200"
+            line="199"
             column="194"/>
     </issue>
 
@@ -1196,7 +1086,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/RichTextHistoryPaths.java"
-            line="40"
+            line="39"
             column="28"/>
     </issue>
 
@@ -1207,7 +1097,7 @@
         errorLine2="                                                                                              ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/RichTextHistoryPaths.java"
-            line="48"
+            line="47"
             column="95"/>
     </issue>
 
@@ -1218,19 +1108,8 @@
         errorLine2="                           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/RichTextHistoryPaths.java"
-            line="71"
+            line="70"
             column="28"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 24): `android.content.Context#registerReceiver`"
-        errorLine1="            ResManager.getAppContext().registerReceiver((BroadcastReceiver)listener, intentFilter, this.b);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/rx/rxbroadcast/RxBroadcastChangeObservable.java"
-            line="50"
-            column="40"/>
     </issue>
 
     <issue
@@ -1240,7 +1119,7 @@
         errorLine2="                                                                          ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/StashPaths.java"
-            line="34"
+            line="33"
             column="75"/>
     </issue>
 
@@ -1251,7 +1130,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/StashPaths.java"
-            line="54"
+            line="53"
             column="59"/>
     </issue>
 
@@ -1262,7 +1141,7 @@
         errorLine2="                                                                              ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/StashPaths.java"
-            line="62"
+            line="61"
             column="79"/>
     </issue>
 
@@ -1273,7 +1152,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/StashPaths.java"
-            line="89"
+            line="88"
             column="55"/>
     </issue>
 
@@ -1284,7 +1163,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/StashPaths.java"
-            line="96"
+            line="95"
             column="26"/>
     </issue>
 
@@ -1295,7 +1174,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/StashPaths.java"
-            line="104"
+            line="103"
             column="22"/>
     </issue>
 
@@ -1306,7 +1185,7 @@
         errorLine2="                                                                                                ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/TemplatePaths.java"
-            line="73"
+            line="72"
             column="97"/>
     </issue>
 
@@ -1317,7 +1196,7 @@
         errorLine2="                                                                                                               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/TemplatePaths.java"
-            line="80"
+            line="79"
             column="112"/>
     </issue>
 
@@ -1328,7 +1207,7 @@
         errorLine2="                                                                                                               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/TemplatePaths.java"
-            line="87"
+            line="86"
             column="112"/>
     </issue>
 
@@ -1339,7 +1218,7 @@
         errorLine2="                                                                                                               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/TemplatePaths.java"
-            line="124"
+            line="123"
             column="112"/>
     </issue>
 
@@ -1350,7 +1229,7 @@
         errorLine2="                                                        ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/TemplatePaths.java"
-            line="207"
+            line="206"
             column="57"/>
     </issue>
 
@@ -1361,7 +1240,7 @@
         errorLine2="                                                                                                                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/TemplatePaths.java"
-            line="230"
+            line="229"
             column="118"/>
     </issue>
 
@@ -1372,7 +1251,7 @@
         errorLine2="                                                                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/TemplatePaths.java"
-            line="257"
+            line="256"
             column="78"/>
     </issue>
 
@@ -1383,7 +1262,7 @@
         errorLine2="                                                                    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/ThumbnailPaths.java"
-            line="42"
+            line="41"
             column="69"/>
     </issue>
 
@@ -1394,7 +1273,7 @@
         errorLine2="                                                                        ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/ThumbnailPaths.java"
-            line="57"
+            line="56"
             column="73"/>
     </issue>
 
@@ -1405,7 +1284,7 @@
         errorLine2="                                                                                        ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/TocPaths.java"
-            line="61"
+            line="60"
             column="89"/>
     </issue>
 
@@ -1416,7 +1295,7 @@
         errorLine2="                                 ~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/VirtualFilePaths.java"
-            line="39"
+            line="38"
             column="34"/>
     </issue>
 
@@ -1427,7 +1306,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/VirtualFilePaths.java"
-            line="41"
+            line="40"
             column="22"/>
     </issue>
 
@@ -1438,7 +1317,7 @@
         errorLine2="                                 ~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/VirtualFilePaths.java"
-            line="58"
+            line="57"
             column="34"/>
     </issue>
 
@@ -1449,7 +1328,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/VirtualFilePaths.java"
-            line="60"
+            line="59"
             column="22"/>
     </issue>
 
@@ -1460,7 +1339,7 @@
         errorLine2="                                 ~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/VirtualFilePaths.java"
-            line="66"
+            line="65"
             column="34"/>
     </issue>
 
@@ -1471,7 +1350,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/VirtualFilePaths.java"
-            line="68"
+            line="67"
             column="22"/>
     </issue>
 
@@ -1482,7 +1361,7 @@
         errorLine2="                                 ~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/VirtualFilePaths.java"
-            line="85"
+            line="84"
             column="34"/>
     </issue>
 
@@ -1493,7 +1372,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/VirtualFilePaths.java"
-            line="87"
+            line="86"
             column="22"/>
     </issue>
 
@@ -1504,7 +1383,7 @@
         errorLine2="                                                                                        ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/path/VirtualPagePaths.java"
-            line="61"
+            line="60"
             column="89"/>
     </issue>
 
@@ -1515,7 +1394,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceUtils.java"
-            line="366"
+            line="364"
             column="38"/>
     </issue>
 
@@ -1526,7 +1405,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/OnyxSystemProperties.java"
-            line="24"
+            line="23"
             column="28"/>
     </issue>
 
@@ -1537,7 +1416,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/WebViewUtils.java"
-            line="157"
+            line="156"
             column="28"/>
     </issue>
 
@@ -1548,41 +1427,8 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/WebViewUtils.java"
-            line="168"
+            line="167"
             column="29"/>
-    </issue>
-
-    <issue
-        id="Range"
-        message="Value must be ≥ 0 but `getColumnIndex` can be -1"
-        errorLine1="                int i = cursorQuery.getInt(cursorQuery.getColumnIndex(&quot;state&quot;));"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/utils/DictionaryUtil.java"
-            line="67"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="Range"
-        message="Value must be ≥ 0 but `getColumnIndex` can be -1"
-        errorLine1="                            long1 = cursor.getLong(cursor.getColumnIndex(&quot;_size&quot;));"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/extension/UriKt.java"
-            line="55"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="Range"
-        message="Value must be ≥ 0 but `getColumnIndex` can be -1"
-        errorLine1="                            s = cursor.getString(cursor.getColumnIndex(&quot;_display_name&quot;));"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/extension/UriKt.java"
-            line="96"
-            column="50"/>
     </issue>
 
     <issue
@@ -1592,7 +1438,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceReceiver.java"
-            line="150"
+            line="149"
             column="46"/>
     </issue>
 
@@ -1625,7 +1471,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DateTimeUtil.java"
-            line="793"
+            line="809"
             column="51"/>
     </issue>
 
@@ -1636,7 +1482,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/WebViewUtils.java"
-            line="171"
+            line="170"
             column="36"/>
     </issue>
 
@@ -1647,7 +1493,7 @@
         errorLine2="                                                                                                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/AccessibilityServiceUtils.java"
-            line="34"
+            line="33"
             column="101"/>
     </issue>
 
@@ -1658,7 +1504,7 @@
         errorLine2="                                            ~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ActivityUtil.java"
-            line="70"
+            line="69"
             column="45"/>
     </issue>
 
@@ -1669,7 +1515,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ActivityUtil.java"
-            line="113"
+            line="112"
             column="29"/>
     </issue>
 
@@ -1680,7 +1526,7 @@
         errorLine2="                                                                                                                                      ~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ActivityUtil.java"
-            line="127"
+            line="126"
             column="135"/>
     </issue>
 
@@ -1691,7 +1537,7 @@
         errorLine2="                                ~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ActivityUtil.java"
-            line="191"
+            line="190"
             column="33"/>
     </issue>
 
@@ -1702,7 +1548,7 @@
         errorLine2="                            ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ActivityUtil.java"
-            line="272"
+            line="271"
             column="29"/>
     </issue>
 
@@ -1713,7 +1559,7 @@
         errorLine2="                                                                         ~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ActivityUtil.java"
-            line="288"
+            line="287"
             column="74"/>
     </issue>
 
@@ -1724,7 +1570,7 @@
         errorLine2="                                                            ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ActivityUtil.java"
-            line="419"
+            line="418"
             column="61"/>
     </issue>
 
@@ -1735,7 +1581,7 @@
         errorLine2="                                                                                                             ~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ActivityUtil.java"
-            line="464"
+            line="463"
             column="110"/>
     </issue>
 
@@ -1746,7 +1592,7 @@
         errorLine2="                         ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ActivityUtil.java"
-            line="522"
+            line="521"
             column="26"/>
     </issue>
 
@@ -1757,7 +1603,7 @@
         errorLine2="                         ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ActivityUtil.java"
-            line="523"
+            line="522"
             column="26"/>
     </issue>
 
@@ -1768,7 +1614,7 @@
         errorLine2="                         ~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ActivityUtil.java"
-            line="538"
+            line="537"
             column="26"/>
     </issue>
 
@@ -1779,7 +1625,7 @@
         errorLine2="                                                                            ~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ActivityUtil.java"
-            line="549"
+            line="548"
             column="77"/>
     </issue>
 
@@ -1790,7 +1636,7 @@
         errorLine2="                                                                                                                                                                             ~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ApplicationUtil.java"
-            line="230"
+            line="229"
             column="174"/>
     </issue>
 
@@ -1801,7 +1647,7 @@
         errorLine2="                                                                                                                                                                                                                       ~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ApplicationUtil.java"
-            line="249"
+            line="248"
             column="216"/>
     </issue>
 
@@ -1812,7 +1658,7 @@
         errorLine2="                                                                                                                            ~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ApplicationUtil.java"
-            line="606"
+            line="605"
             column="125"/>
     </issue>
 
@@ -1823,7 +1669,7 @@
         errorLine2="                                                                              ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/wifi/common/BaseSecurity.java"
-            line="54"
+            line="53"
             column="79"/>
     </issue>
 
@@ -1834,7 +1680,7 @@
         errorLine2="                                                                              ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/wifi/common/BaseSecurity.java"
-            line="57"
+            line="56"
             column="79"/>
     </issue>
 
@@ -1845,7 +1691,7 @@
         errorLine2="                                     ~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/BitmapUtils.java"
-            line="1108"
+            line="827"
             column="38"/>
     </issue>
 
@@ -1944,7 +1790,7 @@
         errorLine2="                                                                                                                                                             ~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/ContextKt.java"
-            line="28"
+            line="27"
             column="158"/>
     </issue>
 
@@ -1955,7 +1801,7 @@
         errorLine2="                                                     ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="64"
+            line="63"
             column="54"/>
     </issue>
 
@@ -1966,7 +1812,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="68"
+            line="67"
             column="62"/>
     </issue>
 
@@ -1977,7 +1823,7 @@
         errorLine2="                                                                                                                                          ~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="203"
+            line="202"
             column="139"/>
     </issue>
 
@@ -1988,7 +1834,7 @@
         errorLine2="                                                                              ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="487"
+            line="486"
             column="79"/>
     </issue>
 
@@ -1999,7 +1845,7 @@
         errorLine2="                                                                              ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="522"
+            line="521"
             column="79"/>
     </issue>
 
@@ -2010,7 +1856,7 @@
         errorLine2="                                                                                                                          ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DatabaseUtils.java"
-            line="27"
+            line="26"
             column="123"/>
     </issue>
 
@@ -2021,7 +1867,7 @@
         errorLine2="                                                                                                                                        ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DatabaseUtils.java"
-            line="76"
+            line="75"
             column="137"/>
     </issue>
 
@@ -2032,7 +1878,7 @@
         errorLine2="                                                                                                                                      ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DatabaseUtils.java"
-            line="116"
+            line="115"
             column="135"/>
     </issue>
 
@@ -2054,7 +1900,7 @@
         errorLine2="                                                                           ~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceInfoUtil.java"
-            line="40"
+            line="39"
             column="76"/>
     </issue>
 
@@ -2065,7 +1911,7 @@
         errorLine2="                                                                                                                       ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceReceiver.java"
-            line="1967"
+            line="1966"
             column="120"/>
     </issue>
 
@@ -2076,7 +1922,7 @@
         errorLine2="                                                                                                                        ~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceUtils.java"
-            line="93"
+            line="91"
             column="121"/>
     </issue>
 
@@ -2087,7 +1933,7 @@
         errorLine2="                                                                                          ~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceUtils.java"
-            line="120"
+            line="118"
             column="91"/>
     </issue>
 
@@ -2098,7 +1944,7 @@
         errorLine2="                                                                                 ~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceUtils.java"
-            line="329"
+            line="327"
             column="82"/>
     </issue>
 
@@ -2109,7 +1955,7 @@
         errorLine2="                                                                              ~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceUtils.java"
-            line="400"
+            line="398"
             column="79"/>
     </issue>
 
@@ -2120,7 +1966,7 @@
         errorLine2="                                                                       ~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceUtils.java"
-            line="405"
+            line="403"
             column="72"/>
     </issue>
 
@@ -2131,7 +1977,7 @@
         errorLine2="                                                               ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceUtils.java"
-            line="406"
+            line="404"
             column="64"/>
     </issue>
 
@@ -2142,7 +1988,7 @@
         errorLine2="                                                                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceUtils.java"
-            line="413"
+            line="411"
             column="87"/>
     </issue>
 
@@ -2153,7 +1999,7 @@
         errorLine2="                                                                                                                                                                                                                        ~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceUtils.java"
-            line="423"
+            line="421"
             column="217"/>
     </issue>
 
@@ -2164,7 +2010,7 @@
         errorLine2="                                                                                                                 ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceUtils.java"
-            line="428"
+            line="426"
             column="114"/>
     </issue>
 
@@ -2175,7 +2021,7 @@
         errorLine2="                                           ~~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/DrawableKt.java"
-            line="49"
+            line="48"
             column="44"/>
     </issue>
 
@@ -2186,7 +2032,7 @@
         errorLine2="                                                                  ~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IMetadataService.java"
-            line="229"
+            line="228"
             column="67"/>
     </issue>
 
@@ -2197,7 +2043,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/InputMethodUtils.java"
-            line="33"
+            line="32"
             column="55"/>
     </issue>
 
@@ -2208,7 +2054,7 @@
         errorLine2="                                                                                                ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/InputMethodUtils.java"
-            line="33"
+            line="32"
             column="97"/>
     </issue>
 
@@ -2219,7 +2065,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/InputMethodUtils.java"
-            line="38"
+            line="37"
             column="59"/>
     </issue>
 
@@ -2230,7 +2076,7 @@
         errorLine2="                                                                                              ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/InputMethodUtils.java"
-            line="38"
+            line="37"
             column="95"/>
     </issue>
 
@@ -2241,7 +2087,7 @@
         errorLine2="                                                                                           ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/InputMethodUtils.java"
-            line="38"
+            line="37"
             column="92"/>
     </issue>
 
@@ -2252,7 +2098,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/InputMethodUtils.java"
-            line="45"
+            line="44"
             column="59"/>
     </issue>
 
@@ -2263,7 +2109,7 @@
         errorLine2="                                                                                         ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/InputMethodUtils.java"
-            line="54"
+            line="53"
             column="90"/>
     </issue>
 
@@ -2274,7 +2120,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/InputMethodUtils.java"
-            line="61"
+            line="60"
             column="55"/>
     </issue>
 
@@ -2285,7 +2131,7 @@
         errorLine2="                                                                                          ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/InputMethodUtils.java"
-            line="61"
+            line="60"
             column="91"/>
     </issue>
 
@@ -2296,7 +2142,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/InputMethodUtils.java"
-            line="65"
+            line="64"
             column="53"/>
     </issue>
 
@@ -2307,7 +2153,7 @@
         errorLine2="                                                                                                   ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/InputMethodUtils.java"
-            line="66"
+            line="65"
             column="100"/>
     </issue>
 
@@ -2318,7 +2164,7 @@
         errorLine2="                                                                               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/InputMethodUtils.java"
-            line="86"
+            line="85"
             column="80"/>
     </issue>
 
@@ -2329,7 +2175,7 @@
         errorLine2="                                                                                                 ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/IntentUtils.java"
-            line="152"
+            line="151"
             column="98"/>
     </issue>
 
@@ -2340,7 +2186,7 @@
         errorLine2="                                                                                     ~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/KeyguardUtils.java"
-            line="35"
+            line="34"
             column="86"/>
     </issue>
 
@@ -2351,7 +2197,7 @@
         errorLine2="                                                                                     ~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/KeyguardUtils.java"
-            line="58"
+            line="57"
             column="86"/>
     </issue>
 
@@ -2362,7 +2208,7 @@
         errorLine2="                                                           ~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/KeyguardUtils.java"
-            line="66"
+            line="65"
             column="60"/>
     </issue>
 
@@ -2373,7 +2219,7 @@
         errorLine2="                                                        ~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/KeyguardUtils.java"
-            line="70"
+            line="69"
             column="57"/>
     </issue>
 
@@ -2384,7 +2230,7 @@
         errorLine2="                                                         ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/LauncherAppsManager.java"
-            line="45"
+            line="44"
             column="58"/>
     </issue>
 
@@ -2395,7 +2241,7 @@
         errorLine2="                                                                      ~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/MemoryUtils.java"
-            line="43"
+            line="42"
             column="71"/>
     </issue>
 
@@ -2406,7 +2252,7 @@
         errorLine2="                                                                                                                ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/NotificationUtils.java"
-            line="24"
+            line="23"
             column="113"/>
     </issue>
 
@@ -2417,7 +2263,7 @@
         errorLine2="                                                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/NotificationUtils.java"
-            line="26"
+            line="25"
             column="98"/>
     </issue>
 
@@ -2428,7 +2274,7 @@
         errorLine2="                                                                                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/NotificationUtils.java"
-            line="37"
+            line="36"
             column="117"/>
     </issue>
 
@@ -2483,7 +2329,7 @@
         errorLine2="                        ~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/PackageUtils.java"
-            line="128"
+            line="125"
             column="25"/>
     </issue>
 
@@ -2494,7 +2340,7 @@
         errorLine2="                    ~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/PackageUtils.java"
-            line="565"
+            line="405"
             column="21"/>
     </issue>
 
@@ -2505,7 +2351,7 @@
         errorLine2="                                                                                                                                                                                                                                      ~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/PackageUtils.java"
-            line="591"
+            line="431"
             column="231"/>
     </issue>
 
@@ -2516,7 +2362,7 @@
         errorLine2="                                                                           ~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/PackageUtils.java"
-            line="653"
+            line="493"
             column="76"/>
     </issue>
 
@@ -2527,7 +2373,7 @@
         errorLine2="                                                                                      ~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/PackageUtils.java"
-            line="671"
+            line="511"
             column="87"/>
     </issue>
 
@@ -2538,7 +2384,7 @@
         errorLine2="                        ~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/PackageUtils.java"
-            line="734"
+            line="574"
             column="25"/>
     </issue>
 
@@ -2549,7 +2395,7 @@
         errorLine2="                         ~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/PermissionUtils.java"
-            line="131"
+            line="130"
             column="26"/>
     </issue>
 
@@ -2560,7 +2406,7 @@
         errorLine2="                                                                                    ~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ResManager.java"
-            line="332"
+            line="331"
             column="85"/>
     </issue>
 
@@ -2571,7 +2417,7 @@
         errorLine2="                                                                                    ~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ResManager.java"
-            line="342"
+            line="341"
             column="85"/>
     </issue>
 
@@ -2582,7 +2428,7 @@
         errorLine2="                                                                                    ~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ResManager.java"
-            line="372"
+            line="371"
             column="85"/>
     </issue>
 
@@ -2593,7 +2439,7 @@
         errorLine2="                                                                     ~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ResManager.java"
-            line="408"
+            line="407"
             column="70"/>
     </issue>
 
@@ -2615,19 +2461,8 @@
         errorLine2="                                                         ~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/RxAlarm.java"
-            line="59"
+            line="56"
             column="58"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one or more of: PendingIntent.FLAG_ONE_SHOT, PendingIntent.FLAG_NO_CREATE, PendingIntent.FLAG_CANCEL_CURRENT, PendingIntent.FLAG_UPDATE_CURRENT, PendingIntent.FLAG_IMMUTABLE, PendingIntent.FLAG_MUTABLE, PendingIntent.FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT, Intent.FILL_IN_ACTION, Intent.FILL_IN_DATA, Intent.FILL_IN_CATEGORIES, Intent.FILL_IN_COMPONENT, Intent.FILL_IN_PACKAGE, Intent.FILL_IN_SOURCE_BOUNDS, Intent.FILL_IN_SELECTOR, Intent.FILL_IN_CLIP_DATA"
-        errorLine1="        this.c = PendingIntent.getBroadcast(this.a, this.g, intent, 268435456);"
-        errorLine2="                                                                    ~~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/utils/RxAlarm.java"
-            line="126"
-            column="69"/>
     </issue>
 
     <issue
@@ -2637,7 +2472,7 @@
         errorLine2="                        ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/RxAlarm.java"
-            line="128"
+            line="129"
             column="25"/>
     </issue>
 
@@ -2648,7 +2483,7 @@
         errorLine2="                                                       ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/wifi/RxWifiAdmin.java"
-            line="558"
+            line="514"
             column="56"/>
     </issue>
 
@@ -2659,7 +2494,7 @@
         errorLine2="                                                              ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/SpannableStringUtils.java"
-            line="120"
+            line="117"
             column="63"/>
     </issue>
 
@@ -2681,7 +2516,7 @@
         errorLine2="                                                                                        ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/TypeFaceUtils.java"
-            line="48"
+            line="47"
             column="89"/>
     </issue>
 
@@ -2692,7 +2527,7 @@
         errorLine2="                                              ~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ViewDocumentUtils.java"
-            line="49"
+            line="48"
             column="47"/>
     </issue>
 
@@ -2703,7 +2538,7 @@
         errorLine2="                                                        ~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/ViewKt.java"
-            line="242"
+            line="230"
             column="57"/>
     </issue>
 
@@ -2714,7 +2549,7 @@
         errorLine2="                                                            ~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/ViewKt.java"
-            line="242"
+            line="230"
             column="61"/>
     </issue>
 
@@ -2725,7 +2560,7 @@
         errorLine2="                                                             ~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/ViewKt.java"
-            line="249"
+            line="237"
             column="62"/>
     </issue>
 
@@ -2736,7 +2571,7 @@
         errorLine2="                                                                 ~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/ViewKt.java"
-            line="249"
+            line="237"
             column="66"/>
     </issue>
 
@@ -2747,7 +2582,7 @@
         errorLine2="                                                                             ~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/ViewKt.java"
-            line="273"
+            line="261"
             column="78"/>
     </issue>
 
@@ -2758,7 +2593,7 @@
         errorLine2="                                                                         ~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/ViewKt.java"
-            line="334"
+            line="322"
             column="74"/>
     </issue>
 
@@ -2769,7 +2604,7 @@
         errorLine2="                                                                                                                 ~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/ViewKt.java"
-            line="334"
+            line="322"
             column="114"/>
     </issue>
 
@@ -2780,7 +2615,7 @@
         errorLine2="                                                                                                                                                ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/ViewKt.java"
-            line="409"
+            line="397"
             column="145"/>
     </issue>
 
@@ -2791,7 +2626,7 @@
         errorLine2="                                                                                           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/ViewKt.java"
-            line="419"
+            line="407"
             column="92"/>
     </issue>
 
@@ -2802,7 +2637,7 @@
         errorLine2="                                                                                          ~">
         <location
             file="src/main/java/com/onyx/android/sdk/extension/ViewKt.java"
-            line="423"
+            line="411"
             column="91"/>
     </issue>
 
@@ -2813,7 +2648,7 @@
         errorLine2="                                                             ~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ViewUtils.java"
-            line="156"
+            line="155"
             column="62"/>
     </issue>
 
@@ -2824,7 +2659,7 @@
         errorLine2="                                                                                                                   ~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ViewUtils.java"
-            line="156"
+            line="155"
             column="116"/>
     </issue>
 
@@ -2835,7 +2670,7 @@
         errorLine2="                           ~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ViewUtils.java"
-            line="173"
+            line="172"
             column="28"/>
     </issue>
 
@@ -2846,7 +2681,7 @@
         errorLine2="                                                               ~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ViewUtils.java"
-            line="183"
+            line="182"
             column="64"/>
     </issue>
 
@@ -2857,7 +2692,7 @@
         errorLine2="                                                       ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ViewUtils.java"
-            line="191"
+            line="190"
             column="56"/>
     </issue>
 
@@ -2868,7 +2703,7 @@
         errorLine2="                           ~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ViewUtils.java"
-            line="205"
+            line="204"
             column="28"/>
     </issue>
 
@@ -2879,7 +2714,7 @@
         errorLine2="                                                         ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ViewUtils.java"
-            line="261"
+            line="260"
             column="58"/>
     </issue>
 
@@ -2890,7 +2725,7 @@
         errorLine2="                                                                                                 ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ViewUtils.java"
-            line="261"
+            line="260"
             column="98"/>
     </issue>
 
@@ -2901,7 +2736,7 @@
         errorLine2="                                                                                                                                                    ~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ViewUtils.java"
-            line="266"
+            line="265"
             column="149"/>
     </issue>
 
@@ -2912,7 +2747,7 @@
         errorLine2="                                                                                                  ~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ViewUtils.java"
-            line="270"
+            line="269"
             column="99"/>
     </issue>
 
@@ -2923,7 +2758,7 @@
         errorLine2="                                                      ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ViewUtils.java"
-            line="282"
+            line="281"
             column="55"/>
     </issue>
 
@@ -2934,7 +2769,7 @@
         errorLine2="                                              ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ViewUtils.java"
-            line="303"
+            line="302"
             column="47"/>
     </issue>
 
@@ -2945,7 +2780,7 @@
         errorLine2="                                                            ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/WebViewUtils.java"
-            line="80"
+            line="79"
             column="61"/>
     </issue>
 
@@ -2956,7 +2791,7 @@
         errorLine2="                                                                                                    ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/WebViewUtils.java"
-            line="80"
+            line="79"
             column="101"/>
     </issue>
 
@@ -2967,7 +2802,7 @@
         errorLine2="                                                                                    ~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/WebViewUtils.java"
-            line="142"
+            line="141"
             column="85"/>
     </issue>
 
@@ -2978,7 +2813,7 @@
         errorLine2="                                                                                                                                         ~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/WebViewUtils.java"
-            line="147"
+            line="146"
             column="138"/>
     </issue>
 
@@ -2989,7 +2824,7 @@
         errorLine2="                                                                                ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/wifi/WifiAdmin.java"
-            line="208"
+            line="199"
             column="81"/>
     </issue>
 
@@ -3000,7 +2835,7 @@
         errorLine2="                                                                                                                                                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/wifi/WifiUtil.java"
-            line="151"
+            line="149"
             column="146"/>
     </issue>
 
@@ -3022,7 +2857,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ActivityUtil.java"
-            line="526"
+            line="525"
             column="24"/>
     </issue>
 
@@ -3044,7 +2879,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ApplicationUtil.java"
-            line="458"
+            line="457"
             column="54"/>
     </issue>
 
@@ -3055,7 +2890,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ApplicationUtil.java"
-            line="471"
+            line="470"
             column="31"/>
     </issue>
 
@@ -3066,7 +2901,7 @@
         errorLine2="                                                                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ApplicationUtil.java"
-            line="781"
+            line="780"
             column="70"/>
     </issue>
 
@@ -3077,7 +2912,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="449"
+            line="448"
             column="20"/>
     </issue>
 
@@ -3088,7 +2923,7 @@
         errorLine2="                                                                       ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DefaultLogEntry.java"
-            line="295"
+            line="138"
             column="72"/>
     </issue>
 
@@ -3110,7 +2945,7 @@
         errorLine2="                                                                       ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/PackageUtils.java"
-            line="1002"
+            line="842"
             column="72"/>
     </issue>
 
@@ -3121,7 +2956,7 @@
         errorLine2="                                                                                ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ServiceUtils.java"
-            line="55"
+            line="53"
             column="81"/>
     </issue>
 
@@ -3132,7 +2967,7 @@
         errorLine2="                                                                                              ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ViewDocumentUtils.java"
-            line="138"
+            line="137"
             column="95"/>
     </issue>
 
@@ -3154,7 +2989,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceUtils.java"
-            line="387"
+            line="385"
             column="50"/>
     </issue>
 
@@ -3176,7 +3011,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/RawResourceUtil.java"
-            line="57"
+            line="54"
             column="43"/>
     </issue>
 
@@ -3187,7 +3022,7 @@
         errorLine2="                                                                               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/RawResourceUtil.java"
-            line="251"
+            line="138"
             column="80"/>
     </issue>
 
@@ -3198,7 +3033,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ResManager.java"
-            line="426"
+            line="425"
             column="44"/>
     </issue>
 
@@ -3209,7 +3044,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ResManager.java"
-            line="443"
+            line="442"
             column="55"/>
     </issue>
 
@@ -3253,7 +3088,7 @@
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/data/AppShortcutInfo.java"
-            line="72"
+            line="71"
             column="5"/>
     </issue>
 
@@ -3264,7 +3099,7 @@
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/data/AppShortcutInfo.java"
-            line="128"
+            line="127"
             column="5"/>
     </issue>
 
@@ -3275,7 +3110,7 @@
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/data/AppShortcutInfo.java"
-            line="143"
+            line="142"
             column="5"/>
     </issue>
 
@@ -3286,7 +3121,7 @@
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/LauncherAppsManager.java"
-            line="152"
+            line="151"
             column="5"/>
     </issue>
 
@@ -3297,7 +3132,7 @@
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ResManager.java"
-            line="330"
+            line="329"
             column="5"/>
     </issue>
 
@@ -3308,7 +3143,7 @@
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ResManager.java"
-            line="340"
+            line="339"
             column="5"/>
     </issue>
 
@@ -3330,7 +3165,7 @@
         errorLine2="   ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/UriUtils.java"
-            line="57"
+            line="49"
             column="4"/>
     </issue>
 
@@ -3341,7 +3176,7 @@
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/WebViewUtils.java"
-            line="34"
+            line="33"
             column="5"/>
     </issue>
 
@@ -3352,7 +3187,7 @@
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/wifi/WifiUtil.java"
-            line="87"
+            line="85"
             column="5"/>
     </issue>
 
@@ -3363,7 +3198,7 @@
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/wifi/WifiUtil.java"
-            line="96"
+            line="94"
             column="5"/>
     </issue>
 
@@ -3374,7 +3209,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ResManager.java"
-            line="224"
+            line="223"
             column="16"/>
     </issue>
 
@@ -3385,7 +3220,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/PackageUtils.java"
-            line="1067"
+            line="907"
             column="20"/>
     </issue>
 
@@ -3396,7 +3231,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/RawResourceUtil.java"
-            line="52"
+            line="49"
             column="16"/>
     </issue>
 
@@ -3407,7 +3242,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ResManager.java"
-            line="280"
+            line="279"
             column="16"/>
     </issue>
 
@@ -3550,7 +3385,7 @@
         errorLine2="                                                       ~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/AESEncryptUtils.java"
-            line="44"
+            line="43"
             column="56"/>
     </issue>
 
@@ -3561,7 +3396,7 @@
         errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/AESEncryptUtils.java"
-            line="64"
+            line="63"
             column="65"/>
     </issue>
 
@@ -3594,7 +3429,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceUtils.java"
-            line="89"
+            line="87"
             column="31"/>
     </issue>
 
@@ -3605,7 +3440,7 @@
         errorLine2="                                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceUtils.java"
-            line="93"
+            line="91"
             column="77"/>
     </issue>
 
@@ -3616,7 +3451,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/BitmapUtils.java"
-            line="111"
+            line="108"
             column="17"/>
     </issue>
 
@@ -3627,7 +3462,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/FileUtils.java"
-            line="3676"
+            line="2538"
             column="45"/>
     </issue>
 
@@ -3638,7 +3473,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/BitmapUtils.java"
-            line="113"
+            line="110"
             column="21"/>
     </issue>
 
@@ -3649,7 +3484,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/FileUtils.java"
-            line="3677"
+            line="2539"
             column="41"/>
     </issue>
 
@@ -3687,24 +3522,13 @@
     </issue>
 
     <issue
-        id="UnspecifiedImmutableFlag"
-        message="Missing `PendingIntent` mutability flag"
-        errorLine1="        this.c = PendingIntent.getBroadcast(this.a, this.g, intent, 268435456);"
-        errorLine2="                                                                    ~~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/utils/RxAlarm.java"
-            line="126"
-            column="69"/>
-    </issue>
-
-    <issue
         id="WakelockTimeout"
         message="Provide a timeout when requesting a wakelock with `PowerManager.Wakelock.acquire(long timeout)`. This will ensure the OS will cleanup any wakelocks that last longer than you intend, and will save your user&apos;s battery."
         errorLine1="                    this.a.acquire();"
         errorLine2="                    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/common/request/WakeLockHolder.java"
-            line="115"
+            line="112"
             column="21"/>
     </issue>
 
@@ -3715,7 +3539,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/calendar/ICalendarService.java"
-            line="142"
+            line="141"
             column="46"/>
     </issue>
 
@@ -3726,7 +3550,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/calendar/ICalendarService.java"
-            line="177"
+            line="176"
             column="46"/>
     </issue>
 
@@ -3737,7 +3561,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/calendar/ICalendarService.java"
-            line="214"
+            line="213"
             column="46"/>
     </issue>
 
@@ -3748,7 +3572,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IMetadataService.java"
-            line="291"
+            line="290"
             column="46"/>
     </issue>
 
@@ -3759,7 +3583,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IMetadataService.java"
-            line="324"
+            line="323"
             column="46"/>
     </issue>
 
@@ -3770,7 +3594,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IMetadataService.java"
-            line="385"
+            line="384"
             column="46"/>
     </issue>
 
@@ -3781,7 +3605,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IMetadataService.java"
-            line="446"
+            line="445"
             column="46"/>
     </issue>
 
@@ -3792,7 +3616,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IMetadataService.java"
-            line="490"
+            line="489"
             column="46"/>
     </issue>
 
@@ -3803,7 +3627,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IMetadataService.java"
-            line="520"
+            line="519"
             column="46"/>
     </issue>
 
@@ -3814,7 +3638,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IMetadataService.java"
-            line="553"
+            line="552"
             column="46"/>
     </issue>
 
@@ -3825,7 +3649,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IMetadataService.java"
-            line="588"
+            line="587"
             column="46"/>
     </issue>
 
@@ -3836,7 +3660,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IMetadataService.java"
-            line="619"
+            line="618"
             column="46"/>
     </issue>
 
@@ -3847,7 +3671,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IMetadataService.java"
-            line="679"
+            line="678"
             column="46"/>
     </issue>
 
@@ -3858,7 +3682,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IMetadataService.java"
-            line="709"
+            line="708"
             column="46"/>
     </issue>
 
@@ -3869,7 +3693,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IMetadataService.java"
-            line="769"
+            line="768"
             column="46"/>
     </issue>
 
@@ -3880,7 +3704,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IMetadataService.java"
-            line="848"
+            line="847"
             column="46"/>
     </issue>
 
@@ -3891,7 +3715,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IMetadataService.java"
-            line="881"
+            line="880"
             column="46"/>
     </issue>
 
@@ -3902,7 +3726,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IReaderExportService.java"
-            line="131"
+            line="130"
             column="46"/>
     </issue>
 
@@ -3913,7 +3737,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IReaderExportService.java"
-            line="162"
+            line="161"
             column="46"/>
     </issue>
 
@@ -3924,7 +3748,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IReaderExportService.java"
-            line="192"
+            line="191"
             column="46"/>
     </issue>
 
@@ -3935,7 +3759,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IReaderExportService.java"
-            line="232"
+            line="231"
             column="46"/>
     </issue>
 
@@ -3946,7 +3770,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IReaderExportService.java"
-            line="270"
+            line="269"
             column="46"/>
     </issue>
 
@@ -3957,7 +3781,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IReaderTtsNotificationService.java"
-            line="266"
+            line="265"
             column="46"/>
     </issue>
 
@@ -3968,7 +3792,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IReaderTtsNotificationService.java"
-            line="296"
+            line="295"
             column="46"/>
     </issue>
 
@@ -3979,7 +3803,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IReaderTtsNotificationService.java"
-            line="490"
+            line="489"
             column="46"/>
     </issue>
 
@@ -3990,7 +3814,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IReaderTtsNotificationService.java"
-            line="520"
+            line="519"
             column="46"/>
     </issue>
 
@@ -4001,7 +3825,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/IReaderTtsNotificationService.java"
-            line="550"
+            line="549"
             column="46"/>
     </issue>
 
@@ -4012,7 +3836,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/ReaderExportCallback.java"
-            line="93"
+            line="92"
             column="46"/>
     </issue>
 
@@ -4023,7 +3847,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/ReaderImportCallback.java"
-            line="90"
+            line="89"
             column="46"/>
     </issue>
 
@@ -4034,7 +3858,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/ReaderPDFConverterCallback.java"
-            line="90"
+            line="89"
             column="46"/>
     </issue>
 
@@ -4045,7 +3869,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/TtsServiceIntentCallback.java"
-            line="654"
+            line="653"
             column="46"/>
     </issue>
 
@@ -4056,19 +3880,8 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/reader/TtsServiceIntentCallback.java"
-            line="720"
+            line="719"
             column="46"/>
-    </issue>
-
-    <issue
-        id="Recycle"
-        message="This `ParcelFileDescriptor` should be freed up after use with `#close()`"
-        errorLine1="            return context.getContentResolver().openFileDescriptor(uri, &quot;r&quot;).getStatSize();"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/utils/UriUtils.java"
-            line="240"
-            column="49"/>
     </issue>
 
     <issue
@@ -4078,7 +3891,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ActivityUtil.java"
-            line="271"
+            line="270"
             column="13"/>
     </issue>
 
@@ -4089,7 +3902,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ActivityUtil.java"
-            line="453"
+            line="452"
             column="13"/>
     </issue>
 
@@ -4100,7 +3913,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/BitmapUtils.java"
-            line="388"
+            line="373"
             column="13"/>
     </issue>
 
@@ -4111,7 +3924,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/BitmapUtils.java"
-            line="394"
+            line="379"
             column="13"/>
     </issue>
 
@@ -4122,7 +3935,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/BitmapUtils.java"
-            line="1180"
+            line="899"
             column="17"/>
     </issue>
 
@@ -4133,7 +3946,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/Bitmaps.java"
-            line="58"
+            line="57"
             column="21"/>
     </issue>
 
@@ -4144,7 +3957,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/Bitmaps.java"
-            line="114"
+            line="113"
             column="21"/>
     </issue>
 
@@ -4155,7 +3968,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="38"
+            line="37"
             column="5"/>
     </issue>
 
@@ -4166,7 +3979,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="41"
+            line="40"
             column="5"/>
     </issue>
 
@@ -4177,7 +3990,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="45"
+            line="44"
             column="5"/>
     </issue>
 
@@ -4188,7 +4001,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="47"
+            line="46"
             column="5"/>
     </issue>
 
@@ -4199,7 +4012,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="49"
+            line="48"
             column="5"/>
     </issue>
 
@@ -4210,7 +4023,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="51"
+            line="50"
             column="5"/>
     </issue>
 
@@ -4221,7 +4034,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="53"
+            line="52"
             column="5"/>
     </issue>
 
@@ -4232,7 +4045,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="55"
+            line="54"
             column="5"/>
     </issue>
 
@@ -4243,7 +4056,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="57"
+            line="56"
             column="5"/>
     </issue>
 
@@ -4254,7 +4067,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="59"
+            line="58"
             column="5"/>
     </issue>
 
@@ -4265,7 +4078,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="62"
+            line="61"
             column="5"/>
     </issue>
 
@@ -4276,7 +4089,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="71"
+            line="70"
             column="5"/>
     </issue>
 
@@ -4287,7 +4100,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="80"
+            line="79"
             column="5"/>
     </issue>
 
@@ -4298,7 +4111,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="93"
+            line="92"
             column="5"/>
     </issue>
 
@@ -4309,7 +4122,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="106"
+            line="105"
             column="5"/>
     </issue>
 
@@ -4320,7 +4133,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="119"
+            line="118"
             column="5"/>
     </issue>
 
@@ -4331,7 +4144,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="154"
+            line="153"
             column="5"/>
     </issue>
 
@@ -4342,7 +4155,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="159"
+            line="158"
             column="5"/>
     </issue>
 
@@ -4353,7 +4166,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="185"
+            line="184"
             column="5"/>
     </issue>
 
@@ -4364,7 +4177,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="190"
+            line="189"
             column="5"/>
     </issue>
 
@@ -4375,7 +4188,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="237"
+            line="236"
             column="5"/>
     </issue>
 
@@ -4386,7 +4199,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="268"
+            line="267"
             column="5"/>
     </issue>
 
@@ -4397,7 +4210,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="289"
+            line="288"
             column="5"/>
     </issue>
 
@@ -4408,7 +4221,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="330"
+            line="329"
             column="5"/>
     </issue>
 
@@ -4419,7 +4232,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="339"
+            line="338"
             column="5"/>
     </issue>
 
@@ -4430,7 +4243,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="353"
+            line="352"
             column="5"/>
     </issue>
 
@@ -4441,7 +4254,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="367"
+            line="366"
             column="5"/>
     </issue>
 
@@ -4452,7 +4265,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DPMUtils.java"
-            line="381"
+            line="380"
             column="5"/>
     </issue>
 
@@ -4463,7 +4276,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceInfoUtil.java"
-            line="53"
+            line="52"
             column="13"/>
     </issue>
 
@@ -4474,7 +4287,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceReceiver.java"
-            line="511"
+            line="510"
             column="13"/>
     </issue>
 
@@ -4485,7 +4298,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceUtils.java"
-            line="229"
+            line="227"
             column="13"/>
     </issue>
 
@@ -4496,7 +4309,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceUtils.java"
-            line="248"
+            line="246"
             column="13"/>
     </issue>
 
@@ -4507,7 +4320,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceUtils.java"
-            line="313"
+            line="311"
             column="13"/>
     </issue>
 
@@ -4518,7 +4331,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceUtils.java"
-            line="330"
+            line="328"
             column="17"/>
     </issue>
 
@@ -4529,7 +4342,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceUtils.java"
-            line="416"
+            line="414"
             column="32"/>
     </issue>
 
@@ -4540,7 +4353,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/DeviceUtils.java"
-            line="428"
+            line="426"
             column="16"/>
     </issue>
 
@@ -4562,7 +4375,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/FileUtils.java"
-            line="1195"
+            line="742"
             column="24"/>
     </issue>
 
@@ -4573,7 +4386,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/FileUtils.java"
-            line="1408"
+            line="955"
             column="13"/>
     </issue>
 
@@ -4595,7 +4408,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/KeyguardUtils.java"
-            line="36"
+            line="35"
             column="13"/>
     </issue>
 
@@ -4606,7 +4419,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/KeyguardUtils.java"
-            line="59"
+            line="58"
             column="13"/>
     </issue>
 
@@ -4617,7 +4430,7 @@
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/LauncherAppsManager.java"
-            line="152"
+            line="151"
             column="5"/>
     </issue>
 
@@ -4628,7 +4441,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/data/OnyxDictionaryInfo.java"
-            line="47"
+            line="46"
             column="16"/>
     </issue>
 
@@ -4672,7 +4485,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/OsUtil.java"
-            line="11"
+            line="10"
             column="13"/>
     </issue>
 
@@ -4683,7 +4496,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/OsUtil.java"
-            line="34"
+            line="33"
             column="13"/>
     </issue>
 
@@ -4694,7 +4507,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/PackageUtils.java"
-            line="290"
+            line="287"
             column="5"/>
     </issue>
 
@@ -4705,7 +4518,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/PackageUtils.java"
-            line="300"
+            line="297"
             column="5"/>
     </issue>
 
@@ -4716,7 +4529,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/PackageUtils.java"
-            line="305"
+            line="302"
             column="5"/>
     </issue>
 
@@ -4727,7 +4540,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/PackageUtils.java"
-            line="310"
+            line="307"
             column="5"/>
     </issue>
 
@@ -4738,7 +4551,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/PackageUtils.java"
-            line="315"
+            line="312"
             column="5"/>
     </issue>
 
@@ -4749,7 +4562,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/PackageUtils.java"
-            line="334"
+            line="331"
             column="5"/>
     </issue>
 
@@ -4760,62 +4573,62 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/PackageUtils.java"
+            line="336"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 21"
+        errorLine1="    @RequiresApi(api = 21)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/onyx/android/sdk/utils/PackageUtils.java"
+            line="341"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 21"
+        errorLine1="    @RequiresApi(api = 21)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/onyx/android/sdk/utils/PackageUtils.java"
+            line="364"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 21"
+        errorLine1="    @RequiresApi(api = 21)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/onyx/android/sdk/utils/PackageUtils.java"
+            line="396"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 17"
+        errorLine1="    @TargetApi(17)"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/onyx/android/sdk/utils/ResManager.java"
+            line="329"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 17"
+        errorLine1="    @TargetApi(17)"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/onyx/android/sdk/utils/ResManager.java"
             line="339"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(api = 21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/utils/PackageUtils.java"
-            line="344"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(api = 21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/utils/PackageUtils.java"
-            line="367"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(api = 21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/utils/PackageUtils.java"
-            line="556"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 17"
-        errorLine1="    @TargetApi(17)"
-        errorLine2="    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/utils/ResManager.java"
-            line="330"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 17"
-        errorLine1="    @TargetApi(17)"
-        errorLine2="    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/onyx/android/sdk/utils/ResManager.java"
-            line="340"
             column="5"/>
     </issue>
 
@@ -4826,7 +4639,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/StorageUtils.java"
-            line="538"
+            line="336"
             column="5"/>
     </issue>
 
@@ -4859,7 +4672,7 @@
         errorLine2="   ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/UriUtils.java"
-            line="57"
+            line="49"
             column="4"/>
     </issue>
 
@@ -4870,7 +4683,7 @@
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/UriUtils.java"
-            line="60"
+            line="52"
             column="14"/>
     </issue>
 
@@ -4881,7 +4694,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/WebViewUtils.java"
-            line="37"
+            line="36"
             column="13"/>
     </issue>
 
@@ -4892,7 +4705,7 @@
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/wifi/WifiUtil.java"
-            line="87"
+            line="85"
             column="5"/>
     </issue>
 
@@ -4903,7 +4716,7 @@
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/wifi/WifiUtil.java"
-            line="96"
+            line="94"
             column="5"/>
     </issue>
 
@@ -4925,7 +4738,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/ResManager.java"
-            line="32"
+            line="31"
             column="13"/>
     </issue>
 
@@ -4936,7 +4749,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/rx/RxBaseAction.java"
-            line="25"
+            line="24"
             column="13"/>
     </issue>
 
@@ -4958,7 +4771,7 @@
         errorLine2="                ~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/rx/RxManager.java"
-            line="42"
+            line="40"
             column="17"/>
     </issue>
 
@@ -4991,7 +4804,7 @@
         errorLine2="                       ~~~~~~~">
         <location
             file="src/main/java/com/onyx/android/sdk/utils/LongClickUtils.java"
-            line="38"
+            line="36"
             column="24"/>
     </issue>
 

@@ -52,3 +52,6 @@ out/
 .idea/caches/build_file_checksums.ser
 
 .kotlin/
+findings/
+error-findings.xml
+ERROR_FINDINGS_REPORT.md

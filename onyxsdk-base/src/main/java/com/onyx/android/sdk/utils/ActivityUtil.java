@@ -377,7 +377,7 @@ public class ActivityUtil
             dialog2.getActionBar().setHomeButtonEnabled(true);
             dialog2.getActionBar().setDisplayHomeAsUpEnabled(true);
             final View viewById;
-            if ((viewById = dialog2.findViewById(16908332)) != null) {
+            if ((viewById = dialog2.findViewById(android.R.id.home)) != null) {
                 final View view = viewById;
                 final View.OnClickListener onClickListener = (View.OnClickListener)new View.OnClickListener() {
                     public void onClick(final View v) {
@@ -403,7 +403,7 @@ public class ActivityUtil
     
     public static void enableActionBarBackFunc(final PreferenceActivity activity) {
         final View viewById;
-        if ((viewById = activity.findViewById(16908332)) != null) {
+        if ((viewById = activity.findViewById(android.R.id.home)) != null) {
             final View view = viewById;
             final View.OnClickListener onClickListener = (View.OnClickListener)new View.OnClickListener() {
                 public void onClick(final View v) {
