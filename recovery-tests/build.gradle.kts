@@ -1,12 +1,11 @@
 import org.gradle.api.tasks.testing.Test
 
 plugins {
-    id("com.android.library")
+    id("onyx.android-library")
 }
 
 android {
     namespace = "com.onyx.recovery.tests"
-    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
@@ -15,10 +14,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    buildFeatures {
-        buildConfig = false
     }
 
     lint {
@@ -31,9 +26,9 @@ dependencies {
     implementation(project(":onyxsdk-device"))
     implementation(project(":onyxsdk-pen"))
 
-    testImplementation(platform("org.junit:junit-bom:5.11.4"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(platform(libs.junit5.bom))
+    testImplementation(libs.junit5.jupiter)
+    testRuntimeOnly(libs.junit5.platform.launcher)
 }
 
 tasks.withType<Test>().configureEach {

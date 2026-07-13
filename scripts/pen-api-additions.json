@@ -3,7 +3,6 @@
     "com.onyx.android.sdk.geometry.data.BoxInfo",
     "com.onyx.android.sdk.geometry.data.TouchData",
     "com.onyx.android.sdk.pen.NeoPenRendererOptions",
-    "com.onyx.android.sdk.pen.PenBrushInkAccess",
     "com.onyx.android.sdk.pen.R",
     "com.onyx.android.sdk.pen.R$id",
     "com.onyx.android.sdk.pen.R$layout",
@@ -49,6 +48,28 @@
     [
       "public static java.util.List<com.onyx.android.sdk.data.note.TouchPoint> computeStrokePoints(int, java.util.List<com.onyx.android.sdk.data.note.TouchPoint>, com.onyx.android.sdk.pen.NeoPenConfig, float);",
       "descriptor: (ILjava/util/List;Lcom/onyx/android/sdk/pen/NeoPenConfig;F)Ljava/util/List;"
+    ]
+  ],
+  "com.onyx.android.sdk.pen.PenBrushInk": [
+    [
+      "public com.onyx.android.sdk.pen.PenBrushInk(float, float, int, int, int);",
+      "descriptor: (FFIII)V"
+    ],
+    [
+      "public final int getSizeAsInt();",
+      "descriptor: ()I"
+    ],
+    [
+      "public final int getAngle36AsInt();",
+      "descriptor: ()I"
+    ],
+    [
+      "public final int getAlphaAsInt();",
+      "descriptor: ()I"
+    ],
+    [
+      "public int hashCode();",
+      "descriptor: ()I"
     ]
   ]
 }

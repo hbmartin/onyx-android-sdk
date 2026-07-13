@@ -26,3 +26,15 @@ The original-vs-recovered checker accepts the exact binary breaks through
 `device-validation/accepted-residuals/base.json`. Contract and generated-test
 checkers also exclude the removed `firmwareUpdate` descriptor explicitly; all
 other API differences continue to fail their normal gates.
+
+## Kotlin pen interoperability additions
+
+`PenBrushInk` retains its original unsigned Kotlin constructor and mangled
+accessors, and now also exposes an additive `(float, float, int, int, int)`
+constructor plus unsigned integer accessors for Java. The recovered renderer
+uses those methods directly instead of invoking the mangled members through
+reflection for every brush stamp. It also implements `hashCode()` consistently
+with its existing `equals()` method.
+
+These additions do not remove or rename reference members. They are accepted by
+`scripts/pen-api-additions.json` and the classified pen residuals.

@@ -1,0 +1,22 @@
+[versions]
+agp = "9.2.1"
+androidx-annotation = "1.0.0"
+coroutines = "1.6.4"
+dokka = "2.2.0"
+fastjson = "2.0.48.android8"
+junit4 = "4.13.2"
+junit5 = "5.11.4"
+kotlin = "1.6.10"
+robolectric = "4.14.1"
+
+[libraries]
+androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "androidx-annotation" }
+coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+coroutines-rx2 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-rx2", version.ref = "coroutines" }
+fastjson = { module = "com.alibaba.fastjson2:fastjson2", version.ref = "fastjson" }
+junit4 = { module = "junit:junit", version.ref = "junit4" }
+junit5-bom = { module = "org.junit:junit-bom", version.ref = "junit5" }
+junit5-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit5-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }

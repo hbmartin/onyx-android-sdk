@@ -2,7 +2,8 @@ import java.io.File
 import org.gradle.api.tasks.Exec
 
 plugins {
-    id("com.android.library")
+    id("onyx.android-library")
+    id("onyx.kdoc")
 }
 
 group = "com.onyx.android.sdk.recovered"
@@ -44,21 +45,11 @@ val buildRustAndroid = tasks.register<Exec>("buildRustAndroid") {
 
 android {
     namespace = "com.onyx.android.sdk.pen"
-    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
         consumerProguardFiles("consumer-rules.pro")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-
-    buildFeatures {
-        buildConfig = false
     }
 
     lint {
@@ -72,8 +63,8 @@ android {
 
 dependencies {
     api(project(":onyxsdk-base"))
-    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10")
-    testImplementation("junit:junit:4.13.2")
+    api(libs.kotlin.stdlib.jdk8)
+    testImplementation(libs.junit4)
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test:runner:1.6.2")
 }

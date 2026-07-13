@@ -175,7 +175,7 @@ public class TouchPoint implements Serializable, Cloneable {
     }
 
     public final void offset(int dx, int dy) {
-        offset(dx, dy);
+        offset((float) dx, (float) dy);
     }
 
     public final void offset(float dx, float dy) {

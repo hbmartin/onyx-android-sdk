@@ -1,4 +1,6 @@
 pluginManagement {
+    includeBuild("build-logic")
+
     repositories {
         gradlePluginPortal()
         google()
@@ -21,6 +23,7 @@ include(
     "onyxsdk-base:support:onyxsdk-baselite",
     "onyxsdk-base:support:onyxsdk-commons-io",
     "onyxsdk-device",
+    "onyxsdk-ktx",
     "onyxsdk-pen",
     "recovery-tests",
 )

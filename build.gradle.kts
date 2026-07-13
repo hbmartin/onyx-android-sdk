@@ -2,7 +2,7 @@ import org.gradle.api.tasks.Exec
 
 plugins {
     base
-    id("com.android.library") version "9.2.1" apply false
+    id("onyx.kdoc")
 }
 
 group = "com.onyx.android.sdk.recovered"
@@ -38,6 +38,7 @@ val productionAarTasks = listOf(
     ":onyxsdk-base:support:onyxsdk-baselite:assembleRelease",
     ":onyxsdk-base:support:onyxsdk-commons-io:assembleRelease",
     ":onyxsdk-device:assembleRelease",
+    ":onyxsdk-ktx:assembleRelease",
     ":onyxsdk-pen:assembleRelease",
 )
 
@@ -69,13 +70,17 @@ tasks.register<Exec>("updateJvmApiContracts") {
 tasks.named("check") {
     dependsOn(
         ":onyxsdk-base:testDebugUnitTest",
+        ":onyxsdk-base:support:onyxsdk-baselite:testDebugUnitTest",
         ":onyxsdk-device:testDebugUnitTest",
+        ":onyxsdk-ktx:testDebugUnitTest",
         ":onyxsdk-pen:testDebugUnitTest",
         ":recovery-tests:testDebugUnitTest",
         // Lint runs against the checked-in per-module baselines; only new
         // findings fail the gate.
         ":onyxsdk-base:lintRelease",
+        ":onyxsdk-base:support:onyxsdk-baselite:lintRelease",
         ":onyxsdk-device:lintRelease",
+        ":onyxsdk-ktx:lintRelease",
         ":onyxsdk-pen:lintRelease",
         "nativeFormatCheck",
         "nativeTest",
@@ -87,10 +92,11 @@ tasks.named("check") {
 
 tasks.register("assembleRecovered") {
     group = "build"
-    description = "Builds all three source-native release AARs."
+    description = "Builds the recovered SDK and Kotlin companion release AARs."
     dependsOn(
         ":onyxsdk-base:assembleRecovered",
         ":onyxsdk-device:assembleRecovered",
+        ":onyxsdk-ktx:assembleRecovered",
         ":onyxsdk-pen:assembleRecovered",
     )
 }

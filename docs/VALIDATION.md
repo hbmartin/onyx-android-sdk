@@ -6,7 +6,8 @@
 | No bytecode/JAR injection | Gradle-script scan rejects binary inputs and custom AAR assembly |
 | Complete pen class surface | 129 expected class entries checked in the release AAR |
 | Public JVM compatibility | `verify-pen-api.py` matches 118 public classes by `javap` descriptor |
-| Kotlin migration ABI guard | `verifyJvmApiContracts` pins visible descriptors, inheritance, flags, signatures, annotations, and Kotlin metadata for all five production AARs |
+| Kotlin migration ABI guard | `verifyJvmApiContracts` pins visible descriptors, inheritance, flags, signatures, annotations, and Kotlin metadata for all six production AARs |
+| Kotlin companion API | host tests cover immutable size fitting, fresh mutable values, RxJava-to-Flow conversion, and raw-input callback cleanup |
 | Base recoveries | production-class unit tests for formatting and disposal branches |
 | Base JVM compatibility | classified descriptor/flags/signature/metadata audit (`device-validation/classify_api_differences.py`) plus `RecoveredApiSurfaceRegressionTest` pinning the repaired surface without reference JARs |
 | Seven device recoveries | field-injection unit tests covering the success, failure, and null-method branches |

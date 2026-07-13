@@ -135,8 +135,8 @@ public final class PenBrushResult extends PenResult {
     }
 
     private final void a(Canvas canvas, final int i, int i2, PenBrushInk penBrushInk) {
-        this.k.setSize(Math.max(2, (int) (((PenBrushInkAccess.size(penBrushInk) & l) / 255.0f) * this.c.getConfig().width * this.e)));
-        this.k.setAngle(PenBrushInkAccess.angle(penBrushInk) & l);
+        this.k.setSize(Math.max(2, (int) ((penBrushInk.getSizeAsInt() / 255.0f) * this.c.getConfig().width * this.e)));
+        this.k.setAngle(penBrushInk.getAngle36AsInt());
         BitmapHolder maskBitmap = this.c.getMaskBitmap(this.k);
         Bitmap bitmap = maskBitmap.getBitmap();
         float x = penBrushInk.getX();
@@ -145,7 +145,7 @@ public final class PenBrushResult extends PenResult {
         float y = penBrushInk.getY();
         float f2 = this.e;
         float halfWidth2 = maskBitmap.getHalfWidth();
-        final int iCoerceIn = RangesKt.coerceIn((int) (((PenBrushInkAccess.alpha(penBrushInk) & l) / (float) l) * i2 * this.c.getConfig().getAlphaFactor()), 4, l);
+        final int iCoerceIn = RangesKt.coerceIn((int) ((penBrushInk.getAlphaAsInt() / (float) l) * i2 * this.c.getConfig().getAlphaFactor()), 4, l);
         a aVarComputeIfAbsent = o.computeIfAbsent(Integer.valueOf(iCoerceIn), ignored -> PenBrushResult.b(i, iCoerceIn, ignored));
         Intrinsics.checkNotNullExpressionValue(aVarComputeIfAbsent, "bitmapPaintMap.computeIf…peColor, pointAlphaInt) }");
         a aVar = aVarComputeIfAbsent;

@@ -1,5 +1,5 @@
 plugins {
-    id("com.android.library")
+    id("onyx.android-library")
 }
 
 group = "com.onyx.android.sdk.recovered"
@@ -7,19 +7,9 @@ version = "1.3.5-recovered-source"
 
 android {
     namespace = "com.onyx.android.sdk.device"
-    compileSdk = 35
 
     defaultConfig {
         minSdk = 19
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-
-    buildFeatures {
-        buildConfig = false
     }
 
     lint {
@@ -36,10 +26,10 @@ android {
 }
 
 dependencies {
-    api("com.alibaba.fastjson2:fastjson2:2.0.48.android8")
-    api("androidx.annotation:annotation:1.0.0")
+    api(libs.fastjson)
+    api(libs.androidx.annotation)
 
-    testImplementation("junit:junit:4.13.2")
+    testImplementation(libs.junit4)
 }
 
 tasks.register("assembleRecovered") {

@@ -1,12 +1,17 @@
 # Onyx SDK recovered source
 
 This repository is a source-only reconstruction of three Onyx/BOOX SDK
-packages. It contains no tracked original SDK JAR, AAR, or native library.
+packages plus an additive Kotlin companion. It contains no tracked original
+SDK JAR, AAR, or native library.
+
+The public Kotlin API reference is available on
+[GitHub Pages](https://hbmartin.github.io/onyx-android-sdk/).
 
 | Module | Recovered version | Production result |
 |---|---:|---|
 | `onyxsdk-base` | 1.8.5 | source-built Android library |
 | `onyxsdk-device` | 1.3.5 | source-built Android library |
+| `onyxsdk-ktx` | 1.0.0 | immutable size helpers and coroutine/Rx adapters |
 | `onyxsdk-pen` | 1.5.4 | complete 129-class pen surface plus two Rust JNI libraries |
 
 The pen module includes both generations of the Java API: the 57 classes from
@@ -62,8 +67,8 @@ Prerequisites are JDK 17+, Rust stable, Android SDK platform 35, and Android NDK
 ```
 
 That gate compiles all production Java/Kotlin, tests the recovery behaviors,
-runs Rust tests and Clippy, builds eight native binaries, assembles the three
-release AARs, and verifies all JNI exports and packaged native dependencies.
+runs Rust tests and Clippy, builds eight native binaries, assembles all six
+production AARs, and verifies all JNI exports and packaged native dependencies.
 It deliberately runs each module's unit tests in a single variant (the Java
 bytecode is variant-identical) and leaves instrumentation and differential
 checks to the hardware gates below.
@@ -158,8 +163,8 @@ python3 -m unittest discover device-validation/tests
 
 ### Gradle
 
-The build scripts directly declare the following external Gradle dependencies;
-Gradle resolves their transitive dependencies:
+The version catalog and module build scripts declare the following external
+Gradle dependencies; Gradle resolves their transitive dependencies:
 
 - Build plugin: `com.android.application` / `com.android.library` 9.2.1.
 - AndroidX: `annotation` 1.0.0 and 1.9.1, `appcompat` 1.7.1,
@@ -170,7 +175,7 @@ Gradle resolves their transitive dependencies:
   Java UUID Generator 4.1.0, and FST 2.56.
 - Utilities: Commons Codec 1.13, Commons IO 2.13.0, Commons Text 1.4,
   EventBus 3.0.0, Joda-Time 2.10.14, Kotlin standard library JDK 8 1.6.10,
-  Hugo annotations 1.2.1,
+  Kotlin coroutines 1.6.4, Hugo annotations 1.2.1,
   RxJava 2.1.13, and RxAndroid 2.1.0.
 - Tests: JUnit 4.13.2, JUnit BOM 5.11.4 with JUnit Jupiter and the JUnit
   Platform Launcher, Robolectric 4.14.1, and JSON-java 20240303.
