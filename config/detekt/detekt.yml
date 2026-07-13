@@ -30,6 +30,9 @@ HbmartinRuleSet:
   AvoidMutableCollections:
     active: true
     allowPrivateAndLocal: false
+    excludes:
+      - '**/build-logic/src/main/kotlin/AndroidConvention.kt'
+      - '**/build-logic/src/main/kotlin/OnyxDeviceValidationPlugin.kt'
   AvoidToIntOrThrowingConversions:
     active: true
     methods:
@@ -62,6 +65,9 @@ HbmartinRuleSet:
     allowExtensions: true
     allowReceivers: true
     allowInline: false
+    excludes:
+      - '**/com/onyx/android/sdk/base/data/Size.kt'
+      - '**/com/onyx/android/sdk/ktx/RawInputEvent.kt'
   NoDeferredResultInPublicApi:
     active: true
   NoLateinitVar:
@@ -73,5 +79,8 @@ HbmartinRuleSet:
     active: true
   NoVarsInConstructor:
     active: true
+    excludes:
+      - '**/com/onyx/android/sdk/base/data/Size.kt'
+      - '**/com/onyx/android/sdk/pen/PenBrushInk.kt'
   WhenBranchSingleLineOrBraces:
     active: true

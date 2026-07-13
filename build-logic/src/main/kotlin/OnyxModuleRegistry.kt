@@ -92,7 +92,7 @@ private class RegistryLoader(
     fun load(): OnyxRegistry {
         val payload = parsePayload()
         requireRegistry(payload["schemaVersion"] == 1, "schemaVersion must be 1")
-        val distribution = parseDistribution(payload.requiredMap("distribution", "registry"))
+        val distribution = parseDistribution(payload["distribution"].asMap("registry.distribution"))
         val modules = parseModules(payload, distribution)
         validateModules(distribution, modules)
         validateOwnership(modules)
@@ -109,8 +109,8 @@ private class RegistryLoader(
         }
 
     private fun parseDistribution(distributionMap: Map<*, *>): OnyxDistribution {
-        val developerMap = distributionMap.requiredMap("developer", "distribution")
-        val licensesMap = distributionMap.requiredMap("licenses", "distribution")
+        val developerMap = distributionMap["developer"].asMap("distribution.developer")
+        val licensesMap = distributionMap["licenses"].asMap("distribution.licenses")
         requireRegistry(licensesMap.isNotEmpty(), "distribution.licenses must not be empty")
         val licenses = licensesMap.entries.associate { (rawId, rawLicense) ->
             val id = rawId as? String
@@ -318,25 +318,22 @@ private class RegistryLoader(
         )
         requireRegistry(!jar || value.endsWith(".jar"), "$context must reference a .jar file")
     }
-
-    private fun requireUnique(label: String, values: List<String>) {
-        val duplicates = values.groupingBy { it }.eachCount().filterValues { it > 1 }.keys.sorted()
-        requireRegistry(duplicates.isEmpty(), "Duplicate module $label: ${duplicates.joinToString()}")
-    }
 }
 
 private fun requireRegistry(condition: Boolean, message: String) {
     if (!condition) throw GradleException("Invalid Onyx module registry: $message")
 }
 
+private fun requireUnique(label: String, values: List<String>) {
+    val duplicates = values.groupingBy { it }.eachCount().filterValues { it > 1 }.keys.sorted()
+    requireRegistry(duplicates.isEmpty(), "Duplicate module $label: ${duplicates.joinToString()}")
+}
+
 private fun Any?.asMap(context: String): Map<*, *> = this as? Map<*, *>
     ?: throw GradleException("Invalid Onyx module registry: $context must be an object")
 
-private fun Map<*, *>.requiredMap(key: String, context: String): Map<*, *> =
-    this[key].asMap("$context.$key")
-
 private fun Map<*, *>.optionalMap(key: String, context: String): Map<*, *> =
-    if (containsKey(key)) requiredMap(key, context) else emptyMap<Any, Any>()
+    if (containsKey(key)) this[key].asMap("$context.$key") else emptyMap<Any, Any>()
 
 private fun Map<*, *>.requiredString(key: String, context: String): String {
     val value = this[key] as? String
@@ -371,7 +368,6 @@ private fun Map<*, *>.stringList(key: String, context: String): List<String> {
         item as? String
             ?: throw GradleException("Invalid Onyx module registry: $context.$key must contain strings")
     }
-    val duplicates = values.groupingBy { it }.eachCount().filterValues { it > 1 }.keys.sorted()
-    requireRegistry(duplicates.isEmpty(), "Duplicate module $context.$key: ${duplicates.joinToString()}")
+    requireUnique("$context.$key", values)
     return values
 }

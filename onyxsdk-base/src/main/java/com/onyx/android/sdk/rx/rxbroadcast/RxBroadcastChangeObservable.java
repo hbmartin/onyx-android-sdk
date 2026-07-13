@@ -47,6 +47,7 @@ public class RxBroadcastChangeObservable extends Observable<Intent>
         try {
             final a listener;
             observer.onSubscribe((Disposable)(listener = this.createListener(observer)));
+            // This overload was added in API 26; API 33 added the receiver export flags, not the method.
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 ResManager.getAppContext().registerReceiver((BroadcastReceiver)listener, intentFilter, this.b);
             }
