@@ -2,8 +2,12 @@
 name = "onyx-pen-touch-reader"
 version = "1.5.4-recovered"
 edition = "2021"
-license = "LicenseRef-Recovered-From-Binary"
 description = "Behavioral Rust recovery of libonyx_pen_touch_reader.so"
+authors.workspace = true
+homepage.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
 
 [lib]
 name = "onyx_pen_touch_reader"

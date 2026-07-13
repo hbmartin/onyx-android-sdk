@@ -16,12 +16,13 @@ class OnyxKdocPlugin : Plugin<Project> {
         }
 
         if (project == rootProject) {
-            listOf(
-                ":onyxsdk-base:support:onyxsdk-baselite",
-                ":onyxsdk-ktx",
-                ":onyxsdk-pen",
-            ).forEach { modulePath ->
-                dependencies.add("dokka", project(modulePath))
+            val registry = OnyxModuleRegistry.load(layout.projectDirectory.asFile)
+            registry.publishedModules.filter { module ->
+                layout.projectDirectory.dir("${module.projectDir}/src/main").asFile
+                    .walkTopDown()
+                    .any { it.isFile && it.extension == "kt" }
+            }.forEach { module ->
+                dependencies.add("dokka", dependencies.project(module.projectPath))
             }
         }
     }

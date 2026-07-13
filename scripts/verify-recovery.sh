@@ -53,11 +53,24 @@ repaired_sources=(
 for source in "${repaired_sources[@]}"; do
   test -f "$source" || fail "expected repaired source missing: $source"
 done
-BASE_AAR="$ROOT/onyxsdk-base/build/outputs/aar/onyxsdk-base-release.aar"
-DEVICE_AAR="$ROOT/onyxsdk-device/build/outputs/aar/onyxsdk-device-release.aar"
-KTX_AAR="$ROOT/onyxsdk-ktx/build/outputs/aar/onyxsdk-ktx-release.aar"
-PEN_AAR="$ROOT/onyxsdk-pen/build/outputs/aar/onyxsdk-pen-release.aar"
-for aar in "$BASE_AAR" "$DEVICE_AAR" "$KTX_AAR" "$PEN_AAR"; do
+registry_aar() {
+  python3 "$ROOT/scripts/module_registry.py" --root "$ROOT" aar "$1"
+}
+BASE_AAR="$(registry_aar base)"
+BASELITE_AAR="$(registry_aar baselite)"
+COMMONS_IO_AAR="$(registry_aar commons-io)"
+DEVICE_AAR="$(registry_aar device)"
+KTX_AAR="$(registry_aar ktx)"
+PEN_AAR="$(registry_aar pen)"
+PRODUCTION_AARS=(
+  "$BASE_AAR"
+  "$BASELITE_AAR"
+  "$COMMONS_IO_AAR"
+  "$DEVICE_AAR"
+  "$KTX_AAR"
+  "$PEN_AAR"
+)
+for aar in "${PRODUCTION_AARS[@]}"; do
   test -s "$aar" || fail "missing source-native AAR: $aar"
   unzip -Z1 "$aar" | rg '^AndroidManifest.xml$' >/dev/null || fail "$aar has no manifest"
   unzip -Z1 "$aar" | rg '^classes.jar$' >/dev/null || fail "$aar has no source-compiled classes.jar"
@@ -88,7 +101,7 @@ missing_pen_classes="$(LC_ALL=C comm -23 "$ROOT/scripts/native-contracts/pen-cla
 test -z "$missing_pen_classes" || fail "pen AAR is missing reference classes: $missing_pen_classes"
 echo "all AAR classes were compiled from recovered source"
 
-for aar in "$BASE_AAR" "$DEVICE_AAR" "$KTX_AAR" "$PEN_AAR"; do
+for aar in "${PRODUCTION_AARS[@]}"; do
   listing="$(unzip -Z1 "$aar")" || fail "could not list contents of $aar"
   if printf '%s\n' "$listing" \
       | rg '^libs/.+\.jar$|onyxsdk-pen-native-classes\.jar|classes-original\.jar' >/dev/null; then
@@ -106,6 +119,9 @@ fi
 
 NDK_VERSION="${ANDROID_NDK_VERSION:-28.2.13676358}"
 SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+if [[ -z "$SDK_ROOT" && -f "$ROOT/local.properties" ]]; then
+  SDK_ROOT="$(sed -n 's/^sdk\.dir=//p' "$ROOT/local.properties" | tail -n 1)"
+fi
 test -n "$SDK_ROOT" || fail "set ANDROID_HOME or ANDROID_SDK_ROOT to the Android SDK directory"
 NDK_ROOT="${ANDROID_NDK_HOME:-${ANDROID_NDK_ROOT:-$SDK_ROOT/ndk/$NDK_VERSION}}"
 case "$(uname -s)" in

@@ -79,9 +79,7 @@ fi
 mkdir -p "$OUTPUT/device"
 
 echo "Building recovered SDK and validation APKs"
-(cd "$RECOVERY_ROOT" && ./gradlew assembleRecovered \
-  :onyxsdk-base:support:onyxsdk-baselite:assembleRelease \
-  :onyxsdk-base:support:onyxsdk-commons-io:assembleRelease)
+(cd "$RECOVERY_ROOT" && ./gradlew assembleRecovered)
 (cd "$ROOT" && "$RECOVERY_ROOT/gradlew" -p . -POnyxArtifactsRoot="$ARTIFACTS_ROOT" \
   :app:assembleReferenceDebug :app:assembleRecoveredDebug)
 

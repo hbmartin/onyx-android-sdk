@@ -1,0 +1,267 @@
+{
+  "schemaVersion": 1,
+  "distribution": {
+    "group": "io.github.hbmartin.onyx",
+    "projectUrl": "https://github.com/hbmartin/onyx-android-sdk",
+    "scmConnection": "scm:git:https://github.com/hbmartin/onyx-android-sdk.git",
+    "scmDeveloperConnection": "scm:git:ssh://git@github.com/hbmartin/onyx-android-sdk.git",
+    "developer": {
+      "id": "hbmartin",
+      "name": "Harold Martin",
+      "url": "https://github.com/hbmartin"
+    },
+    "defaultLicense": "LGPL-3.0-only",
+    "licenses": {
+      "LGPL-3.0-only": {
+        "name": "GNU Lesser General Public License v3.0 only",
+        "url": "https://www.gnu.org/licenses/lgpl-3.0.txt",
+        "distribution": "repo"
+      },
+      "Apache-2.0": {
+        "name": "The Apache License, Version 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+        "distribution": "repo"
+      }
+    }
+  },
+  "modules": [
+    {
+      "id": "base",
+      "projectPath": ":onyxsdk-base",
+      "projectDir": "onyxsdk-base",
+      "artifactId": "onyxsdk-base",
+      "version": "1.8.5-recovered-source",
+      "name": "Onyx SDK Base (Recovered Source)",
+      "description": "Source-recovered application-facing Onyx Android SDK base compatibility artifact.",
+      "published": true,
+      "deviceValidation": {
+        "referenceCompileJars": ["onyxsdk-base-1.8.5/classes.jar"],
+        "apiReferenceJars": ["onyxsdk-base-1.8.5/classes.jar"]
+      },
+      "projectDependencies": [
+        {"configuration": "api", "target": "device"},
+        {"configuration": "api", "target": "baselite"},
+        {"configuration": "api", "target": "commons-io"}
+      ],
+      "ownedPackages": [
+        "android.content.pm",
+        "com.onyx.android.sdk",
+        "com.onyx.android.sdk.api",
+        "com.onyx.android.sdk.base.extension",
+        "com.onyx.android.sdk.calendar",
+        "com.onyx.android.sdk.common",
+        "com.onyx.android.sdk.common.base",
+        "com.onyx.android.sdk.common.collections",
+        "com.onyx.android.sdk.common.constants",
+        "com.onyx.android.sdk.common.event",
+        "com.onyx.android.sdk.common.net",
+        "com.onyx.android.sdk.common.observer",
+        "com.onyx.android.sdk.common.provider",
+        "com.onyx.android.sdk.common.request",
+        "com.onyx.android.sdk.common.service",
+        "com.onyx.android.sdk.data",
+        "com.onyx.android.sdk.data.auth",
+        "com.onyx.android.sdk.data.bitmap",
+        "com.onyx.android.sdk.data.calendar",
+        "com.onyx.android.sdk.data.dict",
+        "com.onyx.android.sdk.data.dpm",
+        "com.onyx.android.sdk.data.exception",
+        "com.onyx.android.sdk.data.file",
+        "com.onyx.android.sdk.data.folder",
+        "com.onyx.android.sdk.data.group",
+        "com.onyx.android.sdk.data.im",
+        "com.onyx.android.sdk.data.note",
+        "com.onyx.android.sdk.data.note.ai",
+        "com.onyx.android.sdk.data.note.background",
+        "com.onyx.android.sdk.data.note.export",
+        "com.onyx.android.sdk.data.note.line",
+        "com.onyx.android.sdk.data.note.menu",
+        "com.onyx.android.sdk.data.note.tag",
+        "com.onyx.android.sdk.data.pdf",
+        "com.onyx.android.sdk.data.point",
+        "com.onyx.android.sdk.data.point.v1",
+        "com.onyx.android.sdk.data.reader",
+        "com.onyx.android.sdk.data.render",
+        "com.onyx.android.sdk.data.richtext",
+        "com.onyx.android.sdk.data.richtext.model",
+        "com.onyx.android.sdk.data.richtext.v1",
+        "com.onyx.android.sdk.data.richtext.v2",
+        "com.onyx.android.sdk.data.span",
+        "com.onyx.android.sdk.data.sync",
+        "com.onyx.android.sdk.deserializer",
+        "com.onyx.android.sdk.extension",
+        "com.onyx.android.sdk.firmware.action",
+        "com.onyx.android.sdk.firmware.api",
+        "com.onyx.android.sdk.firmware.data",
+        "com.onyx.android.sdk.firmware.request",
+        "com.onyx.android.sdk.global.inversion",
+        "com.onyx.android.sdk.interfaces",
+        "com.onyx.android.sdk.market",
+        "com.onyx.android.sdk.media",
+        "com.onyx.android.sdk.note",
+        "com.onyx.android.sdk.path",
+        "com.onyx.android.sdk.reader",
+        "com.onyx.android.sdk.rx",
+        "com.onyx.android.sdk.rx.rxbroadcast",
+        "com.onyx.android.sdk.rx.rxcontentobserver",
+        "com.onyx.android.sdk.utils",
+        "com.onyx.android.sdk.utils.broadcast",
+        "com.onyx.android.sdk.utils.font",
+        "com.onyx.android.sdk.wifi",
+        "com.onyx.android.sdk.wifi.common"
+      ],
+      "legacyOwnedTypes": []
+    },
+    {
+      "id": "baselite",
+      "projectPath": ":onyxsdk-base:support:onyxsdk-baselite",
+      "projectDir": "onyxsdk-base/support/onyxsdk-baselite",
+      "artifactId": "onyxsdk-baselite",
+      "version": "1.1.1-recovered-source",
+      "name": "Onyx SDK Baselite (Recovered Source)",
+      "description": "Source-recovered Onyx Baselite geometry, data, and utility compatibility artifact.",
+      "published": true,
+      "deviceValidation": {"commonRecovered": true},
+      "projectDependencies": [],
+      "ownedPackages": [
+        "com.onyx.android.sdk.base.data",
+        "com.onyx.android.sdk.base.lite.extension",
+        "com.onyx.android.sdk.base.lite.utils",
+        "com.onyx.android.sdk.base.utils",
+        "com.onyx.android.sdk.baselite"
+      ],
+      "legacyOwnedTypes": []
+    },
+    {
+      "id": "commons-io",
+      "projectPath": ":onyxsdk-base:support:onyxsdk-commons-io",
+      "projectDir": "onyxsdk-base/support/onyxsdk-commons-io",
+      "artifactId": "onyxsdk-commons-io",
+      "version": "2.5-recovered-source",
+      "name": "Onyx SDK Commons IO 2.5 (Relocated Source)",
+      "description": "Apache Commons IO 2.5 source relocated to the namespace used by the original Onyx SDK artifact.",
+      "published": true,
+      "license": "Apache-2.0",
+      "deviceValidation": {"commonRecovered": true},
+      "projectDependencies": [],
+      "ownedPackages": [
+        "com.onyx.android.sdk.commons.io",
+        "com.onyx.android.sdk.commons.io.comparator",
+        "com.onyx.android.sdk.commons.io.filefilter",
+        "com.onyx.android.sdk.commons.io.input",
+        "com.onyx.android.sdk.commons.io.monitor",
+        "com.onyx.android.sdk.commons.io.output",
+        "com.onyx.android.sdk.commons.io.serialization"
+      ],
+      "legacyOwnedTypes": []
+    },
+    {
+      "id": "device",
+      "projectPath": ":onyxsdk-device",
+      "projectDir": "onyxsdk-device",
+      "artifactId": "onyxsdk-device",
+      "version": "1.3.5-recovered-source",
+      "name": "Onyx SDK Device (Recovered Source)",
+      "description": "Source-recovered low-level BOOX device, firmware, E-ink, and system integration compatibility artifact.",
+      "published": true,
+      "deviceValidation": {
+        "referenceCompileJars": ["onyxsdk-device-1.3.5/classes.jar"],
+        "apiReferenceJars": ["onyxsdk-device-1.3.5/classes.jar"]
+      },
+      "projectDependencies": [],
+      "ownedPackages": [
+        "com.onyx.android.sdk.api.data.model",
+        "com.onyx.android.sdk.api.device",
+        "com.onyx.android.sdk.api.device.brightness",
+        "com.onyx.android.sdk.api.device.eac",
+        "com.onyx.android.sdk.api.device.epd",
+        "com.onyx.android.sdk.api.device.screensaver",
+        "com.onyx.android.sdk.api.device.tp",
+        "com.onyx.android.sdk.api.utils",
+        "com.onyx.android.sdk.device",
+        "com.onyx.android.sdk.device.eac",
+        "com.onyx.android.sdk.device.eac.v1",
+        "com.onyx.android.sdk.device.eac.v2",
+        "com.onyx.android.sdk.device.eac.v3"
+      ],
+      "legacyOwnedTypes": [
+        "com.onyx.android.sdk.utils.ClassUtils",
+        "com.onyx.android.sdk.utils.Debug",
+        "com.onyx.android.sdk.utils.DeviceBroadcastHelper",
+        "com.onyx.android.sdk.utils.LightUtils",
+        "com.onyx.android.sdk.utils.MagnifierUtils",
+        "com.onyx.android.sdk.utils.ReflectUtil",
+        "com.onyx.android.sdk.utils.Singleton",
+        "com.onyx.android.sdk.utils.SystemPropertiesUtil"
+      ]
+    },
+    {
+      "id": "ktx",
+      "projectPath": ":onyxsdk-ktx",
+      "projectDir": "onyxsdk-ktx",
+      "artifactId": "onyxsdk-ktx",
+      "version": "1.0.0",
+      "name": "Onyx SDK Kotlin Extensions",
+      "description": "Additive Kotlin-first immutable helpers and coroutine adapters for the recovered Onyx Android SDK.",
+      "published": true,
+      "deviceValidation": {},
+      "projectDependencies": [
+        {"configuration": "api", "target": "base"},
+        {"configuration": "api", "target": "pen"}
+      ],
+      "ownedPackages": ["com.onyx.android.sdk.ktx"],
+      "legacyOwnedTypes": []
+    },
+    {
+      "id": "pen",
+      "projectPath": ":onyxsdk-pen",
+      "projectDir": "onyxsdk-pen",
+      "artifactId": "onyxsdk-pen",
+      "version": "1.5.4-recovered-source",
+      "name": "Onyx SDK Pen (Recovered Source)",
+      "description": "Source-recovered Onyx pen APIs with source-built Rust JNI implementations.",
+      "published": true,
+      "deviceValidation": {
+        "referenceCompileJars": ["onyxsdk-pen-1.5.4/classes.jar"],
+        "apiReferenceJars": [
+          "onyxsdk-pen-1.5.4/classes.jar",
+          "onyxsdk-pen-native-classes.jar"
+        ],
+        "referenceJniDir": "onyxsdk-pen-1.5.4/jni"
+      },
+      "projectDependencies": [
+        {"configuration": "api", "target": "base"}
+      ],
+      "ownedPackages": [
+        "com.onyx.android.sdk.geometry.data",
+        "com.onyx.android.sdk.pen",
+        "com.onyx.android.sdk.pen.data",
+        "com.onyx.android.sdk.pen.event",
+        "com.onyx.android.sdk.pen.extension",
+        "com.onyx.android.sdk.pen.multiview",
+        "com.onyx.android.sdk.pen.style",
+        "com.onyx.android.sdk.pen.touch",
+        "com.onyx.android.sdk.pen.utils"
+      ],
+      "legacyOwnedTypes": []
+    },
+    {
+      "id": "recovery-tests",
+      "projectPath": ":recovery-tests",
+      "projectDir": "recovery-tests",
+      "artifactId": "recovery-tests",
+      "version": "1.0.0",
+      "name": "Onyx SDK Recovery Tests",
+      "description": "Non-published integration and compatibility tests for the recovered artifacts.",
+      "published": false,
+      "deviceValidation": {},
+      "projectDependencies": [
+        {"configuration": "implementation", "target": "base"},
+        {"configuration": "implementation", "target": "device"},
+        {"configuration": "implementation", "target": "pen"}
+      ],
+      "ownedPackages": [],
+      "legacyOwnedTypes": []
+    }
+  ]
+}
