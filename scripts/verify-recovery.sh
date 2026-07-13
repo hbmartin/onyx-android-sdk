@@ -57,19 +57,13 @@ registry_aar() {
   python3 "$ROOT/scripts/module_registry.py" --root "$ROOT" aar "$1"
 }
 BASE_AAR="$(registry_aar base)"
-BASELITE_AAR="$(registry_aar baselite)"
-COMMONS_IO_AAR="$(registry_aar commons-io)"
 DEVICE_AAR="$(registry_aar device)"
 KTX_AAR="$(registry_aar ktx)"
 PEN_AAR="$(registry_aar pen)"
-PRODUCTION_AARS=(
-  "$BASE_AAR"
-  "$BASELITE_AAR"
-  "$COMMONS_IO_AAR"
-  "$DEVICE_AAR"
-  "$KTX_AAR"
-  "$PEN_AAR"
-)
+PRODUCTION_AARS=()
+while IFS= read -r aar; do
+  PRODUCTION_AARS+=("$aar")
+done < <(python3 "$ROOT/scripts/module_registry.py" --root "$ROOT" published-aars)
 for aar in "${PRODUCTION_AARS[@]}"; do
   test -s "$aar" || fail "missing source-native AAR: $aar"
   unzip -Z1 "$aar" | rg '^AndroidManifest.xml$' >/dev/null || fail "$aar has no manifest"

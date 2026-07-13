@@ -3,6 +3,7 @@ import io
 import sys
 import tempfile
 import unittest
+import zipfile
 from dataclasses import replace
 from pathlib import Path
 
@@ -17,6 +18,9 @@ from publish_central import (
     artifact_name,
     classify_coordinates,
     coordinate_directory,
+    create_filtered_bundle,
+    primary_artifact_names,
+    remote_artifact_sha256,
     sha256,
     verify_bundle_repository,
     wait_for_publication,
@@ -40,25 +44,59 @@ class PublishCentralTest(unittest.TestCase):
         module = self.registry.published_modules[0]
         directory = coordinate_directory(self.registry, module, Path(root))
         directory.mkdir(parents=True)
-        artifact = directory / artifact_name(module)
-        artifact.write_bytes(b"local-aar")
-        return module, artifact
+        artifacts = {}
+        for name in primary_artifact_names(module):
+            artifact = directory / name
+            artifact.write_bytes(f"local-{name}".encode())
+            artifacts[name] = artifact
+        return module, artifacts
 
     def test_classifies_new_identical_and_conflicting_coordinates(self):
         with tempfile.TemporaryDirectory() as temporary:
-            module, artifact = self.local_repository(temporary)
+            module, artifacts = self.local_repository(temporary)
             new, identical = classify_coordinates(
                 self.registry, Path(temporary), lambda *_: None)
             self.assertEqual([module], new)
             self.assertEqual([], identical)
 
+            remote_digests = {
+                name: sha256(artifact) for name, artifact in artifacts.items()
+            }
             new, identical = classify_coordinates(
-                self.registry, Path(temporary), lambda *_: sha256(artifact))
+                self.registry,
+                Path(temporary),
+                lambda _registry, _module, name: remote_digests[name],
+            )
             self.assertEqual([], new)
             self.assertEqual([module], identical)
 
             with self.assertRaisesRegex(CentralPublishError, "bump the affected module versions"):
-                classify_coordinates(self.registry, Path(temporary), lambda *_: "0" * 64)
+                classify_coordinates(
+                    self.registry,
+                    Path(temporary),
+                    lambda _registry, _module, name: (
+                        "0" * 64 if name.endswith(".pom") else remote_digests[name]
+                    ),
+                )
+
+            with self.assertRaisesRegex(CentralPublishError, "missing remote artifact"):
+                classify_coordinates(
+                    self.registry,
+                    Path(temporary),
+                    lambda _registry, _module, name: (
+                        remote_digests[name] if name == artifact_name(module) else None
+                    ),
+                )
+
+    def test_empty_remote_checksum_is_reported_cleanly(self):
+        module = self.registry.published_modules[0]
+
+        def opener(_url, timeout):
+            self.assertEqual(30, timeout)
+            return Response(b"  \n")
+
+        with self.assertRaisesRegex(CentralPublishError, "Empty Central SHA-256"):
+            remote_artifact_sha256(self.registry, module, opener=opener)
 
     def test_portal_upload_uses_automatic_publication(self):
         captured = []
@@ -105,6 +143,18 @@ class PublishCentralTest(unittest.TestCase):
                     )
 
             verify_bundle_repository(self.registry, repository)
+            stale_classifier = directory / f"{stem}-all.jar"
+            stale_classifier.write_bytes(b"stale")
+            with self.assertRaisesRegex(CentralPublishError, "undeclared for their coordinate"):
+                verify_bundle_repository(self.registry, repository)
+            filtered_bundle = Path(temporary) / "filtered.zip"
+            create_filtered_bundle(self.registry, repository, [module], filtered_bundle)
+            with zipfile.ZipFile(filtered_bundle) as archive:
+                self.assertNotIn(
+                    stale_classifier.relative_to(repository).as_posix(),
+                    archive.namelist(),
+                )
+            stale_classifier.unlink()
             metadata = directory.parent / "maven-metadata.xml"
             metadata.write_text("metadata")
             with self.assertRaisesRegex(CentralPublishError, "outside registry coordinate"):

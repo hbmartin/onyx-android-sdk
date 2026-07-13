@@ -25,6 +25,7 @@ from module_registry import DEFAULT_ROOT, Module, Registry, load_registry
 CENTRAL_REPOSITORY = "https://repo1.maven.org/maven2"
 PORTAL_API = "https://central.sonatype.com/api/v1/publisher"
 SIGNATURE_CHECKSUM_SUFFIXES = (".asc.md5", ".asc.sha1", ".asc.sha256", ".asc.sha512")
+CHECKSUM_SUFFIXES = (".md5", ".sha1", ".sha256", ".sha512")
 
 
 class CentralPublishError(RuntimeError):
@@ -52,23 +53,49 @@ def artifact_name(module: Module) -> str:
     return f"{module.artifact_id}-{module.version}.aar"
 
 
+def primary_artifact_names(module: Module) -> tuple[str, ...]:
+    stem = f"{module.artifact_id}-{module.version}"
+    return (
+        f"{stem}.aar",
+        f"{stem}-sources.jar",
+        f"{stem}-javadoc.jar",
+        f"{stem}.pom",
+        f"{stem}.module",
+    )
+
+
+def permitted_coordinate_file_names(module: Module) -> set[str]:
+    names = set(primary_artifact_names(module))
+    for primary in primary_artifact_names(module):
+        names.add(f"{primary}.asc")
+        names.update(f"{primary}{suffix}" for suffix in CHECKSUM_SUFFIXES)
+    return names
+
+
 def remote_artifact_sha256(
     registry: Registry,
     module: Module,
+    artifact: str | None = None,
     *,
     repository_url: str = CENTRAL_REPOSITORY,
     opener: Callable = urllib.request.urlopen,
 ) -> str | None:
+    remote_name = artifact or artifact_name(module)
     relative = "/".join((
         registry.distribution["group"].replace(".", "/"),
         urllib.parse.quote(module.artifact_id),
         urllib.parse.quote(module.version),
-        urllib.parse.quote(artifact_name(module)),
+        urllib.parse.quote(remote_name),
     ))
     artifact_url = f"{repository_url.rstrip('/')}/{relative}"
     try:
         with opener(f"{artifact_url}.sha256", timeout=30) as response:
-            checksum = response.read().decode("ascii").strip().split()[0].lower()
+            parts = response.read().decode("ascii").strip().split()
+        if not parts:
+            raise CentralPublishError(
+                f"Empty Central SHA-256 response for {module.id} artifact {remote_name}"
+            )
+        checksum = parts[0].lower()
         if len(checksum) != 64 or any(character not in "0123456789abcdef" for character in checksum):
             raise CentralPublishError(f"Invalid Central SHA-256 response for {module.id}: {checksum!r}")
         return checksum
@@ -91,26 +118,45 @@ def remote_artifact_sha256(
 def classify_coordinates(
     registry: Registry,
     repository: Path,
-    checksum_lookup: Callable[[Registry, Module], str | None] = remote_artifact_sha256,
+    checksum_lookup: Callable[[Registry, Module, str], str | None] = remote_artifact_sha256,
 ) -> tuple[list[Module], list[Module]]:
     new_modules: list[Module] = []
     identical_modules: list[Module] = []
     conflicts: list[str] = []
     for module in registry.published_modules:
-        local = coordinate_directory(registry, module, repository) / artifact_name(module)
-        if not local.is_file():
-            raise CentralPublishError(f"Signed bundle is missing {local.relative_to(repository)}")
-        local_digest = sha256(local)
-        remote_digest = checksum_lookup(registry, module)
-        if remote_digest is None:
+        directory = coordinate_directory(registry, module, repository)
+        local_digests: dict[str, str] = {}
+        remote_digests: dict[str, str | None] = {}
+        for name in primary_artifact_names(module):
+            local = directory / name
+            if not local.is_file():
+                raise CentralPublishError(
+                    f"Signed bundle is missing {local.relative_to(repository)}"
+                )
+            local_digests[name] = sha256(local)
+            remote_digests[name] = checksum_lookup(registry, module, name)
+
+        if all(digest is None for digest in remote_digests.values()):
             new_modules.append(module)
-        elif remote_digest == local_digest:
+        elif all(
+            remote_digests[name] == local_digests[name]
+            for name in primary_artifact_names(module)
+        ):
             identical_modules.append(module)
         else:
-            conflicts.append(
-                f"{registry.distribution['group']}:{module.artifact_id}:{module.version} "
-                f"already exists with SHA-256 {remote_digest}, local is {local_digest}",
+            coordinate = (
+                f"{registry.distribution['group']}:{module.artifact_id}:{module.version}"
             )
+            for name in primary_artifact_names(module):
+                remote_digest = remote_digests[name]
+                local_digest = local_digests[name]
+                if remote_digest is None:
+                    conflicts.append(f"{coordinate} is missing remote artifact {name}")
+                elif remote_digest != local_digest:
+                    conflicts.append(
+                        f"{coordinate} artifact {name} already exists with SHA-256 "
+                        f"{remote_digest}, local is {local_digest}"
+                    )
     if conflicts:
         raise CentralPublishError(
             "Published Maven coordinates are immutable; bump the affected module versions:\n"
@@ -121,14 +167,7 @@ def classify_coordinates(
 
 def verify_coordinate_files(registry: Registry, module: Module, repository: Path) -> None:
     directory = coordinate_directory(registry, module, repository)
-    stem = f"{module.artifact_id}-{module.version}"
-    primary_files = [
-        directory / f"{stem}.aar",
-        directory / f"{stem}-sources.jar",
-        directory / f"{stem}-javadoc.jar",
-        directory / f"{stem}.pom",
-        directory / f"{stem}.module",
-    ]
+    primary_files = [directory / name for name in primary_artifact_names(module)]
     failures = []
     for primary in primary_files:
         if not primary.is_file() or not primary.stat().st_size:
@@ -163,7 +202,7 @@ def verify_coordinate_files(registry: Registry, module: Module, repository: Path
 
 def verify_bundle_repository(registry: Registry, repository: Path) -> None:
     coordinate_directories = {
-        coordinate_directory(registry, module, repository).resolve()
+        coordinate_directory(registry, module, repository).resolve(): module
         for module in registry.published_modules
     }
     unexpected = []
@@ -171,14 +210,19 @@ def verify_bundle_repository(registry: Registry, repository: Path) -> None:
         if not path.is_file():
             continue
         resolved = path.resolve()
-        if not any(directory in resolved.parents for directory in coordinate_directories):
+        module = coordinate_directories.get(resolved.parent)
+        if module is None:
             unexpected.append(str(path.relative_to(repository)))
-        elif path.name.endswith(SIGNATURE_CHECKSUM_SUFFIXES):
+        elif (
+            path.name not in permitted_coordinate_file_names(module)
+            or path.name.endswith(SIGNATURE_CHECKSUM_SUFFIXES)
+        ):
             unexpected.append(str(path.relative_to(repository)))
     if unexpected:
         raise CentralPublishError(
-            "Central bundle contains files outside registry coordinate versions "
-            "or unnecessary signature checksums:\n" + "\n".join(sorted(unexpected)),
+            "Central bundle contains files outside registry coordinate versions, "
+            "undeclared for their coordinate, or unnecessary signature checksums:\n"
+            + "\n".join(sorted(unexpected)),
         )
     for module in registry.published_modules:
         verify_coordinate_files(registry, module, repository)
@@ -204,10 +248,8 @@ def create_filtered_bundle(
         for module in modules:
             verify_coordinate_files(registry, module, repository)
             directory = coordinate_directory(registry, module, repository)
-            for path in sorted(
-                item for item in directory.rglob("*")
-                if item.is_file() and not item.name.endswith(SIGNATURE_CHECKSUM_SUFFIXES)
-            ):
+            allowed = permitted_coordinate_file_names(module)
+            for path in sorted(directory / name for name in allowed if (directory / name).is_file()):
                 info = zipfile.ZipInfo(path.relative_to(repository).as_posix())
                 info.date_time = (1980, 1, 1, 0, 0, 0)
                 info.compress_type = zipfile.ZIP_DEFLATED

@@ -15,6 +15,9 @@ public class StringUtils {
         return Objects.equals(firstStr, secondStr);
     }
 
+    /**
+     * Joins elements while intentionally eliding leading elements whose string value is empty.
+     */
     public static String join(Iterable<?> elements, String delimiter) {
         StringBuilder builder = new StringBuilder();
         for (Object element : elements) {

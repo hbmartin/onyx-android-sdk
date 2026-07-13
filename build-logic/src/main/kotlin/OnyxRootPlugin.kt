@@ -112,13 +112,11 @@ class OnyxRootPlugin : Plugin<Project> {
         }
         gradle.projectsEvaluated {
             verifyDependencies.configure {
-                val productionConfigurations =
-                    setOf("api", "implementation", "compileOnly", "runtimeOnly")
                 val actualDependencies = buildList {
                     registry.modules.forEach { module ->
                         val moduleProject = project(module.projectPath)
                         moduleProject.configurations
-                            .filter { it.name in productionConfigurations }
+                            .filter { it.name in OnyxModuleRegistry.productionConfigurations }
                             .forEach { configuration ->
                                 configuration.dependencies
                                     .withType(ProjectDependency::class.java)

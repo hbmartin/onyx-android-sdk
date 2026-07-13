@@ -1,5 +1,6 @@
 """Regression coverage for the descriptor-level JVM API classifier."""
 
+import io
 import json
 import sys
 import tempfile
@@ -162,6 +163,31 @@ class ExtraPublicSurfaceReportTest(unittest.TestCase):
         return_code, payload = self.run_main(fail_on="extra_public_surface")
         self.assertEqual(return_code, 1)
         self.assertEqual(payload["unacceptedCounts"], {"extra_public_surface": 1})
+
+
+class RegistryErrorTest(unittest.TestCase):
+    def test_module_registry_error_returns_clean_cli_failure(self):
+        argv = [
+            "classify_api_differences.py",
+            "--module", "missing",
+            "--artifacts-root", "/tmp/artifacts",
+            "--recovery-root", "/tmp/recovery",
+        ]
+        stderr = io.StringIO()
+        with mock.patch.object(sys, "argv", argv):
+            with mock.patch.object(
+                classifier,
+                "module_inputs",
+                side_effect=classifier.RegistryError("Unknown module id: missing"),
+            ):
+                with mock.patch("sys.stderr", stderr):
+                    return_code = classifier.main()
+
+        self.assertEqual(1, return_code)
+        self.assertEqual(
+            "API classification failed: Unknown module id: missing\n",
+            stderr.getvalue(),
+        )
 
 
 if __name__ == "__main__":

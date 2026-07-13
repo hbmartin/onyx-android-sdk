@@ -112,13 +112,56 @@ class ModuleBoundaryTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             data = registry(temporary)
             for owner in data.published_modules:
-                classes = [f"example.{owner.id.replace('-', '')}.Only"]
+                classes = [f"{owner.owned_packages[0]}.Only"]
                 if owner.id in ("base", "device"):
                     classes.append("example.shared.Duplicate")
                 write_aar(temporary, owner, classes)
 
             with self.assertRaisesRegex(BoundaryError, "Duplicate class example.shared.Duplicate"):
                 verify_aars(data)
+
+    def test_rejects_class_packaged_in_wrong_aar(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            data = registry(temporary)
+            for owner in data.published_modules:
+                classes = [f"{owner.owned_packages[0]}.Only"]
+                if owner.id == "device":
+                    classes.append("example.base.Mispackaged")
+                write_aar(temporary, owner, classes)
+
+            with self.assertRaisesRegex(
+                BoundaryError,
+                "Class example.base.Mispackaged belongs to base, not device",
+            ):
+                verify_aars(data)
+
+    def test_rejects_class_without_registry_owner(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            data = registry(temporary)
+            for owner in data.published_modules:
+                classes = [f"{owner.owned_packages[0]}.Only"]
+                if owner.id == "device":
+                    classes.append("unowned.package.Unknown")
+                write_aar(temporary, owner, classes)
+
+            with self.assertRaisesRegex(
+                BoundaryError,
+                "Class unowned.package.Unknown has no registry owner",
+            ):
+                verify_aars(data)
+
+    def test_nested_legacy_class_uses_top_level_owner(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            data = registry(temporary)
+            legacy = LEGACY_UTILS[0]
+            for owner in data.published_modules:
+                classes = [f"{owner.owned_packages[0]}.Only"]
+                if owner.id == "device":
+                    classes.append(f"com.onyx.android.sdk.utils.{legacy}$Nested")
+                write_aar(temporary, owner, classes)
+
+            counts = verify_aars(data)
+            self.assertEqual(2, counts["device"])
 
 
 if __name__ == "__main__":
