@@ -141,10 +141,12 @@ object OnyxModuleRegistry {
             if (validatePaths) {
                 val rawProjectDir = File(module.projectDir)
                 val resolvedProjectDir = canonicalRoot.resolve(rawProjectDir).canonicalFile
+                val isInsideRepository = generateSequence(resolvedProjectDir) { it.parentFile }
+                    .contains(canonicalRoot)
                 requireRegistry(
                     !rawProjectDir.isAbsolute &&
-                        rawProjectDir.toPath().none { it.toString() == ".." } &&
-                        resolvedProjectDir.toPath().startsWith(canonicalRoot.toPath()),
+                        module.projectDir.split('/', '\\').none { it == ".." } &&
+                        isInsideRepository,
                     "${module.id} project directory must remain within the repository: ${module.projectDir}",
                 )
                 requireRegistry(

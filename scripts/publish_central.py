@@ -24,7 +24,6 @@ from module_registry import DEFAULT_ROOT, Module, Registry, load_registry
 
 CENTRAL_REPOSITORY = "https://repo1.maven.org/maven2"
 PORTAL_API = "https://central.sonatype.com/api/v1/publisher"
-SIGNATURE_CHECKSUM_SUFFIXES = (".asc.md5", ".asc.sha1", ".asc.sha256", ".asc.sha512")
 CHECKSUM_SUFFIXES = (".md5", ".sha1", ".sha256", ".sha512")
 
 
@@ -213,10 +212,7 @@ def verify_bundle_repository(registry: Registry, repository: Path) -> None:
         module = coordinate_directories.get(resolved.parent)
         if module is None:
             unexpected.append(str(path.relative_to(repository)))
-        elif (
-            path.name not in permitted_coordinate_file_names(module)
-            or path.name.endswith(SIGNATURE_CHECKSUM_SUFFIXES)
-        ):
+        elif path.name not in permitted_coordinate_file_names(module):
             unexpected.append(str(path.relative_to(repository)))
     if unexpected:
         raise CentralPublishError(

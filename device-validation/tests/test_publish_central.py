@@ -143,6 +143,11 @@ class PublishCentralTest(unittest.TestCase):
                     )
 
             verify_bundle_repository(self.registry, repository)
+            signature_checksum = directory / f"{stem}.aar.asc.md5"
+            signature_checksum.write_text("unexpected", encoding="ascii")
+            with self.assertRaisesRegex(CentralPublishError, "undeclared for their coordinate"):
+                verify_bundle_repository(self.registry, repository)
+            signature_checksum.unlink()
             stale_classifier = directory / f"{stem}-all.jar"
             stale_classifier.write_bytes(b"stale")
             with self.assertRaisesRegex(CentralPublishError, "undeclared for their coordinate"):
