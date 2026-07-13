@@ -60,10 +60,16 @@ BASE_AAR="$(registry_aar base)"
 DEVICE_AAR="$(registry_aar device)"
 KTX_AAR="$(registry_aar ktx)"
 PEN_AAR="$(registry_aar pen)"
+published_aars="$(
+  python3 "$ROOT/scripts/module_registry.py" --root "$ROOT" published-aars
+)" || fail "could not resolve published AARs from the module registry"
 PRODUCTION_AARS=()
 while IFS= read -r aar; do
-  PRODUCTION_AARS+=("$aar")
-done < <(python3 "$ROOT/scripts/module_registry.py" --root "$ROOT" published-aars)
+  if [[ -n "$aar" ]]; then
+    PRODUCTION_AARS+=("$aar")
+  fi
+done <<< "$published_aars"
+(( ${#PRODUCTION_AARS[@]} > 0 )) || fail "module registry returned no published AARs"
 for aar in "${PRODUCTION_AARS[@]}"; do
   test -s "$aar" || fail "missing source-native AAR: $aar"
   unzip -Z1 "$aar" | rg '^AndroidManifest.xml$' >/dev/null || fail "$aar has no manifest"
