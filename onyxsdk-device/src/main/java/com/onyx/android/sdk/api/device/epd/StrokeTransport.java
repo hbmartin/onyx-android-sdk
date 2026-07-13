@@ -24,6 +24,13 @@ interface BinderServiceResolver {
     IBinder resolve(String serviceName);
 }
 
+@FunctionalInterface
+interface BinderTransactionCaller {
+    /** Returns null when the Binder rejected the code or the transaction failed. */
+    Float transact(IBinder target, int code, float baseWidth, float x, float y,
+                   float pressure, float size, float time);
+}
+
 final class FrameworkStrokeTransport implements StrokeTransport {
     @Override
     public float startStroke(float baseWidth, float x, float y, float pressure, float size, float time) {
@@ -54,36 +61,104 @@ final class FrameworkStrokeTransport implements StrokeTransport {
 final class SurfaceFlingerStrokeTransport implements StrokeTransport {
     private static final String TAG = "SurfaceFlingerStroke";
 
+    private enum StrokeRoute {
+        NONE,
+        BINDER,
+        FALLBACK,
+        FAILED
+    }
+
     private final StrokeTransportConfig config;
     private final StrokeTransport fallback;
     private final BinderServiceResolver serviceResolver;
+    private final BinderTransactionCaller transactionCaller;
     private volatile IBinder binder;
     private volatile boolean resolutionAttempted;
+    private StrokeRoute strokeRoute = StrokeRoute.NONE;
 
     SurfaceFlingerStrokeTransport(StrokeTransportConfig config, StrokeTransport fallback) {
-        this(config, fallback, null);
+        this(config, fallback, null, null);
     }
 
     SurfaceFlingerStrokeTransport(StrokeTransportConfig config, StrokeTransport fallback,
                                   BinderServiceResolver serviceResolver) {
+        this(config, fallback, serviceResolver, null);
+    }
+
+    SurfaceFlingerStrokeTransport(StrokeTransportConfig config, StrokeTransport fallback,
+                                  BinderServiceResolver serviceResolver,
+                                  BinderTransactionCaller transactionCaller) {
         this.config = config;
         this.fallback = fallback;
         this.serviceResolver = serviceResolver;
+        this.transactionCaller = transactionCaller;
     }
 
     @Override
-    public float startStroke(float baseWidth, float x, float y, float pressure, float size, float time) {
-        return transact(config.getStartTransactionCode(), baseWidth, x, y, pressure, size, time, 0);
+    public synchronized float startStroke(float baseWidth, float x, float y,
+                                          float pressure, float size, float time) {
+        strokeRoute = StrokeRoute.NONE;
+        IBinder target = resolveBinder(true);
+        if (target == null) {
+            strokeRoute = StrokeRoute.FALLBACK;
+            return fallback.startStroke(baseWidth, x, y, pressure, size, time);
+        }
+        Float result = transactBinder(
+                target, config.getStartTransactionCode(), baseWidth, x, y, pressure, size, time);
+        if (result == null) {
+            invalidateBinder();
+            strokeRoute = StrokeRoute.FALLBACK;
+            return fallback.startStroke(baseWidth, x, y, pressure, size, time);
+        }
+        strokeRoute = StrokeRoute.BINDER;
+        return result;
     }
 
     @Override
-    public float addStrokePoint(float baseWidth, float x, float y, float pressure, float size, float time) {
-        return transact(config.getAddPointTransactionCode(), baseWidth, x, y, pressure, size, time, 1);
+    public synchronized float addStrokePoint(float baseWidth, float x, float y,
+                                             float pressure, float size, float time) {
+        if (strokeRoute == StrokeRoute.FALLBACK || strokeRoute == StrokeRoute.NONE) {
+            strokeRoute = StrokeRoute.FALLBACK;
+            return fallback.addStrokePoint(baseWidth, x, y, pressure, size, time);
+        }
+        if (strokeRoute == StrokeRoute.FAILED) {
+            return baseWidth;
+        }
+        IBinder target = resolveBinder(false);
+        Float result = target == null ? null : transactBinder(
+                target, config.getAddPointTransactionCode(), baseWidth, x, y, pressure, size, time);
+        if (result == null) {
+            invalidateBinder();
+            // The framework transport never received this stroke's start. Do
+            // not send it an unmatched add/finish sequence; retry next stroke.
+            strokeRoute = StrokeRoute.FAILED;
+            return baseWidth;
+        }
+        return result;
     }
 
     @Override
-    public float finishStroke(float baseWidth, float x, float y, float pressure, float size, float time) {
-        return transact(config.getFinishTransactionCode(), baseWidth, x, y, pressure, size, time, 2);
+    public synchronized float finishStroke(float baseWidth, float x, float y,
+                                           float pressure, float size, float time) {
+        try {
+            if (strokeRoute == StrokeRoute.FALLBACK || strokeRoute == StrokeRoute.NONE) {
+                return fallback.finishStroke(baseWidth, x, y, pressure, size, time);
+            }
+            if (strokeRoute == StrokeRoute.FAILED) {
+                return baseWidth;
+            }
+            IBinder target = resolveBinder(false);
+            Float result = target == null ? null : transactBinder(
+                    target, config.getFinishTransactionCode(),
+                    baseWidth, x, y, pressure, size, time);
+            if (result == null) {
+                invalidateBinder();
+                return baseWidth;
+            }
+            return result;
+        } finally {
+            strokeRoute = StrokeRoute.NONE;
+        }
     }
 
     @Override
@@ -134,14 +209,16 @@ final class SurfaceFlingerStrokeTransport implements StrokeTransport {
         }
     }
 
-    private float transact(int code, float baseWidth, float x, float y,
-                           float pressure, float size, float time, int operation) {
-        // Retry service lookup only at a stroke boundary. Add/finish calls use
-        // the framework fallback until the next stroke rather than reflecting
-        // through ServiceManager for every point while the service restarts.
-        IBinder target = resolveBinder(operation == 0);
-        if (target == null) {
-            return fallback(operation, baseWidth, x, y, pressure, size, time);
+    private void invalidateBinder() {
+        resolutionAttempted = true;
+        binder = null;
+    }
+
+    private Float transactBinder(IBinder target, int code, float baseWidth, float x, float y,
+                                 float pressure, float size, float time) {
+        if (transactionCaller != null) {
+            return transactionCaller.transact(
+                    target, code, baseWidth, x, y, pressure, size, time);
         }
         Parcel data = Parcel.obtain();
         Parcel reply = Parcel.obtain();
@@ -157,7 +234,8 @@ final class SurfaceFlingerStrokeTransport implements StrokeTransport {
             data.writeFloat(size);
             data.writeFloat(time);
             if (!target.transact(code, data, reply, 0)) {
-                return fallback(operation, baseWidth, x, y, pressure, size, time);
+                Log.w(TAG, "Stroke Binder rejected transaction code " + code);
+                return null;
             }
             if (config.isReplyHasExceptionHeader()) {
                 reply.readException();
@@ -167,24 +245,11 @@ final class SurfaceFlingerStrokeTransport implements StrokeTransport {
             }
             return reply.readFloat();
         } catch (RuntimeException | android.os.RemoteException error) {
-            Log.w(TAG, "Stroke Binder transaction failed; using framework transport", error);
-            resolutionAttempted = true;
-            binder = null;
-            return fallback(operation, baseWidth, x, y, pressure, size, time);
+            Log.w(TAG, "Stroke Binder transaction failed", error);
+            return null;
         } finally {
             reply.recycle();
             data.recycle();
         }
-    }
-
-    private float fallback(int operation, float baseWidth, float x, float y,
-                           float pressure, float size, float time) {
-        if (operation == 0) {
-            return fallback.startStroke(baseWidth, x, y, pressure, size, time);
-        }
-        if (operation == 1) {
-            return fallback.addStrokePoint(baseWidth, x, y, pressure, size, time);
-        }
-        return fallback.finishStroke(baseWidth, x, y, pressure, size, time);
     }
 }

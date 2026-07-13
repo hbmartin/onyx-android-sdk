@@ -13,7 +13,7 @@ if [[ -z "$SDK_ROOT" ]]; then
 fi
 NDK_ROOT="${ANDROID_NDK_HOME:-${ANDROID_NDK_ROOT:-$SDK_ROOT/ndk/$NDK_VERSION}}"
 API="${ANDROID_API:-21}"
-SHARED_LIBRARY_SUFFIX=".s""o"
+SHARED_LIBRARY_SUFFIX=".so"
 
 if [[ ! -d "$NDK_ROOT/toolchains/llvm/prebuilt" ]]; then
   echo "Android NDK not found at $NDK_ROOT" >&2

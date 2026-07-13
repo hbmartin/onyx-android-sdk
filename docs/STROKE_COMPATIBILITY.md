@@ -62,9 +62,13 @@ StrokeTransportConfig transport = new StrokeTransportConfig(
 boolean enabled = EpdController.useSurfaceFlingerStrokeTransport(transport);
 ```
 
-If service resolution or a transaction fails, the call falls back to the
-framework/reflection transport. Call `useFrameworkStrokeTransport()` to restore
-the default explicitly.
+If service resolution fails, or the Binder rejects the start transaction, the
+entire stroke uses the framework/reflection transport. Once a start succeeds
+over Binder, that route is retained for the stroke. A later Binder failure
+aborts the remaining points instead of delivering an unmatched add/finish
+sequence to the framework transport; Binder resolution is retried at the next
+stroke boundary. Call `useFrameworkStrokeTransport()` to restore the default
+explicitly.
 
 Transaction codes, interface tokens, reply layout, and permissions vary by
 firmware. Do not enable the Binder path with unverified values.

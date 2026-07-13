@@ -12,10 +12,11 @@ val buildRustAndroid = tasks.register<Exec>("buildRustAndroid") {
     group = "build"
     description = "Cross-compiles both recovered pen libraries for all four Android ABIs."
     val buildScript = rootProject.layout.projectDirectory.file("scripts/build-rust-android.sh")
-    val sharedLibrarySuffix = "." + "so"
+    val sharedLibrarySuffix = ".so"
     inputs.files(
         fileTree("native") {
             include("**/*.rs", "**/Cargo.toml", "Cargo.lock")
+            exclude("**/target/**", "**/build/**", "**/fuzz/**")
         },
         rootProject.layout.projectDirectory.file("rust-toolchain.toml"),
         buildScript,

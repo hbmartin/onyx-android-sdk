@@ -1,6 +1,6 @@
 # Recovered Rust native reader
 
-This crate is the source implementation of the pen touch-reader Android shared library. It
+This crate is the source implementation of `libonyx_pen_touch_reader.so`. It
 exports all 11 `RawInputReader` JNI functions and implements Linux pen-device
 discovery, raw event polling, pen/eraser transitions, region filtering,
 pressure normalization, and Java callback dispatch.

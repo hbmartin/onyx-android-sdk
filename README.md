@@ -22,10 +22,10 @@ contents.
 
 `onyxsdk-pen` builds two native libraries entirely from Rust:
 
-- The pen touch-reader library implements the 11 `RawInputReader` JNI calls,
+- `libonyx_pen_touch_reader.so` implements the 11 `RawInputReader` JNI calls,
   Linux input discovery/polling, pen and eraser states, pressure processing,
   and region filtering;
-- The neo-pen renderer exports the seven `NeoPenNative` functions — five are
+- `libneo_pen.so` exports the seven `NeoPenNative` functions — five are
   declared `native` methods on the recovered class; `nativeSetBitmapColor` and
   `nativeSetLogLevel` are exported only to match the reference library's
   surface — and the seven legacy `NeoPenWrapper` calls, including all nine pen
@@ -33,7 +33,7 @@ contents.
   API.
 
 Both libraries are built for `armeabi-v7a`, `arm64-v8a`, `x86`, and `x86_64`.
-They do not depend on the shared C++ runtime.
+They do not depend on `libc++_shared.so`.
 
 The BOOX device differential harness executes the supplied reference and the
 Rust library through the same Java API. Instrumentation tests assert exact
@@ -49,7 +49,7 @@ reference-compatible renderer consumes smoothing, velocity, pressure, tilt,
 direction, and brush configuration while preserving both Java API generations
 and their JNI/record contracts. The device module also exposes advanced stroke
 configuration, capability checks, and a firmware-configured Binder transport
-that safely falls back to the normal framework path. See
+with stroke-scoped fallback and failure handling. See
 [`docs/STROKE_COMPATIBILITY.md`](docs/STROKE_COMPATIBILITY.md).
 
 ## Build and test

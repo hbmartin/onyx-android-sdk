@@ -33,7 +33,7 @@ for removed in \
   test ! -e "$removed" || fail "removed binary input returned: $removed"
 done
 
-shared_library_suffix=".s""o"
+shared_library_suffix=".so"
 tracked_binary="$({
   git -C "$ROOT" ls-files '*.jar' '*.aar' "*$shared_library_suffix"
 } | rg -v '^gradle/wrapper/gradle-wrapper\.jar$' || true)"
@@ -96,8 +96,8 @@ scan_must_be_clean "pen production source still contains invalid or unfinished c
   '\?\?|\*\* GOTO|void var[0-9]' \
   "$ROOT/onyxsdk-pen/src/main/java"
 
-if unzip -Z1 "$PEN_AAR" | rg 'libc\+\+_shared[.]s[o]' >/dev/null; then
-  fail "pen AAR still contains the shared C++ runtime"
+if unzip -Z1 "$PEN_AAR" | rg 'libc\+\+_shared\.so' >/dev/null; then
+  fail "pen AAR still contains libc++_shared.so"
 fi
 
 NDK_VERSION="${ANDROID_NDK_VERSION:-28.2.13676358}"
@@ -151,9 +151,9 @@ for abi in armeabi-v7a arm64-v8a x86 x86_64; do
     diff -u "$expected" "$TMP/$abi.$contract.aar.exports" || fail "$abi packaged $contract contract differs"
     if [[ "$abi" == "arm64-v8a" && "$library" == "libneo_pen$shared_library_suffix" ]]; then
       test "$(sha256 "$rebuilt")" != "$reference_neo_sha" \
-        || fail "source output was replaced by the supplied reference library"
+        || fail "source output was replaced by the supplied reference libneo_pen.so"
       test "$(sha256 "$packaged_library")" != "$reference_neo_sha" \
-        || fail "release AAR contains the supplied reference library"
+        || fail "release AAR contains the supplied reference libneo_pen.so"
     fi
   done
   echo "$abi: both source-built Rust libraries match their JNI contracts"

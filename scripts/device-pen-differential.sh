@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-REFERENCE_LIBRARY="${1:?usage: device-pen-differential.sh <reference-neo-pen-library> [device-serial]}"
+REFERENCE_LIBRARY="${1:?usage: device-pen-differential.sh <reference-libneo_pen.so> [device-serial]}"
 SERIAL="${2:-${ANDROID_SERIAL:-}}"
 SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
 if [[ -z "$SDK_ROOT" ]]; then
@@ -32,7 +32,7 @@ sha256() {
   fi
 }
 
-test -f "$REFERENCE_LIBRARY" || fail "reference library does not exist: $REFERENCE_LIBRARY"
+test -f "$REFERENCE_LIBRARY" || fail "reference libneo_pen.so does not exist: $REFERENCE_LIBRARY"
 test -x "$ADB" || fail "adb not found: $ADB"
 REFERENCE_LIBRARY="$(cd "$(dirname "$REFERENCE_LIBRARY")" && pwd)/$(basename "$REFERENCE_LIBRARY")"
 actual_sha="$(sha256 "$REFERENCE_LIBRARY")"
@@ -64,7 +64,7 @@ restore_candidate() {
     >"$restore_log" 2>&1; then
     rm -f "$restore_log"
   else
-    echo "pen differential: candidate rebuild FAILED — build outputs may still contain the reference library." >&2
+    echo "pen differential: candidate rebuild FAILED — build outputs may still contain the reference libneo_pen.so." >&2
     echo "re-run: ./gradlew :onyxsdk-pen:assembleDebug :onyxsdk-pen:assembleDebugAndroidTest (gradle log: $restore_log)" >&2
     exit 1
   fi
@@ -84,7 +84,7 @@ capture_snapshot() {
   test -s "$destination" || fail "device returned an empty snapshot"
 }
 
-echo "Building and capturing the supplied reference library"
+echo "Building and capturing the supplied reference libneo_pen.so"
 ANDROID_HOME="$SDK_ROOT" ANDROID_SDK_ROOT="$SDK_ROOT" \
   "$ROOT/gradlew" -p "$ROOT" :onyxsdk-pen:assembleDebugAndroidTest \
   -PpenReferenceNeoSo="$REFERENCE_LIBRARY" >/dev/null

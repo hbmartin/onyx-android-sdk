@@ -76,8 +76,11 @@ public class RawInputReader {
         @Override // java.lang.Runnable
         public void run() {
             try {
-                Log.d(w, "reader enter session=" + session + " thread="
-                        + Thread.currentThread().getName() + "-" + Thread.currentThread().getId());
+                if (F) {
+                    RawInputReader.this.a("reader enter session=" + session + " thread="
+                            + Thread.currentThread().getName() + "-"
+                            + Thread.currentThread().getId());
+                }
                 RawInputReader.this.nativeRawReader(session);
             } catch (Exception error) {
                 Log.e(w, "reader failed session=" + session, error);
@@ -85,7 +88,10 @@ public class RawInputReader {
                 Log.e(w, "reader crashed session=" + session, th);
                 throw th;
             } finally {
-                Log.d(w, "reader exit session=" + session + " fdValid=" + isFdValid());
+                if (F) {
+                    RawInputReader.this.a(
+                            "reader exit session=" + session + " fdValid=" + isFdValid());
+                }
                 RawInputReader.this.c(session);
             }
         }
@@ -181,7 +187,7 @@ public class RawInputReader {
     private void p() {
         long session = READER_SESSIONS.incrementAndGet();
         this.readerSession = session;
-        Log.d(w, "queue reader session=" + session);
+        a("queue reader session=" + session);
         e().submit(new a(session));
     }
 
@@ -237,8 +243,10 @@ public class RawInputReader {
     }
 
     public void start() {
-        Log.d(w, "start requested previousSession=" + this.readerSession
-                + " fdValid=" + isFdValid());
+        if (F) {
+            a("start requested previousSession=" + this.readerSession
+                    + " fdValid=" + isFdValid());
+        }
         f();
         c();
         this.b = false;
@@ -248,7 +256,9 @@ public class RawInputReader {
     }
 
     public void resume() {
-        Log.d(w, "resume session=" + this.readerSession + " fdValid=" + isFdValid());
+        if (F) {
+            a("resume session=" + this.readerSession + " fdValid=" + isFdValid());
+        }
         f();
         nativeSetPenState(4);
         this.d = true;
@@ -259,14 +269,18 @@ public class RawInputReader {
     // pen state is below 2, and this class only ever sets state 4, so a stroke
     // in progress continues across pause()/resume() without a forced release.
     public void pause() {
-        Log.d(w, "pause session=" + this.readerSession + " fdValid=" + isFdValid());
+        if (F) {
+            a("pause session=" + this.readerSession + " fdValid=" + isFdValid());
+        }
         nativePausePen();
         this.d = false;
         a("pause");
     }
 
     public void quit() {
-        Log.d(w, "quit requested session=" + this.readerSession + " fdValid=" + isFdValid());
+        if (F) {
+            a("quit requested session=" + this.readerSession + " fdValid=" + isFdValid());
+        }
         o();
         nativeSetPenState(4);
         this.l = null;
@@ -278,7 +292,9 @@ public class RawInputReader {
         this.b = true;
         this.c = false;
         a("quit");
-        Log.d(w, "quit completed session=" + this.readerSession + " fdValid=" + isFdValid());
+        if (F) {
+            a("quit completed session=" + this.readerSession + " fdValid=" + isFdValid());
+        }
     }
 
     public boolean isFdValid() {
@@ -411,7 +427,7 @@ public class RawInputReader {
     }
 
     private void c(long session) {
-        Log.d(w, "close native reader session=" + session);
+        a("close native reader session=" + session);
         nativeRawClose(session);
     }
 
