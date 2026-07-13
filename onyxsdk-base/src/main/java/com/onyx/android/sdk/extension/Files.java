@@ -4,14 +4,10 @@ package com.onyx.android.sdk.extension;
 import kotlin.ranges.RangesKt;
 import java.util.Collection;
 import java.util.LinkedList;
-import kotlin.jvm.internal.DefaultConstructorMarker;
-import kotlin.io.FileAlreadyExistsException;
 import java.util.UUID;
 import com.onyx.android.sdk.base.utils.Debug;
 import java.io.OutputStream;
 import com.onyx.android.sdk.commons.io.IOUtils;
-import java.io.Closeable;
-import kotlin.io.CloseableKt;
 import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -20,12 +16,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import kotlin.collections.ArraysKt;
 import com.onyx.android.sdk.commons.io.FilenameUtils;
 import org.jetbrains.annotations.Nullable;
-import java.util.Iterator;
 import java.util.ArrayList;
-import kotlin.collections.CollectionsKt;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
@@ -45,256 +38,208 @@ public final class Files
 {
     @NotNull
     public static final Files INSTANCE;
-    private static final int a = 500;
+    private static final int DEFAULT_PARALLEL_CHUNKED_SIZE = 500;
     @NotNull
-    private static final Comparator<File> b;
+    private static final Comparator<File> FILE_MODIFIED_ASC_COMPARATOR;
     @NotNull
-    private static final Comparator<File> c;
+    private static final Comparator<File> FILE_MODIFIED_DESC_COMPARATOR;
     
     private Files() {
     }
     
-    public static /* synthetic */ void deleteDirectoryQuietly$default(final Files files, final File $this$deleteDirectoryQuietly, Comparator comparator, FileFilter fileFilter, final int n, final Object o) {
-        if ((n & 0x1) != 0x0) {
+    public static /* synthetic */ void deleteDirectoryQuietly$default(final Files files, final File directory, Comparator comparator, FileFilter fileFilter, final int mask, final Object unused) {
+        if ((mask & 0x1) != 0x0) {
             comparator = null;
         }
-        if ((n & 0x2) != 0x0) {
+        if ((mask & 0x2) != 0x0) {
             fileFilter = null;
         }
-        files.deleteDirectoryQuietly($this$deleteDirectoryQuietly, comparator, fileFilter);
+        files.deleteDirectoryQuietly(directory, comparator, fileFilter);
     }
 
-    public static /* synthetic */ String fileNameInAssets$default(final Files files, final Context context, final String fileBaseName, String path, final int n, final Object o) {
-        if ((n & 0x4) != 0x0) {
+    public static /* synthetic */ String fileNameInAssets$default(final Files files, final Context context, final String fileBaseName, String path, final int mask, final Object unused) {
+        if ((mask & 0x4) != 0x0) {
             path = "";
         }
         return files.fileNameInAssets(context, fileBaseName, path);
     }
 
-    private final void a(final String localFilePath) {
+    private void clearEmptyFile(final String localFilePath) {
         try {
-            if (!FileUtils.fileExist(localFilePath)) {
-                return;
-            }
-            if (FileUtils.getFileSize(localFilePath) == 0L) {
+            if (FileUtils.fileExist(localFilePath) && FileUtils.getFileSize(localFilePath) == 0L) {
                 FileUtils.deleteFile(localFilePath);
             }
-        }
-        catch (final Exception ex) {
-            ex.printStackTrace();
+        } catch (final Exception exception) {
+            exception.printStackTrace();
         }
     }
 
-    public static /* synthetic */ String generateUniqueFileName$default(final Files files, final String fileDir, final String fileBaseName, String fileExtension, int tryTimes, final int n, final Object o) {
-        if ((n & 0x4) != 0x0) {
+    public static /* synthetic */ String generateUniqueFileName$default(final Files files, final String fileDir, final String fileBaseName, String fileExtension, int tryTimes, final int mask, final Object unused) {
+        if ((mask & 0x4) != 0x0) {
             fileExtension = "";
         }
-        if ((n & 0x8) != 0x0) {
+        if ((mask & 0x8) != 0x0) {
             tryTimes = 254;
         }
         return files.generateUniqueFileName(fileDir, fileBaseName, fileExtension, tryTimes);
     }
 
-    public static /* synthetic */ String readContentOfFile$default(final Files files, final String path, boolean keepLineBreak, final int n, final Object o) {
-        if ((n & 0x2) != 0x0) {
+    public static /* synthetic */ String readContentOfFile$default(final Files files, final String path, boolean keepLineBreak, final int mask, final Object unused) {
+        if ((mask & 0x2) != 0x0) {
             keepLineBreak = false;
         }
         return files.readContentOfFile(path, keepLineBreak);
     }
 
-    public static /* synthetic */ List parallelFileMetadata$default(final Files files, final List $this$parallelFileMetadata, int chunkedSize, final Function1 consumer, final int n, final Object o) {
-        if ((n & 0x1) != 0x0) {
-            chunkedSize = files.calculateChunk($this$parallelFileMetadata.size());
+    public static /* synthetic */ List parallelFileMetadata$default(final Files files, final List paths, int chunkedSize, final Function1 consumer, final int mask, final Object unused) {
+        if ((mask & 0x1) != 0x0) {
+            chunkedSize = files.calculateChunk(paths.size());
         }
-        return files.parallelFileMetadata($this$parallelFileMetadata, chunkedSize, consumer);
+        return files.parallelFileMetadata(paths, chunkedSize, consumer);
     }
 
-    private static final int a(final File f1, final File f2) {
+    private static int compareModifiedAscending(final File f1, final File f2) {
         return Intrinsics.compare(f1.lastModified(), f2.lastModified());
     }
     
-    private static final int b(final File f1, final File f2) {
+    private static int compareModifiedDescending(final File f1, final File f2) {
         return Intrinsics.compare(f2.lastModified(), f1.lastModified());
     }
     
-    private static final void a(final File it) {
-        if (it.isDirectory()) {
-            final Files instance = Files.INSTANCE;
-            Intrinsics.checkNotNullExpressionValue((Object)it, "it");
-            deleteDirectoryQuietly$default(instance, it, null, null, 3, null);
+    private static void deleteRecursively(final File file) {
+        if (file.isDirectory()) {
+            deleteDirectoryQuietly$default(INSTANCE, file, null, null, 3, null);
         }
         else {
-            com.onyx.android.sdk.commons.io.FileUtils.deleteQuietly(it);
+            com.onyx.android.sdk.commons.io.FileUtils.deleteQuietly(file);
         }
     }
     
-    private static final Object b(final Function1 $consumer, final Object it) {
-        Intrinsics.checkNotNullParameter((Object)$consumer, "$consumer");
-        return $consumer.invoke(it);
+    private static <PathInfo, Result> ObservableSource<Result> processPath(
+            final Function1<? super PathInfo, ? extends Result> consumer, final PathInfo path) {
+        return Observable.just(path).observeOn(Schedulers.io()).map(ignored -> {
+            final Result result = consumer.invoke(path);
+            return result;
+        });
     }
     
-    private static final ObservableSource a(final Function1 $consumer, final Object path) {
-        Intrinsics.checkNotNullParameter((Object)$consumer, "$consumer");
-        return Observable.just(path).observeOn(Schedulers.io()).map(it -> b($consumer, it));
-    }
-    
-    private static final List a(final List $pathSubList, final Function1 $consumer, final List it) {
-        Intrinsics.checkNotNullParameter((Object)$pathSubList, "$pathSubList");
-        Intrinsics.checkNotNullParameter((Object)$consumer, "$consumer");
-        Intrinsics.checkNotNullParameter((Object)it, "it");
-        final ArrayList list = new ArrayList(CollectionsKt.collectionSizeOrDefault((Iterable)$pathSubList, 10));
-        final Iterator iterator = $pathSubList.iterator();
-        while (iterator.hasNext()) {
-            list.add($consumer.invoke(iterator.next()));
+    private static <PathInfo, Result> List<Result> processChunk(
+            final List<? extends PathInfo> paths,
+            final Function1<? super PathInfo, ? extends Result> consumer) {
+        final List<Result> results = new ArrayList<>(paths.size());
+        for (PathInfo path : paths) {
+            results.add(consumer.invoke(path));
         }
-        return list;
+        return results;
     }
     
-    private static final ObservableSource a(final Function1 $consumer, final List pathSubList) {
-        Intrinsics.checkNotNullParameter((Object)$consumer, "$consumer");
-        Intrinsics.checkNotNullParameter((Object)pathSubList, "pathSubList");
-        return Observable.just(pathSubList).observeOn(Schedulers.io()).map(it -> a(pathSubList, $consumer, it));
+    private static <PathInfo, Result> ObservableSource<List<Result>> processChunkAsync(
+            final Function1<? super PathInfo, ? extends Result> consumer,
+            final List<? extends PathInfo> paths) {
+        return Observable.just(paths).observeOn(Schedulers.io())
+                .map(ignored -> processChunk(paths, consumer));
     }
     
-    private static final List a(final List it) {
-        Intrinsics.checkNotNullParameter((Object)it, "it");
-        return CollectionsKt.flatten((Iterable)it);
+    private static <Result> List<Result> flatten(final List<? extends List<? extends Result>> chunks) {
+        final List<Result> results = new ArrayList<>();
+        for (List<? extends Result> chunk : chunks) {
+            results.addAll(chunk);
+        }
+        return results;
     }
     
     static {
         INSTANCE = new Files();
-        b = Files::a;
-        c = Files::b;
+        FILE_MODIFIED_ASC_COMPARATOR = Files::compareModifiedAscending;
+        FILE_MODIFIED_DESC_COMPARATOR = Files::compareModifiedDescending;
     }
     
     @NotNull
     public final Comparator<File> getFILE_MODIFIED_ASC_COMPARATOR() {
-        return Files.b;
+        return FILE_MODIFIED_ASC_COMPARATOR;
     }
     
     @NotNull
     public final Comparator<File> getFILE_MODIFIED_DESC_COMPARATOR() {
-        return Files.c;
+        return FILE_MODIFIED_DESC_COMPARATOR;
     }
     
-    public final boolean isFileExist(@Nullable final String $this$isFileExist) {
-        return !StringKt.isEmpty($this$isFileExist) && new File($this$isFileExist).exists();
+    public final boolean isFileExist(@Nullable final String path) {
+        return !StringKt.isEmpty(path) && new File(path).exists();
     }
     
-    public final boolean isDirectory(@Nullable final String $this$isDirectory) {
-        return !StringKt.isEmpty($this$isDirectory) && this.isFileExist($this$isDirectory) && new File($this$isDirectory).isDirectory();
+    public final boolean isDirectory(@Nullable final String path) {
+        return !StringKt.isEmpty(path) && new File(path).isDirectory();
     }
     
-    public final void deleteDirectory(@Nullable final String $this$deleteDirectory) {
-        if (!StringKt.isEmpty($this$deleteDirectory) && this.isDirectory($this$deleteDirectory)) {
+    public final void deleteDirectory(@Nullable final String path) {
+        if (isDirectory(path)) {
             try {
-                com.onyx.android.sdk.commons.io.FileUtils.deleteDirectory(new File($this$deleteDirectory));
+                com.onyx.android.sdk.commons.io.FileUtils.deleteDirectory(new File(path));
             } catch (IOException failure) {
                 Debug.INSTANCE.e(failure);
             }
         }
     }
     
-    public final boolean deleteFile(@Nullable final String $this$deleteFile) {
-        final File file;
-        return !StringKt.isEmpty($this$deleteFile) && this.isFileExist($this$deleteFile) && (file = new File($this$deleteFile)).isFile() && file.delete();
+    public final boolean deleteFile(@Nullable final String path) {
+        if (StringKt.isEmpty(path)) {
+            return false;
+        }
+        final File file = new File(path);
+        return file.isFile() && file.delete();
     }
     
     @NotNull
-    public final String getFileBaseName(@Nullable final String $this$getFileBaseName) {
-        final String baseName = FilenameUtils.getBaseName($this$getFileBaseName);
+    public final String getFileBaseName(@Nullable final String path) {
+        final String baseName = FilenameUtils.getBaseName(path);
         Intrinsics.checkNotNullExpressionValue((Object)baseName, "getBaseName(this)");
         return baseName;
     }
     
-    public final void deleteDirectoryQuietly(@NotNull final File $this$deleteDirectoryQuietly, @Nullable final Comparator<File> comparator, @Nullable final FileFilter fileFilter) {
-        Intrinsics.checkNotNullParameter((Object)$this$deleteDirectoryQuietly, "<this>");
-        if (!$this$deleteDirectoryQuietly.isDirectory()) {
+    public final void deleteDirectoryQuietly(@NotNull final File directory, @Nullable final Comparator<File> comparator, @Nullable final FileFilter fileFilter) {
+        Intrinsics.checkNotNullParameter((Object)directory, "<this>");
+        if (!directory.isDirectory()) {
             return;
         }
-        final File[] listFiles = $this$deleteDirectoryQuietly.listFiles();
-        File[] array;
-        if (fileFilter != null) {
-            if (listFiles == null) {
-                array = null;
-            }
-            else {
-                final File[] array2 = listFiles;
-                final ArrayList list = new ArrayList();
-                for (int i = 0; i < array2.length; ++i) {
-                    final File file;
-                    if (fileFilter.accept(file = listFiles[i])) {
-                        list.add(file);
-                    }
+        final File[] children = directory.listFiles();
+        File[] selectedChildren = children;
+        if (fileFilter != null && children != null) {
+            final List<File> selected = new ArrayList<>(children.length);
+            for (File child : children) {
+                if (fileFilter.accept(child)) {
+                    selected.add(child);
                 }
-                final Object[] array3;
-                if ((array3 = list.toArray(new File[0])) == null) {
-                    throw new NullPointerException("null cannot be cast to non-null type kotlin.Array<T of kotlin.collections.ArraysKt__ArraysJVMKt.toTypedArray>");
-                }
-                array = (File[])array3;
             }
+            selectedChildren = selected.toArray(new File[0]);
         }
-        else {
-            array = listFiles;
+        if (comparator != null && selectedChildren != null) {
+            Arrays.sort(selectedChildren, comparator);
         }
-        File[] $this$isNotEmpty;
-        if (comparator == null) {
-            $this$isNotEmpty = array;
-        }
-        else {
-            final List sortedWith;
-            if (array != null && (sortedWith = ArraysKt.sortedWith((Object[])array, (Comparator)comparator)) != null) {
-                final Object[] array4;
-                if ((array4 = sortedWith.toArray(new File[0])) == null) {
-                    throw new NullPointerException("null cannot be cast to non-null type kotlin.Array<T of kotlin.collections.ArraysKt__ArraysJVMKt.toTypedArray>");
-                }
-                $this$isNotEmpty = (File[])array4;
-            }
-            else {
-                $this$isNotEmpty = null;
-            }
-        }
-        if (com.onyx.android.sdk.extension.ArraysKt.isNotEmpty($this$isNotEmpty)) {
+        if (selectedChildren != null && selectedChildren.length > 0) {
             try {
-                for (File file : $this$isNotEmpty) {
-                    a(file);
+                for (File child : selectedChildren) {
+                    deleteRecursively(child);
                 }
             } catch (Exception failure) {
                 Debug.INSTANCE.e(failure);
             }
         }
-        Object value;
-        if ($this$isNotEmpty == null) {
-            value = null;
-        }
-        else {
-            value = $this$isNotEmpty.length;
-        }
-        Object value2;
-        if (listFiles == null) {
-            value2 = null;
-        }
-        else {
-            value2 = listFiles.length;
-        }
-        if (Intrinsics.areEqual(value, value2)) {
-            com.onyx.android.sdk.commons.io.FileUtils.deleteQuietly($this$deleteDirectoryQuietly);
+        if (children == null || selectedChildren.length == children.length) {
+            com.onyx.android.sdk.commons.io.FileUtils.deleteQuietly(directory);
         }
     }
     
-    public final boolean deleteFileExt(@Nullable final String $this$deleteFileExt) {
-        final File file;
-        return !StringKt.isEmpty($this$deleteFileExt) && this.isFileExist($this$deleteFileExt) && (file = new File($this$deleteFileExt)).isFile() && file.delete();
+    public final boolean deleteFileExt(@Nullable final String path) {
+        return deleteFile(path);
     }
     
     @NotNull
-    public final String getFileName(@Nullable final String $this$getFileName) {
-        if ($this$getFileName == null) {
+    public final String getFileName(@Nullable final String path) {
+        if (path == null) {
             return "";
         }
-        final String name = new File($this$getFileName).getName();
-        Intrinsics.checkNotNullExpressionValue((Object)name, "File(this).name");
-        return name;
+        return new File(path).getName();
     }
     
     @NotNull
@@ -305,22 +250,16 @@ public final class Files
             return "";
         }
         try {
-            final String[] list;
-            if ((list = context.getAssets().list(path)) != null) {
-                final String[] array = list;
-                int i = 0;
-                while (i < array.length) {
-                    final String $this$getFileBaseName = list[i];
-                    if (Intrinsics.areEqual((Object)Files.INSTANCE.getFileBaseName($this$getFileBaseName), (Object)fileBaseName)) {
-                            final String s = $this$getFileBaseName;
-                            Intrinsics.checkNotNullExpressionValue((Object)s, "it");
-                            return s;
+            final String[] assetNames = context.getAssets().list(path);
+            if (assetNames != null) {
+                for (String assetName : assetNames) {
+                    if (Intrinsics.areEqual(getFileBaseName(assetName), fileBaseName)) {
+                        return assetName;
                     }
-                    ++i;
                 }
             }
         }
-        catch (final IOException ex2) {}
+        catch (final IOException ignored) {}
         return "";
     }
     
@@ -331,7 +270,7 @@ public final class Files
         try {
             if (!FileUtils.ensureFileExists(localFilePath)) {
                 Debug.INSTANCE.w(this.getClass(), "create file fail, path = " + localFilePath, new Object[0]);
-                a(localFilePath);
+                clearEmptyFile(localFilePath);
                 return false;
             }
             return copyInputStreamToFile(context.getAssets().open(assetPath), new File(localFilePath)) >= 0L;
@@ -341,7 +280,7 @@ public final class Files
             return false;
         }
         finally {
-            a(localFilePath);
+            clearEmptyFile(localFilePath);
         }
     }
     
@@ -379,14 +318,15 @@ public final class Files
     @NotNull
     public final String getValidFileName(@NotNull final String fileName) {
         Intrinsics.checkNotNullParameter((Object)fileName, "fileName");
-        String extendedName;
-        final String s = extendedName = FilenameUtils.getExtension(fileName);
-        Intrinsics.checkNotNullExpressionValue((Object)s, "extension");
-        if (s.length() > 0) {
-            extendedName = Intrinsics.stringPlus(".", (Object)extendedName);
+        String extension = FilenameUtils.getExtension(fileName);
+        Intrinsics.checkNotNullExpressionValue(extension, "extension");
+        if (!extension.isEmpty()) {
+            extension = "." + extension;
         }
-        final String validFileName = FileUtils.getValidFileName(FilenameUtils.getBaseName(fileName), extendedName);
-        Intrinsics.checkNotNullExpressionValue((Object)validFileName, "getValidFileName(\n      \u2026      extension\n        )");
+        final String validFileName = FileUtils.getValidFileName(
+                FilenameUtils.getBaseName(fileName), extension);
+        Intrinsics.checkNotNullExpressionValue(
+                validFileName, "getValidFileName(baseName, extension)");
         return validFileName;
     }
     
@@ -395,50 +335,40 @@ public final class Files
         Intrinsics.checkNotNullParameter((Object)fileDir, "fileDir");
         Intrinsics.checkNotNullParameter((Object)fileBaseName, "fileBaseName");
         Intrinsics.checkNotNullParameter((Object)fileExtension, "fileExtension");
-        int i = 0;
-        String string = fileBaseName;
+        int attempts = 0;
+        String candidateBaseName = fileBaseName;
         while (true) {
-            String name;
-            final String s = name = FileUtils.combine(string, fileExtension);
-            Intrinsics.checkNotNull((Object)s);
-            if (s.length() > 254 - fileExtension.length()) {
-                Intrinsics.checkNotNull((Object)(name = FileUtils.combine(UUID.randomUUID().toString(), fileExtension)));
+            String candidateName = FileUtils.combine(candidateBaseName, fileExtension);
+            Intrinsics.checkNotNull(candidateName);
+            if (candidateName.length() > 254) {
+                candidateName = FileUtils.combine(UUID.randomUUID().toString(), fileExtension);
+                Intrinsics.checkNotNull(candidateName);
             }
-            final File file;
-            if (!(file = new File(FileUtils.combinePath(fileDir, name))).exists()) {
-                final String combine = FileUtils.combine(string, fileExtension);
-                Intrinsics.checkNotNull((Object)combine);
-                return combine;
+            final File candidateFile = new File(FileUtils.combinePath(fileDir, candidateName));
+            if (!candidateFile.exists()) {
+                return candidateName;
             }
-            if (i++ == tryTimes) {
-                throw new IllegalStateException("File already exists: " + file);
+            if (attempts++ == tryTimes) {
+                throw new IllegalStateException("File already exists: " + candidateFile);
             }
-            string = fileBaseName + '(' + i + ')';
+            candidateBaseName = fileBaseName + '(' + attempts + ')';
         }
     }
     
     @NotNull
     public final List<File> listAllFiles(@Nullable final String path) {
-        final LinkedList<File> list = new LinkedList<File>();
-        if (path == null) {
-            return list;
-        }
-        if (!FileUtils.fileExist(path)) {
-            return list;
-        }
-        final File file;
-        if (!(file = new File(path)).isDirectory()) {
-            return list;
+        final LinkedList<File> emptyResult = new LinkedList<>();
+        if (path == null || !new File(path).isDirectory()) {
+            return emptyResult;
         }
         try {
-            final Collection listFiles = com.onyx.android.sdk.commons.io.FileUtils.listFiles(file, (String[])null, true);
-            Intrinsics.checkNotNullExpressionValue((Object)listFiles, "listFiles(directory, null, true)");
-            return CollectionsKt.toList((Iterable)listFiles);
+            final Collection<File> files = com.onyx.android.sdk.commons.io.FileUtils.listFiles(
+                    new File(path), (String[])null, true);
+            return new ArrayList<>(files);
         }
-        catch (final Exception ex) {
-            final LinkedList<File> list2 = list;
-            Debug.INSTANCE.e((Throwable)ex);
-            return list2;
+        catch (final Exception exception) {
+            Debug.INSTANCE.e(exception);
+            return emptyResult;
         }
     }
     
@@ -471,23 +401,38 @@ public final class Files
     }
     
     public final int calculateChunk(final int total) {
-        return RangesKt.coerceAtLeast(total / (Runtime.getRuntime().availableProcessors() + 2), 500);
+        return RangesKt.coerceAtLeast(
+                total / (Runtime.getRuntime().availableProcessors() + 2),
+                DEFAULT_PARALLEL_CHUNKED_SIZE);
     }
     
     @NotNull
-    public final <PathInfo, Result> List<Result> parallelFileMetadata(@NotNull final List<? extends PathInfo> $this$parallelFileMetadata, final int chunkedSize, @NotNull final Function1<? super PathInfo, ? extends Result> consumer) {
-        Intrinsics.checkNotNullParameter((Object)$this$parallelFileMetadata, "<this>");
+    public final <PathInfo, Result> List<Result> parallelFileMetadata(
+            @NotNull final List<? extends PathInfo> paths,
+            final int chunkedSize,
+            @NotNull final Function1<? super PathInfo, ? extends Result> consumer) {
+        Intrinsics.checkNotNullParameter((Object)paths, "<this>");
         Intrinsics.checkNotNullParameter((Object)consumer, "consumer");
-        if ($this$parallelFileMetadata.size() < chunkedSize) {
-            final Object blockingGet = Observable.fromIterable($this$parallelFileMetadata)
-                    .flatMap(path -> a(consumer, path)).toList().blockingGet();
-            Intrinsics.checkNotNullExpressionValue(blockingGet, "fromIterable(pathList)\n \u2026           .blockingGet()");
-            return (List<Result>)blockingGet;
+        final int effectiveChunkSize = chunkedSize > 0
+                ? chunkedSize
+                : calculateChunk(paths.size());
+        if (paths.size() < effectiveChunkSize) {
+            final List<? extends Result> results = Observable.fromIterable(paths)
+                    .flatMap(path -> Files.<PathInfo, Result>processPath(consumer, path))
+                    .toList()
+                    .blockingGet();
+            return new ArrayList<>(results);
         }
-        final Object blockingGet2 = Observable.fromIterable(CollectionsKt.chunked($this$parallelFileMetadata, chunkedSize))
-                .flatMap(paths -> a(consumer, paths)).toList().map(items -> a((List) items)).blockingGet();
-        Intrinsics.checkNotNullExpressionValue(blockingGet2, "fromIterable(pathList.ch\u2026           .blockingGet()");
-        return (List<Result>)blockingGet2;
+        final List<List<? extends PathInfo>> chunks = new ArrayList<>();
+        for (int start = 0; start < paths.size(); start += effectiveChunkSize) {
+            chunks.add(paths.subList(start, Math.min(start + effectiveChunkSize, paths.size())));
+        }
+        final List<? extends Result> results = Observable.fromIterable(chunks)
+                .flatMap(chunk -> Files.<PathInfo, Result>processChunkAsync(consumer, chunk))
+                .toList()
+                .map(Files::flatten)
+                .blockingGet();
+        return new ArrayList<>(results);
     }
     
     public final void deleteDirSafely(@NotNull final File directory) {
