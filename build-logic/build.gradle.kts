@@ -1,6 +1,4 @@
 import io.gitlab.arturbosch.detekt.Detekt
-import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
-import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 
 plugins {
     `kotlin-dsl`
@@ -23,6 +21,7 @@ dependencies {
     }
     implementation(libs.dokka.gradle.plugin)
     implementation(libs.kotlin.gradle.plugin)
+    detektPlugins(libs.hbmartin.detekt.rules)
     testImplementation(gradleTestKit())
     testImplementation(libs.junit4)
 }
@@ -34,6 +33,10 @@ java {
 detekt {
     toolVersion = libs.versions.detekt.get()
     basePath = rootProject.projectDir.parentFile.absolutePath
+    buildUponDefaultConfig = true
+    config.setFrom(rootProject.layout.projectDirectory.file("../config/detekt/detekt.yml"))
+    baseline = null
+    autoCorrect = false
 }
 
 val detektReportDirectory = layout.buildDirectory.dir("reports/detekt")
@@ -48,9 +51,6 @@ tasks.withType<Detekt>().configureEach {
         sarif.outputLocation.set(detektReportDirectory.map { it.file("$name.sarif") })
         md.required.set(false)
     }
-}
-tasks.withType<DetektCreateBaselineTask>().configureEach {
-    jvmTarget = "21"
 }
 
 gradlePlugin {

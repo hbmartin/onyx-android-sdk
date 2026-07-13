@@ -1,5 +1,7 @@
+import groovy.json.JsonException
 import groovy.json.JsonSlurper
 import java.io.File
+import java.io.IOException
 import org.gradle.api.GradleException
 
 data class OnyxLicense(
@@ -75,17 +77,38 @@ object OnyxModuleRegistry {
     private const val REGISTRY_PATH = "gradle/onyx-modules.json"
     internal val productionConfigurations = setOf("api", "implementation", "compileOnly", "runtimeOnly")
 
-    fun load(rootDir: File, validatePaths: Boolean = true): OnyxRegistry {
-        val canonicalRoot = rootDir.canonicalFile
-        val registryFile = canonicalRoot.resolve(REGISTRY_PATH)
-        val payload = try {
-            JsonSlurper().parse(registryFile) as? Map<*, *>
-        } catch (error: Exception) {
-            throw GradleException("Could not load module registry $registryFile", error)
-        } ?: throw GradleException("Module registry must contain a JSON object: $registryFile")
-        requireRegistry(payload["schemaVersion"] == 1, "schemaVersion must be 1")
+    fun load(rootDir: File, validatePaths: Boolean = true): OnyxRegistry =
+        RegistryLoader(rootDir, REGISTRY_PATH, validatePaths).load()
+}
 
-        val distributionMap = payload.requiredMap("distribution", "registry")
+private class RegistryLoader(
+    rootDir: File,
+    registryPath: String,
+    private val validatePaths: Boolean,
+) {
+    private val canonicalRoot = rootDir.canonicalFile
+    private val registryFile = canonicalRoot.resolve(registryPath)
+
+    fun load(): OnyxRegistry {
+        val payload = parsePayload()
+        requireRegistry(payload["schemaVersion"] == 1, "schemaVersion must be 1")
+        val distribution = parseDistribution(payload.requiredMap("distribution", "registry"))
+        val modules = parseModules(payload, distribution)
+        validateModules(distribution, modules)
+        validateOwnership(modules)
+        return OnyxRegistry(canonicalRoot, distribution, modules)
+    }
+
+    private fun parsePayload(): Map<*, *> =
+        try {
+            JsonSlurper().parse(registryFile).asMap("module registry")
+        } catch (error: IOException) {
+            throw GradleException("Could not load module registry $registryFile", error)
+        } catch (error: JsonException) {
+            throw GradleException("Could not parse module registry $registryFile", error)
+        }
+
+    private fun parseDistribution(distributionMap: Map<*, *>): OnyxDistribution {
         val developerMap = distributionMap.requiredMap("developer", "distribution")
         val licensesMap = distributionMap.requiredMap("licenses", "distribution")
         requireRegistry(licensesMap.isNotEmpty(), "distribution.licenses must not be empty")
@@ -100,7 +123,7 @@ object OnyxModuleRegistry {
                 distribution = license.requiredString("distribution", "distribution.licenses.$id"),
             )
         }
-        val distribution = OnyxDistribution(
+        return OnyxDistribution(
             group = distributionMap.requiredString("group", "distribution"),
             projectUrl = distributionMap.requiredString("projectUrl", "distribution"),
             scmConnection = distributionMap.requiredString("scmConnection", "distribution"),
@@ -112,12 +135,15 @@ object OnyxModuleRegistry {
             ),
             defaultLicense = distributionMap.requiredString("defaultLicense", "distribution"),
             licenses = licenses,
-        )
-        requireRegistry(
-            distribution.defaultLicense in licenses,
-            "distribution.defaultLicense is unknown: ${distribution.defaultLicense}",
-        )
+        ).also { distribution ->
+            requireRegistry(
+                distribution.defaultLicense in licenses,
+                "distribution.defaultLicense is unknown: ${distribution.defaultLicense}",
+            )
+        }
+    }
 
+    private fun parseModules(payload: Map<*, *>, distribution: OnyxDistribution): List<OnyxModule> {
         val rawModules = payload["modules"] as? List<*>
             ?: throw GradleException("registry.modules must be a list")
         requireRegistry(rawModules.isNotEmpty(), "registry.modules must not be empty")
@@ -134,10 +160,16 @@ object OnyxModuleRegistry {
                 "${distribution.group}:${it.artifactId}:${it.version}"
             },
         )
+        return modules
+    }
 
+    private fun validateModules(distribution: OnyxDistribution, modules: List<OnyxModule>) {
         val byId = modules.associateBy(OnyxModule::id)
         modules.forEach { module ->
-            requireRegistry(module.license in licenses, "${module.id} uses unknown license ${module.license}")
+            requireRegistry(
+                module.license in distribution.licenses,
+                "${module.id} uses unknown license ${module.license}",
+            )
             if (validatePaths) {
                 val rawProjectDir = File(module.projectDir)
                 val resolvedProjectDir = canonicalRoot.resolve(rawProjectDir).canonicalFile
@@ -155,15 +187,16 @@ object OnyxModuleRegistry {
                 )
             }
             module.projectDependencies.forEach { dependency ->
-                val target = byId[dependency.target]
-                    ?: throw GradleException("${module.id} depends on unknown module ${dependency.target}")
+                val target = requireTarget(byId, module.id, dependency.target)
                 requireRegistry(
                     target.published,
                     "${module.id} has a production dependency on non-published ${target.id}",
                 )
             }
         }
+    }
 
+    private fun validateOwnership(modules: List<OnyxModule>) {
         val packageOwners = mutableMapOf<String, String>()
         val validationOwners = mutableMapOf<String, String>()
         val legacyOwners = mutableMapOf<String, String>()
@@ -208,7 +241,6 @@ object OnyxModuleRegistry {
                 "Non-published module ${module.id} cannot define device validation roles",
             )
         }
-        return OnyxRegistry(canonicalRoot, distribution, modules)
     }
 
     private fun parseModule(module: Map<*, *>, index: Int, defaultLicense: String): OnyxModule {
@@ -219,7 +251,7 @@ object OnyxModuleRegistry {
             val dependency = raw.asMap(depContext)
             val configuration = dependency.requiredString("configuration", depContext)
             requireRegistry(
-                configuration in productionConfigurations,
+                configuration in OnyxModuleRegistry.productionConfigurations,
                 "$depContext.configuration is not a production configuration",
             )
             OnyxProjectDependency(
@@ -271,10 +303,12 @@ object OnyxModuleRegistry {
         )
     }
 
-    private fun requireUnique(label: String, values: List<String>) {
-        val duplicates = values.groupingBy { it }.eachCount().filterValues { it > 1 }.keys.sorted()
-        requireRegistry(duplicates.isEmpty(), "Duplicate module $label: ${duplicates.joinToString()}")
-    }
+    private fun requireTarget(
+        modulesById: Map<String, OnyxModule>,
+        sourceId: String,
+        targetId: String,
+    ): OnyxModule = modulesById[targetId]
+        ?: throw GradleException("$sourceId depends on unknown module $targetId")
 
     private fun validateReference(value: String, context: String, jar: Boolean) {
         val parts = value.split('/')
@@ -285,51 +319,59 @@ object OnyxModuleRegistry {
         requireRegistry(!jar || value.endsWith(".jar"), "$context must reference a .jar file")
     }
 
-    private fun requireRegistry(condition: Boolean, message: String) {
-        if (!condition) throw GradleException("Invalid Onyx module registry: $message")
+    private fun requireUnique(label: String, values: List<String>) {
+        val duplicates = values.groupingBy { it }.eachCount().filterValues { it > 1 }.keys.sorted()
+        requireRegistry(duplicates.isEmpty(), "Duplicate module $label: ${duplicates.joinToString()}")
+    }
+}
+
+private fun requireRegistry(condition: Boolean, message: String) {
+    if (!condition) throw GradleException("Invalid Onyx module registry: $message")
+}
+
+private fun Any?.asMap(context: String): Map<*, *> = this as? Map<*, *>
+    ?: throw GradleException("Invalid Onyx module registry: $context must be an object")
+
+private fun Map<*, *>.requiredMap(key: String, context: String): Map<*, *> =
+    this[key].asMap("$context.$key")
+
+private fun Map<*, *>.optionalMap(key: String, context: String): Map<*, *> =
+    if (containsKey(key)) requiredMap(key, context) else emptyMap<Any, Any>()
+
+private fun Map<*, *>.requiredString(key: String, context: String): String {
+    val value = this[key] as? String
+    if (value.isNullOrBlank()) {
+        throw GradleException("Invalid Onyx module registry: $context.$key must be a non-empty string")
+    }
+    return value
+}
+
+private fun Map<*, *>.optionalString(key: String, context: String): String? {
+    if (!containsKey(key)) return null
+    return requiredString(key, context)
+}
+
+private fun Map<*, *>.requiredBoolean(key: String, context: String): Boolean =
+    this[key] as? Boolean
+        ?: throw GradleException("Invalid Onyx module registry: $context.$key must be a boolean")
+
+private fun Map<*, *>.optionalBoolean(key: String, context: String): Boolean =
+    if (containsKey(key)) requiredBoolean(key, context) else false
+
+private fun Map<*, *>.optionalList(key: String, context: String): List<*> =
+    if (containsKey(key)) {
+        this[key] as? List<*>
+            ?: throw GradleException("Invalid Onyx module registry: $context.$key must be a list")
+    } else {
+        emptyList<Any>()
     }
 
-    private fun Any?.asMap(context: String): Map<*, *> = this as? Map<*, *>
-        ?: throw GradleException("Invalid Onyx module registry: $context must be an object")
-
-    private fun Map<*, *>.requiredMap(key: String, context: String): Map<*, *> =
-        this[key].asMap("$context.$key")
-
-    private fun Map<*, *>.optionalMap(key: String, context: String): Map<*, *> =
-        if (containsKey(key)) requiredMap(key, context) else emptyMap<Any, Any>()
-
-    private fun Map<*, *>.requiredString(key: String, context: String): String {
-        val value = this[key] as? String
-        requireRegistry(!value.isNullOrBlank(), "$context.$key must be a non-empty string")
-        return value!!
+private fun Map<*, *>.stringList(key: String, context: String): List<String> {
+    val values = optionalList(key, context).map { item ->
+        item as? String
+            ?: throw GradleException("Invalid Onyx module registry: $context.$key must contain strings")
     }
-
-    private fun Map<*, *>.optionalString(key: String, context: String): String? {
-        if (!containsKey(key)) return null
-        return requiredString(key, context)
-    }
-
-    private fun Map<*, *>.requiredBoolean(key: String, context: String): Boolean =
-        this[key] as? Boolean
-            ?: throw GradleException("Invalid Onyx module registry: $context.$key must be a boolean")
-
-    private fun Map<*, *>.optionalBoolean(key: String, context: String): Boolean =
-        if (containsKey(key)) requiredBoolean(key, context) else false
-
-    private fun Map<*, *>.optionalList(key: String, context: String): List<*> =
-        if (containsKey(key)) {
-            this[key] as? List<*>
-                ?: throw GradleException("Invalid Onyx module registry: $context.$key must be a list")
-        } else {
-            emptyList<Any>()
-        }
-
-    private fun Map<*, *>.stringList(key: String, context: String): List<String> {
-        val values = optionalList(key, context).map { item ->
-            item as? String
-                ?: throw GradleException("Invalid Onyx module registry: $context.$key must contain strings")
-        }
-        requireUnique("$context.$key", values)
-        return values
-    }
+    val duplicates = values.groupingBy { it }.eachCount().filterValues { it > 1 }.keys.sorted()
+    requireRegistry(duplicates.isEmpty(), "Duplicate module $context.$key: ${duplicates.joinToString()}")
+    return values
 }

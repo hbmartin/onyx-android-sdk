@@ -1,6 +1,7 @@
 package com.onyx.android.sdk.base.lite.utils
 
 import android.graphics.Matrix
+import java.math.BigInteger
 import kotlin.math.atan2
 import kotlin.math.hypot
 
@@ -35,10 +36,12 @@ object MathUtils {
      * vertical axis, in degrees from `0` through `45`.
      */
     fun lineNearAngle(x1: Float, y1: Float, x2: Float, y2: Float): Float {
+        val rightAngle = Math.toDegrees(Math.PI / 2.0).toFloat()
+        val diagonalAngle = Math.toDegrees(Math.PI / (2.0 * 2.0)).toFloat()
         val angle = kotlin.math.abs(
             Math.toDegrees(atan2((y2 - y1).toDouble(), (x2 - x1).toDouble())).toFloat(),
-        ) % 90
-        return if (angle > 45.0f) 90 - angle else angle
+        ) % rightAngle
+        return if (angle > diagonalAngle) rightAngle - angle else angle
     }
 
     /**
@@ -70,8 +73,9 @@ object MathUtils {
      */
     fun normalizeAngleTo36(angle: Double): UByte {
         require(angle.isFinite()) { "Angle must be finite: $angle" }
-        val normalizedDegrees = ((angle % 360.0) + 360.0) % 360.0
-        return (normalizedDegrees / 10.0).toInt().toUByte()
+        val fullRotation = Math.toDegrees(Math.PI * 2.0)
+        val normalizedDegrees = ((angle % fullRotation) + fullRotation) % fullRotation
+        return (normalizedDegrees / BigInteger.TEN.toDouble()).toInt().toUByte()
     }
 
     /** Returns this value or [max], whichever is smaller. */

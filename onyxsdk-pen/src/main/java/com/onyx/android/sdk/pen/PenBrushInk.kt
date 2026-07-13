@@ -21,14 +21,21 @@ class PenBrushInk(
     /**
      * Java-friendly constructor that preserves unsigned byte values.
      *
-     * @throws IllegalArgumentException when [size], [angle36], or [alpha] is outside `0..255`
+     * @throws IllegalArgumentException when [size], [angle36], or [alpha] is outside the unsigned
+     * byte range
      */
     constructor(x: Float, y: Float, size: Int, angle36: Int, alpha: Int) : this(
         x = x,
         y = y,
-        size = size.also { require(it in 0..255) { "size must be in 0..255: $it" } }.toUByte(),
-        angle36 = angle36.also { require(it in 0..255) { "angle36 must be in 0..255: $it" } }.toUByte(),
-        alpha = alpha.also { require(it in 0..255) { "alpha must be in 0..255: $it" } }.toUByte(),
+        size = size.also {
+            require(it in 0..UByte.MAX_VALUE.toInt()) { "size must be an unsigned byte: $it" }
+        }.toUByte(),
+        angle36 = angle36.also {
+            require(it in 0..UByte.MAX_VALUE.toInt()) { "angle36 must be an unsigned byte: $it" }
+        }.toUByte(),
+        alpha = alpha.also {
+            require(it in 0..UByte.MAX_VALUE.toInt()) { "alpha must be an unsigned byte: $it" }
+        }.toUByte(),
     )
 
     /** Returns [size] without Kotlin's unsigned JVM name mangling. */
@@ -53,11 +60,10 @@ class PenBrushInk(
 
     /** Returns a hash derived from all position and brush values. */
     override fun hashCode(): Int {
-        var result = if (x == 0.0f) 0 else x.toBits()
-        result = 31 * result + if (y == 0.0f) 0 else y.toBits()
-        result = 31 * result + size.toInt()
-        result = 31 * result + angle36.toInt()
-        result = 31 * result + alpha.toInt()
-        return result
+        val multiplier = Int.SIZE_BITS - 1
+        val xHash = if (x == 0.0f) 0 else x.toBits()
+        val yHash = if (y == 0.0f) 0 else y.toBits()
+        return (((xHash * multiplier + yHash) * multiplier + size.toInt()) * multiplier +
+            angle36.toInt()) * multiplier + alpha.toInt()
     }
 }

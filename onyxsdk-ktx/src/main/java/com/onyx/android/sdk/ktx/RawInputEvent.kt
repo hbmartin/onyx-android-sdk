@@ -1,3 +1,5 @@
+@file:JvmName("FlowExtensionsKt")
+
 package com.onyx.android.sdk.ktx
 
 import android.graphics.RectF

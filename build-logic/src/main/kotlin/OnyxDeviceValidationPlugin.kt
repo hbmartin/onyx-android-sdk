@@ -3,7 +3,23 @@ import java.io.File
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.getByType
+
+private data class ValidationModules(
+    val common: List<OnyxModule>,
+    val compared: List<OnyxModule>,
+)
+
+private class ValidationArtifacts(
+    private val recoveryRoot: File,
+    private val referenceRoot: File,
+) {
+    fun recovered(module: OnyxModule): File = recoveryRoot.resolve(module.aarRelativePath)
+
+    fun reference(relativePath: String): File = referenceRoot.resolve(relativePath)
+}
 
 class OnyxDeviceValidationPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
@@ -12,36 +28,46 @@ class OnyxDeviceValidationPlugin : Plugin<Project> {
 
         val recoveryRoot = rootProject.layout.projectDirectory.dir("..").asFile.canonicalFile
         val registry = OnyxModuleRegistry.load(recoveryRoot)
-        val artifactsRoot = providers.gradleProperty("OnyxArtifactsRoot").orNull
-            ?.let(::File)
-            ?.let { if (it.isAbsolute) it else rootProject.projectDir.resolve(it) }
-            ?.canonicalFile
-            ?: throw GradleException(
-                "Pass -POnyxArtifactsRoot=/absolute/path/to/reference-artifacts",
-            )
+        val modules = registry.validationModules()
+        val artifacts = ValidationArtifacts(recoveryRoot, resolveReferenceRoot())
 
-        fun recovered(module: OnyxModule): File = recoveryRoot.resolve(module.aarRelativePath)
-        fun original(relativePath: String): File = artifactsRoot.resolve(relativePath)
-
-        val commonModules = registry.publishedModules.filter {
-            it.deviceValidation.commonRecovered
+        configureValidationDependencies(android, modules, artifacts)
+        val verifyInputs = registerVerifyInputs(modules, artifacts)
+        tasks.matching { it.name == "preBuild" }.configureEach {
+            dependsOn(verifyInputs)
         }
-        val comparedModules = registry.publishedModules.filter {
-            it.deviceValidation.referenceCompileJars.isNotEmpty()
-        }
+    }
 
+    private fun Project.resolveReferenceRoot(): File {
+        val configuredRoot = providers.gradleProperty("OnyxArtifactsRoot").orNull
+        if (configuredRoot.isNullOrBlank()) {
+            throw GradleException("Pass -POnyxArtifactsRoot=/absolute/path/to/reference-artifacts")
+        }
+        val configuredFile = File(configuredRoot)
+        return if (configuredFile.isAbsolute) {
+            configuredFile.canonicalFile
+        } else {
+            rootProject.projectDir.resolve(configuredFile).canonicalFile
+        }
+    }
+
+    private fun Project.configureValidationDependencies(
+        android: ApplicationExtension,
+        modules: ValidationModules,
+        artifacts: ValidationArtifacts,
+    ) {
         afterEvaluate {
-            dependencies.add("implementation", files(commonModules.map(::recovered)))
+            dependencies.add("implementation", files(modules.common.map(artifacts::recovered)))
             dependencies.add(
                 "referenceImplementation",
-                files(comparedModules.flatMap {
-                    it.deviceValidation.referenceCompileJars.map(::original)
+                files(modules.compared.flatMap {
+                    it.deviceValidation.referenceCompileJars.map(artifacts::reference)
                 }),
             )
-            dependencies.add("recoveredImplementation", files(comparedModules.map(::recovered)))
+            dependencies.add("recoveredImplementation", files(modules.compared.map(artifacts::recovered)))
 
-            val referenceJniDirs = comparedModules.mapNotNull {
-                it.deviceValidation.referenceJniDir?.let(::original)
+            val referenceJniDirs = modules.compared.mapNotNull {
+                it.deviceValidation.referenceJniDir?.let(artifacts::reference)
             }
             android.sourceSets
                 .getByName("reference")
@@ -49,37 +75,42 @@ class OnyxDeviceValidationPlugin : Plugin<Project> {
                 .directories
                 .addAll(referenceJniDirs.map(File::getAbsolutePath))
         }
+    }
 
-        val verifyInputs = tasks.register("verifyInputs") {
-            group = "verification"
-            description = "Checks registry-declared reference and recovered validation inputs."
-            doLast {
-                val requiredFiles = buildList {
-                    addAll(commonModules.map(::recovered))
-                    addAll(comparedModules.map(::recovered))
-                    comparedModules.forEach { module ->
-                        val references = module.deviceValidation.referenceCompileJars +
-                            module.deviceValidation.apiReferenceJars
-                        addAll(references.distinct().map(::original))
-                    }
-                }
-                val requiredDirectories = comparedModules.mapNotNull { module ->
-                    module.deviceValidation.referenceJniDir?.let(::original)
-                }
-                val missing = buildList {
-                    addAll(requiredFiles.filterNot(File::isFile))
-                    addAll(requiredDirectories.filterNot(File::isDirectory))
-                }
-                if (missing.isNotEmpty()) {
-                    throw GradleException(
-                        "Missing validation inputs:\n${missing.joinToString("\n")}. " +
-                            "Build assembleRecovered with the repository Gradle wrapper first.",
-                    )
+    private fun Project.registerVerifyInputs(
+        modules: ValidationModules,
+        artifacts: ValidationArtifacts,
+    ): TaskProvider<Task> = tasks.register("verifyInputs") {
+        group = "verification"
+        description = "Checks registry-declared reference and recovered validation inputs."
+        doLast {
+            val requiredFiles = buildList {
+                addAll(modules.common.map(artifacts::recovered))
+                addAll(modules.compared.map(artifacts::recovered))
+                modules.compared.forEach { module ->
+                    val references = module.deviceValidation.referenceCompileJars +
+                        module.deviceValidation.apiReferenceJars
+                    addAll(references.distinct().map(artifacts::reference))
                 }
             }
-        }
-        tasks.matching { it.name == "preBuild" }.configureEach {
-            dependsOn(verifyInputs)
+            val requiredDirectories = modules.compared.mapNotNull { module ->
+                module.deviceValidation.referenceJniDir?.let(artifacts::reference)
+            }
+            val missing = buildList {
+                addAll(requiredFiles.filterNot(File::isFile))
+                addAll(requiredDirectories.filterNot(File::isDirectory))
+            }
+            if (missing.isNotEmpty()) {
+                throw GradleException(
+                    "Missing validation inputs:\n${missing.joinToString("\n")}. " +
+                        "Build assembleRecovered with the repository Gradle wrapper first.",
+                )
+            }
         }
     }
+
+    private fun OnyxRegistry.validationModules(): ValidationModules = ValidationModules(
+        common = publishedModules.filter { it.deviceValidation.commonRecovered },
+        compared = publishedModules.filter { it.deviceValidation.referenceCompileJars.isNotEmpty() },
+    )
 }

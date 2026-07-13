@@ -1,3 +1,5 @@
+@file:JvmName("SizeExtensionsKt")
+
 package com.onyx.android.sdk.ktx
 
 import android.util.Size as AndroidSize
