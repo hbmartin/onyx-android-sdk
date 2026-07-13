@@ -12,6 +12,8 @@ import tempfile
 import zipfile
 from pathlib import Path
 
+from module_registry import load_registry
+
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "device-validation"))
@@ -24,21 +26,6 @@ from classify_api_differences import (  # noqa: E402
     run_javap,
 )
 
-
-MODULES = {
-    "onyxsdk-base": "onyxsdk-base/build/outputs/aar/onyxsdk-base-release.aar",
-    "onyxsdk-baselite": (
-        "onyxsdk-base/support/onyxsdk-baselite/build/outputs/aar/"
-        "onyxsdk-baselite-release.aar"
-    ),
-    "onyxsdk-commons-io": (
-        "onyxsdk-base/support/onyxsdk-commons-io/build/outputs/aar/"
-        "onyxsdk-commons-io-release.aar"
-    ),
-    "onyxsdk-device": "onyxsdk-device/build/outputs/aar/onyxsdk-device-release.aar",
-    "onyxsdk-ktx": "onyxsdk-ktx/build/outputs/aar/onyxsdk-ktx-release.aar",
-    "onyxsdk-pen": "onyxsdk-pen/build/outputs/aar/onyxsdk-pen-release.aar",
-}
 
 # Intentional source incompatibilities that are documented in
 # docs/API_INCOMPATIBILITIES.md and must not be reintroduced merely to satisfy
@@ -156,14 +143,16 @@ def main() -> int:
     )
     args = parser.parse_args()
     root = args.root.resolve()
+    registry = load_registry(root)
     contracts = root / "scripts" / "jvm-api-contracts"
     failures = []
 
     with tempfile.TemporaryDirectory() as temporary:
         temp = Path(temporary)
-        for module, relative_aar in MODULES.items():
+        for module_metadata in registry.published_modules:
+            module = module_metadata.artifact_id
             try:
-                jar = extract_classes(root / relative_aar, temp)
+                jar = extract_classes(root / module_metadata.aar_relative_path, temp)
                 payload = contract_for_jar(jar, module)
                 failure = verify_or_update(contracts / f"{module}.jsonl", payload, args.update)
                 if failure:

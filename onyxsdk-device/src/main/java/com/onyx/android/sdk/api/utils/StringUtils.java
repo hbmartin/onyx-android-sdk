@@ -1,6 +1,5 @@
 package com.onyx.android.sdk.api.utils;
 
-import android.text.TextUtils;
 import java.util.Objects;
 
 public class StringUtils {
@@ -17,6 +16,13 @@ public class StringUtils {
     }
 
     public static String join(Iterable<?> elements, String delimiter) {
-        return TextUtils.join(delimiter, elements);
+        StringBuilder builder = new StringBuilder();
+        for (Object element : elements) {
+            if (builder.length() > 0) {
+                builder.append(delimiter);
+            }
+            builder.append(element);
+        }
+        return builder.toString();
     }
 }

@@ -1,18 +1,54 @@
 .gradle/
 **/build/
 **/target/
+idea-sandbox/
 onyxsdk-pen/src/main/jniLibs/
 *.iml
-.idea/
+
 .DS_Store
 local.properties
 recovery-evidence/
 # Local reference artifacts: original binaries stay outside version control
 # as a matter of policy; ignoring the conventional local names keeps an
 # accidental `git add .` from tracking them.
-libneo_pen.so
-onyxsdk-pen-native-classes.jar
+*.so
+*.jar
+!gradle-wrapper.jar
 __pycache__/
-# Raw device-validation runs stay local; promote_fixture.py copies the
-# sanitized, deterministic subset into device-validation/fixtures/ (tracked).
 device-validation/results/
+reviews_triage/
+
+# User-specific stuff
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+
+# AWS User-specific
+.idea/**/aws.xml
+
+# Generated files
+.idea/**/contentModel.xml
+
+# Sensitive or high-churn files
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+.idea/**/uiDesigner.xml
+.idea/**/dbnavigator.xml
+.idea/caches/
+
+# Gradle
+.idea/**/gradle.xml
+.idea/**/libraries
+
+# IntelliJ
+out/
+
+# Android studio 3.1+ serialized cache file
+.idea/caches/build_file_checksums.ser
+
+.kotlin/

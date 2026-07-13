@@ -1,14 +1,7 @@
 plugins {
     id("com.android.application")
+    id("onyx.device-validation")
 }
-
-val artifactsRoot = providers.gradleProperty("OnyxArtifactsRoot")
-    .orNull
-    ?: error("Pass -POnyxArtifactsRoot=/absolute/path/to/reference-artifacts")
-val recoveryRoot = rootProject.layout.projectDirectory.dir("..").asFile
-
-fun recoveredAar(path: String) = file("${recoveryRoot.absolutePath}/$path")
-fun original(path: String) = file("$artifactsRoot/$path")
 
 android {
     namespace = "com.onyx.recovery.validation"
@@ -33,10 +26,6 @@ android {
             buildConfigField("String", "SDK_VARIANT", "\"recovered\"")
         }
     }
-
-    sourceSets.getByName("reference").jniLibs.srcDir(
-        original("onyxsdk-pen-1.5.4/jni")
-    )
 
     buildFeatures {
         buildConfig = true
@@ -68,23 +57,6 @@ android {
 }
 
 dependencies {
-    implementation(files(
-        recoveredAar("onyxsdk-base/support/onyxsdk-baselite/build/outputs/aar/onyxsdk-baselite-release.aar"),
-        recoveredAar("onyxsdk-base/support/onyxsdk-commons-io/build/outputs/aar/onyxsdk-commons-io-release.aar"),
-    ))
-
-    add("referenceImplementation", files(
-        original("onyxsdk-base-1.8.5/classes.jar"),
-        original("onyxsdk-device-1.3.5/classes.jar"),
-        original("onyxsdk-pen-1.5.4/classes.jar"),
-    ))
-
-    add("recoveredImplementation", files(
-        recoveredAar("onyxsdk-base/build/outputs/aar/onyxsdk-base-release.aar"),
-        recoveredAar("onyxsdk-device/build/outputs/aar/onyxsdk-device-release.aar"),
-        recoveredAar("onyxsdk-pen/build/outputs/aar/onyxsdk-pen-release.aar"),
-    ))
-
     implementation("androidx.annotation:annotation:1.9.1")
     implementation("androidx.fragment:fragment:1.8.8")
     implementation("androidx.appcompat:appcompat:1.7.1")
@@ -103,25 +75,4 @@ dependencies {
     // The mockable android.jar stubs org.json (toString() returns null);
     // recorder tests that exercise real record writes need the real library.
     testImplementation("org.json:json:20240303")
-}
-
-tasks.register("verifyInputs") {
-    doLast {
-        val required = listOf(
-            original("onyxsdk-base-1.8.5/classes.jar"),
-            original("onyxsdk-device-1.3.5/classes.jar"),
-            original("onyxsdk-pen-1.5.4/classes.jar"),
-            recoveredAar("onyxsdk-base/build/outputs/aar/onyxsdk-base-release.aar"),
-            recoveredAar("onyxsdk-device/build/outputs/aar/onyxsdk-device-release.aar"),
-            recoveredAar("onyxsdk-pen/build/outputs/aar/onyxsdk-pen-release.aar"),
-        )
-        val missing = required.filterNot { it.isFile }
-        check(missing.isEmpty()) {
-            "Missing validation inputs:\n${missing.joinToString("\n")}. Build assembleRecovered with the repository Gradle wrapper first."
-        }
-    }
-}
-
-tasks.matching { it.name == "preBuild" }.configureEach {
-    dependsOn("verifyInputs")
 }

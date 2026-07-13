@@ -13,6 +13,11 @@ import tempfile
 import zipfile
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "scripts"))
+
+from module_registry import load_registry  # noqa: E402
+
 DECLARATION = re.compile(r"^(?:public |protected )?(?:final |abstract )?(?:class|interface|enum) ([\w.$]+)")
 
 
@@ -73,14 +78,15 @@ def main() -> None:
     parser.add_argument("--recovery-root", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    registry = load_registry(args.recovery_root)
     modules = {
-        "base": ([args.artifacts_root / "onyxsdk-base-1.8.5/classes.jar"],
-                 args.recovery_root / "onyxsdk-base/build/outputs/aar/onyxsdk-base-release.aar"),
-        "device": ([args.artifacts_root / "onyxsdk-device-1.3.5/classes.jar"],
-                   args.recovery_root / "onyxsdk-device/build/outputs/aar/onyxsdk-device-release.aar"),
-        "pen": ([args.artifacts_root / "onyxsdk-pen-1.5.4/classes.jar",
-                 args.artifacts_root / "onyxsdk-pen-native-classes.jar"],
-                args.recovery_root / "onyxsdk-pen/build/outputs/aar/onyxsdk-pen-release.aar"),
+        module.id: (
+            [args.artifacts_root / path
+             for path in module.device_validation.get("apiReferenceJars", [])],
+            args.recovery_root / module.aar_relative_path,
+        )
+        for module in registry.published_modules
+        if module.device_validation.get("apiReferenceJars")
     }
     payload = {}
     with tempfile.TemporaryDirectory() as temporary:

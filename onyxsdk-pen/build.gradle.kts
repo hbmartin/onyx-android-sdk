@@ -6,9 +6,6 @@ plugins {
     id("onyx.kdoc")
 }
 
-group = "com.onyx.android.sdk.recovered"
-version = "1.5.4-recovered-source"
-
 val buildRustAndroid = tasks.register<Exec>("buildRustAndroid") {
     group = "build"
     description = "Cross-compiles both recovered pen libraries for all four Android ABIs."
@@ -28,7 +25,12 @@ val buildRustAndroid = tasks.register<Exec>("buildRustAndroid") {
     inputs.property("ndkVersion", providers.environmentVariable("ANDROID_NDK_VERSION").orElse(""))
     inputs.property("ndkHome", providers.environmentVariable("ANDROID_NDK_HOME").orElse(""))
     inputs.property("androidApi", providers.environmentVariable("ANDROID_API").orElse(""))
+    val androidSdkDirectory = androidComponents.sdkComponents.sdkDirectory
+    inputs.property("androidSdkDirectory", androidSdkDirectory.map { it.asFile.absolutePath })
     commandLine("bash", buildScript.asFile)
+    doFirst {
+        environment("ANDROID_HOME", androidSdkDirectory.get().asFile.absolutePath)
+    }
     val referenceSoPath = providers.gradleProperty("penReferenceNeoSo")
     val projectDir = layout.projectDirectory.asFile
     val jniArm64 = layout.projectDirectory.dir("src/main/jniLibs/arm64-v8a").asFile

@@ -3,9 +3,6 @@ plugins {
     id("onyx.kdoc")
 }
 
-group = "com.onyx.android.sdk.recovered"
-version = "1.0.0"
-
 android {
     namespace = "com.onyx.android.sdk.ktx"
 

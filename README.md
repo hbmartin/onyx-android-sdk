@@ -1,7 +1,8 @@
 # Onyx SDK recovered source
 
-This repository is a source-only reconstruction of three Onyx/BOOX SDK
-packages plus an additive Kotlin companion. It contains no tracked original
+This repository is a source-only reconstruction of six independently built
+Onyx/BOOX Android libraries, including two recovered support artifacts and an
+additive Kotlin companion. It contains no tracked original
 SDK JAR, AAR, or native library.
 
 The public Kotlin API reference is available on
@@ -11,6 +12,8 @@ The public Kotlin API reference is available on
 |---|---:|---|
 | `onyxsdk-base` | 1.8.5 | source-built Android library |
 | `onyxsdk-device` | 1.3.5 | source-built Android library |
+| `onyxsdk-baselite` | 1.1.1 | separate source-built support library |
+| `onyxsdk-commons-io` | 2.5 | separate relocated Apache Commons IO library |
 | `onyxsdk-ktx` | 1.0.0 | immutable size helpers and coroutine/Rx adapters |
 | `onyxsdk-pen` | 1.5.4 | complete 129-class pen surface plus two Rust JNI libraries |
 
@@ -22,6 +25,100 @@ descriptor/flags/signature/metadata audit against its reference JAR and
 pinned by an in-tree regression test (see RECOVERY_NOTES.md). The references
 are analysis inputs only and are never Gradle inputs, tracked files, or AAR
 contents.
+
+## Module architecture and provenance
+
+The module names preserve the original Onyx Maven artifacts; they do not form
+a conventional bottom-up layering. In particular, `onyxsdk-base` is the broad
+application-facing SDK, not the lowest-level module. It builds on the smaller
+device and support artifacts and exposes them transitively through Gradle's
+`api` configuration.
+
+The production dependency direction is:
+
+```text
+onyxsdk-ktx -----> onyxsdk-pen -----> onyxsdk-base
+      +-------------------------------------> onyxsdk-base
+
+onyxsdk-base ----> onyxsdk-device
+             +---> onyxsdk-baselite
+             +---> onyxsdk-commons-io
+```
+
+Each arrow means "depends on". onyxsdk-ktx depends directly on both pen and
+base; pen also depends on base.
+
+The modules have distinct responsibilities:
+
+| Module | Role |
+|---|---|
+| `onyxsdk-device` | Low-level BOOX hardware and firmware integration: E-ink refresh, front lights, system properties, device/SoC implementations, screen resources, and reflection/Binder access. It can be built without `onyxsdk-base`. |
+| `onyxsdk-baselite` | Onyx-specific foundation types and helpers: `TouchPoint`, `TouchPointList`, sizes, geometry, paths, bitmap extensions, math, logging, and resource access. Pen rendering uses it heavily. |
+| `onyxsdk-commons-io` | Apache Commons IO 2.5 relocated from `org.apache.commons.io` to `com.onyx.android.sdk.commons.io`, primarily supplying `FileUtils`, `FilenameUtils`, `IOUtils`, filters, comparators, and stream wrappers. |
+| `onyxsdk-base` | The large common SDK layer: document/note/reader models, storage and file utilities, paths, Wi-Fi, calendar and firmware APIs, RxJava helpers, localized resources, and AIDL/Parcelable types. It delegates hardware-specific work to `onyxsdk-device`. |
+| `onyxsdk-pen` | Legacy and current pen APIs plus the recovered Rust JNI implementations. It uses base data/API types and Baselite geometry primitives transitively. |
+| `onyxsdk-ktx` | Additive Kotlin-first adapters and immutable helpers. New APIs that do not need to alter the recovered binary surface belong here. |
+
+Baselite 1.1.1 and Onyx Commons IO 2.5 were separate compile dependencies in
+the original `onyxsdk-base:1.8.5` POM, published under
+`com.onyx.android.sdk` through the BOOX Maven repository. They were not
+embedded in the base `classes.jar`. This repository replaces their original
+AARs with the source-built modules under `onyxsdk-base/support`; their nested
+location is a repository convenience rather than an indication that they were
+private implementation code. Commons IO retains its Apache license headers
+and relocated package names, while Baselite retains the Onyx-specific class
+and Kotlin/JVM surface expected by base and pen.
+
+Treat `onyxsdk-base`, `onyxsdk-device`, `onyxsdk-pen`, and both support modules
+as compatibility artifacts. Avoid renaming their legacy packages, merging the
+support classes into base, or splitting base classes into new AARs unless the
+artifact and JVM contract change is intentional. Prefer `implementation` for
+new internal dependencies, keep `api` only where the public or historical
+dependency contract requires it, and put additive Kotlin APIs in
+`onyxsdk-ktx`. Any boundary or dependency change must pass `./gradlew check`,
+including the per-AAR JVM contract verification.
+
+The exact package-owner map is registry-controlled. Base owns
+`com.onyx.android.sdk.utils`; Device retains only eight historical exceptions
+in that package: `ClassUtils`, `Debug`, `DeviceBroadcastHelper`, `LightUtils`,
+`MagnifierUtils`, `ReflectUtil`, `Singleton`, and `SystemPropertiesUtil`.
+`verifyModuleBoundaries` rejects a ninth Device utility, a moved exception,
+another split package, duplicate classes between AARs, or support-owned
+Baselite/Commons IO classes appearing in Base.
+
+## Distribution and licensing
+
+The six release AARs are independent Maven publications under
+`io.github.hbmartin.onyx`. Their artifact IDs and recovered-source versions
+are declared once in [`gradle/onyx-modules.json`](gradle/onyx-modules.json),
+which also drives Gradle project inclusion, aggregate builds, validation
+inputs, package ownership, and release staging. AAR paths and production task
+lists must not be duplicated in build or validation configuration.
+
+Recovered first-party code is distributed under the GNU Lesser General Public
+License v3.0 only; see [`LICENSE.txt`](LICENSE.txt) and its incorporated
+[`LICENSES/GPL-3.0.txt`](LICENSES/GPL-3.0.txt) terms. The separately published,
+relocated `onyxsdk-commons-io` module remains Apache-2.0 and retains its source
+headers; see [`LICENSES/Apache-2.0.txt`](LICENSES/Apache-2.0.txt). This exception
+preserves third-party provenance and does not change the license of the other
+five artifacts.
+
+Every release publication contains the unchanged source-built AAR plus Maven
+POM and Gradle module metadata, sources, and Javadoc artifacts. Generate and
+audit credential-free publication output with:
+
+```bash
+./gradlew verifyPublicationMetadata stageGithubRelease
+```
+
+`verifyCentralBundle` additionally requires `MAVEN_SIGNING_KEY` and
+`MAVEN_SIGNING_PASSWORD` and produces the signed Central Portal bundle under
+`build/distributions/central/`. Tag CI supplies those signing values and the
+`MAVEN_CENTRAL_USERNAME` / `MAVEN_CENTRAL_PASSWORD` Portal token, uploads only
+new coordinates, skips byte-identical coordinates, and publishes automatically
+after Portal validation. Run the signed task with `--no-configuration-cache`,
+as the built-in Gradle signing plugin consumes the private key during
+configuration; tag CI already enforces that flag.
 
 ## Pen native implementation
 

@@ -2,9 +2,6 @@ plugins {
     id("onyx.android-library")
 }
 
-group = "com.onyx.android.sdk.recovered"
-version = "1.3.5-recovered-source"
-
 android {
     namespace = "com.onyx.android.sdk.device"
 

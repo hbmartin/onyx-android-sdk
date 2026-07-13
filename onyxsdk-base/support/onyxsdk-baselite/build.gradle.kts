@@ -3,9 +3,6 @@ plugins {
     id("onyx.kdoc")
 }
 
-group = "com.onyx.android.sdk.recovered"
-version = "1.1.1-recovered-source"
-
 android {
     namespace = "com.onyx.android.sdk.baselite"
 

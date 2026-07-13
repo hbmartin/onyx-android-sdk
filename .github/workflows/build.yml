@@ -57,7 +57,16 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: Build, test, and audit recovery
-        run: ./gradlew --no-daemon clean :check assembleRecovered
+        run: ./gradlew --no-daemon clean :check assembleRecovered stageGithubRelease
+
+      - name: Build signed Maven Central bundle
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          MAVEN_SIGNING_KEY: ${{ secrets.MAVEN_SIGNING_KEY }}
+          MAVEN_SIGNING_PASSWORD: ${{ secrets.MAVEN_SIGNING_PASSWORD }}
+        # Signing material is configuration-time input to Gradle's built-in
+        # signing plugin, so do not persist this invocation in configuration cache.
+        run: ./gradlew --no-daemon --no-configuration-cache verifyCentralBundle
 
       - name: Upload source-native artifacts and reports
         if: always()
@@ -66,8 +75,8 @@ jobs:
           name: onyxsdk-recovered-complete
           if-no-files-found: error
           path: |
-            onyxsdk-*/build/outputs/aar/*.aar
-            onyxsdk-*/build/libs/*.jar
+            build/distributions/github/
+            build/distributions/central/
             recovery-tests/build/reports/tests/
 
   fuzz-touch-reader:
@@ -104,22 +113,36 @@ jobs:
       - build-and-test
       - fuzz-touch-reader
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 40
     permissions:
       contents: write
 
     steps:
+      - name: Check out release tooling
+        uses: actions/checkout@v7
+
       - name: Download recovered SDK artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: onyxsdk-recovered-complete
           path: release-artifacts
 
+      - name: Publish new coordinates to Maven Central
+        env:
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+        run: >-
+          python3 scripts/publish_central.py
+          --root .
+          --bundle release-artifacts/build/distributions/central/onyx-android-sdk-central-bundle.zip
+
       - name: Publish AARs to GitHub Releases
         uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3
         with:
           working_directory: release-artifacts
-          files: onyxsdk-*/build/outputs/aar/*.aar
+          files: |
+            build/distributions/github/*
+            build/distributions/central/*.zip
           generate_release_notes: true
           fail_on_unmatched_files: true
           overwrite_files: true

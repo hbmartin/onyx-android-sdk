@@ -8,6 +8,10 @@ pluginManagement {
     }
 }
 
+plugins {
+    id("onyx.module-settings")
+}
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -17,13 +21,3 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "onyxsdk-recovered-complete"
-
-include(
-    "onyxsdk-base",
-    "onyxsdk-base:support:onyxsdk-baselite",
-    "onyxsdk-base:support:onyxsdk-commons-io",
-    "onyxsdk-device",
-    "onyxsdk-ktx",
-    "onyxsdk-pen",
-    "recovery-tests",
-)

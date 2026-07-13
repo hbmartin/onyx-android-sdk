@@ -32,6 +32,11 @@ from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "scripts"))
+
+from module_registry import RegistryError, load_registry  # noqa: E402
+
 SEVERITY = [
     "binary_breaking",
     "extra_public_surface",
@@ -471,22 +476,19 @@ def gate_fails(unaccepted_counts: Counter[str], fail_on: str) -> bool:
 def module_inputs(args: argparse.Namespace, workdir: Path) -> tuple[list[Path], list[Path]]:
     artifacts = Path(args.artifacts_root)
     recovery = Path(args.recovery_root)
-    reference = {
-        "base": [artifacts / "onyxsdk-base-1.8.5" / "classes.jar"],
-        "device": [artifacts / "onyxsdk-device-1.3.5" / "classes.jar"],
-        "pen": [
-            artifacts / "onyxsdk-pen-1.5.4" / "classes.jar",
-            artifacts / "onyxsdk-pen-native-classes.jar",
-        ],
-    }[args.module]
-    aar = recovery / f"onyxsdk-{args.module}" / "build" / "outputs" / "aar" \
-        / f"onyxsdk-{args.module}-release.aar"
+    registry = load_registry(recovery)
+    module = registry.module(args.module)
+    reference_paths = module.device_validation.get("apiReferenceJars", [])
+    if not reference_paths:
+        raise RegistryError(f"Module {args.module} has no API reference inputs")
+    reference = [artifacts / path for path in reference_paths]
+    aar = recovery / module.aar_relative_path
     return reference, [extract_classes_jar(aar, workdir)]
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--module", choices=("base", "device", "pen"))
+    parser.add_argument("--module")
     parser.add_argument("--artifacts-root")
     parser.add_argument("--recovery-root")
     parser.add_argument("--reference", action="append", type=Path, default=[])
