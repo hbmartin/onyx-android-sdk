@@ -1,5 +1,8 @@
 package com.onyx.android.sdk.api.utils;
 
+import android.text.TextUtils;
+import java.util.Objects;
+
 public class StringUtils {
     public static boolean isNullOrEmpty(String string) {
         return string == null || string.trim().length() <= 0;
@@ -10,23 +13,10 @@ public class StringUtils {
     }
 
     public static boolean safelyEquals(String firstStr, String secondStr) {
-        if (firstStr == null && secondStr == null) {
-            return true;
-        }
-        if (firstStr == null || secondStr == null) {
-            return false;
-        }
-        return firstStr.equals(secondStr);
+        return Objects.equals(firstStr, secondStr);
     }
 
     public static String join(Iterable<?> elements, String delimiter) {
-        StringBuilder sb = new StringBuilder();
-        for (Object obj : elements) {
-            if (sb.length() > 0) {
-                sb.append(delimiter);
-            }
-            sb.append(obj);
-        }
-        return sb.toString();
+        return TextUtils.join(delimiter, elements);
     }
 }

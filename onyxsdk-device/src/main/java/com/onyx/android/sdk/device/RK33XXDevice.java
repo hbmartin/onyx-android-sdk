@@ -1453,28 +1453,7 @@ public class RK33XXDevice extends BaseDevice
     
     @Override
     public void setScreenHandWritingRegionLimit(final View view, final Rect[] regions) {
-        final int[] array = new int[regions.length * 4];
-        for (int i = 0; i < regions.length; ++i) {
-            final int[] array2 = array;
-            final int n = i;
-            final Rect rect2;
-            final Rect rect = rect2 = regions[i];
-            final int min = Math.min(rect.left, rect2.right);
-            final int min2 = Math.min(rect.top, rect2.bottom);
-            final int max = Math.max(rect.left, rect2.right);
-            final int max2 = Math.max(rect.top, rect2.bottom);
-            final int n3;
-            final int n2 = n3 = n * 4;
-            final int[] array3 = array;
-            final int n4 = n3;
-            final int[] array4 = array;
-            final int n5 = n3;
-            array[n3] = min;
-            array4[n5 + 1] = min2;
-            array3[n4 + 2] = max;
-            array2[n2 + 3] = max2;
-        }
-        this.setScreenHandWritingRegionLimit(view, array);
+        super.setScreenHandWritingRegionLimit(view, regions);
     }
     
     @Override
@@ -1489,28 +1468,7 @@ public class RK33XXDevice extends BaseDevice
     
     @Override
     public void setScreenHandWritingRegionExclude(final View view, final Rect[] regions) {
-        final int[] array = new int[regions.length * 4];
-        for (int i = 0; i < regions.length; ++i) {
-            final int[] array2 = array;
-            final int n = i;
-            final Rect rect2;
-            final Rect rect = rect2 = regions[i];
-            final int min = Math.min(rect.left, rect2.right);
-            final int min2 = Math.min(rect.top, rect2.bottom);
-            final int max = Math.max(rect.left, rect2.right);
-            final int max2 = Math.max(rect.top, rect2.bottom);
-            final int n3;
-            final int n2 = n3 = n * 4;
-            final int[] array3 = array;
-            final int n4 = n3;
-            final int[] array4 = array;
-            final int n5 = n3;
-            array[n3] = min;
-            array4[n5 + 1] = min2;
-            array3[n4 + 2] = max;
-            array2[n2 + 3] = max2;
-        }
-        this.setScreenHandWritingRegionExclude(view, array);
+        super.setScreenHandWritingRegionExclude(view, regions);
     }
     
     @Override
@@ -1953,7 +1911,7 @@ public class RK33XXDevice extends BaseDevice
     
     @Override
     public void setAppCTPDisableRegion(final Context context, final Rect[] disableRegions, @Nullable final Rect[] excludeRegions) {
-        this.setAppCTPDisableRegion(context, this.convertRectArrayToIntArray(disableRegions), this.convertRectArrayToIntArray(excludeRegions));
+        super.setAppCTPDisableRegion(context, disableRegions, excludeRegions);
     }
     
     @Override

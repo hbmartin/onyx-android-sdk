@@ -193,10 +193,7 @@ public class CollectionUtils {
     }
 
     public static <T> void ensureAddAll(Collection<T> originList, Collection<T> collection) {
-        if (originList == null || isNullOrEmpty(collection)) {
-            return;
-        }
-        originList.addAll(collection);
+        safeAddAll(originList, collection);
     }
 
     public static <T extends Comparable<T>> boolean compare(@NonNull List<T> a2, @NonNull List<T> b2) {

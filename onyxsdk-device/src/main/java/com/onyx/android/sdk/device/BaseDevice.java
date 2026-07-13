@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 public class BaseDevice {
     private static final String b = "BaseDevice";
@@ -512,12 +513,16 @@ public class BaseDevice {
     }
 
     public void setScreenHandWritingRegionLimit(View view, Rect[] regions) {
+        setScreenHandWritingRegionLimit(view,
+                Objects.requireNonNull(convertRectArrayToIntArray(regions)));
     }
 
     public void setScreenHandWritingRegionExclude(View view, int[] array) {
     }
 
     public void setScreenHandWritingRegionExclude(View view, Rect[] regions) {
+        setScreenHandWritingRegionExclude(view,
+                Objects.requireNonNull(convertRectArrayToIntArray(regions)));
     }
 
     public void postInvalidate(View view, UpdateMode mode) {
@@ -720,6 +725,8 @@ public class BaseDevice {
     }
 
     public void setAppCTPDisableRegion(Context context, Rect[] disableRegions, @Nullable Rect[] excludeRegions) {
+        setAppCTPDisableRegion(context, convertRectArrayToIntArray(disableRegions),
+                convertRectArrayToIntArray(excludeRegions));
     }
 
     public boolean isCTPDisableRegion(Context context) {

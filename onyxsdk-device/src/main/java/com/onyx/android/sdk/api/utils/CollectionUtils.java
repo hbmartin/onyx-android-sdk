@@ -5,10 +5,10 @@ import java.util.Map;
 
 public class CollectionUtils {
     public static boolean isNullOrEmpty(Collection list) {
-        return list == null || list.size() <= 0;
+        return list == null || list.isEmpty();
     }
 
     public static boolean isNullOrEmpty(Map map) {
-        return map == null || map.size() <= 0;
+        return map == null || map.isEmpty();
     }
 }
