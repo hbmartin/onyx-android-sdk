@@ -231,13 +231,8 @@ public class StorageUtils
         int n2 = 0;
         double n4;
         for (double n3 = bytes; n3 > (n4 = n); n3 /= n4, ++n2) {}
-        final StringBuilder sb = new StringBuilder();
-        final DecimalFormat decimalFormat = new java.text.DecimalFormat();
-        final DecimalFormat decimalFormat2 = decimalFormat;
-        final double a = n4;
-        final int n5 = n2;
-        new DecimalFormat(decimalFormatPattern);
-        return sb.append(decimalFormat.format(bytes / Math.pow(a, n5))).append(StorageUtils.p[n2]).toString();
+        final DecimalFormat decimalFormat = new DecimalFormat(decimalFormatPattern);
+        return decimalFormat.format(bytes / Math.pow(n4, n2)) + StorageUtils.p[n2];
     }
     
     public static String formatStorage(final long bytes) {
@@ -317,11 +312,9 @@ public class StorageUtils
                 if ((file = (File)ReflectUtil.invokeMethodSafely(StorageUtils.h, next, new Object[0])) == null) {
                     continue;
                 }
-                final VolumeInfo volumeInfo = new com.onyx.android.sdk.data.VolumeInfo();
+                final VolumeInfo volumeInfo = new VolumeInfo();
                 final VolumeInfo volumeInfo2 = volumeInfo;
-                final File file2 = file;
-                new VolumeInfo();
-                volumeInfo.path = file2.getAbsolutePath();
+                volumeInfo.path = file.getAbsolutePath();
                 volumeInfo.type = (int)ReflectUtil.invokeMethodSafely(StorageUtils.j, next, new Object[0]);
                 volumeInfo.state = (int)ReflectUtil.invokeMethodSafely(StorageUtils.i, next, new Object[0]);
                 volumes = CollectionUtils.ensureList(volumes);

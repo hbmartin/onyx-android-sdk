@@ -722,7 +722,14 @@ public class FileUtils
     }
     
     public static boolean saveBitmapToMemoryFile(final Bitmap bitmap, final MemoryFile fileForSave, final Bitmap.CompressFormat format, final int quality) {
-        throw new IllegalStateException("Operation unavailable.");
+        try (OutputStream output = fileForSave.getOutputStream()) {
+            bitmap.compress(format, quality, output);
+            return true;
+        }
+        catch (Exception exception) {
+            exception.printStackTrace();
+            return false;
+        }
     }
     
     @Nullable
@@ -975,7 +982,21 @@ public class FileUtils
     }
     
     public static String getRealFilePathFromUriByContentResolver(final Context context, final Uri uri, final String projectionName) {
-        throw new IllegalStateException("Operation unavailable.");
+        if (uri == null) {
+            return "";
+        }
+        try (Cursor cursor = context.getContentResolver().query(
+                uri, new String[] { projectionName }, null, null, null)) {
+            if (cursor == null) {
+                return "";
+            }
+            cursor.moveToFirst();
+            return cursor.getString(0);
+        }
+        catch (Exception exception) {
+            Debug.e(exception);
+            return "";
+        }
     }
     
     public static String computeFileOrDirectoryMD5(final String path) {
@@ -1439,24 +1460,12 @@ public class FileUtils
             return size + "B";
         }
         if (size < 1048576L) {
-            final StringBuilder sb = new java.lang.StringBuilder();
-            final StringBuilder sb2 = sb;
-            final DecimalFormat decimalFormat2 = decimalFormat;
-            new StringBuilder();
-            return sb.append(decimalFormat2.format(size / 1024.0f)).append("KB").toString();
+            return decimalFormat.format(size / 1024.0f) + "KB";
         }
         if (size < 1073741824L) {
-            final StringBuilder sb3 = new java.lang.StringBuilder();
-            final StringBuilder sb4 = sb3;
-            final DecimalFormat decimalFormat3 = decimalFormat;
-            new StringBuilder();
-            return sb3.append(decimalFormat3.format(size / 1048576.0f)).append("MB").toString();
+            return decimalFormat.format(size / 1048576.0f) + "MB";
         }
-        final StringBuilder sb5 = new java.lang.StringBuilder();
-        final StringBuilder sb6 = sb5;
-        final DecimalFormat decimalFormat4 = decimalFormat;
-        new StringBuilder();
-        return sb5.append(decimalFormat4.format(size / 1.07374182E9f)).append("GB").toString();
+        return decimalFormat.format(size / 1.07374182E9f) + "GB";
     }
     
     public static void transferFile(final String currentFilePath, final String newFilePath) throws Exception {
@@ -1879,7 +1888,20 @@ public class FileUtils
     }
     
     public static List<String> readStringListOfFile(final File fileForRead) {
-        throw new IllegalStateException("Operation unavailable.");
+        try (FileInputStream input = new FileInputStream(fileForRead);
+                InputStreamReader streamReader = new InputStreamReader(input, StandardCharsets.UTF_8);
+                BufferedReader reader = new BufferedReader(streamReader)) {
+            List<String> lines = new ArrayList<>();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                lines.add(line);
+            }
+            return lines;
+        }
+        catch (IOException exception) {
+            exception.printStackTrace();
+            return null;
+        }
     }
     
     public static String getFileNameFromPath(final String path) {
@@ -2011,7 +2033,20 @@ public class FileUtils
     }
     
     public static byte[] readBytesOfFile(final String filePath) {
-        throw new IllegalStateException("Operation unavailable.");
+        try (FileInputStream input = new FileInputStream(filePath);
+                ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[10240];
+            int count;
+            while ((count = input.read(buffer)) != -1) {
+                output.write(buffer, 0, count);
+            }
+            output.flush();
+            return output.toByteArray();
+        }
+        catch (Exception exception) {
+            exception.printStackTrace();
+            return null;
+        }
     }
     
     public static byte[] readBytes(FileInputStream fin, final int off, final int len) {
@@ -2026,7 +2061,20 @@ public class FileUtils
     }
     
     public static List<String> readAssetsContent(final Context context, final String fileName) {
-        throw new IllegalStateException("Operation unavailable.");
+        try (InputStream input = context.getResources().getAssets().open(fileName);
+                InputStreamReader streamReader = new InputStreamReader(input, StandardCharsets.UTF_8);
+                BufferedReader reader = new BufferedReader(streamReader)) {
+            List<String> lines = new ArrayList<>();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                lines.add(line.trim());
+            }
+            return lines;
+        }
+        catch (IOException exception) {
+            exception.printStackTrace();
+            return null;
+        }
     }
     
     public static void skip(final FileInputStream fin, final long n) {
@@ -2066,7 +2114,20 @@ public class FileUtils
     }
     
     public static String readContentFromFile(final String path) {
-        throw new IllegalStateException("Operation unavailable.");
+        try (FileInputStream input = new FileInputStream(new File(path));
+                InputStreamReader streamReader = new InputStreamReader(input, StandardCharsets.UTF_8);
+                BufferedReader reader = new BufferedReader(streamReader)) {
+            StringBuilder content = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line);
+            }
+            return content.toString();
+        }
+        catch (IOException exception) {
+            exception.printStackTrace();
+            return "";
+        }
     }
     
     public static void createAndOverridePermission(String dirName, String fileName, final boolean isNeedOverridePermission) throws IOException {

@@ -37,18 +37,17 @@ public class TTFFont
         this.d = false;
     }
     
-    private b a(final Locale locale, List<c> var_2_0F) {
-        if (CollectionUtils.isNullOrEmpty(var_2_0F)) {
-            var_2_0F = CollectionUtils.ensureList(this.a, 4);
+    private b a(final Locale locale, List<c> nameRecords) {
+        if (CollectionUtils.isNullOrEmpty(nameRecords)) {
+            nameRecords = CollectionUtils.ensureList(this.a, 4);
         }
-        final List<c> list = var_2_0F;
         final String fontName = "";
         DeviceUtils.FontType fontType = DeviceUtils.FontType.ALL;
-        if (CollectionUtils.isNullOrEmpty(list)) {
+        if (CollectionUtils.isNullOrEmpty(nameRecords)) {
             this.log("getFontName fail");
             return new b(fontName, fontType, false);
         }
-        final Iterator<c> iterator = var_2_0F.iterator();
+        final Iterator<c> iterator = nameRecords.iterator();
         while (iterator.hasNext()) {
             final c c;
             if (!Platform.supportPlatform((c = iterator.next()).a)) {
@@ -58,14 +57,14 @@ public class TTFFont
                 break;
             }
         }
-        final Iterator<c> iterator2 = var_2_0F.iterator();
+        final Iterator<c> iterator2 = nameRecords.iterator();
         while (iterator2.hasNext()) {
             final c c2;
             if (Platform.supportPlatform((c2 = iterator2.next()).a) && LocaleUtils.isSameLanguage(locale, Platform.mapLocale(c2.a, c2.c))) {
                 return new b(c2.g, fontType, true);
             }
         }
-        return new b(var_2_0F.get(0).g, fontType, false);
+        return new b(nameRecords.get(0).g, fontType, false);
     }
     
     public static DeviceUtils.FontType getFontType(final int plateFormId, final int languageId) {
@@ -88,42 +87,27 @@ public class TTFFont
     
     private void a(final RandomAccessFile randomAccessFile, final e tableDirectory) throws IOException {
         randomAccessFile.seek(tableDirectory.c);
-        final d d = new com.onyx.android.sdk.utils.TTFFont.d();
-        final d d4;
-        final d d3;
-        final d d2 = d3 = (d4 = d);
-        new d();
-        d3.a = randomAccessFile.readShort();
-        d4.b = randomAccessFile.readShort();
-        d.c = randomAccessFile.readShort();
-        for (int i = 0; i < d2.b; ++i) {
-            final c c = new com.onyx.android.sdk.utils.TTFFont.c();
-            final c c7;
-            final c c6;
-            final c c5;
-            final c c4;
-            final c c3;
-            final c c2 = c3 = (c4 = (c5 = (c6 = (c7 = c))));
-            new c();
-            c3.a = randomAccessFile.readShort();
-            c4.b = randomAccessFile.readShort();
-            c5.c = randomAccessFile.readShort();
-            c6.d = randomAccessFile.readShort();
-            c7.e = randomAccessFile.readShort();
-            c.f = randomAccessFile.readShort();
-            if (this.b.contains(c2.d)) {
-                final c c8 = c2;
-                final c c9 = c2;
-                final c c10 = c2;
-                final c c11 = c2;
+        final d tableHeader = new d();
+        tableHeader.a = randomAccessFile.readShort();
+        tableHeader.b = randomAccessFile.readShort();
+        tableHeader.c = randomAccessFile.readShort();
+        for (int i = 0; i < tableHeader.b; ++i) {
+            final c nameRecord = new c();
+            nameRecord.a = randomAccessFile.readShort();
+            nameRecord.b = randomAccessFile.readShort();
+            nameRecord.c = randomAccessFile.readShort();
+            nameRecord.d = randomAccessFile.readShort();
+            nameRecord.e = randomAccessFile.readShort();
+            nameRecord.f = randomAccessFile.readShort();
+            if (this.b.contains(nameRecord.d)) {
                 final long filePointer = randomAccessFile.getFilePointer();
-                final byte[] array = new byte[c11.e];
-                randomAccessFile.seek(tableDirectory.c + c2.f + d2.c);
+                final byte[] array = new byte[nameRecord.e];
+                randomAccessFile.seek(tableDirectory.c + nameRecord.f + tableHeader.c);
                 randomAccessFile.read(array);
                 randomAccessFile.seek(filePointer);
-                c9.g = this.a(c10.a, c10.b, array);
-                CollectionUtils.ensureList(this.a, c2.d).add(c2);
-                this.log(c8.toString());
+                nameRecord.g = this.a(nameRecord.a, nameRecord.b, array);
+                CollectionUtils.ensureList(this.a, nameRecord.d).add(nameRecord);
+                this.log(nameRecord.toString());
             }
         }
         this.a();

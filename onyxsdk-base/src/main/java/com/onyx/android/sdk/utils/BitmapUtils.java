@@ -209,20 +209,12 @@ public class BitmapUtils
         final float n5 = n3 / origin.getHeight();
         final float n6 = n4 / 2.0f;
         final float n7 = n3 / 2.0f;
-        final Matrix matrix = new android.graphics.Matrix();
-        final Matrix matrix2 = matrix;
-        final float n8 = n;
-        new Matrix();
-        matrix.setScale(n8, n5, n6, n7);
-        final Canvas canvas = new android.graphics.Canvas();
-        final Canvas canvas2 = canvas;
-        final float n9 = n7;
-        final float n10 = n6;
-        final Canvas canvas3 = canvas2;
-        final Matrix matrix3 = matrix2;
-        new Canvas(bitmap);
-        canvas3.setMatrix(matrix3);
-        canvas.drawBitmap(origin, n10 - origin.getWidth() / 2, n9 - origin.getHeight() / 2, new Paint(2));
+        final Matrix matrix = new Matrix();
+        matrix.setScale(n, n5, n6, n7);
+        final Canvas canvas = new Canvas(bitmap);
+        canvas.setMatrix(matrix);
+        canvas.drawBitmap(origin, n6 - origin.getWidth() / 2.0f,
+                n7 - origin.getHeight() / 2.0f, new Paint(Paint.FILTER_BITMAP_FLAG));
         return bitmap3;
     }
     
@@ -251,17 +243,13 @@ public class BitmapUtils
     }
     
     public static boolean decodeBitmapSizeFromPath(final String path, final Size size) {
-        final BitmapFactory.Options options = new android.graphics.BitmapFactory.Options();
-        final BitmapFactory.Options options3;
-        final BitmapFactory.Options options2 = options3 = options;
-        new BitmapFactory.Options();
-        options3.inJustDecodeBounds = true;
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
         try {
-            BitmapFactory.decodeFile(path, options3);
+            BitmapFactory.decodeFile(path, options);
             final int outWidth = options.outWidth;
-            final BitmapFactory.Options options4 = options2;
             size.width = outWidth;
-            final int n = size.height = options4.outHeight;
+            final int n = size.height = options.outHeight;
             return outWidth > 0 && n > 0;
         }
         catch (Throwable t) {
@@ -472,13 +460,10 @@ public class BitmapUtils
     }
     
     public static Bitmap rotateBmp(final Bitmap bmp, int degrees) {
-        final Matrix matrix = new android.graphics.Matrix();
-        final Matrix matrix2 = matrix;
-        final int n = degrees;
-        new Matrix();
-        matrix.postRotate((float)n);
+        final Matrix matrix = new Matrix();
+        matrix.postRotate((float)degrees);
         degrees = bmp.getWidth();
-        return Bitmap.createBitmap(bmp, 0, 0, degrees, bmp.getHeight(), matrix2, true);
+        return Bitmap.createBitmap(bmp, 0, 0, degrees, bmp.getHeight(), matrix, true);
     }
     
     public static Bitmap horizontalFlip(final Bitmap bmp) {
@@ -488,28 +473,18 @@ public class BitmapUtils
     }
     
     public static Bitmap buildBitmapFromText(final String targetString, final int height, int textSize, final boolean boldText, final boolean saveToDisk, final boolean overrideFilePermission, final boolean needRotation, final int rotationAngle, @Nullable final String path) {
-        final Paint paint = new android.graphics.Paint();
-        final Paint paint4;
-        final Paint paint3;
-        final Paint paint2 = paint3 = (paint4 = paint);
-        final int n = textSize;
-        final Paint paint5 = paint2;
-        new Paint(1);
-        paint5.setStrokeWidth(3.0f);
-        paint3.setTextSize((float)n);
-        paint3.setColor(-16777216);
-        paint4.setFakeBoldText(boldText);
+        final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setStrokeWidth(3.0f);
+        paint.setTextSize((float)textSize);
+        paint.setColor(-16777216);
+        paint.setFakeBoldText(boldText);
         Bitmap bitmap = Bitmap.createBitmap(textSize = StringUtils.getTextWidth(paint, targetString), height, Bitmap.Config.ARGB_8888);
         final Rect rect = new Rect(0, 0, textSize, height);
-        final Canvas canvas = new android.graphics.Canvas();
-        final Canvas canvas2 = canvas;
-        final Paint paint6 = paint2;
-        new Canvas(bitmap);
-        final Paint.FontMetricsInt fontMetricsInt = paint6.getFontMetricsInt();
+        final Canvas canvas = new Canvas(bitmap);
+        final Paint.FontMetricsInt fontMetricsInt = paint.getFontMetricsInt();
         final int n2 = (height - fontMetricsInt.bottom - fontMetricsInt.top) / 2;
-        final Rect rect2 = rect;
-        paint2.setTextAlign(Paint.Align.CENTER);
-        canvas.drawText(targetString, (float)rect2.centerX(), (float)n2, paint2);
+        paint.setTextAlign(Paint.Align.CENTER);
+        canvas.drawText(targetString, (float)rect.centerX(), (float)n2, paint);
         if (needRotation) {
             bitmap = rotateBmp(bitmap, rotationAngle);
         }
@@ -778,11 +753,9 @@ public class BitmapUtils
     }
     
     private static Bitmap a(final String path, final Size size, final int orientation, final RxCallback<BitmapFactory.Options> optionsCallback) {
-        final BitmapFactory.Options options = new android.graphics.BitmapFactory.Options();
-        final BitmapFactory.Options options2;
-        final BitmapFactory.Options outOptions = options2 = options;
-        new BitmapFactory.Options();
-        options2.outWidth = size.width;
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        final BitmapFactory.Options outOptions = options;
+        options.outWidth = size.width;
         options.outHeight = size.height;
         options.inJustDecodeBounds = false;
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
@@ -797,15 +770,13 @@ public class BitmapUtils
     }
     
     private static Bitmap a(final String path, final Bitmap.Config inPreferredConfig, final RxCallback<BitmapFactory.Options> optionsCallback) {
-        final BitmapFactory.Options options = new android.graphics.BitmapFactory.Options();
-        final BitmapFactory.Options options2;
-        final BitmapFactory.Options outOptions = options2 = options;
-        new BitmapFactory.Options();
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        final BitmapFactory.Options outOptions = options;
         final Size size;
         decodeBitmapSizeSupportExif(path, size = new Size());
-        options2.outWidth = size.width;
-        options2.outHeight = size.height;
-        options2.inJustDecodeBounds = false;
+        options.outWidth = size.width;
+        options.outHeight = size.height;
+        options.inJustDecodeBounds = false;
         options.inPreferredConfig = inPreferredConfig;
         if (optionsCallback != null) {
             optionsCallback.onNext(outOptions);
@@ -992,19 +963,13 @@ public class BitmapUtils
             bitmap = createScaledBitmap(bitmap, targetWidth, targetHeight);
         }
         final Bitmap bitmap2 = Bitmap.createBitmap(targetWidth, targetHeight, Bitmap.Config.ARGB_8888);
-        final Canvas canvas = new android.graphics.Canvas();
-        final Canvas canvas2 = canvas;
+        final Canvas canvas = new Canvas(bitmap2);
         final Bitmap bitmap3 = bitmap;
-        new Canvas(bitmap2);
-        final Paint paint = new android.graphics.Paint();
-        final Paint paint2 = paint;
-        final Canvas canvas3 = canvas2;
-        new Paint();
+        final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         final Rect rect = new Rect(0, 0, targetWidth, targetHeight);
-        canvas3.drawRoundRect(new RectF(rect), radius, radius, paint2);
+        canvas.drawRoundRect(new RectF(rect), radius, radius, paint);
         paint.setXfermode((Xfermode)new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-        final Rect rect2 = rect;
-        canvas.drawBitmap(bitmap3, rect2, rect2, paint2);
+        canvas.drawBitmap(bitmap3, rect, rect, paint);
         return bitmap2;
     }
     

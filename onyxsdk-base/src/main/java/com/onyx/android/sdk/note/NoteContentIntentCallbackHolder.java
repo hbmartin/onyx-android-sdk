@@ -12,29 +12,17 @@ public class NoteContentIntentCallbackHolder extends NoteContentIntentCallback.S
 
    @Override
    public void read(NoteContentIntentArgs args) throws RemoteException {
-      NoteContentIntentCallback var2 = this.c;
-      if (this.c == null) {
+      NoteContentIntentCallback callback = this.c;
+      if (callback == null) {
          Debug.e(this.getClass(), "reference is null", new Object[0]);
-      } else {
-         boolean var5 = false;
-
-         NoteContentIntentCallbackHolder var10000;
-         try {
-            var5 = true;
-            var10000 = this;
-            var2.read(args);
-            var5 = false;
-         } catch (Exception var6) {
-            var10000 = this;
-            Debug.e(var6);
-            var5 = false;
-         } finally {
-            if (var5) {
-               this.c = null;
-            }
-         }
-
-         var10000.c = null;
+         return;
+      }
+      try {
+         callback.read(args);
+      } catch (Exception exception) {
+         Debug.e(exception);
+      } finally {
+         this.c = null;
       }
    }
 }

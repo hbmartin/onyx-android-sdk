@@ -7,6 +7,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.os.Build.VERSION;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore.Images.Media;
@@ -21,33 +22,24 @@ public class UriUtils {
          return null;
       }
 
-      String var2;
-      String var10000 = var2 = uri.getScheme();
-      String var3 = null;
-      if (var10000 == null) {
-         var3 = uri.getPath();
-      } else if ("file".equals(var2)) {
-         var3 = uri.getPath();
-      } else if ("content".equals(var2)) {
-         ContentResolver var7 = context.getContentResolver();
-         String[] var5;
-         (var5 = new String[1])[0] = "_data";
-         Cursor var6;
-         if ((var6 = var7.query(uri, var5, null, null, null)) != null) {
-            int var4;
-            if (var6.moveToFirst() && (var4 = var6.getColumnIndex("_data")) > -1) {
-               var3 = var6.getString(var4);
+      String scheme = uri.getScheme();
+      if (scheme == null || "file".equals(scheme)) {
+         return uri.getPath();
+      }
+      if (!"content".equals(scheme)) {
+         return null;
+      }
+      String path = null;
+      ContentResolver resolver = context.getContentResolver();
+      try (Cursor cursor = resolver.query(uri, new String[] { "_data" }, null, null, null)) {
+         if (cursor != null && cursor.moveToFirst()) {
+            int column = cursor.getColumnIndex("_data");
+            if (column >= 0) {
+               path = cursor.getString(column);
             }
-
-            var6.close();
-         }
-
-         if (var3 == null) {
-            var3 = getImageAbsolutePath(context, uri);
          }
       }
-
-      return var3;
+      return path != null ? path : getImageAbsolutePath(context, uri);
    }
 
    public static Uri getUri(String filePath) {
@@ -109,20 +101,16 @@ public class UriUtils {
    }
 
    public static String getFileNameFromUri(Context context, Uri uri) {
-      String var2;
-      if (StringUtils.isNullOrEmpty(var2 = FileUtils.getDisplayNameFromUri(context, uri))) {
-         String var10000;
+      String fileName = FileUtils.getDisplayNameFromUri(context, uri);
+      if (StringUtils.isNullOrEmpty(fileName)) {
          try {
-            var10000 = FileUtils.getFileName(StringUtils.safelyGetStr(getImageAbsolutePath(context, uri)));
-         } catch (Exception var3) {
-            var3.printStackTrace();
-            return var2;
+            fileName = FileUtils.getFileName(
+                    StringUtils.safelyGetStr(getImageAbsolutePath(context, uri)));
+         } catch (Exception exception) {
+            exception.printStackTrace();
          }
-
-         var2 = var10000;
       }
-
-      return var2;
+      return fileName;
    }
 
    public static String getDataColumn(Context param0, Uri param1, String param2, String[] param3) {
@@ -161,22 +149,22 @@ public class UriUtils {
    }
 
    public static long length(Context context, Uri uri) {
-      String var2;
-      String var10000 = var2 = uri.getScheme();
-      var10000.hashCode();
-      if (!var10000.equals("file")) {
-         if (!var2.equals("content")) {
-            return 0L;
-         }
-
-         try {
-            return context.getContentResolver().openFileDescriptor(uri, "r").getStatSize();
-         } catch (Exception var3) {
-            var3.printStackTrace();
-            return 0L;
-         }
-      } else {
+      if (uri == null) {
+         return 0L;
+      }
+      String scheme = uri.getScheme();
+      if ("file".equals(scheme)) {
          return new File(uri.getPath()).length();
+      }
+      if (!"content".equals(scheme)) {
+         return 0L;
+      }
+      try (ParcelFileDescriptor descriptor =
+              context.getContentResolver().openFileDescriptor(uri, "r")) {
+         return descriptor == null ? 0L : descriptor.getStatSize();
+      } catch (Exception exception) {
+         exception.printStackTrace();
+         return 0L;
       }
    }
 
