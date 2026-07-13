@@ -8,7 +8,7 @@ use std::sync::{Mutex, OnceLock};
 
 use jni::objects::{JFloatArray, JObject, JValue};
 use jni::sys::{jboolean, jfloat, jint};
-use jni::JNIEnv;
+use jni::{jni_sig, jni_str, Env, EnvUnowned};
 use state::{PenManager, TouchEvent};
 
 struct WakeFd {
@@ -55,53 +55,58 @@ fn runtime() -> &'static Runtime {
     })
 }
 
-fn read_float_array(env: &mut JNIEnv, array: JFloatArray) -> Vec<f32> {
-    let Ok(length) = env.get_array_length(&array) else {
+fn read_float_array(env: &mut Env, array: JFloatArray) -> Vec<f32> {
+    let Ok(length) = array.len(env) else {
         return Vec::new();
     };
-    let mut values = vec![0.0; length as usize];
-    if env.get_float_array_region(&array, 0, &mut values).is_ok() {
+    let mut values = vec![0.0; length];
+    if array.get_region(env, 0, &mut values).is_ok() {
         values
     } else {
         Vec::new()
     }
 }
 
-fn emit(env: &mut JNIEnv, object: &JObject, event: TouchEvent) {
+fn emit(env: &mut Env, object: &JObject, event: TouchEvent) {
     let args = [
         JValue::Float(event.x),
         JValue::Float(event.y),
         JValue::Int(event.pressure),
         JValue::Int(event.tilt_x),
         JValue::Int(event.tilt_y),
-        JValue::Bool(event.is_erasing as jboolean),
-        JValue::Bool(event.shortcut_drawing as jboolean),
-        JValue::Bool(event.shortcut_erasing as jboolean),
+        JValue::Bool(event.is_erasing),
+        JValue::Bool(event.shortcut_drawing),
+        JValue::Bool(event.shortcut_erasing),
         JValue::Int(event.state),
         JValue::Long(event.timestamp_ms),
     ];
-    let _ = env.call_method(object, "onTouchPointReceived", "(FFIIIZZZIJ)V", &args);
+    let _ = env.call_method(
+        object,
+        jni_str!("onTouchPointReceived"),
+        jni_sig!("(FFIIIZZZIJ)V"),
+        &args,
+    );
 }
 
 #[no_mangle]
 pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeDebug(
-    _env: JNIEnv,
+    _env: EnvUnowned,
     _object: JObject,
     enabled: jboolean,
 ) {
-    runtime().debug.store(enabled != 0, Ordering::SeqCst);
+    runtime().debug.store(enabled, Ordering::SeqCst);
 }
 
 #[no_mangle]
 pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeIsValid(
-    _env: JNIEnv,
+    _env: EnvUnowned,
     _object: JObject,
 ) -> jboolean {
     #[cfg(any(target_os = "android", target_os = "linux"))]
     {
         let fd = runtime().input_fd.load(Ordering::SeqCst);
         if fd < 1 {
-            return 0;
+            return false;
         }
         let mut descriptor = libc::pollfd {
             fd,
@@ -109,15 +114,15 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeIsVali
             revents: 0,
         };
         let result = unsafe { libc::poll(&mut descriptor, 1, 0) };
-        (result >= 0 && descriptor.revents & (libc::POLLHUP | libc::POLLNVAL) == 0) as jboolean
+        result >= 0 && descriptor.revents & (libc::POLLHUP | libc::POLLNVAL) == 0
     }
     #[cfg(not(any(target_os = "android", target_os = "linux")))]
-    0
+    false
 }
 
 #[no_mangle]
 pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeRawClose(
-    _env: JNIEnv,
+    _env: EnvUnowned,
     _object: JObject,
     session: i64,
 ) {
@@ -138,7 +143,7 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeRawClo
 
 #[no_mangle]
 pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeSetStrokeWidth(
-    _env: JNIEnv,
+    _env: EnvUnowned,
     _object: JObject,
     value: jfloat,
 ) {
@@ -146,34 +151,44 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeSetStr
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeSetLimitRegion(
-    mut env: JNIEnv,
-    _object: JObject,
-    array: JFloatArray,
+pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeSetLimitRegion<'local>(
+    mut unowned_env: EnvUnowned<'local>,
+    _object: JObject<'local>,
+    array: JFloatArray<'local>,
 ) {
-    runtime()
-        .manager
-        .lock()
-        .unwrap()
-        .set_limit_regions(&read_float_array(&mut env, array));
+    unowned_env
+        .with_env(|env| -> jni::errors::Result<()> {
+            runtime()
+                .manager
+                .lock()
+                .unwrap()
+                .set_limit_regions(&read_float_array(env, array));
+            Ok(())
+        })
+        .resolve::<jni::errors::LogErrorAndDefault>()
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeSetExcludeRegion(
-    mut env: JNIEnv,
-    _object: JObject,
-    array: JFloatArray,
+pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeSetExcludeRegion<'local>(
+    mut unowned_env: EnvUnowned<'local>,
+    _object: JObject<'local>,
+    array: JFloatArray<'local>,
 ) {
-    runtime()
-        .manager
-        .lock()
-        .unwrap()
-        .set_exclude_regions(&read_float_array(&mut env, array));
+    unowned_env
+        .with_env(|env| -> jni::errors::Result<()> {
+            runtime()
+                .manager
+                .lock()
+                .unwrap()
+                .set_exclude_regions(&read_float_array(env, array));
+            Ok(())
+        })
+        .resolve::<jni::errors::LogErrorAndDefault>()
 }
 
 #[no_mangle]
 pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeSetPenState(
-    _env: JNIEnv,
+    _env: EnvUnowned,
     _object: JObject,
     value: jint,
 ) {
@@ -181,19 +196,24 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeSetPen
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativePausePen(
-    mut env: JNIEnv,
-    object: JObject,
+pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativePausePen<'local>(
+    mut unowned_env: EnvUnowned<'local>,
+    object: JObject<'local>,
 ) {
-    let events = runtime().manager.lock().unwrap().pause();
-    for event in events {
-        emit(&mut env, &object, event);
-    }
+    unowned_env
+        .with_env(|env| -> jni::errors::Result<()> {
+            let events = runtime().manager.lock().unwrap().pause();
+            for event in events {
+                emit(env, &object, event);
+            }
+            Ok(())
+        })
+        .resolve::<jni::errors::LogErrorAndDefault>()
 }
 
 #[no_mangle]
 pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeSetRegionMode(
-    _env: JNIEnv,
+    _env: EnvUnowned,
     _object: JObject,
     value: jint,
 ) {
@@ -202,7 +222,7 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeSetReg
 
 #[no_mangle]
 pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeEnableSideBtnErase(
-    _env: JNIEnv,
+    _env: EnvUnowned,
     _object: JObject,
     enabled: jboolean,
 ) {
@@ -210,20 +230,25 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeEnable
         .manager
         .lock()
         .unwrap()
-        .enable_side_button_erase(enabled != 0);
+        .enable_side_button_erase(enabled);
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeRawReader(
-    mut env: JNIEnv,
-    object: JObject,
+pub extern "system" fn Java_com_onyx_android_sdk_pen_RawInputReader_nativeRawReader<'local>(
+    mut unowned_env: EnvUnowned<'local>,
+    object: JObject<'local>,
     session: i64,
 ) {
     #[cfg(any(target_os = "android", target_os = "linux"))]
-    reader_loop(&mut env, &object, session);
+    unowned_env
+        .with_env(|env| -> jni::errors::Result<()> {
+            reader_loop(env, &object, session);
+            Ok(())
+        })
+        .resolve::<jni::errors::LogErrorAndDefault>();
     #[cfg(not(any(target_os = "android", target_os = "linux")))]
     {
-        let _ = (&mut env, &object, session);
+        let _ = (&mut unowned_env, &object, session);
     }
 }
 
@@ -285,7 +310,7 @@ fn open_pen_device() -> Option<(i32, f32)> {
 }
 
 #[cfg(any(target_os = "android", target_os = "linux"))]
-fn reader_loop(env: &mut JNIEnv, object: &JObject, session: i64) {
+fn reader_loop(env: &mut Env, object: &JObject, session: i64) {
     let rt = runtime();
     if session <= rt.cancelled_through.load(Ordering::SeqCst) {
         if rt.debug.load(Ordering::SeqCst) {
