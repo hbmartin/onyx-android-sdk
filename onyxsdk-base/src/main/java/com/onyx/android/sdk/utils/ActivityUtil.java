@@ -11,7 +11,6 @@ import com.onyx.android.sdk.common.provider.OnyxFileProviderUtil;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.io.File;
-import android.view.ContextThemeWrapper;
 import androidx.annotation.NonNull;
 import android.preference.PreferenceActivity;
 import android.view.ViewParent;
@@ -42,6 +41,7 @@ import android.content.ComponentName;
 import android.util.Log;
 import android.content.Intent;
 import android.content.Context;
+import android.content.ContextWrapper;
 
 public class ActivityUtil
 {
@@ -483,11 +483,12 @@ public class ActivityUtil
         if (isActivity(context)) {
             return (Activity)context;
         }
-        if (context instanceof ContextThemeWrapper) {
-            context = ((ContextThemeWrapper)context).getBaseContext();
-        }
-        if (context instanceof androidx.appcompat.view.ContextThemeWrapper) {
-            context = ((androidx.appcompat.view.ContextThemeWrapper)context).getBaseContext();
+        while (!(context instanceof Activity) && context instanceof ContextWrapper) {
+            Context base = ((ContextWrapper)context).getBaseContext();
+            if (base == null || base == context) {
+                break;
+            }
+            context = base;
         }
         return (Activity)context;
     }

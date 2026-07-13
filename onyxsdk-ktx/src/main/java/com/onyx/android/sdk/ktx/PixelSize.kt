@@ -3,7 +3,6 @@
 package com.onyx.android.sdk.ktx
 
 import android.util.Size as AndroidSize
-import com.onyx.android.sdk.base.data.Size as OnyxSize
 import kotlin.math.max
 
 /**
@@ -58,25 +57,8 @@ data class PixelSize(
     }
 }
 
-/** Copies this recovered mutable size into an immutable [PixelSize]. */
-fun OnyxSize.toPixelSize(): PixelSize = PixelSize(width, height)
+/** Copies this Android size into an immutable [PixelSize]. */
+fun AndroidSize.toPixelSize(): PixelSize = PixelSize(width, height)
 
-/** Copies this immutable size into a new mutable [OnyxSize]. */
-fun PixelSize.toOnyxSize(): OnyxSize = OnyxSize(width, height)
-
-/** Copies this Android size into a new mutable [OnyxSize]. */
-fun AndroidSize.toOnyxSize(): OnyxSize = OnyxSize(width, height)
-
-/** Copies this recovered mutable size into an Android size. */
-fun OnyxSize.toAndroidSize(): AndroidSize = AndroidSize(width, height)
-
-/**
- * Fits this recovered mutable size within [maximum] and returns the result as an immutable value.
- *
- * @throws IllegalArgumentException when this size or [maximum] is empty
- */
-fun OnyxSize.fitWithin(maximum: OnyxSize): PixelSize =
-    toPixelSize().fitWithin(maximum.toPixelSize())
-
-/** Returns a fresh mutable empty value instead of sharing `Size.empty`. */
-fun emptyOnyxSize(): OnyxSize = OnyxSize()
+/** Copies this immutable size into an Android framework size. */
+fun PixelSize.toAndroidSize(): AndroidSize = AndroidSize(width, height)

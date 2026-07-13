@@ -15,6 +15,20 @@ import java.util.concurrent.atomic.AtomicReference;
 /** Safe reflection helpers used throughout the device SDK. */
 public class ReflectUtil {
     private static final String TAG = "ReflectUtil";
+    private static volatile HiddenApiAccessStatus hiddenApiAccessStatus =
+            Build.VERSION.SDK_INT < 28
+                    ? HiddenApiAccessStatus.NOT_REQUIRED
+                    : HiddenApiAccessStatus.NOT_ATTEMPTED;
+    @Nullable
+    private static volatile String hiddenApiFailure;
+
+    /** Result of the SDK's one-time hidden-API bootstrap. */
+    public enum HiddenApiAccessStatus {
+        NOT_REQUIRED,
+        NOT_ATTEMPTED,
+        EXEMPTIONS_APPLIED,
+        FAILED
+    }
 
     static {
         exemptHiddenApis();
@@ -23,6 +37,7 @@ public class ReflectUtil {
     @TargetApi(28)
     private static void exemptHiddenApis() {
         if (Build.VERSION.SDK_INT < 28) {
+            hiddenApiAccessStatus = HiddenApiAccessStatus.NOT_REQUIRED;
             return;
         }
         try {
@@ -30,10 +45,32 @@ public class ReflectUtil {
             Method getRuntime = vmRuntime.getDeclaredMethod("getRuntime");
             Method setExemptions = vmRuntime.getDeclaredMethod(
                     "setHiddenApiExemptions", String[].class);
-            setExemptions.invoke(getRuntime.invoke(null), (Object) new String[]{"L"});
+            // Keep the exemption surface limited to the firmware APIs the SDK
+            // actually uses. The previous broad "L" exemption opened every
+            // hidden API in the process and made failures impossible to
+            // diagnose independently.
+            setExemptions.invoke(getRuntime.invoke(null), (Object) new String[]{
+                    "Landroid/onyx/",
+                    "Landroid/view/View;",
+                    "Landroid/os/ServiceManager;",
+                    "Ldalvik/system/VMRuntime;"
+            });
+            hiddenApiFailure = null;
+            hiddenApiAccessStatus = HiddenApiAccessStatus.EXEMPTIONS_APPLIED;
         } catch (Throwable error) {
+            hiddenApiFailure = error.getClass().getName() + ": " + error.getMessage();
+            hiddenApiAccessStatus = HiddenApiAccessStatus.FAILED;
             Log.e(TAG, "reflect bootstrap failed:", error);
         }
+    }
+
+    public static HiddenApiAccessStatus getHiddenApiAccessStatus() {
+        return hiddenApiAccessStatus;
+    }
+
+    @Nullable
+    public static String getHiddenApiFailure() {
+        return hiddenApiFailure;
     }
 
     public static boolean getConstructorSafely(

@@ -5,10 +5,13 @@ import android.content.Intent;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Looper;
 import android.graphics.RectF;
 import android.view.View;
 import android.webkit.WebView;
+import androidx.annotation.MainThread;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 import com.onyx.android.sdk.device.Device;
 import com.onyx.android.sdk.utils.Debug;
 
@@ -135,6 +138,44 @@ public abstract class EpdController {
 
     public static void waitForUpdateFinished() {
         Device.currentDevice().waitForUpdateFinished();
+    }
+
+    /**
+     * Waits using the verified synchronous SurfaceFlinger transaction and
+     * throws when the operation cannot be dispatched. Unlike the legacy
+     * method this never converts a missing method or rejected transaction into
+     * apparent success.
+     */
+    @WorkerThread
+    public static void waitForUpdateFinishedOrThrow() {
+        requireWorkerThread("WAIT_FOR_UPDATE_FINISHED");
+        FirmwareBinderBackend.get().waitForUpdateFinished();
+    }
+
+    /** Returns a fresh diagnostic snapshot of the strict firmware backend. */
+    public static FirmwareBackendInfo getFirmwareBackendInfo() {
+        return FirmwareBinderBackend.get().info();
+    }
+
+    /** Retries strict backend discovery after an application-provided exemption hook. */
+    public static FirmwareBackendInfo retryFirmwareBackendDiscovery() {
+        FirmwareBinderBackend.get().resetForExternalExemption();
+        return FirmwareBinderBackend.get().info();
+    }
+
+    @MainThread
+    public static void setViewDefaultUpdateModeOrThrow(View view, UpdateMode mode) {
+        requireMainThread("SET_VIEW_UPDATE_MODE");
+        if (view == null || mode == null) {
+            throw new IllegalArgumentException("view and mode must not be null");
+        }
+        Device.currentDevice().setViewDefaultUpdateMode(view, mode);
+        UpdateMode actual = Device.currentDevice().getViewDefaultUpdateMode(view);
+        if (actual != mode) {
+            throw new FirmwareOperationException(
+                    "SET_VIEW_UPDATE_MODE", "framework-reflection",
+                    "Firmware reported " + actual + " after setting " + mode);
+        }
     }
 
     public static void refreshScreen(View view, UpdateMode mode) {
@@ -515,6 +556,54 @@ public abstract class EpdController {
 
     public static void handwritingRepaint(View view, int left, int top, int right, int bottom) {
         Device.currentDevice().handwritingRepaint(view, left, top, right, bottom);
+    }
+
+    /** Strict Binder-backed handwriting overlay reconciliation. */
+    @MainThread
+    public static void handwritingRepaintOrThrow(
+            View view, int left, int top, int right, int bottom) {
+        requireMainThread("HANDWRITING_REPAINT");
+        FirmwareBinderBackend.get().handwritingRepaint(view, left, top, right, bottom);
+    }
+
+    /**
+     * Experimental firmware primitive. It is not used automatically without
+     * an exact, validated firmware profile.
+     */
+    @WorkerThread
+    public static void savePenAttachedFramebufferOrThrow() {
+        requireWorkerThread("SAVE_PEN_ATTACHED_FB");
+        FirmwareBinderBackend.get().savePenAttachedFramebuffer();
+    }
+
+    private static void requireMainThread(String operation) {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            throw new FirmwareOperationException(
+                    operation, "thread-contract", "Operation must run on the main thread");
+        }
+    }
+
+    private static void requireWorkerThread(String operation) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            throw new FirmwareOperationException(
+                    operation, "thread-contract", "Operation must not run on the main thread");
+        }
+    }
+
+    public static int getStrictMaxTouchPressureOrThrow() {
+        return FirmwareBinderBackend.get().queryInt("GET_MAX_TOUCH_PRESSURE");
+    }
+
+    public static int getStrictEpdWidthOrThrow() {
+        return FirmwareBinderBackend.get().queryInt("GET_EPD_WIDTH");
+    }
+
+    public static int getStrictEpdHeightOrThrow() {
+        return FirmwareBinderBackend.get().queryInt("GET_EPD_HEIGHT");
+    }
+
+    public static int getStrictColorTypeOrThrow() {
+        return FirmwareBinderBackend.get().queryInt("GET_COLOR_TYPE");
     }
 
     public static void setEpdTurbo(int value) {
