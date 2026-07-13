@@ -32,9 +32,18 @@ Do not apply package-wide nullability defaults or broad annotation sweeps to
 the recovered API. Nullability changes affect Kotlin callers and the
 annotation/metadata layers already audited by this repository.
 
+## Kotlin companion API
+
+New idiomatic Kotlin APIs belong in `onyxsdk-ktx` when they do not need to be
+members of the recovered binary surface. The companion module currently owns
+immutable `PixelSize` conversions and scaling, a fresh mutable-size factory,
+RxJava-to-`Flow` conversion, and a lifecycle-aware raw-input event flow. This
+keeps coroutine dependencies and Kotlin-first naming out of the recovered
+artifacts while allowing the original Java/Kotlin types to interoperate.
+
 ## Required gate
 
-`./gradlew check` builds all five production AARs and runs
+`./gradlew check` builds all six production AARs and runs
 `verifyJvmApiContracts`. The canonical contracts under
 `scripts/jvm-api-contracts/` pin visible classes and members, descriptors,
 inheritance, access flags, generic signatures, annotations, and Kotlin metadata

@@ -30,17 +30,20 @@ data class Size(
     fun isVertical(): Boolean = height > width
 
     fun ratioPageSize(maxPageSize: Size): RectF {
-        val maxSizeValue = maxOf(maxPageSize.width, maxPageSize.height)
-        val bitmapMaxSize = maxOf(width, height)
-        if (maxSizeValue > bitmapMaxSize) {
-            return RectF(0.0f, 0.0f, width.toFloat(), height.toFloat())
+        require(!isEmpty()) { "Size must have positive dimensions: $width x $height" }
+        require(!maxPageSize.isEmpty()) {
+            "Maximum page size must have positive dimensions: ${maxPageSize.width} x ${maxPageSize.height}"
         }
         val (maxWidth, maxHeight) = if (isVertical()) {
             maxPageSize.width to maxPageSize.height
         } else {
             maxPageSize.height to maxPageSize.width
         }
-        val ratio = maxOf(width / maxWidth, height / maxHeight).toFloat()
+        val ratio = maxOf(
+            1.0f,
+            width.toFloat() / maxWidth.toFloat(),
+            height.toFloat() / maxHeight.toFloat(),
+        )
         return RectF(0.0f, 0.0f, width / ratio, height / ratio)
     }
 

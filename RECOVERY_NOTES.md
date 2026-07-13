@@ -77,8 +77,9 @@ surface:
 The production pen module contains all 129 reference class files: 57 from the
 legacy 1.5.4 JAR and 72 from `onyxsdk-pen-native-classes.jar`. The build also
 includes the required geometry types recovered from the release SDK. A `javap`
-descriptor audit proves that all 118 public reference classes have identical
-public/protected declarations, fields, constructors, and methods.
+descriptor audit proves that all 118 public reference classes retain their
+public/protected declarations, fields, constructors, and methods; explicitly
+documented additive members are checked separately.
 
 The legacy `PenUtils.getPointDoubleArray(TouchPoint, float)` allocation was
 corrected from five to seven elements so its existing seven-value JNI record
@@ -89,19 +90,19 @@ carry JVM-mangled names Java cannot declare), so its `kotlin.Metadata` is
 whatever the current Kotlin compiler emits rather than the reference bytes —
 a non-breaking recompilation residual the classified audit reports. Every
 Java-transcribed `@Metadata` annotation, including `NeoPenRender$Companion`,
-matches the reference exactly.
+matches the reference exactly. Additive integer constructor/accessor methods
+let Java renderer code avoid reflection while retaining the unsigned API.
 
 ### Recovery extensions
 
-Three classes exist in the rebuilt pen AAR but in neither reference JAR:
+Three public classes exist in the rebuilt pen AAR but in neither reference JAR:
 
 - `com.onyx.android.sdk.geometry.data.BoxInfo` and
   `com.onyx.android.sdk.geometry.data.TouchData` are minimal public stand-ins
   for a separate Onyx geometry artifact that was not supplied; the reference
   `NeoPenRender.onTouchData(TouchData)` signature requires them.
-- `com.onyx.android.sdk.pen.PenBrushInkAccess` is a package-private reflection
-  bridge to Kotlin's JVM-mangled unsigned-byte accessors and is not part of
-  the public surface.
+- `com.onyx.android.sdk.pen.NeoPenRendererOptions` provides Java/Kotlin-friendly
+  access to the additive renderer selection API.
 
 ### Faithful-by-design behaviors
 

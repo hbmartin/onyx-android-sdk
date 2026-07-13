@@ -55,8 +55,9 @@ for source in "${repaired_sources[@]}"; do
 done
 BASE_AAR="$ROOT/onyxsdk-base/build/outputs/aar/onyxsdk-base-release.aar"
 DEVICE_AAR="$ROOT/onyxsdk-device/build/outputs/aar/onyxsdk-device-release.aar"
+KTX_AAR="$ROOT/onyxsdk-ktx/build/outputs/aar/onyxsdk-ktx-release.aar"
 PEN_AAR="$ROOT/onyxsdk-pen/build/outputs/aar/onyxsdk-pen-release.aar"
-for aar in "$BASE_AAR" "$DEVICE_AAR" "$PEN_AAR"; do
+for aar in "$BASE_AAR" "$DEVICE_AAR" "$KTX_AAR" "$PEN_AAR"; do
   test -s "$aar" || fail "missing source-native AAR: $aar"
   unzip -Z1 "$aar" | rg '^AndroidManifest.xml$' >/dev/null || fail "$aar has no manifest"
   unzip -Z1 "$aar" | rg '^classes.jar$' >/dev/null || fail "$aar has no source-compiled classes.jar"
@@ -64,6 +65,7 @@ done
 
 unzip -p "$BASE_AAR" classes.jar > "$TMP/base.jar"
 unzip -p "$DEVICE_AAR" classes.jar > "$TMP/device.jar"
+unzip -p "$KTX_AAR" classes.jar > "$TMP/ktx.jar"
 unzip -p "$PEN_AAR" classes.jar > "$TMP/pen.jar"
 jar tf "$TMP/base.jar" | rg 'com/onyx/android/sdk/utils/FileUtils.class' >/dev/null \
   || fail "base classes.jar is missing FileUtils"
@@ -75,6 +77,8 @@ for class in RK32XXDevice IMX6Device RK33XXDevice SDMDevice RK31XXDevice; do
   jar tf "$TMP/device.jar" | rg "com/onyx/android/sdk/device/$class.class" >/dev/null \
     || fail "device classes.jar is missing $class"
 done
+jar tf "$TMP/ktx.jar" | rg 'com/onyx/android/sdk/ktx/PixelSize.class' >/dev/null \
+  || fail "Kotlin companion classes.jar is missing PixelSize"
 jar tf "$TMP/pen.jar" | rg 'com/onyx/android/sdk/pen/RawInputReader.class' >/dev/null \
   || fail "pen classes.jar is missing RawInputReader"
 # The contract list is byte-order sorted; force the same collation here so
@@ -84,7 +88,7 @@ missing_pen_classes="$(LC_ALL=C comm -23 "$ROOT/scripts/native-contracts/pen-cla
 test -z "$missing_pen_classes" || fail "pen AAR is missing reference classes: $missing_pen_classes"
 echo "all AAR classes were compiled from recovered source"
 
-for aar in "$BASE_AAR" "$DEVICE_AAR" "$PEN_AAR"; do
+for aar in "$BASE_AAR" "$DEVICE_AAR" "$KTX_AAR" "$PEN_AAR"; do
   listing="$(unzip -Z1 "$aar")" || fail "could not list contents of $aar"
   if printf '%s\n' "$listing" \
       | rg '^libs/.+\.jar$|onyxsdk-pen-native-classes\.jar|classes-original\.jar' >/dev/null; then

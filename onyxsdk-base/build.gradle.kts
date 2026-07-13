@@ -1,7 +1,7 @@
 import org.gradle.api.tasks.bundling.Jar
 
 plugins {
-    id("com.android.library")
+    id("onyx.android-library")
 }
 
 group = "com.onyx.android.sdk.recovered"
@@ -9,19 +9,12 @@ version = "1.8.5-recovered-source"
 
 android {
     namespace = "com.onyx.android.sdk"
-    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
     }
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-
     buildFeatures {
-        buildConfig = false
         dataBinding = true
     }
 
@@ -50,7 +43,7 @@ dependencies {
     api("androidx.fragment:fragment:1.8.8")
     api("androidx.appcompat:appcompat:1.7.1")
     api("androidx.databinding:databinding-common:4.1.3")
-    api("com.alibaba.fastjson2:fastjson2:2.0.48.android8")
+    api(libs.fastjson)
     api("org.apache.commons:commons-lang3:3.18.0")
     api("io.reactivex.rxjava2:rxjava:2.1.13")
     api("io.reactivex.rxjava2:rxandroid:2.1.0")
@@ -58,10 +51,10 @@ dependencies {
     api("org.greenrobot:eventbus:3.0.0")
     api("com.tencent:mmkv:1.3.14")
     api("net.lingala.zip4j:zip4j:2.11.5")
-    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10")
+    api(libs.kotlin.stdlib.jdk8)
 
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.robolectric:robolectric:4.14.1")
+    testImplementation(libs.junit4)
+    testImplementation(libs.robolectric)
 }
 
 tasks.register("assembleRecovered") {

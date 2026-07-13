@@ -451,13 +451,13 @@ public final class NeoPencilPen extends NeoNativePen {
                 float f3 = penInk.getPoints()[first + 2];
                 float f4 = penInk.getPoints()[first + 3];
                 int angle = RangesKt.coerceIn((int) (Math.toDegrees(f4) * 0.1), 0, 36);
-                byte angle36 = (byte) (angle == 36 ? 0 : angle);
-                arrayList.add(PenBrushInkAccess.create(
+                int angle36 = angle == 36 ? 0 : angle;
+                arrayList.add(new PenBrushInk(
                         f,
                         f2,
-                        (byte) RangesKt.coerceIn((int) ((f3 / this.b.getConfig().width) * 255.0f), 0, 255),
+                        RangesKt.coerceIn((int) ((f3 / this.b.getConfig().width) * 255.0f), 0, 255),
                         angle36,
-                        (byte) RangesKt.coerceIn((int) (penInk.getPoints()[first + 4] * 255), 0, 255)));
+                        RangesKt.coerceIn((int) (penInk.getPoints()[first + 4] * 255), 0, 255)));
                 rectF = rectF3;
                 if (rectF3 == null) {
                     rectF = new RectF(f, f2, f + f3, f2 + f3);

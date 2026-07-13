@@ -36,6 +36,7 @@ MODULES = {
         "onyxsdk-commons-io-release.aar"
     ),
     "onyxsdk-device": "onyxsdk-device/build/outputs/aar/onyxsdk-device-release.aar",
+    "onyxsdk-ktx": "onyxsdk-ktx/build/outputs/aar/onyxsdk-ktx-release.aar",
     "onyxsdk-pen": "onyxsdk-pen/build/outputs/aar/onyxsdk-pen-release.aar",
 }
 
