@@ -3,6 +3,7 @@ import org.gradle.api.tasks.Exec
 
 plugins {
     id("onyx.android-library")
+    id("onyx.kdoc")
 }
 
 group = "com.onyx.android.sdk.recovered"

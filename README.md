@@ -4,6 +4,9 @@ This repository is a source-only reconstruction of three Onyx/BOOX SDK
 packages plus an additive Kotlin companion. It contains no tracked original
 SDK JAR, AAR, or native library.
 
+The public Kotlin API reference is available on
+[GitHub Pages](https://hbmartin.github.io/onyx-android-sdk/).
+
 | Module | Recovered version | Production result |
 |---|---:|---|
 | `onyxsdk-base` | 1.8.5 | source-built Android library |

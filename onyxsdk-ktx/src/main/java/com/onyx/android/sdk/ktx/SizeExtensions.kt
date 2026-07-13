@@ -4,7 +4,13 @@ import android.util.Size as AndroidSize
 import com.onyx.android.sdk.base.data.Size as OnyxSize
 import kotlin.math.max
 
-/** Immutable dimensions for Kotlin callers that do not need the recovered mutable API. */
+/**
+ * Immutable pixel dimensions for Kotlin callers that do not need the recovered mutable API.
+ *
+ * @property width nonnegative horizontal dimension in pixels
+ * @property height nonnegative vertical dimension in pixels
+ * @throws IllegalArgumentException when either dimension is negative
+ */
 data class PixelSize(
     val width: Int,
     val height: Int,
@@ -13,10 +19,18 @@ data class PixelSize(
         require(width >= 0 && height >= 0) { "Dimensions must not be negative: $width x $height" }
     }
 
+    /** Returns `true` when either dimension is zero. */
     val isEmpty: Boolean
         get() = width == 0 || height == 0
 
-    /** Scales this size down to fit [maximum] without changing its aspect ratio. */
+    /**
+     * Scales this size down to fit [maximum] without changing its aspect ratio.
+     *
+     * The result never enlarges this size. Fractional dimensions are truncated and each result
+     * dimension is kept at one pixel or greater.
+     *
+     * @throws IllegalArgumentException when this size or [maximum] is empty
+     */
     fun fitWithin(maximum: PixelSize): PixelSize {
         require(!isEmpty) { "Size must have positive dimensions: $width x $height" }
         require(!maximum.isEmpty) {
@@ -35,19 +49,30 @@ data class PixelSize(
         )
     }
 
+    /** Shared constants for [PixelSize]. */
     companion object {
+        /** Empty immutable dimensions. */
         val Zero = PixelSize(0, 0)
     }
 }
 
+/** Copies this recovered mutable size into an immutable [PixelSize]. */
 fun OnyxSize.toPixelSize(): PixelSize = PixelSize(width, height)
 
+/** Copies this immutable size into a new mutable [OnyxSize]. */
 fun PixelSize.toOnyxSize(): OnyxSize = OnyxSize(width, height)
 
+/** Copies this Android size into a new mutable [OnyxSize]. */
 fun AndroidSize.toOnyxSize(): OnyxSize = OnyxSize(width, height)
 
+/** Copies this recovered mutable size into an Android size. */
 fun OnyxSize.toAndroidSize(): AndroidSize = AndroidSize(width, height)
 
+/**
+ * Fits this recovered mutable size within [maximum] and returns the result as an immutable value.
+ *
+ * @throws IllegalArgumentException when this size or [maximum] is empty
+ */
 fun OnyxSize.fitWithin(maximum: OnyxSize): PixelSize =
     toPixelSize().fitWithin(maximum.toPixelSize())
 

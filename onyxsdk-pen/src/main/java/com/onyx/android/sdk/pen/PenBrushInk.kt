@@ -1,6 +1,16 @@
 package com.onyx.android.sdk.pen
 
-/** One textured-brush stamp returned by the native pen renderer. */
+/**
+ * One textured-brush stamp returned by the native pen renderer.
+ *
+ * The unsigned properties preserve the renderer's byte values without sign extension.
+ *
+ * @property x horizontal stamp position
+ * @property y vertical stamp position
+ * @property size unsigned brush-size value
+ * @property angle36 unsigned brush-angle bucket
+ * @property alpha unsigned opacity value
+ */
 class PenBrushInk(
     var x: Float,
     var y: Float,
@@ -8,7 +18,11 @@ class PenBrushInk(
     var angle36: UByte,
     var alpha: UByte,
 ) {
-    /** Java-friendly constructor that preserves the unsigned 0..255 values. */
+    /**
+     * Java-friendly constructor that preserves unsigned byte values.
+     *
+     * @throws IllegalArgumentException when [size], [angle36], or [alpha] is outside `0..255`
+     */
     constructor(x: Float, y: Float, size: Int, angle36: Int, alpha: Int) : this(
         x = x,
         y = y,
@@ -26,6 +40,7 @@ class PenBrushInk(
     /** Returns [alpha] without Kotlin's unsigned JVM name mangling. */
     fun getAlphaAsInt(): Int = alpha.toInt()
 
+    /** Returns whether [other] contains the same position and brush values. */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         return other is PenBrushInk &&
@@ -36,6 +51,7 @@ class PenBrushInk(
             alpha == other.alpha
     }
 
+    /** Returns a hash derived from all position and brush values. */
     override fun hashCode(): Int {
         var result = if (x == 0.0f) 0 else x.toBits()
         result = 31 * result + if (y == 0.0f) 0 else y.toBits()

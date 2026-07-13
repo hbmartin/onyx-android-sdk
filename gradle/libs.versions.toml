@@ -2,6 +2,7 @@
 agp = "9.2.1"
 androidx-annotation = "1.0.0"
 coroutines = "1.6.4"
+dokka = "2.2.0"
 fastjson = "2.0.48.android8"
 junit4 = "4.13.2"
 junit5 = "5.11.4"
