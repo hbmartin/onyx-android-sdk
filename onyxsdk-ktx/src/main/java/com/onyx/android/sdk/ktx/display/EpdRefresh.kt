@@ -22,7 +22,10 @@ import com.onyx.android.sdk.ktx.diagnostics.onyxResult
 import com.onyx.android.sdk.ktx.model.EpdUpdateMode
 import com.onyx.android.sdk.ktx.model.OnyxFailure
 import com.onyx.android.sdk.ktx.model.RefreshScope
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.Future
+import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicBoolean
@@ -48,6 +51,13 @@ data class RefreshReceipt(
     val warnings: Set<RefreshWarning> = emptySet(),
 )
 
+@JvmSynthetic
+internal fun submitFirmwareWaitOrNull(executor: ExecutorService): Future<*>? = try {
+    executor.submit { EpdController.waitForUpdateFinishedOrThrow() }
+} catch (_: RejectedExecutionException) {
+    null
+}
+
 private object FirmwareWaiter {
     private val poisoned = AtomicBoolean(false)
     private val executor = Executors.newSingleThreadExecutor { runnable ->
@@ -67,7 +77,13 @@ private object FirmwareWaiter {
                 ),
             )
         }
-        val future = executor.submit { EpdController.waitForUpdateFinishedOrThrow() }
+        val future = submitFirmwareWaitOrNull(executor) ?: return Result.success(
+            RefreshReceipt(
+                RefreshCompletionEvidence.ESTIMATED_DELAY,
+                System.nanoTime() - started,
+                setOf(RefreshWarning.WAIT_BACKEND_UNAVAILABLE),
+            ),
+        )
         return try {
             withContext(Dispatchers.IO) {
                 future.get(timeout.inWholeMilliseconds.coerceAtLeast(1), TimeUnit.MILLISECONDS)

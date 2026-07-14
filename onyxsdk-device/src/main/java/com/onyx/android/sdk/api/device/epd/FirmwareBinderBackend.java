@@ -127,7 +127,7 @@ final class FirmwareBinderBackend {
                         operation, BACKEND, "Firmware returned no float reply");
             }
             float value = reply.readFloat();
-            if (!Float.isFinite(value) || value <= 0.0f) {
+            if (!isFinitePositive(value)) {
                 throw new FirmwareOperationException(
                         operation, BACKEND, "Firmware returned invalid dimension " + value);
             }
@@ -143,6 +143,10 @@ final class FirmwareBinderBackend {
             reply.recycle();
             data.recycle();
         }
+    }
+
+    static boolean isFinitePositive(float value) {
+        return !Float.isInfinite(value) && !Float.isNaN(value) && value > 0.0f;
     }
 
     private void transactVoid(String operation, @Nullable ParcelWriter writer) {

@@ -479,6 +479,7 @@ public class ActivityUtil
         activity.finish();
     }
     
+    @Nullable
     public static Activity getActivitySafety(@NonNull Context context) {
         if (isActivity(context)) {
             return (Activity)context;
@@ -490,7 +491,7 @@ public class ActivityUtil
             }
             context = base;
         }
-        return (Activity)context;
+        return context instanceof Activity ? (Activity)context : null;
     }
     
     public static boolean isActivity(final Context context) {
