@@ -18,6 +18,7 @@ import androidx.core.view.ViewCompat;
 import java.util.ArrayList;
 import java.util.List;
 import android.view.Menu;
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.widget.RemoteViews;
@@ -378,8 +379,12 @@ public class ViewUtils
         final int[] array2;
         final int[] array = array2 = new int[2];
         final int[] locationOnScreen = getLocationOnScreen(view);
+        final Activity activity = ActivityUtil.getActivitySafety(view.getContext());
+        if (activity == null) {
+            return locationOnScreen;
+        }
         final int[] array3 = array2;
-        final int[] locationOnScreen2 = getLocationOnScreen(ActivityUtil.getActivitySafety(view.getContext()).getWindow().getDecorView());
+        final int[] locationOnScreen2 = getLocationOnScreen(activity.getWindow().getDecorView());
         array3[0] = locationOnScreen[0] - locationOnScreen2[0];
         array[1] = locationOnScreen[1] - locationOnScreen2[1];
         return array;
