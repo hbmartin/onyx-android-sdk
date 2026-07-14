@@ -7,7 +7,7 @@
 | Complete pen class surface | 129 expected class entries checked in the release AAR |
 | Public JVM compatibility | `verify-pen-api.py` matches 118 public classes by `javap` descriptor |
 | Kotlin migration ABI guard | `verifyJvmApiContracts` pins visible descriptors, inheritance, flags, signatures, annotations, and Kotlin metadata for all six production AARs |
-| Kotlin companion API | host tests cover immutable size fitting, fresh mutable values, RxJava-to-Flow conversion, and raw-input callback cleanup |
+| Kotlin companion API | host tests cover immutable values and typed ink contracts; `verifyKtxPublicSurface` rejects legacy Onyx, EventBus, RxJava, Fragment, and Data Binding descriptors |
 | Base recoveries | production-class unit tests for formatting and disposal branches |
 | Base JVM compatibility | classified descriptor/flags/signature/metadata audit (`device-validation/classify_api_differences.py`) plus `RecoveredApiSurfaceRegressionTest` pinning the repaired surface without reference JARs |
 | Seven device recoveries | field-injection unit tests covering the success, failure, and null-method branches |
@@ -18,6 +18,7 @@
 | New pen runtime | Android tests execute all nine pen types and lifecycle/error cases |
 | Legacy pen runtime | Android tests execute static wrapper down/move/up/offline rendering |
 | Raw reader JNI | Android test executes configuration, pause/resume, and close calls |
+| First-class KTX device harness | recovered `sdk-automated` runs active capability evidence, refresh/wait, lease contention, best-effort commit, diagnostics export, and every renderer; `sdk-ink` provides operator raw-input and surface-lifecycle testing |
 | Native differential | original and Rust snapshots run through the same BOOX APK harness |
 | Exact simple pens | types 1–3 values asserted exactly by instrumentation tests |
 | Texture pens | types 4–5 exact only under the hardware differential gate; snapshots compare stamp positions plus bitmap dimensions and pixel digests |

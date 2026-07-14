@@ -14,7 +14,7 @@ The public Kotlin API reference is available on
 | `onyxsdk-device` | 1.3.5 | source-built Android library |
 | `onyxsdk-baselite` | 1.1.1 | separate source-built support library |
 | `onyxsdk-commons-io` | 2.5 | separate relocated Apache Commons IO library |
-| `onyxsdk-ktx` | 1.0.0 | immutable size helpers and coroutine/Rx adapters |
+| `onyxsdk-ktx` | 1.0.0 | Kotlin-first capability, refresh, raw-ink, and renderer façade |
 | `onyxsdk-pen` | 1.5.4 | complete 129-class pen surface plus two Rust JNI libraries |
 
 The pen module includes both generations of the Java API: the 57 classes from
@@ -57,7 +57,7 @@ The modules have distinct responsibilities:
 | `onyxsdk-commons-io` | Apache Commons IO 2.5 relocated from `org.apache.commons.io` to `com.onyx.android.sdk.commons.io`, primarily supplying `FileUtils`, `FilenameUtils`, `IOUtils`, filters, comparators, and stream wrappers. |
 | `onyxsdk-base` | The large common SDK layer: document/note/reader models, storage and file utilities, paths, Wi-Fi, calendar and firmware APIs, RxJava helpers, localized resources, and AIDL/Parcelable types. It delegates hardware-specific work to `onyxsdk-device`. |
 | `onyxsdk-pen` | Legacy and current pen APIs plus the recovered Rust JNI implementations. It uses base data/API types and Baselite geometry primitives transitively. |
-| `onyxsdk-ktx` | Additive Kotlin-first adapters and immutable helpers. New APIs that do not need to alter the recovered binary surface belong here. |
+| `onyxsdk-ktx` | Additive Kotlin-first capability, diagnostic, display, raw-ink, and renderer façade. See [`onyxsdk-ktx/README.md`](onyxsdk-ktx/README.md). |
 
 Baselite 1.1.1 and Onyx Commons IO 2.5 were separate compile dependencies in
 the original `onyxsdk-base:1.8.5` POM, published under
@@ -226,8 +226,9 @@ device-validation/run-comparison.sh \
 The screen shows a drawing canvas plus limit, exclude, single-region, pause,
 clear, and finish controls. The runner builds both flavors, installs each one,
 captures events, and writes its report under `device-validation/results/`.
-Use `--suite automated`, `base`, `device`, `mmkv-compat`, `pen-replay`,
-`neo-pen`, or `guided` for the other test modes. The `automated` and `neo-pen`
+Use `--suite sdk-automated`, `sdk-ink`, `automated`, `base`, `device`,
+`mmkv-compat`, `pen-replay`, `neo-pen`, or `guided` for the other test modes.
+The `automated` and `neo-pen`
 suites also require `--neo-pen-reference /path/to/reference/neo-pen-library`.
 
 To install only the recovered flavor for manual exploration:

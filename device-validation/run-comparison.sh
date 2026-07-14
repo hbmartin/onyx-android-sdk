@@ -11,9 +11,10 @@ OUTPUT=""
 DURATION=30000
 INPUT_DEVICE="auto"
 REFERENCE_NEO_LIBRARY=""
+NOTABLE_NEO_LIBRARY=""
 
 usage() {
-  echo "usage: $0 --artifacts-root DIR [--neo-pen-reference FILE] [--serial SERIAL] [--suite automated|base|device|mmkv-compat|pen-replay|pen-live|neo-pen|guided] [--output DIR] [--duration-ms MS] [--input-device /dev/input/eventN]" >&2
+  echo "usage: $0 --artifacts-root DIR [--neo-pen-reference FILE] [--notable-neo-reference FILE] [--serial SERIAL] [--suite automated|base|device|mmkv-compat|pen-replay|pen-live|neo-pen|guided] [--output DIR] [--duration-ms MS] [--input-device /dev/input/eventN]" >&2
 }
 
 while [[ $# -gt 0 ]]; do
@@ -21,6 +22,7 @@ while [[ $# -gt 0 ]]; do
     --serial) SERIAL="$2"; shift 2 ;;
     --artifacts-root) ARTIFACTS_ROOT="$2"; shift 2 ;;
     --neo-pen-reference) REFERENCE_NEO_LIBRARY="$2"; shift 2 ;;
+    --notable-neo-reference) NOTABLE_NEO_LIBRARY="$2"; shift 2 ;;
     --suite) SUITE="$2"; shift 2 ;;
     --output) OUTPUT="$2"; shift 2 ;;
     --duration-ms) DURATION="$2"; shift 2 ;;
@@ -37,6 +39,9 @@ if [[ "$SUITE" == "automated" || "$SUITE" == "neo-pen" ]]; then
   [[ -n "$REFERENCE_NEO_LIBRARY" ]] \
     || { echo "--neo-pen-reference is required for the $SUITE suite" >&2; exit 2; }
   REFERENCE_NEO_LIBRARY="$(cd "$(dirname "$REFERENCE_NEO_LIBRARY")" && pwd)/$(basename "$REFERENCE_NEO_LIBRARY")"
+  if [[ -n "$NOTABLE_NEO_LIBRARY" ]]; then
+    NOTABLE_NEO_LIBRARY="$(cd "$(dirname "$NOTABLE_NEO_LIBRARY")" && pwd)/$(basename "$NOTABLE_NEO_LIBRARY")"
+  fi
 fi
 
 if [[ "$SUITE" == "guided" && ! -t 0 ]]; then
@@ -307,7 +312,8 @@ fi
 
 if [[ "$SUITE" == "automated" || "$SUITE" == "neo-pen" ]]; then
   echo "Running nine-type native neo-pen differential"
-  "$RECOVERY_ROOT/scripts/device-pen-differential.sh" "$REFERENCE_NEO_LIBRARY" "$SERIAL" \
+  "$RECOVERY_ROOT/scripts/device-pen-differential.sh" \
+    "$REFERENCE_NEO_LIBRARY" "$SERIAL" "$NOTABLE_NEO_LIBRARY" \
     | tee "$OUTPUT/neo-pen-differential.txt"
   # Derive the report section from what the differential actually printed
   # instead of asserting specifics its exit status alone cannot support.

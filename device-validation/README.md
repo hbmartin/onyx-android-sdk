@@ -12,6 +12,7 @@ From the repository root, connect and authorize the device, then run:
 ```bash
 device-validation/run-comparison.sh --artifacts-root /path/to/reference-artifacts \
   --neo-pen-reference /path/to/reference/neo-pen-library \
+  --notable-neo-reference /path/to/notable-0.2.3/libneopen_jni.so \
   --serial 2a9d2c67 --suite automated
 ```
 
@@ -20,7 +21,14 @@ inventory, an API-surface report, both JSONL result streams, `comparison.json`,
 and `report.md`. Original SDK files are read only from the required,
 explicitly supplied artifacts directory.
 The automated suite also invokes the existing nine-pen-type native differential
-against the hash-pinned, untracked `libneo_pen.so` reference.
+against the hash-pinned, untracked `libneo_pen.so` reference. When
+`--notable-neo-reference` is supplied, the same deterministic corpus runs
+through the distinct JNI ABI in Notable 0.2.3 as a second black box. The
+expected SHA-256 is
+`a2c6910b7d3aa78e00505821113ead5876a11fe0f48f9abf004a19c5c53fc8c0`.
+Extract its `libc++_shared.so` sibling beside it as well; that runtime is pinned
+to `f4e1e97c1943e60311e47e8b024d78f5b3b7229b3ccc65feb33af83d6025a670`.
+Neither external library nor the APK is committed or distributed.
 
 ## MMKV file compatibility
 
