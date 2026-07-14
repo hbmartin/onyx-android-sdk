@@ -10,10 +10,10 @@ android {
 }
 
 dependencies {
-    api(project(":onyxsdk-base"))
-    api(project(":onyxsdk-pen"))
+    implementation(project(":onyxsdk-base"))
+    implementation(project(":onyxsdk-pen"))
     api(libs.coroutines.core)
-    implementation(libs.coroutines.rx2)
+    implementation(libs.coroutines.android)
 
     testImplementation(libs.junit4)
 }

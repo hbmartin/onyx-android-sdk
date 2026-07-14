@@ -1,8 +1,11 @@
 package com.onyx.android.sdk.pen;
 
 import android.graphics.Rect;
+import android.os.Looper;
 import android.view.MotionEvent;
 import android.view.View;
+import androidx.annotation.AnyThread;
+import androidx.annotation.MainThread;
 import com.onyx.android.sdk.device.Device;
 import com.onyx.android.sdk.pen.touch.AppPenTouchRender;
 import com.onyx.android.sdk.pen.touch.AppTouchRender;
@@ -27,6 +30,9 @@ public class TouchHelper {
     public static final int FEATURE_SF_TOUCH_RENDER = 2;
     public static final int FEATURE_APP_PEN_TOUCH_RENDER = 4;
     public static final int FEATURE_ALL_TOUCH_RENDER = 3;
+    private static final Object CONFIGURATION_LOCK = new Object();
+    private static RawDrawingConfigurationSnapshot observedConfiguration =
+            RawDrawingConfigurationSnapshot.defaults();
     private volatile boolean a;
     private volatile boolean b;
     private volatile boolean c;
@@ -95,6 +101,7 @@ public class TouchHelper {
         while (it.hasNext()) {
             it.next().setStrokeStyle(style);
         }
+        observe(style, null, null, null, null, null, null, null, null, null);
         return this;
     }
 
@@ -103,6 +110,7 @@ public class TouchHelper {
         while (it.hasNext()) {
             it.next().setStrokeColor(color);
         }
+        observe(null, color, null, null, null, null, null, null, null, null);
         return this;
     }
 
@@ -111,6 +119,7 @@ public class TouchHelper {
         while (it.hasNext()) {
             it.next().setStrokeWidth(w);
         }
+        observe(null, null, w, null, null, null, null, null, null, null);
         return this;
     }
 
@@ -127,6 +136,9 @@ public class TouchHelper {
         while (it.hasNext()) {
             it.next().setLimitRect(limitRect, excludeRectList);
         }
+        observe(null, null, null, null, null, null, null, null,
+                limitRect == null ? new ArrayList<>() : java.util.Collections.singletonList(limitRect),
+                excludeRectList);
         return this;
     }
 
@@ -135,9 +147,11 @@ public class TouchHelper {
         while (it.hasNext()) {
             it.next().setExcludeRect(excludeRectList);
         }
+        observe(null, null, null, null, null, null, null, null, null, excludeRectList);
         return this;
     }
 
+    @MainThread
     public TouchHelper openRawDrawing() {
         a();
         Iterator<TouchRender> it = this.d.iterator();
@@ -148,6 +162,7 @@ public class TouchHelper {
         return this;
     }
 
+    @MainThread
     public void closeRawDrawing() {
         this.a = false;
         Iterator<TouchRender> it = this.d.iterator();
@@ -156,13 +171,31 @@ public class TouchHelper {
         }
     }
 
+    @MainThread
     public TouchHelper setRawDrawingEnabled(boolean enabled) {
+        return setRawDrawingEnabled(enabled, RawDrawingConfigurationPolicy.RESET_TO_FIRMWARE_DEFAULTS);
+    }
+
+    @MainThread
+    public TouchHelper setRawDrawingEnabled(
+            boolean enabled,
+            RawDrawingConfigurationPolicy configurationPolicy) {
         if (!this.a) {
             return this;
         }
         setRawDrawingRenderEnabled(enabled);
         setRawInputReaderEnable(enabled);
-        resetPenDefaultRawDrawing();
+        if (configurationPolicy == RawDrawingConfigurationPolicy.RESET_TO_FIRMWARE_DEFAULTS) {
+            resetPenDefaultRawDrawing();
+        }
+        return this;
+    }
+
+    @AnyThread
+    public TouchHelper setRawInputListenerV2(RawInputListenerV2 listener) {
+        for (TouchRender touchRender : this.d) {
+            touchRender.setRawInputListenerV2(listener);
+        }
         return this;
     }
 
@@ -220,6 +253,7 @@ public class TouchHelper {
         while (it.hasNext()) {
             it.next().setSingleRegionMode();
         }
+        observe(null, null, null, null, null, null, null, true, null, null);
         return this;
     }
 
@@ -228,6 +262,7 @@ public class TouchHelper {
         while (it.hasNext()) {
             it.next().setMultiRegionMode();
         }
+        observe(null, null, null, null, null, null, null, false, null, null);
         return this;
     }
 
@@ -272,6 +307,7 @@ public class TouchHelper {
         while (it.hasNext()) {
             it.next().enableSideBtnErase(enable);
         }
+        observe(null, null, null, null, null, null, enable, null, null, null);
     }
 
     public void enableFingerTouch(boolean enable) {
@@ -314,6 +350,7 @@ public class TouchHelper {
         while (it.hasNext()) {
             it.next().setBrushRawDrawingEnabled(enable);
         }
+        observe(null, null, null, enable, null, null, null, null, null, null);
         return this;
     }
 
@@ -322,6 +359,7 @@ public class TouchHelper {
         while (it.hasNext()) {
             it.next().setEraserRawDrawingEnabled(drawing, eraserStyle);
         }
+        observe(null, null, null, null, drawing, eraserStyle, null, null, null, null);
         return this;
     }
 
@@ -336,6 +374,46 @@ public class TouchHelper {
     public void resetPenDefaultRawDrawing() {
         Device.currentDevice().setBrushRawDrawingEnabled(true);
         Device.currentDevice().setEraserRawDrawingEnabled(false, 5);
+        observe(null, null, null, true, false, 5, null, null, null, null);
+    }
+
+    /** Captures the last complete configuration observed through TouchHelper in this process. */
+    @AnyThread
+    public RawDrawingConfigurationSnapshot captureRawDrawingConfiguration() {
+        synchronized (CONFIGURATION_LOCK) {
+            RawDrawingConfigurationSnapshot value = observedConfiguration;
+            return new RawDrawingConfigurationSnapshot(
+                    value.getStrokeStyle(),
+                    value.getStrokeColor(),
+                    value.getStrokeWidth(),
+                    value.isBrushEnabled(),
+                    value.isEraserEnabled(),
+                    value.getEraserStyle(),
+                    value.isSideButtonEraserEnabled(),
+                    value.isSingleRegionMode(),
+                    value.getLimitRegions(),
+                    value.getExcludeRegions(),
+                    value.getEvidence());
+        }
+    }
+
+    /** Applies every field of an SDK-observed snapshot; no partial reset is performed. */
+    @MainThread
+    public TouchHelper applyRawDrawingConfiguration(RawDrawingConfigurationSnapshot snapshot) {
+        requireMainThread("applyRawDrawingConfiguration");
+        if (snapshot == null) {
+            throw new IllegalArgumentException("snapshot must not be null");
+        }
+        setStrokeStyle(snapshot.getStrokeStyle());
+        setStrokeColor(snapshot.getStrokeColor());
+        setStrokeWidth(snapshot.getStrokeWidth());
+        setBrushRawDrawingEnabled(snapshot.isBrushEnabled());
+        setEraserRawDrawingEnabled(snapshot.isEraserEnabled(), snapshot.getEraserStyle());
+        enableSideBtnErase(snapshot.isSideButtonEraserEnabled());
+        if (snapshot.isSingleRegionMode()) setSingleRegionMode(); else setMultiRegionMode();
+        setLimitRect(snapshot.getLimitRegions());
+        setExcludeRect(snapshot.getExcludeRegions());
+        return this;
     }
 
     public void restartRawDrawing() {
@@ -371,6 +449,8 @@ public class TouchHelper {
         while (it.hasNext()) {
             it.next().setLimitRect(limitRectList, excludeRectList);
         }
+        observe(null, null, null, null, null, null, null, null,
+                limitRectList, excludeRectList);
         return this;
     }
 
@@ -386,6 +466,7 @@ public class TouchHelper {
         while (it.hasNext()) {
             it.next().setLimitRect(limitRectList);
         }
+        observe(null, null, null, null, null, null, null, null, limitRectList, null);
         return this;
     }
 
@@ -395,5 +476,28 @@ public class TouchHelper {
         }
         throw new IllegalArgumentException("hostView should not be null!");
     }
-}
 
+    private static void observe(
+            Integer style,
+            Integer color,
+            Float width,
+            Boolean brush,
+            Boolean eraser,
+            Integer eraserStyle,
+            Boolean sideButton,
+            Boolean singleRegion,
+            List<Rect> limits,
+            List<Rect> excludes) {
+        synchronized (CONFIGURATION_LOCK) {
+            observedConfiguration = observedConfiguration.observed(
+                    style, color, width, brush, eraser, eraserStyle, sideButton,
+                    singleRegion, limits, excludes);
+        }
+    }
+
+    private static void requireMainThread(String operation) {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            throw new IllegalStateException(operation + " must run on the Android main thread");
+        }
+    }
+}

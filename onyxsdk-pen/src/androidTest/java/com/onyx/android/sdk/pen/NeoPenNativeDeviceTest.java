@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThrows;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -321,16 +322,23 @@ public class NeoPenNativeDeviceTest {
 
 
     @Test
-    public void invalidHandlesReturnNullAndDestroyIsIdempotent() {
-        assertNull(NeoPenNative.INSTANCE.onPenDown(0L, point(0f, 0f, 0.5f, 1L), false));
-        assertNull(NeoPenNative.INSTANCE.onPenMove(
-                Long.MAX_VALUE,
-                Collections.singletonList(point(1f, 1f, 0.5f, 2L)),
-                null,
-                false));
-        assertNull(NeoPenNative.INSTANCE.onPenUp(-1L, point(2f, 2f, 0.5f, 3L), false));
-        NeoPenNative.INSTANCE.destroyPen(0L);
-        NeoPenNative.INSTANCE.destroyPen(Long.MAX_VALUE);
+    public void invalidHandlesRaiseStructuredNativeFailures() {
+        assertThrows(NativeRendererException.class, () ->
+                NeoPenNative.INSTANCE.onPenDown(
+                        0L, point(0f, 0f, 0.5f, 1L), false));
+        assertThrows(NativeRendererException.class, () ->
+                NeoPenNative.INSTANCE.onPenMove(
+                        Long.MAX_VALUE,
+                        Collections.singletonList(point(1f, 1f, 0.5f, 2L)),
+                        null,
+                        false));
+        assertThrows(NativeRendererException.class, () ->
+                NeoPenNative.INSTANCE.onPenUp(
+                        -1L, point(2f, 2f, 0.5f, 3L), false));
+        assertThrows(NativeRendererException.class, () ->
+                NeoPenNative.INSTANCE.destroyPen(0L));
+        assertThrows(NativeRendererException.class, () ->
+                NeoPenNative.INSTANCE.destroyPen(Long.MAX_VALUE));
     }
 
     @Test

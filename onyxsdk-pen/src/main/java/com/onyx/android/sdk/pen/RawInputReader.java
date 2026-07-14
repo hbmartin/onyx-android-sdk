@@ -5,7 +5,9 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.Log;
 import android.view.View;
+import androidx.annotation.AnyThread;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.data.PenConstant;
 import com.onyx.android.sdk.data.note.TouchPoint;
@@ -42,6 +44,10 @@ public class RawInputReader {
     private static final long I = 60;
     private static final ExecutorService J;
     private static final AtomicLong READER_SESSIONS = new AtomicLong();
+    private final AtomicLong eventSequences = new AtomicLong();
+    private volatile RawInputListenerV2 rawInputListenerV2;
+    private volatile RawInputDeviceInfo rawInputDeviceInfo;
+    private volatile int rawPressureMaximum = 4096;
     private volatile Matrix h;
     private volatile TouchPointList i;
     private RawInputCallback l;
@@ -230,6 +236,20 @@ public class RawInputReader {
         this.l = callback;
     }
 
+    @AnyThread
+    public void setRawInputListenerV2(RawInputListenerV2 listener) {
+        this.rawInputListenerV2 = listener;
+        RawInputDeviceInfo info = this.rawInputDeviceInfo;
+        if (listener != null && info != null) {
+            listener.onRawInputDeviceInfo(info);
+        }
+    }
+
+    @AnyThread
+    public RawInputDeviceInfo getRawInputDeviceInfo() {
+        return this.rawInputDeviceInfo;
+    }
+
     public void setHostView(View view) {
         this.m = new WeakReference<>(view);
         f();
@@ -242,6 +262,7 @@ public class RawInputReader {
         return this.m.get();
     }
 
+    @AnyThread
     public void start() {
         if (F) {
             a("start requested previousSession=" + this.readerSession
@@ -255,6 +276,7 @@ public class RawInputReader {
         a("start");
     }
 
+    @AnyThread
     public void resume() {
         if (F) {
             a("resume session=" + this.readerSession + " fdValid=" + isFdValid());
@@ -268,6 +290,7 @@ public class RawInputReader {
     // Faithful reference behavior: the native pause flush fires only when the
     // pen state is below 2, and this class only ever sets state 4, so a stroke
     // in progress continues across pause()/resume() without a forced release.
+    @AnyThread
     public void pause() {
         if (F) {
             a("pause session=" + this.readerSession + " fdValid=" + isFdValid());
@@ -277,6 +300,7 @@ public class RawInputReader {
         a("pause");
     }
 
+    @AnyThread
     public void quit() {
         if (F) {
             a("quit requested session=" + this.readerSession + " fdValid=" + isFdValid());
@@ -361,15 +385,18 @@ public class RawInputReader {
     }
 
     public void setExcludeRect(List<Rect> rectList) {
-        if (rectList == null || rectList.size() <= 0) {
-            return;
-        }
-        nativeSetExcludeRegion(a(rectList));
-        EpdController.setScreenHandWritingRegionExclude(getHostView(), (Rect[]) rectList.toArray(new Rect[0]));
+        List<Rect> regions = rectList == null ? java.util.Collections.emptyList() : rectList;
+        nativeSetExcludeRegion(a(regions));
+        EpdController.setScreenHandWritingRegionExclude(
+                getHostView(), (Rect[]) regions.toArray(new Rect[0]));
         a("setExcludeRect");
     }
 
-    public void onTouchPointReceived(float x2, float y2, int pressure, int tx, int ty, boolean isErasing, boolean shortcutDrawing, boolean shortcutErasing, int state, long ts) {
+    @WorkerThread
+    public void onTouchPointReceived(float x2, float y2, int pressure, int tx, int ty, boolean isErasing, boolean shortcutDrawing, boolean shortcutErasing, int state, long timestampNanos) {
+        emitRawInputEventV2(
+                x2, y2, pressure, tx, ty, isErasing, shortcutErasing, state, timestampNanos);
+        long ts = timestampNanos / 1_000_000L;
         if (state == 5) {
             a(x2, y2, pressure, 0, tx, ty, ts);
         }
@@ -402,6 +429,98 @@ public class RawInputReader {
                 this.a = false;
             }
         }
+    }
+
+    /** Called only by the native reader after an input device has been opened. */
+    @WorkerThread
+    public void onRawInputDeviceInfo(
+            int xMin, int xMax, int xFuzz, int xFlat, int xResolution,
+            int yMin, int yMax, int yFuzz, int yFlat, int yResolution,
+            int pressureMin, int pressureMax, int pressureFuzz, int pressureFlat,
+            int pressureResolution,
+            int tiltXMin, int tiltXMax, int tiltXFuzz, int tiltXFlat, int tiltXResolution,
+            int tiltYMin, int tiltYMax, int tiltYFuzz, int tiltYFlat, int tiltYResolution,
+            boolean kernelMonotonicClock) {
+        RawInputAxisRange pressure = axisOrNull(
+                pressureMin, pressureMax, pressureFuzz, pressureFlat, pressureResolution);
+        if (pressure != null && pressure.getMaximum() > 0) {
+            this.rawPressureMaximum = pressure.getMaximum();
+        }
+        RawInputDeviceInfo info = new RawInputDeviceInfo(
+                axisOrNull(xMin, xMax, xFuzz, xFlat, xResolution),
+                axisOrNull(yMin, yMax, yFuzz, yFlat, yResolution),
+                pressure,
+                axisOrNull(tiltXMin, tiltXMax, tiltXFuzz, tiltXFlat, tiltXResolution),
+                axisOrNull(tiltYMin, tiltYMax, tiltYFuzz, tiltYFlat, tiltYResolution),
+                kernelMonotonicClock);
+        this.rawInputDeviceInfo = info;
+        RawInputListenerV2 listener = this.rawInputListenerV2;
+        if (listener != null) {
+            listener.onRawInputDeviceInfo(info);
+        }
+    }
+
+    private static RawInputAxisRange axisOrNull(
+            int minimum, int maximum, int fuzz, int flat, int resolution) {
+        return maximum > minimum
+                ? new RawInputAxisRange(minimum, maximum, fuzz, flat, resolution)
+                : null;
+    }
+
+    private void emitRawInputEventV2(
+            float rawX,
+            float rawY,
+            int pressure,
+            int tiltX,
+            int tiltY,
+            boolean erasing,
+            boolean shortcutErasing,
+            int state,
+            long timestampNanos) {
+        RawInputListenerV2 listener = this.rawInputListenerV2;
+        if (listener == null) {
+            return;
+        }
+        RawInputPhase phase;
+        switch (state) {
+            case 0:
+                phase = RawInputPhase.DOWN;
+                break;
+            case 1:
+                phase = RawInputPhase.MOVE;
+                break;
+            case 2:
+            case 3:
+            case 6:
+                phase = RawInputPhase.UP;
+                break;
+            case 5:
+                phase = RawInputPhase.PROXIMITY;
+                break;
+            default:
+                return;
+        }
+        TouchPoint mapped = new TouchPoint(rawX, rawY, pressure, 0, tiltX, tiltY, 0L);
+        d(mapped);
+        int maximum = Math.max(1, this.rawPressureMaximum);
+        float normalized = Math.max(0.0f, Math.min(1.0f, ((float) pressure) / maximum));
+        RawInputTool tool = !erasing
+                ? RawInputTool.PEN
+                : (shortcutErasing ? RawInputTool.SIDE_ERASER : RawInputTool.TAIL_ERASER);
+        listener.onRawInputEvent(new RawInputEventV2(
+                phase,
+                tool,
+                mapped.x,
+                mapped.y,
+                pressure,
+                normalized,
+                maximum,
+                tiltX,
+                tiltY,
+                timestampNanos,
+                this.eventSequences.incrementAndGet(),
+                state == 3,
+                state == 6));
     }
 
     public EventBusHolder getEventBusHolder() {
@@ -479,11 +598,10 @@ public class RawInputReader {
     }
 
     public void setLimitRect(List<Rect> rectList) {
-        if (rectList == null || rectList.size() <= 0) {
-            return;
-        }
-        nativeSetLimitRegion(a(rectList));
-        EpdController.setScreenHandWritingRegionLimit(getHostView(), (Rect[]) rectList.toArray(new Rect[0]));
+        List<Rect> regions = rectList == null ? java.util.Collections.emptyList() : rectList;
+        nativeSetLimitRegion(a(regions));
+        EpdController.setScreenHandWritingRegionLimit(
+                getHostView(), (Rect[]) regions.toArray(new Rect[0]));
         a("setLimitRect");
     }
 

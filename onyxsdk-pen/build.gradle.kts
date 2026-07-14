@@ -23,6 +23,7 @@ val buildRustAndroid = tasks.register<Exec>("buildRustAndroid") {
     )
     outputs.dir("src/main/jniLibs")
     inputs.property("penReferenceNeoSo", providers.gradleProperty("penReferenceNeoSo").orElse(""))
+    inputs.property("penNotableNeoSo", providers.gradleProperty("penNotableNeoSo").orElse(""))
     // The script picks its toolchain from these; a changed NDK must invalidate native outputs.
     inputs.property("ndkVersion", providers.environmentVariable("ANDROID_NDK_VERSION").orElse(""))
     inputs.property("ndkHome", providers.environmentVariable("ANDROID_NDK_HOME").orElse(""))
@@ -34,6 +35,7 @@ val buildRustAndroid = tasks.register<Exec>("buildRustAndroid") {
         environment("ANDROID_HOME", androidSdkDirectory.get().asFile.absolutePath)
     }
     val referenceSoPath = providers.gradleProperty("penReferenceNeoSo")
+    val notableSoPath = providers.gradleProperty("penNotableNeoSo")
     val projectDir = layout.projectDirectory.asFile
     val jniArm64 = layout.projectDirectory.dir("src/main/jniLibs/arm64-v8a").asFile
     doLast {
@@ -43,6 +45,26 @@ val buildRustAndroid = tasks.register<Exec>("buildRustAndroid") {
             require(reference.isFile) { "Reference neo-pen library does not exist: $reference" }
             jniArm64.mkdirs()
             reference.copyTo(jniArm64.resolve("libneo_pen$sharedLibrarySuffix"), overwrite = true)
+        }
+        val notableTarget = projectDir.resolve(
+            "src/androidTest/jniLibs/arm64-v8a/libneopen_jni$sharedLibrarySuffix",
+        )
+        val notableRuntimeTarget = projectDir.resolve(
+            "src/androidTest/jniLibs/arm64-v8a/libc++_shared$sharedLibrarySuffix",
+        )
+        notableTarget.delete()
+        notableRuntimeTarget.delete()
+        notableSoPath.orNull?.takeIf(String::isNotBlank)?.let { notablePath ->
+            val candidate = File(notablePath)
+            val reference = if (candidate.isAbsolute) candidate else projectDir.resolve(notablePath)
+            require(reference.isFile) { "Notable neo-pen library does not exist: $reference" }
+            val runtime = reference.parentFile.resolve("libc++_shared$sharedLibrarySuffix")
+            require(runtime.isFile) {
+                "Notable libc++_shared.so must be supplied beside the reference: $runtime"
+            }
+            notableTarget.parentFile.mkdirs()
+            reference.copyTo(notableTarget, overwrite = true)
+            runtime.copyTo(notableRuntimeTarget, overwrite = true)
         }
     }
 }
@@ -75,7 +97,7 @@ tasks.named("preBuild") {
 }
 
 tasks.named<Delete>("clean") {
-    delete("src/main/jniLibs")
+    delete("src/main/jniLibs", "src/androidTest/jniLibs")
 }
 
 tasks.register("assembleRecovered") {

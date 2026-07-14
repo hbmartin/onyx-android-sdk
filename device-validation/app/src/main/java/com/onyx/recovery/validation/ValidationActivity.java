@@ -2,7 +2,9 @@ package com.onyx.recovery.validation;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.ViewGroup;
@@ -10,6 +12,8 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.view.SurfaceView;
+import android.view.SurfaceHolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +25,8 @@ public final class ValidationActivity extends Activity {
     private ResultRecorder recorder;
     private GuidedCanvasView canvas;
     private PenHarness pen;
+    private SdkHarness sdkHarness;
+    private SurfaceView rawSurface;
     private TextView status;
     private String suite;
     private String scenario;
@@ -31,6 +37,10 @@ public final class ValidationActivity extends Activity {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true);
+            setTurnScreenOn(true);
+        }
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         new File(getFilesDir(), "done").delete();
         try {
@@ -44,7 +54,65 @@ public final class ValidationActivity extends Activity {
         mmkvMode = getIntent().getStringExtra("mmkvMode");
         buildUi();
         pen = new PenHarness(this, recorder, canvas);
-        canvas.post(() -> runSuite(suite));
+        sdkHarness = SdkHarnessFactory.create(this, recorder);
+        scheduleSuite();
+    }
+
+    private void scheduleSuite() {
+        if (!suite.startsWith("sdk-")) {
+            canvas.post(() -> runSuite(suite));
+            return;
+        }
+        StableSurfaceStarter starter = new StableSurfaceStarter();
+        rawSurface.getHolder().addCallback(starter);
+        starter.schedule();
+    }
+
+    /** Waits past the first layout-time Surface replacement before exercising raw ink. */
+    private final class StableSurfaceStarter implements SurfaceHolder.Callback, Runnable {
+        private final long deadlineMs = SystemClock.uptimeMillis() + 5_000L;
+        private int consecutiveValidFrames;
+        private boolean scheduled;
+        private boolean started;
+
+        void schedule() {
+            if (started || scheduled) return;
+            scheduled = true;
+            rawSurface.postOnAnimation(this);
+        }
+
+        @Override
+        public void run() {
+            scheduled = false;
+            boolean valid = rawSurface.isAttachedToWindow()
+                    && rawSurface.getWidth() > 0
+                    && rawSurface.getHeight() > 0
+                    && rawSurface.getHolder().getSurface().isValid();
+            consecutiveValidFrames = valid ? consecutiveValidFrames + 1 : 0;
+            if (consecutiveValidFrames >= 2 || SystemClock.uptimeMillis() >= deadlineMs) {
+                started = true;
+                rawSurface.getHolder().removeCallback(this);
+                runSuite(suite);
+            } else {
+                schedule();
+            }
+        }
+
+        @Override
+        public void surfaceCreated(SurfaceHolder holder) {
+            schedule();
+        }
+
+        @Override
+        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            schedule();
+        }
+
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+            consecutiveValidFrames = 0;
+            schedule();
+        }
     }
 
     private void buildUi() {
@@ -78,6 +146,10 @@ public final class ValidationActivity extends Activity {
         canvas = new GuidedCanvasView(this);
         root.addView(canvas, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+        rawSurface = new SurfaceView(this);
+        rawSurface.setBackgroundColor(Color.WHITE);
+        root.addView(rawSurface, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 320));
         setContentView(root);
     }
 
@@ -101,6 +173,15 @@ public final class ValidationActivity extends Activity {
         }
         if ("pen-replay".equals(suite)) {
             pen.replay(() -> finishSuite(suite));
+            return;
+        }
+        if ("sdk-automated".equals(suite)) {
+            sdkHarness.runAutomated(rawSurface, status, () -> finishSuite(suite));
+            return;
+        }
+        if ("sdk-ink".equals(suite)) {
+            long duration = getIntent().getLongExtra("durationMs", 30_000L);
+            sdkHarness.startInk(rawSurface, status, duration, () -> finishSuite(suite));
             return;
         }
         worker.execute(() -> {
@@ -141,6 +222,7 @@ public final class ValidationActivity extends Activity {
     @Override
     protected void onDestroy() {
         if (pen != null) pen.quit();
+        if (sdkHarness != null) sdkHarness.close();
         worker.shutdownNow();
         if (recorder != null) {
             try {

@@ -1,6 +1,7 @@
 package com.onyx.android.sdk.pen;
 
 import android.util.Log;
+import androidx.annotation.AnyThread;
 import com.onyx.android.sdk.base.data.TouchPoint;
 import com.onyx.android.sdk.base.utils.Debug;
 import java.util.List;
@@ -51,6 +52,7 @@ public final class NeoPenNative {
 
     private final native NeoPenResult nativeOnPenUp(long pen, double[] point, boolean repaint);
 
+    @AnyThread
     public final long createPen(int penType, @NotNull NeoPenConfig config) {
         Intrinsics.checkNotNullParameter(config, "config");
         long handle = nativeCreatePen(penType, config);
@@ -63,12 +65,14 @@ public final class NeoPenNative {
         return handle;
     }
 
+    @AnyThread
     public final void destroyPen(long pen) {
         if (a) Log.d(TRACE_TAG, "destroy handle=" + pen);
         nativeDestroyPen(pen);
     }
 
     @Nullable
+    @AnyThread
     public final NeoPenResult onPenDown(long pen, @NotNull TouchPoint point, boolean repaint) {
         Intrinsics.checkNotNullParameter(point, "point");
         NeoPenResult neoPenResultNativeOnPenDown = nativeOnPenDown(pen, com.onyx.android.sdk.pen.utils.PenUtils.getPointDoubleArray$default(com.onyx.android.sdk.pen.utils.PenUtils.INSTANCE, point, com.onyx.android.sdk.pen.utils.PenUtils.KEPLER_MIN_PRESSURE_SENSITIVITY, 2, (Object) null), repaint);
@@ -80,6 +84,7 @@ public final class NeoPenNative {
     }
 
     @Nullable
+    @AnyThread
     public final NeoPenResult onPenMove(long pen, @NotNull List<? extends TouchPoint> points, @Nullable TouchPoint prediction, boolean repaint) {
         Intrinsics.checkNotNullParameter(points, "points");
         com.onyx.android.sdk.pen.utils.PenUtils penUtils = com.onyx.android.sdk.pen.utils.PenUtils.INSTANCE;
@@ -94,6 +99,7 @@ public final class NeoPenNative {
     }
 
     @Nullable
+    @AnyThread
     public final NeoPenResult onPenUp(long pen, @NotNull TouchPoint point, boolean repaint) {
         Intrinsics.checkNotNullParameter(point, "point");
         NeoPenResult neoPenResultNativeOnPenUp = nativeOnPenUp(pen, com.onyx.android.sdk.pen.utils.PenUtils.getPointDoubleArray$default(com.onyx.android.sdk.pen.utils.PenUtils.INSTANCE, point, com.onyx.android.sdk.pen.utils.PenUtils.KEPLER_MIN_PRESSURE_SENSITIVITY, 2, (Object) null), repaint);

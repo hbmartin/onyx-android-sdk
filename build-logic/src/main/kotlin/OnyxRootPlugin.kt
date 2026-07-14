@@ -177,6 +177,17 @@ class OnyxRootPlugin : Plugin<Project> {
             )
         }
 
+        tasks.register<Exec>("verifyKtxPublicSurface") {
+            group = "verification"
+            description = "Rejects legacy SDK, EventBus, RxJava, Fragment, and Data Binding KTX API types."
+            dependsOn(releaseTasks)
+            commandLine(
+                "python3",
+                layout.projectDirectory.file("scripts/verify_ktx_public_surface.py").asFile,
+                layout.projectDirectory.asFile,
+            )
+        }
+
         val publicationArtifactTasks = registry.publishedModules.flatMap { module ->
             listOf(
                 "${module.projectPath}:generatePomFileForReleasePublication",

@@ -204,12 +204,20 @@
       "name": "Onyx SDK Kotlin Extensions",
       "description": "Additive Kotlin-first immutable helpers and coroutine adapters for the recovered Onyx Android SDK.",
       "published": true,
-      "deviceValidation": {},
+      "deviceValidation": {"commonRecovered": true},
       "projectDependencies": [
-        {"configuration": "api", "target": "base"},
-        {"configuration": "api", "target": "pen"}
+        {"configuration": "implementation", "target": "base"},
+        {"configuration": "implementation", "target": "pen"}
       ],
-      "ownedPackages": ["com.onyx.android.sdk.ktx"],
+      "ownedPackages": [
+        "com.onyx.android.sdk.ktx",
+        "com.onyx.android.sdk.ktx.capabilities",
+        "com.onyx.android.sdk.ktx.diagnostics",
+        "com.onyx.android.sdk.ktx.display",
+        "com.onyx.android.sdk.ktx.ink",
+        "com.onyx.android.sdk.ktx.model",
+        "com.onyx.android.sdk.ktx.render"
+      ],
       "legacyOwnedTypes": []
     },
     {

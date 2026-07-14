@@ -91,6 +91,10 @@ public class RawInputManager {
         this.a = callback;
     }
 
+    public void setRawInputListenerV2(RawInputListenerV2 listener) {
+        a().setRawInputListenerV2(listener);
+    }
+
     public void startRawInputReader() {
         if (isUseRawInput()) {
             a().setRawInputCallback(new a());
@@ -212,4 +216,3 @@ public class RawInputManager {
         return this;
     }
 }
-

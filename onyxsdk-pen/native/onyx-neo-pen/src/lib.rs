@@ -1,6 +1,8 @@
 #![allow(non_snake_case)]
 
+use std::any::Any;
 use std::collections::HashMap;
+use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::sync::atomic::{AtomicI32, AtomicI64, Ordering};
 use std::sync::{Mutex, OnceLock};
 
@@ -8,6 +10,10 @@ use jni::objects::{JDoubleArray, JFloatArray, JIntArray, JObject, JObjectArray, 
 use jni::strings::JNIString;
 use jni::sys::{jboolean, jint, jlong, jobject, jobjectArray};
 use jni::{jni_sig, jni_str, Env, EnvUnowned};
+
+const MAX_TOUCH_POINTS_PER_CALL: usize = 4_096;
+const TOUCH_VALUES_PER_POINT: usize = 7;
+const MAX_OUTPUT_FLOAT_VALUES: usize = 1_000_000;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 struct Touch {
@@ -127,13 +133,73 @@ struct Stamp {
     width: i32,
     height: i32,
     alpha: u8,
+    rows: Option<&'static [u32]>,
 }
+
+// Sparse masks reconstructed from device-observed output. Keeping these as
+// tiny one-bit masks preserves the reference geometry without distributing
+// any firmware or reference-library asset.
+const CHARCOAL_MOVE_ROWS: &[u32] = &[
+    0b0000000000000,
+    0b0000000000000,
+    0b0000000000000,
+    0b0001010000000,
+    0b0000101000000,
+    0b0000010100000,
+    0b0001001000000,
+    0b0000010010000,
+    0b0000001101000,
+    0b0000000101000,
+    0b0000000100100,
+    0b0000000010010,
+    0b0000000000000,
+    0b0000000000000,
+];
+
+const CHARCOAL_UP_ROWS: &[u32] = &[
+    0b0000000000000,
+    0b0000000000000,
+    0b0000010000000,
+    0b0001010000000,
+    0b0001010000000,
+    0b0001011010000,
+    0b0000101000000,
+    0b0000010110100,
+    0b0000001000000,
+    0b0000000010000,
+    0b0000000001000,
+    0b0000000000000,
+    0b0000000000000,
+];
+
+const CHARCOAL_V2_UP_ROWS: &[u32] = &[
+    0b000000000000000000,
+    0b000001000000000000,
+    0b000011100000000000,
+    0b010101110000000000,
+    0b010100111100000000,
+    0b001010111100000000,
+    0b000101010001000000,
+    0b000101000101000000,
+    0b000011110010000000,
+    0b000000001110100000,
+    0b000000100100111000,
+    0b000000011100110100,
+    0b000000001001101000,
+    0b000000001000101110,
+    0b000000000100111100,
+    0b000000000101010100,
+    0b000000000000000100,
+    0b000000000000010000,
+    0b000000000000000100,
+];
 
 #[derive(Clone, Debug, Default)]
 struct InkData {
     points: Vec<f32>,
     point_sizes: Vec<i32>,
     stamps: Vec<Stamp>,
+    overflowed: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -354,6 +420,10 @@ impl PenState {
     }
 
     fn push_point(ink: &mut InkData, point: Touch, width: f32) {
+        if ink.points.len().saturating_add(3) > MAX_OUTPUT_FLOAT_VALUES {
+            ink.overflowed = true;
+            return;
+        }
         ink.points.extend_from_slice(&[point.x, point.y, width]);
         ink.point_sizes.push(3);
     }
@@ -688,7 +758,8 @@ impl PenState {
                             real.stamps.push(Stamp {
                                 width: 13,
                                 height: 14,
-                                alpha: 180,
+                                alpha: 255,
+                                rows: Some(CHARCOAL_MOVE_ROWS),
                             });
                         }
                     }
@@ -751,18 +822,20 @@ impl PenState {
                         real.stamps.push(Stamp {
                             width: 13,
                             height: 13,
-                            alpha: 180,
+                            alpha: 255,
+                            rows: Some(CHARCOAL_UP_ROWS),
                         });
                     }
                     5 => {
-                        let point = self.history.last().copied().unwrap_or(end);
+                        let point = self.history.first().copied().unwrap_or(end);
                         real.points
                             .extend_from_slice(&[point.x - 4.0, point.y - 4.0]);
                         real.point_sizes.push(2);
                         real.stamps.push(Stamp {
                             width: 18,
                             height: 19,
-                            alpha: 180,
+                            alpha: 255,
+                            rows: Some(CHARCOAL_V2_UP_ROWS),
                         });
                     }
                     6 if self.config.fast_mode => {
@@ -898,15 +971,21 @@ fn read_config(env: &mut Env, object: &JObject) -> PenConfig {
     .sanitized()
 }
 
-fn read_touches(env: &mut Env, array: JDoubleArray) -> Vec<Touch> {
+fn read_touches(env: &mut Env, array: JDoubleArray) -> Result<Vec<Touch>, &'static str> {
     let Ok(length) = array.len(env) else {
-        return Vec::new();
+        return Err("[JNI_FAILURE] Unable to read point-array length");
     };
+    if length % TOUCH_VALUES_PER_POINT != 0 {
+        return Err("[INVALID_ARGUMENT] Point array must contain complete 7-value records");
+    }
+    if length / TOUCH_VALUES_PER_POINT > MAX_TOUCH_POINTS_PER_CALL {
+        return Err("[ALLOCATION_LIMIT] Point array exceeds the per-call safety limit");
+    }
     let mut values = vec![0.0f64; length];
     if array.get_region(env, 0, &mut values).is_err() {
-        return Vec::new();
+        return Err("[JNI_FAILURE] Unable to read point-array values");
     }
-    values
+    Ok(values
         .chunks_exact(7)
         .map(|chunk| Touch {
             x: chunk[0] as f32,
@@ -917,12 +996,29 @@ fn read_touches(env: &mut Env, array: JDoubleArray) -> Vec<Touch> {
             tilt_y: chunk[5] as f32,
             timestamp: chunk[6],
         })
-        .collect()
+        .collect())
 }
 
 fn scale_color_alpha(color: i32, stamp_alpha: u8) -> i32 {
     let alpha = (color as u32 >> 24) * u32::from(stamp_alpha) / 255;
     ((alpha << 24) | (color as u32 & 0x00ff_ffff)) as i32
+}
+
+fn masked_stamp_pixels(stamp: &Stamp, color: i32) -> Option<Vec<i32>> {
+    let rows = stamp.rows?;
+    let width = stamp.width.max(1) as usize;
+    let height = stamp.height.max(1) as usize;
+    let scaled_color = scale_color_alpha(color, stamp.alpha);
+    let mut pixels = Vec::with_capacity(width * height);
+    for y in 0..height {
+        let row = rows.get(y).copied().unwrap_or(0);
+        for x in 0..width {
+            let bit_shift = width - 1 - x;
+            let active = bit_shift < u32::BITS as usize && row & (1u32 << bit_shift) != 0;
+            pixels.push(if active { scaled_color } else { 0 });
+        }
+    }
+    Some(pixels)
 }
 
 fn create_bitmap<'local>(
@@ -950,13 +1046,34 @@ fn create_bitmap<'local>(
             ],
         )?
         .l()?;
-    let argb = scale_color_alpha(color, stamp.alpha);
-    env.call_method(
-        &bitmap,
-        jni_str!("eraseColor"),
-        jni_sig!("(I)V"),
-        &[JValue::Int(argb)],
-    )?;
+    if let Some(pixels) = masked_stamp_pixels(stamp, color) {
+        let colors: JIntArray = env.new_int_array(pixels.len())?;
+        colors.set_region(env, 0, &pixels)?;
+        let colors_object = JObject::from(colors);
+        env.call_method(
+            &bitmap,
+            jni_str!("setPixels"),
+            jni_sig!("([IIIIIII)V"),
+            &[
+                JValue::Object(&colors_object),
+                JValue::Int(0),
+                JValue::Int(stamp.width),
+                JValue::Int(0),
+                JValue::Int(0),
+                JValue::Int(stamp.width),
+                JValue::Int(stamp.height),
+            ],
+        )?;
+        env.delete_local_ref(colors_object);
+    } else {
+        let argb = scale_color_alpha(color, stamp.alpha);
+        env.call_method(
+            &bitmap,
+            jni_str!("eraseColor"),
+            jni_sig!("(I)V"),
+            &[JValue::Int(argb)],
+        )?;
+    }
     env.delete_local_ref(config_class);
     env.delete_local_ref(config);
     Ok(bitmap)
@@ -1029,20 +1146,50 @@ fn process_handle(
     Some((real, predicted, color))
 }
 
-fn throw_illegal_state(env: &mut Env, message: &str) {
+fn throw_native_failure(env: &mut Env, message: &str) {
     let _ = env.throw_new(
-        jni_str!("java/lang/IllegalStateException"),
+        jni_str!("com/onyx/android/sdk/pen/NativeRendererException"),
         JNIString::new(message),
     );
 }
 
+fn panic_message(payload: Box<dyn Any + Send>) -> String {
+    if let Some(message) = payload.downcast_ref::<&str>() {
+        (*message).to_owned()
+    } else if let Some(message) = payload.downcast_ref::<String>() {
+        message.clone()
+    } else {
+        "unknown Rust panic".to_owned()
+    }
+}
+
+fn jni_boundary<'local, T: Default>(
+    env: &mut EnvUnowned<'local>,
+    operation: impl FnOnce(&mut EnvUnowned<'local>) -> T,
+) -> T {
+    match catch_unwind(AssertUnwindSafe(|| operation(env))) {
+        Ok(value) => value,
+        Err(payload) => {
+            let message = format!("[PANIC] {}", panic_message(payload));
+            env.with_env(|owned| -> jni::errors::Result<()> {
+                throw_native_failure(owned, &message);
+                Ok(())
+            })
+            .resolve::<jni::errors::LogErrorAndDefault>();
+            T::default()
+        }
+    }
+}
+
 #[no_mangle]
 pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenNative_nativeSetLogLevel(
-    _env: EnvUnowned,
+    mut env: EnvUnowned,
     _object: JObject,
     level: jint,
 ) {
-    runtime().log_level.store(level, Ordering::Relaxed);
+    jni_boundary(&mut env, |_| {
+        runtime().log_level.store(level, Ordering::Relaxed);
+    });
 }
 
 #[no_mangle]
@@ -1052,33 +1199,62 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenNative_nativeCreatePe
     pen_type: jint,
     config: JObject<'local>,
 ) -> jlong {
-    if !(1..=9).contains(&pen_type) || config.is_null() {
-        return 0;
-    }
-    unowned_env
-        .with_env(|env| -> jni::errors::Result<jlong> {
-            let handle = runtime().next_handle.fetch_add(1, Ordering::Relaxed);
-            let state = PenState::new(pen_type, read_config(env, &config));
-            Ok(match runtime().pens.lock() {
-                Ok(mut pens) => {
-                    pens.insert(handle, state);
-                    handle
-                }
-                Err(_) => 0,
+    jni_boundary(&mut unowned_env, |unowned_env| {
+        if !(1..=9).contains(&pen_type) || config.is_null() {
+            unowned_env
+                .with_env(|env| -> jni::errors::Result<()> {
+                    throw_native_failure(env, "[INVALID_ARGUMENT] Unknown pen type or null config");
+                    Ok(())
+                })
+                .resolve::<jni::errors::LogErrorAndDefault>();
+            return 0;
+        }
+        unowned_env
+            .with_env(|env| -> jni::errors::Result<jlong> {
+                let handle = runtime().next_handle.fetch_add(1, Ordering::Relaxed);
+                let state = PenState::new(pen_type, read_config(env, &config));
+                Ok(match runtime().pens.lock() {
+                    Ok(mut pens) => {
+                        pens.insert(handle, state);
+                        handle
+                    }
+                    Err(_) => {
+                        throw_native_failure(
+                            env,
+                            "[NATIVE_FAILURE] Renderer state lock is poisoned",
+                        );
+                        0
+                    }
+                })
             })
-        })
-        .resolve::<jni::errors::LogErrorAndDefault>()
+            .resolve::<jni::errors::LogErrorAndDefault>()
+    })
 }
 
 #[no_mangle]
 pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenNative_nativeDestroyPen(
-    _env: EnvUnowned,
+    mut env: EnvUnowned,
     _object: JObject,
     handle: jlong,
 ) {
-    if let Ok(mut pens) = runtime().pens.lock() {
-        pens.remove(&handle);
-    }
+    jni_boundary(&mut env, |env| match runtime().pens.lock() {
+        Ok(mut pens) => {
+            if pens.remove(&handle).is_none() {
+                env.with_env(|owned| -> jni::errors::Result<()> {
+                    throw_native_failure(owned, "[INVALID_HANDLE] Renderer handle is not active");
+                    Ok(())
+                })
+                .resolve::<jni::errors::LogErrorAndDefault>();
+            }
+        }
+        Err(_) => {
+            env.with_env(|owned| -> jni::errors::Result<()> {
+                throw_native_failure(owned, "[NATIVE_FAILURE] Renderer state lock is poisoned");
+                Ok(())
+            })
+            .resolve::<jni::errors::LogErrorAndDefault>();
+        }
+    });
 }
 
 fn render_call(
@@ -1088,19 +1264,45 @@ fn render_call(
     prediction: Option<JDoubleArray>,
     phase: Phase,
 ) -> jobject {
-    let touches = read_touches(env, points);
+    let touches = match read_touches(env, points) {
+        Ok(touches) => touches,
+        Err(message) => {
+            throw_native_failure(env, message);
+            return JObject::null().into_raw();
+        }
+    };
     if touches.is_empty() {
         return JObject::null().into_raw();
     }
-    let predicted_touch = prediction.and_then(|array| read_touches(env, array).into_iter().next());
+    let predicted_touch = match prediction {
+        Some(array) => match read_touches(env, array) {
+            Ok(touches) => touches.into_iter().next(),
+            Err(message) => {
+                throw_native_failure(env, message);
+                return JObject::null().into_raw();
+            }
+        },
+        None => None,
+    };
     let Some((real, predicted, color)) = process_handle(handle, &touches, predicted_touch, phase)
     else {
+        throw_native_failure(env, "[INVALID_HANDLE] Renderer handle is not active");
         return JObject::null().into_raw();
     };
+    if real.overflowed || predicted.overflowed {
+        throw_native_failure(
+            env,
+            "[ALLOCATION_LIMIT] Renderer output exceeds the per-call safety limit",
+        );
+        return JObject::null().into_raw();
+    }
     match build_result(env, &real, &predicted, color) {
         Ok(result) => result.into_raw(),
         Err(error) => {
-            throw_illegal_state(env, &format!("Failed to create pen result: {error}"));
+            throw_native_failure(
+                env,
+                &format!("[JNI_FAILURE] Failed to create pen result: {error}"),
+            );
             JObject::null().into_raw()
         }
     }
@@ -1114,16 +1316,13 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenNative_nativeOnPenDow
     points: JDoubleArray<'local>,
     _repaint: jboolean,
 ) -> jobject {
-    if let Ok(mut pens) = runtime().pens.lock() {
-        if let Some(pen) = pens.get_mut(&handle) {
-            pen.reset();
-        }
-    }
-    unowned_env
-        .with_env(|env| -> jni::errors::Result<jobject> {
-            Ok(render_call(env, handle, points, None, Phase::Down))
-        })
-        .resolve::<jni::errors::LogErrorAndDefault>()
+    jni_boundary(&mut unowned_env, |unowned_env| {
+        unowned_env
+            .with_env(|env| -> jni::errors::Result<jobject> {
+                Ok(render_call(env, handle, points, None, Phase::Down))
+            })
+            .resolve::<jni::errors::LogErrorAndDefault>()
+    })
 }
 
 #[no_mangle]
@@ -1136,11 +1335,13 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenNative_nativeOnPenMov
     _repaint: jboolean,
 ) -> jobject {
     let prediction = (!prediction.is_null()).then_some(prediction);
-    unowned_env
-        .with_env(|env| -> jni::errors::Result<jobject> {
-            Ok(render_call(env, handle, points, prediction, Phase::Move))
-        })
-        .resolve::<jni::errors::LogErrorAndDefault>()
+    jni_boundary(&mut unowned_env, |unowned_env| {
+        unowned_env
+            .with_env(|env| -> jni::errors::Result<jobject> {
+                Ok(render_call(env, handle, points, prediction, Phase::Move))
+            })
+            .resolve::<jni::errors::LogErrorAndDefault>()
+    })
 }
 
 #[no_mangle]
@@ -1151,11 +1352,13 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenNative_nativeOnPenUp<
     points: JDoubleArray<'local>,
     _repaint: jboolean,
 ) -> jobject {
-    unowned_env
-        .with_env(|env| -> jni::errors::Result<jobject> {
-            Ok(render_call(env, handle, points, None, Phase::Up))
-        })
-        .resolve::<jni::errors::LogErrorAndDefault>()
+    jni_boundary(&mut unowned_env, |unowned_env| {
+        unowned_env
+            .with_env(|env| -> jni::errors::Result<jobject> {
+                Ok(render_call(env, handle, points, None, Phase::Up))
+            })
+            .resolve::<jni::errors::LogErrorAndDefault>()
+    })
 }
 
 #[no_mangle]
@@ -1164,19 +1367,21 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenNative_nativeSetBitma
     _object: JObject<'local>,
     bitmap: JObject<'local>,
 ) {
-    unowned_env
-        .with_env(|env| -> jni::errors::Result<()> {
-            if !bitmap.is_null() {
-                let _ = env.call_method(
-                    bitmap,
-                    jni_str!("setHasAlpha"),
-                    jni_sig!("(Z)V"),
-                    &[JValue::Bool(true)],
-                );
-            }
-            Ok(())
-        })
-        .resolve::<jni::errors::LogErrorAndDefault>()
+    jni_boundary(&mut unowned_env, |unowned_env| {
+        unowned_env
+            .with_env(|env| -> jni::errors::Result<()> {
+                if !bitmap.is_null() {
+                    env.call_method(
+                        bitmap,
+                        jni_str!("setHasAlpha"),
+                        jni_sig!("(Z)V"),
+                        &[JValue::Bool(true)],
+                    )?;
+                }
+                Ok(())
+            })
+            .resolve::<jni::errors::LogErrorAndDefault>()
+    })
 }
 
 fn legacy_handle() -> Option<i64> {
@@ -1189,43 +1394,54 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenWrapper_nativeInitPen
     _class: JObject<'local>,
     config: JObject<'local>,
 ) -> jboolean {
-    if config.is_null() {
-        return false;
-    }
-    unowned_env
-        .with_env(|env| -> jni::errors::Result<jboolean> {
-            let pen_type = get_int(env, &config, "type", 1);
-            let handle = runtime().next_handle.fetch_add(1, Ordering::Relaxed);
-            let state = PenState::new(pen_type, read_config(env, &config));
-            if let Ok(mut pens) = runtime().pens.lock() {
-                pens.insert(handle, state);
-            } else {
-                return Ok(false);
-            }
-            if let Ok(mut legacy) = runtime().legacy_handle.lock() {
-                if let Some(old) = legacy.replace(handle) {
-                    if let Ok(mut pens) = runtime().pens.lock() {
-                        pens.remove(&old);
+    jni_boundary(&mut unowned_env, |unowned_env| {
+        if config.is_null() {
+            unowned_env
+                .with_env(|env| -> jni::errors::Result<()> {
+                    throw_native_failure(env, "[INVALID_ARGUMENT] Null legacy pen config");
+                    Ok(())
+                })
+                .resolve::<jni::errors::LogErrorAndDefault>();
+            return false;
+        }
+        unowned_env
+            .with_env(|env| -> jni::errors::Result<jboolean> {
+                let pen_type = get_int(env, &config, "type", 1);
+                let handle = runtime().next_handle.fetch_add(1, Ordering::Relaxed);
+                let state = PenState::new(pen_type, read_config(env, &config));
+                if let Ok(mut pens) = runtime().pens.lock() {
+                    pens.insert(handle, state);
+                } else {
+                    throw_native_failure(env, "[NATIVE_FAILURE] Renderer state lock is poisoned");
+                    return Ok(false);
+                }
+                if let Ok(mut legacy) = runtime().legacy_handle.lock() {
+                    if let Some(old) = legacy.replace(handle) {
+                        if let Ok(mut pens) = runtime().pens.lock() {
+                            pens.remove(&old);
+                        }
                     }
                 }
-            }
-            Ok(true)
-        })
-        .resolve::<jni::errors::LogErrorAndDefault>()
+                Ok(true)
+            })
+            .resolve::<jni::errors::LogErrorAndDefault>()
+    })
 }
 
 #[no_mangle]
 pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenWrapper_nativeDestroyPen(
-    _env: EnvUnowned,
+    mut env: EnvUnowned,
     _class: JObject,
 ) {
-    if let Ok(mut legacy) = runtime().legacy_handle.lock() {
-        if let Some(handle) = legacy.take() {
-            if let Ok(mut pens) = runtime().pens.lock() {
-                pens.remove(&handle);
+    jni_boundary(&mut env, |_| {
+        if let Ok(mut legacy) = runtime().legacy_handle.lock() {
+            if let Some(handle) = legacy.take() {
+                if let Ok(mut pens) = runtime().pens.lock() {
+                    pens.remove(&handle);
+                }
             }
         }
-    }
+    });
 }
 
 /// Decodes ink records into legacy (x, y, size, bitmapIndex) tuples using the
@@ -1297,7 +1513,13 @@ fn legacy_call(env: &mut Env, points: JDoubleArray, phase: Phase) -> jobjectArra
     let Some(handle) = legacy_handle() else {
         return JObjectArray::<JObject>::null().into_raw();
     };
-    let touches = read_touches(env, points);
+    let touches = match read_touches(env, points) {
+        Ok(touches) => touches,
+        Err(message) => {
+            throw_native_failure(env, message);
+            return JObjectArray::<JObject>::null().into_raw();
+        }
+    };
     let Some((ink, _, _)) = process_handle(handle, &touches, None, phase) else {
         return JObjectArray::<JObject>::null().into_raw();
     };
@@ -1313,7 +1535,13 @@ fn legacy_compute(env: &mut Env, points: JDoubleArray) -> jobjectArray {
     let Some(handle) = legacy_handle() else {
         return JObjectArray::<JObject>::null().into_raw();
     };
-    let touches = read_touches(env, points);
+    let touches = match read_touches(env, points) {
+        Ok(touches) => touches,
+        Err(message) => {
+            throw_native_failure(env, message);
+            return JObjectArray::<JObject>::null().into_raw();
+        }
+    };
     if touches.is_empty() {
         return env
             .new_object_array(
@@ -1338,6 +1566,7 @@ fn legacy_compute(env: &mut Env, points: JDoubleArray) -> jobjectArray {
     scratch.reset();
     let mut combined = InkData::default();
     let append = |target: &mut InkData, source: InkData| {
+        target.overflowed |= source.overflowed;
         target.points.extend(source.points);
         target.point_sizes.extend(source.point_sizes);
         target.stamps.extend(source.stamps);
@@ -1366,11 +1595,13 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenWrapper_nativeOnPenDo
     _class: JObject<'local>,
     points: JDoubleArray<'local>,
 ) -> jobjectArray {
-    unowned_env
-        .with_env(|env| -> jni::errors::Result<jobjectArray> {
-            Ok(legacy_call(env, points, Phase::Down))
-        })
-        .resolve::<jni::errors::LogErrorAndDefault>()
+    jni_boundary(&mut unowned_env, |unowned_env| {
+        unowned_env
+            .with_env(|env| -> jni::errors::Result<jobjectArray> {
+                Ok(legacy_call(env, points, Phase::Down))
+            })
+            .resolve::<jni::errors::LogErrorAndDefault>()
+    })
 }
 
 #[no_mangle]
@@ -1379,11 +1610,13 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenWrapper_nativeOnPenMo
     _class: JObject<'local>,
     points: JDoubleArray<'local>,
 ) -> jobjectArray {
-    unowned_env
-        .with_env(|env| -> jni::errors::Result<jobjectArray> {
-            Ok(legacy_call(env, points, Phase::Move))
-        })
-        .resolve::<jni::errors::LogErrorAndDefault>()
+    jni_boundary(&mut unowned_env, |unowned_env| {
+        unowned_env
+            .with_env(|env| -> jni::errors::Result<jobjectArray> {
+                Ok(legacy_call(env, points, Phase::Move))
+            })
+            .resolve::<jni::errors::LogErrorAndDefault>()
+    })
 }
 
 #[no_mangle]
@@ -1392,11 +1625,13 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenWrapper_nativeOnPenUp
     _class: JObject<'local>,
     points: JDoubleArray<'local>,
 ) -> jobjectArray {
-    unowned_env
-        .with_env(|env| -> jni::errors::Result<jobjectArray> {
-            Ok(legacy_call(env, points, Phase::Up))
-        })
-        .resolve::<jni::errors::LogErrorAndDefault>()
+    jni_boundary(&mut unowned_env, |unowned_env| {
+        unowned_env
+            .with_env(|env| -> jni::errors::Result<jobjectArray> {
+                Ok(legacy_call(env, points, Phase::Up))
+            })
+            .resolve::<jni::errors::LogErrorAndDefault>()
+    })
 }
 
 #[no_mangle]
@@ -1407,9 +1642,13 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenWrapper_nativeCompute
     _class: JObject<'local>,
     points: JDoubleArray<'local>,
 ) -> jobjectArray {
-    unowned_env
-        .with_env(|env| -> jni::errors::Result<jobjectArray> { Ok(legacy_compute(env, points)) })
-        .resolve::<jni::errors::LogErrorAndDefault>()
+    jni_boundary(&mut unowned_env, |unowned_env| {
+        unowned_env
+            .with_env(|env| -> jni::errors::Result<jobjectArray> {
+                Ok(legacy_compute(env, points))
+            })
+            .resolve::<jni::errors::LogErrorAndDefault>()
+    })
 }
 
 fn rendered_bitmaps(env: &mut Env) -> jobjectArray {
@@ -1458,9 +1697,11 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenWrapper_nativeGetRend
     mut unowned_env: EnvUnowned<'local>,
     _class: JObject<'local>,
 ) -> jobjectArray {
-    unowned_env
-        .with_env(|env| -> jni::errors::Result<jobjectArray> { Ok(rendered_bitmaps(env)) })
-        .resolve::<jni::errors::LogErrorAndDefault>()
+    jni_boundary(&mut unowned_env, |unowned_env| {
+        unowned_env
+            .with_env(|env| -> jni::errors::Result<jobjectArray> { Ok(rendered_bitmaps(env)) })
+            .resolve::<jni::errors::LogErrorAndDefault>()
+    })
 }
 
 #[cfg(test)]
@@ -1723,6 +1964,7 @@ mod tests {
             points: (0..15).map(|value| value as f32).collect(),
             point_sizes: vec![3; 5],
             stamps: Vec::new(),
+            overflowed: false,
         };
         let records = legacy_records(&point_pen_ink);
         assert_eq!(records.len(), 5);
@@ -1735,7 +1977,9 @@ mod tests {
                 width: 13,
                 height: 14,
                 alpha: 180,
+                rows: None,
             }],
+            overflowed: false,
         };
         assert_eq!(
             legacy_records(&mixed_ink),
@@ -1790,14 +2034,14 @@ mod tests {
         let (second_move, _) = pen.process(&[touch(100.0, 100.0, 0.5, 3.0)], None, Phase::Move);
         assert_eq!(first_move.points[0], -3.0);
         assert_eq!(second_move.points[0], 47.0);
-        assert_eq!(first_move.stamps[0].alpha, 180);
+        assert_eq!(first_move.stamps[0].alpha, 255);
 
         let mut v2 = PenState::new(5, PenConfig::default());
         v2.process(&[touch(0.0, 0.0, 0.5, 1.0)], None, Phase::Down);
         v2.process(&[touch(60.0, 0.0, 0.5, 2.0)], None, Phase::Move);
         let (up, _) = v2.process(&[touch(60.0, 0.0, 0.5, 3.0)], None, Phase::Up);
-        assert_eq!(up.points, [56.0, -4.0]);
-        assert_eq!(up.stamps[0].alpha, 180);
+        assert_eq!(up.points, [-4.0, -4.0]);
+        assert_eq!(up.stamps[0].alpha, 255);
     }
 
     #[test]
