@@ -1,5 +1,6 @@
 package com.onyx.android.sdk.pen;
 
+import androidx.annotation.AnyThread;
 import com.onyx.android.sdk.base.data.TouchPoint;
 import java.util.List;
 import kotlin.Deprecated;
@@ -17,6 +18,7 @@ public abstract class NeoPen {
         this.a = j;
     }
 
+    @AnyThread
     public final void destroy() {
         NeoPenNative.INSTANCE.destroyPen(this.a);
     }
@@ -27,9 +29,11 @@ public abstract class NeoPen {
 
     @Deprecated(message = "")
     @NotNull
+    @AnyThread
     public abstract Pair<PenResult, PenResult> onPenDown(@NotNull TouchPoint point, @Nullable TouchPoint prediction);
 
     @NotNull
+    @AnyThread
     public Pair<PenResult, PenResult> onPenDown(@NotNull TouchPoint point, boolean repaint) {
         Intrinsics.checkNotNullParameter(point, "point");
         return new Pair<>(null, null);
@@ -37,9 +41,11 @@ public abstract class NeoPen {
 
     @Deprecated(message = "")
     @NotNull
+    @AnyThread
     public abstract Pair<PenResult, PenResult> onPenMove(@NotNull List<? extends TouchPoint> points, @Nullable TouchPoint prediction);
 
     @NotNull
+    @AnyThread
     public Pair<PenResult, PenResult> onPenMove(@NotNull List<? extends TouchPoint> points, @Nullable TouchPoint prediction, boolean repaint) {
         Intrinsics.checkNotNullParameter(points, "points");
         return new Pair<>(null, null);
@@ -47,9 +53,11 @@ public abstract class NeoPen {
 
     @Deprecated(message = "")
     @NotNull
+    @AnyThread
     public abstract Pair<PenResult, PenResult> onPenUp(@NotNull TouchPoint point, @Nullable TouchPoint prediction);
 
     @NotNull
+    @AnyThread
     public Pair<PenResult, PenResult> onPenUp(@NotNull TouchPoint point, boolean repaint) {
         Intrinsics.checkNotNullParameter(point, "point");
         return new Pair<>(null, null);

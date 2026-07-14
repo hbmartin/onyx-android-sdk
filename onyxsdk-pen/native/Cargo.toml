@@ -20,7 +20,7 @@ repository = "https://github.com/hbmartin/onyx-android-sdk"
 jni = { version = "0.22", default-features = false }
 libc = "0.2"
 
-# A panic that unwinds out of an `extern "system"` JNI export is undefined
-# behavior on older toolchains; abort is the only sound failure mode there.
+# JNI exports catch every panic before it reaches the ABI boundary and convert
+# it into NativeRendererException. Unwind support is therefore required.
 [profile.release]
-panic = "abort"
+panic = "unwind"

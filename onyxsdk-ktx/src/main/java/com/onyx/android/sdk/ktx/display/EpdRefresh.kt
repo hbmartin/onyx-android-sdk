@@ -1,8 +1,18 @@
+@file:Suppress(
+    // Firmware waits use explicit early-return circuit-breaker paths; legacy update modes are
+    // type-erased from KTX bytecode and cast only at the internal dispatch boundary.
+    "DontForceCast",
+    "LongMethod",
+    "ReturnCount",
+    "TooGenericExceptionCaught",
+)
+
 package com.onyx.android.sdk.ktx.display
 
 import android.graphics.Rect
 import android.view.View
 import com.onyx.android.sdk.api.device.epd.EpdController
+import com.onyx.android.sdk.api.device.epd.UpdateMode
 import com.onyx.android.sdk.ktx.capabilities.toLegacyUpdateMode
 import com.onyx.android.sdk.ktx.diagnostics.FirmwareBackendKind
 import com.onyx.android.sdk.ktx.diagnostics.FirmwareDiagnosticPhase
@@ -169,7 +179,10 @@ suspend fun View.refreshAndAwait(
         ) {
             check(isAttachedToWindow) { "View must be attached before refresh" }
             when (scope) {
-                RefreshScope.FullView -> EpdController.refreshScreen(this@refreshAndAwait, mode.toLegacyUpdateMode())
+                RefreshScope.FullView -> EpdController.refreshScreen(
+                    this@refreshAndAwait,
+                    mode.toLegacyUpdateMode() as UpdateMode,
+                )
                 is RefreshScope.Region -> {
                     val region = Rect(scope.bounds)
                     require(!region.isEmpty) { "Refresh region must not be empty" }
@@ -179,7 +192,7 @@ suspend fun View.refreshAndAwait(
                         region.top,
                         region.width(),
                         region.height(),
-                        mode.toLegacyUpdateMode(),
+                        mode.toLegacyUpdateMode() as UpdateMode,
                     )
                 }
             }

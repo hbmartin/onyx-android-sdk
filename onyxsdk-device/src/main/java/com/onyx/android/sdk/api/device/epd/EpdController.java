@@ -591,15 +591,18 @@ public abstract class EpdController {
     }
 
     public static int getStrictMaxTouchPressureOrThrow() {
-        return FirmwareBinderBackend.get().queryInt("GET_MAX_TOUCH_PRESSURE");
+        // This transaction returns a Parcel float on current BOOX firmware, just like the
+        // display-dimension queries. Reading it as an int exposes the IEEE-754 bit pattern
+        // (for example 1166012416 instead of 4096) and fabricates an impossible axis range.
+        return Math.round(FirmwareBinderBackend.get().queryFloat("GET_MAX_TOUCH_PRESSURE"));
     }
 
     public static int getStrictEpdWidthOrThrow() {
-        return FirmwareBinderBackend.get().queryInt("GET_EPD_WIDTH");
+        return Math.round(FirmwareBinderBackend.get().queryFloat("GET_EPD_WIDTH"));
     }
 
     public static int getStrictEpdHeightOrThrow() {
-        return FirmwareBinderBackend.get().queryInt("GET_EPD_HEIGHT");
+        return Math.round(FirmwareBinderBackend.get().queryFloat("GET_EPD_HEIGHT"));
     }
 
     public static int getStrictColorTypeOrThrow() {

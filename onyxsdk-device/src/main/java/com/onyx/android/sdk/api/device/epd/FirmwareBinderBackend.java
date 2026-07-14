@@ -112,6 +112,39 @@ final class FirmwareBinderBackend {
         }
     }
 
+    float queryFloat(String operation) {
+        IBinder target = requireBinder(operation);
+        int code = requireCode(operation);
+        Parcel data = Parcel.obtain();
+        Parcel reply = Parcel.obtain();
+        try {
+            data.writeInterfaceToken(interfaceToken);
+            if (!target.transact(code, data, reply, 0)) {
+                throw rejected(operation, code);
+            }
+            if (reply.dataAvail() < Float.BYTES) {
+                throw new FirmwareOperationException(
+                        operation, BACKEND, "Firmware returned no float reply");
+            }
+            float value = reply.readFloat();
+            if (!Float.isFinite(value) || value <= 0.0f) {
+                throw new FirmwareOperationException(
+                        operation, BACKEND, "Firmware returned invalid dimension " + value);
+            }
+            return value;
+        } catch (RemoteException | RuntimeException error) {
+            if (error instanceof FirmwareOperationException) {
+                throw (FirmwareOperationException) error;
+            }
+            invalidate(error);
+            throw new FirmwareOperationException(
+                    operation, BACKEND, "Firmware float query failed", error);
+        } finally {
+            reply.recycle();
+            data.recycle();
+        }
+    }
+
     private void transactVoid(String operation, @Nullable ParcelWriter writer) {
         IBinder target = requireBinder(operation);
         int code = requireCode(operation);
