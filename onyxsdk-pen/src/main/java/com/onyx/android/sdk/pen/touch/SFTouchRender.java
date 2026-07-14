@@ -10,6 +10,7 @@ import com.onyx.android.sdk.pen.EpdPenManager;
 import com.onyx.android.sdk.pen.RawInputCallback;
 import com.onyx.android.sdk.pen.RawInputManager;
 import com.onyx.android.sdk.pen.RawInputReader;
+import com.onyx.android.sdk.pen.RawInputListenerV2;
 import com.onyx.android.sdk.pen.data.TouchPointList;
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -198,6 +199,11 @@ public class SFTouchRender implements TouchRender {
         this.b = bVar;
         a(view, bVar);
         a(view);
+    }
+
+    @Override
+    public void setRawInputListenerV2(RawInputListenerV2 listener) {
+        e().setRawInputListenerV2(listener);
     }
 
     @Override // com.onyx.android.sdk.pen.touch.TouchRender

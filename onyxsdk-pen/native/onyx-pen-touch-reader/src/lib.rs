@@ -78,12 +78,54 @@ fn emit(env: &mut Env, object: &JObject, event: TouchEvent) {
         JValue::Bool(event.shortcut_drawing),
         JValue::Bool(event.shortcut_erasing),
         JValue::Int(event.state),
-        JValue::Long(event.timestamp_ms),
+        JValue::Long(event.timestamp_nanos),
     ];
     let _ = env.call_method(
         object,
         jni_str!("onTouchPointReceived"),
         jni_sig!("(FFIIIZZZIJ)V"),
+        &args,
+    );
+}
+
+#[cfg(any(target_os = "android", target_os = "linux"))]
+#[derive(Clone, Copy, Debug, Default)]
+struct AbsInfo {
+    minimum: i32,
+    maximum: i32,
+    fuzz: i32,
+    flat: i32,
+    resolution: i32,
+}
+
+#[cfg(any(target_os = "android", target_os = "linux"))]
+#[derive(Clone, Copy, Debug, Default)]
+struct InputDeviceInfo {
+    x: AbsInfo,
+    y: AbsInfo,
+    pressure: AbsInfo,
+    tilt_x: AbsInfo,
+    tilt_y: AbsInfo,
+    kernel_monotonic_clock: bool,
+    timestamp_offset_nanos: i64,
+}
+
+#[cfg(any(target_os = "android", target_os = "linux"))]
+fn emit_device_info(env: &mut Env, object: &JObject, info: InputDeviceInfo) {
+    let axes = [info.x, info.y, info.pressure, info.tilt_x, info.tilt_y];
+    let mut args = Vec::with_capacity(26);
+    for axis in axes {
+        args.push(JValue::Int(axis.minimum));
+        args.push(JValue::Int(axis.maximum));
+        args.push(JValue::Int(axis.fuzz));
+        args.push(JValue::Int(axis.flat));
+        args.push(JValue::Int(axis.resolution));
+    }
+    args.push(JValue::Bool(info.kernel_monotonic_clock));
+    let _ = env.call_method(
+        object,
+        jni_str!("onRawInputDeviceInfo"),
+        jni_sig!("(IIIIIIIIIIIIIIIIIIIIIIIIIZ)V"),
         &args,
     );
 }
@@ -265,16 +307,52 @@ struct InputEvent {
 }
 
 #[cfg(any(target_os = "android", target_os = "linux"))]
-fn now_ms() -> i64 {
-    use std::time::{SystemTime, UNIX_EPOCH};
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap_or_default()
-        .as_millis() as i64
+fn clock_nanos(clock_id: libc::clockid_t) -> i64 {
+    let mut value = libc::timespec {
+        tv_sec: 0,
+        tv_nsec: 0,
+    };
+    if unsafe { libc::clock_gettime(clock_id, &mut value) } != 0 {
+        return 0;
+    }
+    (value.tv_sec as i128 * 1_000_000_000i128 + value.tv_nsec as i128)
+        .clamp(i64::MIN as i128, i64::MAX as i128) as i64
 }
 
 #[cfg(any(target_os = "android", target_os = "linux"))]
-fn open_pen_device() -> Option<(i32, f32)> {
+fn query_abs_info(fd: i32, code: u16) -> AbsInfo {
+    let mut values = [0i32; 6];
+    let request = 0x8018_4540u64 | code as u64;
+    if unsafe { libc::ioctl(fd, request as _, values.as_mut_ptr()) } != 0 {
+        return AbsInfo::default();
+    }
+    AbsInfo {
+        minimum: values[1],
+        maximum: values[2],
+        fuzz: values[3],
+        flat: values[4],
+        resolution: values[5],
+    }
+}
+
+#[cfg(any(target_os = "android", target_os = "linux"))]
+fn configure_event_clock(fd: i32) -> (bool, i64) {
+    let clock_id: libc::c_int = libc::CLOCK_MONOTONIC;
+    let applied = unsafe { libc::ioctl(fd, 0x4004_45a0u64 as _, &clock_id) } == 0;
+    if applied {
+        (true, 0)
+    } else {
+        // Preserve the kernel event timestamp while translating its realtime clock domain
+        // into CLOCK_MONOTONIC when EVIOCSCLOCKID is denied by the firmware.
+        (
+            false,
+            clock_nanos(libc::CLOCK_MONOTONIC).saturating_sub(clock_nanos(libc::CLOCK_REALTIME)),
+        )
+    }
+}
+
+#[cfg(any(target_os = "android", target_os = "linux"))]
+fn open_pen_device() -> Option<(i32, InputDeviceInfo)> {
     use std::ffi::{CStr, CString};
     for index in 0..16 {
         let path = CString::new(format!("/dev/input/event{index}")).unwrap();
@@ -293,14 +371,17 @@ fn open_pen_device() -> Option<(i32, f32)> {
             String::new()
         };
         if lower.contains("hanvon") || lower.contains("wacom") || lower.contains("onyx_emp") {
-            let mut abs = [0i32; 6];
-            let rc = unsafe { libc::ioctl(fd, 0x8018_4558u64 as _, abs.as_mut_ptr()) };
+            let (kernel_monotonic_clock, timestamp_offset_nanos) = configure_event_clock(fd);
             return Some((
                 fd,
-                if rc == 0 && abs[2] > 0 {
-                    abs[2] as f32
-                } else {
-                    4096.0
+                InputDeviceInfo {
+                    x: query_abs_info(fd, state::ABS_X),
+                    y: query_abs_info(fd, state::ABS_Y),
+                    pressure: query_abs_info(fd, state::ABS_PRESSURE),
+                    tilt_x: query_abs_info(fd, state::ABS_TILT_X),
+                    tilt_y: query_abs_info(fd, state::ABS_TILT_Y),
+                    kernel_monotonic_clock,
+                    timestamp_offset_nanos,
                 },
             ));
         }
@@ -320,7 +401,7 @@ fn reader_loop(env: &mut Env, object: &JObject, session: i64) {
         }
         return;
     }
-    let Some((input_fd, max_pressure)) = open_pen_device() else {
+    let Some((input_fd, device_info)) = open_pen_device() else {
         if rt.debug.load(Ordering::SeqCst) {
             eprintln!("[onyx-touch-reader] no pen device session={session}");
         }
@@ -354,12 +435,18 @@ fn reader_loop(env: &mut Env, object: &JObject, session: i64) {
     rt.running.store(true, Ordering::SeqCst);
     if rt.debug.load(Ordering::SeqCst) {
         eprintln!(
-            "[onyx-touch-reader] opened session={session} input_fd={input_fd} wake_fd={wake_fd} max_pressure={max_pressure}"
+            "[onyx-touch-reader] opened session={session} input_fd={input_fd} wake_fd={wake_fd} max_pressure={} monotonic_clock={}"
+            , device_info.pressure.maximum, device_info.kernel_monotonic_clock
         );
     }
+    emit_device_info(env, object, device_info);
     {
         let mut manager = rt.manager.lock().unwrap();
-        manager.set_max_pressure(max_pressure);
+        manager.set_max_pressure(if device_info.pressure.maximum > 0 {
+            device_info.pressure.maximum as f32
+        } else {
+            4096.0
+        });
         manager.reset_reader();
     }
     let mut pollfds = [
@@ -395,11 +482,16 @@ fn reader_loop(env: &mut Env, object: &JObject, session: i64) {
                 )
             };
             if read as usize == std::mem::size_of::<InputEvent>() {
+                let raw_timestamp =
+                    (event.sec as i128 * 1_000_000_000i128 + event.usec as i128 * 1_000i128)
+                        .clamp(i64::MIN as i128, i64::MAX as i128) as i64;
+                let timestamp_nanos =
+                    raw_timestamp.saturating_add(device_info.timestamp_offset_nanos);
                 let events = rt.manager.lock().unwrap().process_input(
                     event.kind,
                     event.code,
                     event.value,
-                    now_ms(),
+                    timestamp_nanos,
                 );
                 for event in events {
                     emit(env, object, event);

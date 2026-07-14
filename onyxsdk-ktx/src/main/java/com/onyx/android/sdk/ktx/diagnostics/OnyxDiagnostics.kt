@@ -1,3 +1,12 @@
+@file:Suppress(
+    // The public diagnostics level is intentionally configurable. Result capture is the one
+    // boundary that must classify arbitrary firmware/reflection failures.
+    "AvoidVarsExceptWithDelegate",
+    "LongParameterList",
+    "NoCallbacksInFunctions",
+    "TooGenericExceptionCaught",
+)
+
 package com.onyx.android.sdk.ktx.diagnostics
 
 import android.os.Build

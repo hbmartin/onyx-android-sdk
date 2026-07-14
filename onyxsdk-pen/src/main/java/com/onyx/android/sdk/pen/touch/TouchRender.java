@@ -4,10 +4,14 @@ import android.graphics.Rect;
 import android.view.MotionEvent;
 import android.view.View;
 import com.onyx.android.sdk.pen.RawInputCallback;
+import com.onyx.android.sdk.pen.RawInputListenerV2;
 import java.util.List;
 
 public interface TouchRender {
     void bindHostView(View view, RawInputCallback rawInputCallback);
+
+    default void setRawInputListenerV2(RawInputListenerV2 listener) {
+    }
 
     View getHostView();
 
@@ -71,4 +75,3 @@ public interface TouchRender {
 
     void printTouchInfo();
 }
-
