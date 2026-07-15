@@ -35,17 +35,27 @@ class InkContractsTest {
         assertThrows(IllegalArgumentException::class.java) {
             point(x = Float.NaN)
         }
+        assertThrows(IllegalArgumentException::class.java) {
+            point(maxPressure = 0)
+        }
+    }
+
+    @Test
+    fun normalizedPressureAcceptsDocumentedBoundaries() {
+        assertEquals(0f, point(normalizedPressure = 0f).normalizedPressure)
+        assertEquals(1f, point(normalizedPressure = 1f).normalizedPressure)
     }
 
     private fun point(
         x: Float = 0f,
         normalizedPressure: Float = 0.5f,
+        maxPressure: Int = 4096,
     ) = InkPoint(
         xPx = x,
         yPx = 0f,
         rawPressure = 1,
         normalizedPressure = normalizedPressure,
-        maxPressure = 4096,
+        maxPressure = maxPressure,
         tiltX = 0,
         tiltY = 0,
         eventTimeNanos = 1,

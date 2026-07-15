@@ -29,9 +29,11 @@ import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -51,22 +53,90 @@ data class RefreshReceipt(
     val warnings: Set<RefreshWarning> = emptySet(),
 )
 
+internal fun interface FirmwareWaitOperation {
+    fun run()
+}
+
 @JvmSynthetic
-internal fun submitFirmwareWaitOrNull(executor: ExecutorService): Future<*>? = try {
-    executor.submit { EpdController.waitForUpdateFinishedOrThrow() }
+internal fun submitFirmwareWaitOrNull(
+    executor: ExecutorService,
+    operation: FirmwareWaitOperation = FirmwareWaitOperation(
+        EpdController::waitForUpdateFinishedOrThrow,
+    ),
+): Future<*>? = try {
+    executor.submit(operation::run)
 } catch (_: RejectedExecutionException) {
     null
 }
 
+internal sealed interface FirmwareWaitAttempt {
+    data object Returned : FirmwareWaitAttempt
+    data object Recovering : FirmwareWaitAttempt
+    data object Unavailable : FirmwareWaitAttempt
+    data class TimedOut(val failure: TimeoutException) : FirmwareWaitAttempt
+    data class Failed(val failure: Throwable) : FirmwareWaitAttempt
+}
+
+/** Serializes waits and lets a timed-out Binder call recover instead of poisoning the process. */
+internal class FirmwareWaitCoordinator(
+    private val executor: ExecutorService,
+    private val operation: FirmwareWaitOperation,
+) {
+    private class RunningWait(val running: AtomicBoolean = AtomicBoolean())
+
+    private val mutex = Mutex()
+    private val recovering = AtomicReference<RunningWait?>()
+
+    suspend fun await(timeout: Duration): FirmwareWaitAttempt {
+        mutex.lock()
+        try {
+            recovering.get()?.let { previous ->
+                if (previous.running.get()) return FirmwareWaitAttempt.Recovering
+                recovering.set(null)
+            }
+            val running = RunningWait()
+            val future = submitFirmwareWaitOrNull(executor) {
+                running.running.set(true)
+                try {
+                    operation.run()
+                } finally {
+                    running.running.set(false)
+                }
+            } ?: return FirmwareWaitAttempt.Unavailable
+            return try {
+                withContext(Dispatchers.IO) {
+                    future.get(timeout.inWholeMilliseconds.coerceAtLeast(1), TimeUnit.MILLISECONDS)
+                }
+                FirmwareWaitAttempt.Returned
+            } catch (cancelled: CancellationException) {
+                future.cancel(true)
+                if (running.running.get()) recovering.set(running)
+                throw cancelled
+            } catch (timeoutFailure: TimeoutException) {
+                future.cancel(true)
+                if (running.running.get()) recovering.set(running)
+                FirmwareWaitAttempt.TimedOut(timeoutFailure)
+            } catch (failure: Throwable) {
+                FirmwareWaitAttempt.Failed(failure.cause ?: failure)
+            }
+        } finally {
+            mutex.unlock()
+        }
+    }
+}
+
 private object FirmwareWaiter {
-    private val poisoned = AtomicBoolean(false)
     private val executor = Executors.newSingleThreadExecutor { runnable ->
         Thread(runnable, "onyx-epd-wait").apply { isDaemon = true }
     }
+    private val coordinator = FirmwareWaitCoordinator(
+        executor,
+        EpdController::waitForUpdateFinishedOrThrow,
+    )
 
     suspend fun await(timeout: Duration): Result<RefreshReceipt> {
         val started = System.nanoTime()
-        if (poisoned.get() || !EpdController.getFirmwareBackendInfo()
+        if (!EpdController.getFirmwareBackendInfo()
                 .transactionCodes.containsKey("WAIT_FOR_UPDATE_FINISHED")
         ) {
             return Result.success(
@@ -77,71 +147,72 @@ private object FirmwareWaiter {
                 ),
             )
         }
-        val future = submitFirmwareWaitOrNull(executor) ?: return Result.success(
-            RefreshReceipt(
-                RefreshCompletionEvidence.ESTIMATED_DELAY,
-                System.nanoTime() - started,
-                setOf(RefreshWarning.WAIT_BACKEND_UNAVAILABLE),
-            ),
-        )
-        return try {
-            withContext(Dispatchers.IO) {
-                future.get(timeout.inWholeMilliseconds.coerceAtLeast(1), TimeUnit.MILLISECONDS)
+        return when (val attempt = coordinator.await(timeout)) {
+            FirmwareWaitAttempt.Returned -> {
+                OnyxDiagnostics.record(
+                    "epd.wait",
+                    FirmwareBackendKind.SURFACE_FLINGER_BINDER,
+                    FirmwareDiagnosticPhase.REPLY,
+                    FirmwareDiagnosticStatus.SUCCEEDED,
+                    started,
+                )
+                Result.success(
+                    RefreshReceipt(
+                        RefreshCompletionEvidence.FIRMWARE_WAIT_RETURNED,
+                        System.nanoTime() - started,
+                    ),
+                )
             }
-            OnyxDiagnostics.record(
-                "epd.wait",
-                FirmwareBackendKind.SURFACE_FLINGER_BINDER,
-                FirmwareDiagnosticPhase.REPLY,
-                FirmwareDiagnosticStatus.SUCCEEDED,
-                started,
-            )
-            Result.success(
+            FirmwareWaitAttempt.Recovering -> Result.success(
                 RefreshReceipt(
-                    RefreshCompletionEvidence.FIRMWARE_WAIT_RETURNED,
+                    RefreshCompletionEvidence.ESTIMATED_DELAY,
                     System.nanoTime() - started,
+                    setOf(RefreshWarning.WAIT_BACKEND_TIMED_OUT),
                 ),
             )
-        } catch (cancelled: CancellationException) {
-            future.cancel(true)
-            throw cancelled
-        } catch (timeoutFailure: TimeoutException) {
-            poisoned.set(true)
-            future.cancel(true)
-            executor.shutdownNow()
-            val diagnostic = OnyxDiagnostics.record(
-                "epd.wait",
-                FirmwareBackendKind.SURFACE_FLINGER_BINDER,
-                FirmwareDiagnosticPhase.REPLY,
-                FirmwareDiagnosticStatus.TIMED_OUT,
-                started,
-                timeoutFailure,
+            FirmwareWaitAttempt.Unavailable -> Result.success(
+                RefreshReceipt(
+                    RefreshCompletionEvidence.ESTIMATED_DELAY,
+                    System.nanoTime() - started,
+                    setOf(RefreshWarning.WAIT_BACKEND_UNAVAILABLE),
+                ),
             )
-            Result.failure(
-                OnyxFailure.TimedOut(
+            is FirmwareWaitAttempt.TimedOut -> {
+                val diagnostic = OnyxDiagnostics.record(
                     "epd.wait",
-                    diagnostic.id,
-                    "Firmware wait exceeded $timeout; backend disabled for this process",
-                    timeoutFailure,
-                ),
-            )
-        } catch (failure: Throwable) {
-            val cause = failure.cause ?: failure
-            val diagnostic = OnyxDiagnostics.record(
-                "epd.wait",
-                FirmwareBackendKind.SURFACE_FLINGER_BINDER,
-                FirmwareDiagnosticPhase.REPLY,
-                FirmwareDiagnosticStatus.FAILED,
-                started,
-                cause,
-            )
-            Result.failure(
-                OnyxFailure.FirmwareRejected(
+                    FirmwareBackendKind.SURFACE_FLINGER_BINDER,
+                    FirmwareDiagnosticPhase.REPLY,
+                    FirmwareDiagnosticStatus.TIMED_OUT,
+                    started,
+                    attempt.failure,
+                )
+                Result.failure(
+                    OnyxFailure.TimedOut(
+                        "epd.wait",
+                        diagnostic.id,
+                        "Firmware wait exceeded $timeout; precise waits resume when it returns",
+                        attempt.failure,
+                    ),
+                )
+            }
+            is FirmwareWaitAttempt.Failed -> {
+                val diagnostic = OnyxDiagnostics.record(
                     "epd.wait",
-                    diagnostic.id,
-                    cause.message ?: "Firmware wait failed",
-                    cause,
-                ),
-            )
+                    FirmwareBackendKind.SURFACE_FLINGER_BINDER,
+                    FirmwareDiagnosticPhase.REPLY,
+                    FirmwareDiagnosticStatus.FAILED,
+                    started,
+                    attempt.failure,
+                )
+                Result.failure(
+                    OnyxFailure.FirmwareRejected(
+                        "epd.wait",
+                        diagnostic.id,
+                        attempt.failure.message ?: "Firmware wait failed",
+                        attempt.failure,
+                    ),
+                )
+            }
         }
     }
 }

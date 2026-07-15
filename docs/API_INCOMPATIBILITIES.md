@@ -38,3 +38,14 @@ with its existing `equals()` method.
 
 These additions do not remove or rename reference members. They are accepted by
 `scripts/pen-api-additions.json` and the classified pen residuals.
+
+## Nullable activity lookup
+
+`ActivityUtil.getActivitySafety(Context)` now returns `null` when a context-wrapper chain does not
+contain an `Activity`, including self-referencing wrappers. The recovered source previously kept
+the original non-null/throwing assumption, which caused a less actionable cast or null failure in
+callers that legitimately hold an application context. Internal consumers handle the nullable
+result and fall back to screen-relative coordinates where appropriate.
+
+This is a deliberate source-contract clarification and runtime-safety improvement. Java callers
+should handle a nullable result; Kotlin callers will see the `Activity?` annotation after rebuild.

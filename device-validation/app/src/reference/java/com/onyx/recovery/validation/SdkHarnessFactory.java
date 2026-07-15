@@ -8,6 +8,10 @@ import android.widget.TextView;
 
 import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.api.device.epd.UpdateMode;
+import com.onyx.android.sdk.data.note.TouchPoint;
+import com.onyx.android.sdk.pen.RawInputCallback;
+import com.onyx.android.sdk.pen.TouchHelper;
+import com.onyx.android.sdk.pen.data.TouchPointList;
 
 final class SdkHarnessFactory {
     private SdkHarnessFactory() {}
@@ -19,6 +23,7 @@ final class SdkHarnessFactory {
     private static final class ReferenceAdapter implements SdkHarness {
         private final ResultRecorder recorder;
         private final Handler handler = new Handler(Looper.getMainLooper());
+        private TouchHelper activeHelper;
 
         ReferenceAdapter(ResultRecorder recorder) {
             this.recorder = recorder;
@@ -43,13 +48,47 @@ final class SdkHarnessFactory {
 
         @Override
         public void startInk(SurfaceView surface, TextView status, long durationMs, Runnable finished) {
-            status.setText("Reference flavor: legacy surface refresh adapter");
-            runAutomated(surface, status, () -> handler.postDelayed(finished, durationMs));
+            closeInk();
+            try {
+                activeHelper = TouchHelper.create(surface, new RawInputCallback() {
+                    @Override public void onBeginRawDrawing(boolean shortcut, TouchPoint point) {}
+                    @Override public void onEndRawDrawing(boolean outside, TouchPoint point) {}
+                    @Override public void onRawDrawingTouchPointMoveReceived(TouchPoint point) {}
+                    @Override public void onRawDrawingTouchPointListReceived(TouchPointList points) {}
+                    @Override public void onBeginRawErasing(boolean shortcut, TouchPoint point) {}
+                    @Override public void onEndRawErasing(boolean outside, TouchPoint point) {}
+                    @Override public void onRawErasingTouchPointMoveReceived(TouchPoint point) {}
+                    @Override public void onRawErasingTouchPointListReceived(TouchPointList points) {}
+                });
+                activeHelper.openRawDrawing().setRawDrawingEnabled(true);
+                status.setText("Reference flavor: legacy raw drawing overlay");
+                handler.postDelayed(() -> {
+                    closeInk();
+                    finished.run();
+                }, durationMs);
+            } catch (Throwable failure) {
+                closeInk();
+                recorder.failure("sdk-facade", "reference_legacy_ink", failure);
+                finished.run();
+            }
         }
 
         @Override
         public void close() {
             handler.removeCallbacksAndMessages(null);
+            closeInk();
+        }
+
+        private void closeInk() {
+            if (activeHelper == null) return;
+            try {
+                activeHelper.setRawDrawingEnabled(false);
+                activeHelper.closeRawDrawing();
+            } catch (Throwable failure) {
+                recorder.failure("sdk-facade", "reference_legacy_ink_close", failure);
+            } finally {
+                activeHelper = null;
+            }
         }
     }
 }

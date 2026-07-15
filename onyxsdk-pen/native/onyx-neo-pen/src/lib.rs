@@ -1239,13 +1239,9 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenNative_nativeDestroyP
 ) {
     jni_boundary(&mut env, |env| match runtime().pens.lock() {
         Ok(mut pens) => {
-            if pens.remove(&handle).is_none() {
-                env.with_env(|owned| -> jni::errors::Result<()> {
-                    throw_native_failure(owned, "[INVALID_HANDLE] Renderer handle is not active");
-                    Ok(())
-                })
-                .resolve::<jni::errors::LogErrorAndDefault>();
-            }
+            // The recovered Java wrapper has no destroyed-state guard and the original native
+            // implementation treated defensive double-destroy as an idempotent no-op.
+            pens.remove(&handle);
         }
         Err(_) => {
             env.with_env(|owned| -> jni::errors::Result<()> {
@@ -1286,7 +1282,6 @@ fn render_call(
     };
     let Some((real, predicted, color)) = process_handle(handle, &touches, predicted_touch, phase)
     else {
-        throw_native_failure(env, "[INVALID_HANDLE] Renderer handle is not active");
         return JObject::null().into_raw();
     };
     if real.overflowed || predicted.overflowed {
@@ -1523,6 +1518,13 @@ fn legacy_call(env: &mut Env, points: JDoubleArray, phase: Phase) -> jobjectArra
     let Some((ink, _, _)) = process_handle(handle, &touches, None, phase) else {
         return JObjectArray::<JObject>::null().into_raw();
     };
+    if ink.overflowed {
+        throw_native_failure(
+            env,
+            "[ALLOCATION_LIMIT] Renderer output exceeds the per-call safety limit",
+        );
+        return JObjectArray::<JObject>::null().into_raw();
+    }
     if let Ok(mut stamps) = runtime().legacy_bitmaps.lock() {
         *stamps = ink.stamps.clone();
     }
@@ -1583,6 +1585,13 @@ fn legacy_compute(env: &mut Env, points: JDoubleArray) -> jobjectArray {
     }
     if let Ok(mut stamps) = runtime().legacy_bitmaps.lock() {
         *stamps = combined.stamps.clone();
+    }
+    if combined.overflowed {
+        throw_native_failure(
+            env,
+            "[ALLOCATION_LIMIT] Renderer output exceeds the per-call safety limit",
+        );
+        return JObjectArray::<JObject>::null().into_raw();
     }
     build_legacy_points(env, &combined)
         .map(JObjectArray::into_raw)

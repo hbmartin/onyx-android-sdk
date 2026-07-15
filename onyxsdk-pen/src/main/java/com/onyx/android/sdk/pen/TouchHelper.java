@@ -30,8 +30,9 @@ public class TouchHelper {
     public static final int FEATURE_SF_TOUCH_RENDER = 2;
     public static final int FEATURE_APP_PEN_TOUCH_RENDER = 4;
     public static final int FEATURE_ALL_TOUCH_RENDER = 3;
-    private static final Object CONFIGURATION_LOCK = new Object();
-    private static RawDrawingConfigurationSnapshot observedConfiguration =
+    private static final float RECOVERED_DEFAULT_STROKE_WIDTH = 3.0f;
+    private final Object configurationLock = new Object();
+    private RawDrawingConfigurationSnapshot observedConfiguration =
             RawDrawingConfigurationSnapshot.defaults();
     private volatile boolean a;
     private volatile boolean b;
@@ -115,12 +116,19 @@ public class TouchHelper {
     }
 
     public TouchHelper setStrokeWidth(float w) {
+        float sanitized = sanitizeStrokeWidth(w);
         Iterator<TouchRender> it = this.d.iterator();
         while (it.hasNext()) {
-            it.next().setStrokeWidth(w);
+            it.next().setStrokeWidth(sanitized);
         }
-        observe(null, null, w, null, null, null, null, null, null, null);
+        observe(null, null, sanitized, null, null, null, null, null, null, null);
         return this;
+    }
+
+    static float sanitizeStrokeWidth(float width) {
+        return Float.isFinite(width) && width > 0.0f
+                ? width
+                : RECOVERED_DEFAULT_STROKE_WIDTH;
     }
 
     public TouchHelper debugLog(boolean enable) {
@@ -193,8 +201,16 @@ public class TouchHelper {
 
     @AnyThread
     public TouchHelper setRawInputListenerV2(RawInputListenerV2 listener) {
+        boolean hasNativeReader = false;
         for (TouchRender touchRender : this.d) {
-            touchRender.setRawInputListenerV2(listener);
+            if (touchRender instanceof SFTouchRender) {
+                hasNativeReader = true;
+                break;
+            }
+        }
+        for (TouchRender touchRender : this.d) {
+            touchRender.setRawInputListenerV2(
+                    hasNativeReader && !(touchRender instanceof SFTouchRender) ? null : listener);
         }
         return this;
     }
@@ -380,7 +396,7 @@ public class TouchHelper {
     /** Captures the last complete configuration observed through TouchHelper in this process. */
     @AnyThread
     public RawDrawingConfigurationSnapshot captureRawDrawingConfiguration() {
-        synchronized (CONFIGURATION_LOCK) {
+        synchronized (configurationLock) {
             RawDrawingConfigurationSnapshot value = observedConfiguration;
             return new RawDrawingConfigurationSnapshot(
                     value.getStrokeStyle(),
@@ -477,7 +493,7 @@ public class TouchHelper {
         throw new IllegalArgumentException("hostView should not be null!");
     }
 
-    private static void observe(
+    private void observe(
             Integer style,
             Integer color,
             Float width,
@@ -488,7 +504,7 @@ public class TouchHelper {
             Boolean singleRegion,
             List<Rect> limits,
             List<Rect> excludes) {
-        synchronized (CONFIGURATION_LOCK) {
+        synchronized (configurationLock) {
             observedConfiguration = observedConfiguration.observed(
                     style, color, width, brush, eraser, eraserStyle, sideButton,
                     singleRegion, limits, excludes);

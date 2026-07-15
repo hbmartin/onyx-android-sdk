@@ -25,6 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
@@ -61,7 +62,7 @@ private class RecoveredKtxHarness(
             } catch (failure: Throwable) {
                 recorder.failure("sdk-facade", "automated", failure)
             } finally {
-                finished.run()
+                finishIfActive(finished)
             }
         }
     }
@@ -83,7 +84,7 @@ private class RecoveredKtxHarness(
             } finally {
                 withContext(NonCancellable) { activeSession?.closeAndAwait() }
                 activeSession = null
-                finished.run()
+                finishIfActive(finished)
             }
         }
     }
@@ -127,6 +128,9 @@ private class RecoveredKtxHarness(
                     "failure", contention.exceptionOrNull()?.javaClass?.simpleName,
                 ),
             )
+            contention.getOrNull()?.let { unexpected ->
+                withContext(NonCancellable) { unexpected.closeAndAwait() }
+            }
             val width = surface.width.coerceAtLeast(1)
             val height = surface.height.coerceAtLeast(1)
             val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).apply {
@@ -144,32 +148,41 @@ private class RecoveredKtxHarness(
         }
     }
 
-    private fun recordRenderers() {
-        val points = listOf(
-            point(20f, 20f, 0.2f, 1L),
-            point(60f, 80f, 0.7f, 2L),
-            point(120f, 100f, 0.5f, 3L),
-        )
-        PenKind.entries.forEach { kind ->
-            val result = InkRenderer.create(kind, BrushConfiguration(widthPx = 4f)).fold(
-                onSuccess = { renderer ->
-                    renderer.use { it.render(points).getOrThrow().bounds.toString() }
-                },
-                onFailure = { "${it.javaClass.simpleName}: ${it.message}" },
+    private suspend fun recordRenderers() {
+        val results = withContext(Dispatchers.Default) {
+            val points = listOf(
+                point(20f, 20f, 0.2f, 1L),
+                point(60f, 80f, 0.7f, 2L),
+                point(120f, 100f, 0.5f, 3L),
             )
-            recorder.value("sdk-facade", "renderer_${kind.name.lowercase()}", null, result)
+            PenKind.entries.associateWith { kind ->
+                InkRenderer.create(kind, BrushConfiguration(widthPx = 4f)).fold(
+                    onSuccess = { renderer ->
+                        renderer.use { it.render(points).getOrThrow().bounds.toString() }
+                    },
+                    onFailure = { "${it.javaClass.simpleName}: ${it.message}" },
+                )
+            }
+        }
+        withContext(Dispatchers.IO) {
+            results.forEach { (kind, result) ->
+                recorder.value("sdk-facade", "renderer_${kind.name.lowercase()}", null, result)
+            }
         }
     }
 
-    private fun exportDiagnostics() {
-        val output = File(activity.filesDir, "onyx-diagnostics.txt")
-        output.writeText(OnyxSdk.diagnostics.snapshot().joinToString("\n"))
-        recorder.value(
-            "sdk-facade",
-            "diagnostics_export",
-            null,
-            ResultRecorder.map("events", OnyxSdk.diagnostics.snapshot().size, "file", output.name),
-        )
+    private suspend fun exportDiagnostics() {
+        withContext(Dispatchers.IO) {
+            val diagnostics = OnyxSdk.diagnostics.snapshot()
+            val output = File(activity.filesDir, "onyx-diagnostics.txt")
+            output.writeText(diagnostics.joinToString("\n"))
+            recorder.value(
+                "sdk-facade",
+                "diagnostics_export",
+                null,
+                ResultRecorder.map("events", diagnostics.size, "file", output.name),
+            )
+        }
     }
 
     private suspend fun awaitActive(session: RawInkSession, surface: SurfaceView) {
@@ -188,6 +201,11 @@ private class RecoveredKtxHarness(
         activeJob?.cancel()
         activeSession?.close()
         activeSession = null
+        scope.cancel()
+    }
+
+    private fun finishIfActive(finished: Runnable) {
+        if (!activity.isDestroyed && !activity.isFinishing) finished.run()
     }
 
     private fun point(x: Float, y: Float, pressure: Float, sequence: Long) = InkPoint(

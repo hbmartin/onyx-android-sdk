@@ -33,10 +33,15 @@ public class ActivityUtilTest {
 
     @Test
     public void getLocationInActivityFallsBackToScreenCoordinatesWithoutActivity() {
-        View view = new View(RuntimeEnvironment.getApplication());
+        View view = new View(RuntimeEnvironment.getApplication()) {
+            @Override
+            public void getLocationOnScreen(int[] location) {
+                location[0] = 17;
+                location[1] = 29;
+            }
+        };
 
-        assertArrayEquals(
-                ViewUtils.getLocationOnScreen(view), ViewUtils.getLocationInActivity(view));
+        assertArrayEquals(new int[]{17, 29}, ViewUtils.getLocationInActivity(view));
     }
 
     @Test

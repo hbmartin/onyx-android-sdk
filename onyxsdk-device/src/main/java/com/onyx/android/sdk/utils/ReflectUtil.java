@@ -15,6 +15,21 @@ import java.util.concurrent.atomic.AtomicReference;
 /** Safe reflection helpers used throughout the device SDK. */
 public class ReflectUtil {
     private static final String TAG = "ReflectUtil";
+    private static final String[] HIDDEN_API_EXEMPTION_PREFIXES = {
+            "Landroid/onyx/",
+            "Landroid/app/",
+            "Landroid/content/",
+            "Landroid/database/",
+            "Landroid/hardware/",
+            "Landroid/net/",
+            "Landroid/os/",
+            "Landroid/telephony/",
+            "Landroid/view/",
+            "Landroid/webkit/",
+            "Lcom/android/internal/",
+            "Ldalvik/system/",
+            "Llibcore/io/"
+    };
     private static volatile HiddenApiAccessStatus hiddenApiAccessStatus =
             Build.VERSION.SDK_INT < 28
                     ? HiddenApiAccessStatus.NOT_REQUIRED
@@ -45,16 +60,11 @@ public class ReflectUtil {
             Method getRuntime = vmRuntime.getDeclaredMethod("getRuntime");
             Method setExemptions = vmRuntime.getDeclaredMethod(
                     "setHiddenApiExemptions", String[].class);
-            // Keep the exemption surface limited to the firmware APIs the SDK
-            // actually uses. The previous broad "L" exemption opened every
-            // hidden API in the process and made failures impossible to
-            // diagnose independently.
-            setExemptions.invoke(getRuntime.invoke(null), (Object) new String[]{
-                    "Landroid/onyx/",
-                    "Landroid/view/View;",
-                    "Landroid/os/ServiceManager;",
-                    "Ldalvik/system/VMRuntime;"
-            });
+            // Package prefixes cover the SDK's recovered reflection surface without restoring
+            // the original process-wide "L" exemption. In particular, package prefixes also
+            // cover nested classes such as android.view.View$EINK_MODE.
+            setExemptions.invoke(
+                    getRuntime.invoke(null), (Object) hiddenApiExemptionPrefixes());
             hiddenApiFailure = null;
             hiddenApiAccessStatus = HiddenApiAccessStatus.EXEMPTIONS_APPLIED;
         } catch (Throwable error) {
@@ -66,6 +76,10 @@ public class ReflectUtil {
 
     public static HiddenApiAccessStatus getHiddenApiAccessStatus() {
         return hiddenApiAccessStatus;
+    }
+
+    static String[] hiddenApiExemptionPrefixes() {
+        return HIDDEN_API_EXEMPTION_PREFIXES.clone();
     }
 
     @Nullable

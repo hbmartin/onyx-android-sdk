@@ -385,10 +385,12 @@ public class RawInputReader {
     }
 
     public void setExcludeRect(List<Rect> rectList) {
-        List<Rect> regions = rectList == null ? java.util.Collections.emptyList() : rectList;
-        nativeSetExcludeRegion(a(regions));
+        if (rectList == null || rectList.isEmpty()) {
+            return;
+        }
+        nativeSetExcludeRegion(a(rectList));
         EpdController.setScreenHandWritingRegionExclude(
-                getHostView(), (Rect[]) regions.toArray(new Rect[0]));
+                getHostView(), (Rect[]) rectList.toArray(new Rect[0]));
         a("setExcludeRect");
     }
 
@@ -598,10 +600,12 @@ public class RawInputReader {
     }
 
     public void setLimitRect(List<Rect> rectList) {
-        List<Rect> regions = rectList == null ? java.util.Collections.emptyList() : rectList;
-        nativeSetLimitRegion(a(regions));
+        if (rectList == null || rectList.isEmpty()) {
+            return;
+        }
+        nativeSetLimitRegion(a(rectList));
         EpdController.setScreenHandWritingRegionLimit(
-                getHostView(), (Rect[]) regions.toArray(new Rect[0]));
+                getHostView(), (Rect[]) rectList.toArray(new Rect[0]));
         a("setLimitRect");
     }
 
