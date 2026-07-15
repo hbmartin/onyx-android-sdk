@@ -51,7 +51,6 @@ public class NeoPenWrapper {
     }
 
     static {
-        System.loadLibrary("neo_pen");
+        System.loadLibrary("neopen_jni");
     }
 }
-

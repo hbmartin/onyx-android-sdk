@@ -176,6 +176,16 @@ for abi in armeabi-v7a arm64-v8a x86 x86_64; do
         || fail "release AAR contains the supplied reference libneo_pen.so"
     fi
   done
+
+  modern_rebuilt="$ROOT/onyxsdk-pen/src/main/jniLibs/$abi/libneopen_jni$shared_library_suffix"
+  test -s "$modern_rebuilt" || fail "missing source-built $abi libneopen_jni$shared_library_suffix"
+  cmp -s "$ROOT/onyxsdk-pen/src/main/jniLibs/$abi/libneo_pen$shared_library_suffix" "$modern_rebuilt" \
+    || fail "$abi legacy and modern pen sonames are not the same renderer binary"
+  modern_packaged="$TMP/$abi.neopen-jni.aar$shared_library_suffix"
+  unzip -p "$PEN_AAR" "jni/$abi/libneopen_jni$shared_library_suffix" > "$modern_packaged"
+  test -s "$modern_packaged" || fail "$abi packaged libneopen_jni$shared_library_suffix is missing"
+  cmp -s "$TMP/$abi.neo-pen.aar$shared_library_suffix" "$modern_packaged" \
+    || fail "$abi packaged legacy and modern pen sonames differ"
   echo "$abi: both source-built Rust libraries match their JNI contracts"
 done
 

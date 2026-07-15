@@ -481,7 +481,12 @@ internal object DeviceCapabilityProbe {
     )
 
     private val PenKind.isExperimental: Boolean
-        get() = this in setOf(PenKind.BRUSH, PenKind.MARKER, PenKind.CHARCOAL_V2)
+        get() = this in setOf(
+            PenKind.BRUSH,
+            PenKind.MARKER,
+            PenKind.CHARCOAL_V2,
+            PenKind.BRUSH_SIGN,
+        )
 }
 
 /** Internal bridge deliberately erases the legacy type from the KTX JVM descriptor. */

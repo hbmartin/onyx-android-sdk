@@ -24,6 +24,11 @@ Coroutines Android is internal. The recovered base and pen libraries are
 implementation dependencies: no EventBus, RxJava, Fragment, Data Binding, or
 legacy Onyx type is part of a KTX public signature.
 
+KTX rendering calls only the modern `com.onyx.android.sdk.pennative` facade and
+`libneopen_jni.so`. The separately packaged `libneo_pen.so` is a compatibility
+alias for applications that still ship an older Onyx Java facade; KTX never
+loads or references that facade.
+
 ## Capabilities and diagnostics
 
 ```kotlin
@@ -191,11 +196,13 @@ native handle. Input points are immutable and already pressure-normalized.
 `RenderFrame` keeps committed and predicted layers separate, reports copied
 bounds, and draws on a Canvas without exposing legacy pen classes.
 
-`BRUSH`, `MARKER`, and `CHARCOAL_V2` require
+`BRUSH`, `MARKER`, `CHARCOAL_V2`, and `BRUSH_SIGN` require
 `@OptIn(ExperimentalOnyxRendererApi::class)`. Capability results for every
 renderer still distinguish verified from unverified. Native input is checked
 for finite values, record arity, bounded batches/allocations, and valid handle
-state. Rust JNI builds with unwind support; renderer exports catch panics and
+state. `BrushConfiguration` maps the full modern pressure, velocity, tilt,
+brush-shape, scale, start-limit, and end-thinning configuration to native code.
+Rust JNI builds with unwind support; renderer exports catch panics and
 turn them into typed native-renderer failures. Always close a renderer.
 
 ## Firmware inspection

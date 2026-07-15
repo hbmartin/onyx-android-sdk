@@ -21,7 +21,7 @@ public final class NeoPenNative {
     private static final boolean a = Log.isLoggable(TRACE_TAG, Log.DEBUG);
 
     static {
-        System.loadLibrary("neo_pen");
+        System.loadLibrary("neopen_jni");
     }
 
     private NeoPenNative() {
