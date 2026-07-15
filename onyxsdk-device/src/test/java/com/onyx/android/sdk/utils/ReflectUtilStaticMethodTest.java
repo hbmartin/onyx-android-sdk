@@ -6,6 +6,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 
 public class ReflectUtilStaticMethodTest {
@@ -28,5 +30,18 @@ public class ReflectUtilStaticMethodTest {
         assertTrue(ReflectUtil.isStaticMethodAvailable(staticMethod));
         assertNull(instanceMethod);
         assertFalse(ReflectUtil.isStaticMethodAvailable(instanceMethod));
+    }
+
+    @Test
+    public void hiddenApiPrefixesCoverRecoveredReflectionPackagesAndNestedViews() {
+        List<String> prefixes = Arrays.asList(ReflectUtil.hiddenApiExemptionPrefixes());
+
+        assertTrue(prefixes.contains("Landroid/app/"));
+        assertTrue(prefixes.contains("Landroid/hardware/"));
+        assertTrue(prefixes.contains("Landroid/os/"));
+        assertTrue(prefixes.contains("Landroid/view/"));
+        assertTrue(prefixes.contains("Lcom/android/internal/"));
+        assertFalse(prefixes.contains("Landroid/view/View;"));
+        assertFalse(prefixes.contains("L"));
     }
 }

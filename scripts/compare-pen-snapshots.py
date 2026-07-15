@@ -161,6 +161,10 @@ def validate_notable_advanced(
     metrics: list[str] = []
     for pen_type in range(6, 10):
         for fast_mode in (False, True):
+            if not any(
+                key[0] == pen_type and key[1] == fast_mode for key in expected
+            ):
+                continue
             reference_coordinates: list[tuple[float, float]] = []
             candidate_coordinates: list[tuple[float, float]] = []
             reference_records = 0

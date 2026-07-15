@@ -129,6 +129,7 @@ tasks.named("check") {
         "nativeClippy",
         verifyRecovery,
         "verifyJvmApiContracts",
+        "verifyKtxPublicSurface",
         "verifyModuleBoundaries",
         "verifyPublicationMetadata",
         "pythonValidationTest",

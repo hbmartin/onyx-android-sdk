@@ -24,6 +24,7 @@ dependencies {
     api(libs.androidx.annotation.legacy)
 
     testImplementation(libs.junit4)
+    testImplementation(libs.robolectric)
 }
 
 tasks.register("assembleRecovered") {

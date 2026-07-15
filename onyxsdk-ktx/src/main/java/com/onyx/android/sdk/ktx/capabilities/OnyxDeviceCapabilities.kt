@@ -126,11 +126,18 @@ internal object DeviceCapabilityProbe {
     suspend fun probe(
         surfaceView: SurfaceView?,
         probeMode: CapabilityProbeMode,
-    ): Result<OnyxDeviceCapabilities> = onyxResult(
-        operation = "capabilities.probe",
-        backend = FirmwareBackendKind.FRAMEWORK_REFLECTION,
-        phase = FirmwareDiagnosticPhase.VALIDATION,
-    ) {
+    ): Result<OnyxDeviceCapabilities> = probe(surfaceView, probeMode, false)
+
+    suspend fun probe(
+        surfaceView: SurfaceView?,
+        probeMode: CapabilityProbeMode,
+        externalHiddenApiAccess: Boolean,
+    ): Result<OnyxDeviceCapabilities> = withContext(Dispatchers.Default) {
+        onyxResult(
+            operation = "capabilities.probe",
+            backend = FirmwareBackendKind.FRAMEWORK_REFLECTION,
+            phase = FirmwareDiagnosticPhase.VALIDATION,
+        ) {
         if (probeMode == CapabilityProbeMode.ACTIVE_REVERSIBLE && surfaceView == null) {
             throw OnyxFailure.InvalidArgument(
                 "capabilities.probe",
@@ -140,7 +147,12 @@ internal object DeviceCapabilityProbe {
         val backend = EpdController.getFirmwareBackendInfo()
         val codes = backend.transactionCodes
         val legacyHiddenStatus = backend.hiddenApiAccessStatus
-        val hiddenStatus = when (legacyHiddenStatus) {
+        val hiddenStatus = if (
+            externalHiddenApiAccess &&
+            legacyHiddenStatus == ReflectUtil.HiddenApiAccessStatus.FAILED
+        ) {
+            HiddenApiStatus.EXEMPTIONS_APPLIED
+        } else when (legacyHiddenStatus) {
             ReflectUtil.HiddenApiAccessStatus.NOT_ATTEMPTED -> HiddenApiStatus.NOT_ATTEMPTED
             ReflectUtil.HiddenApiAccessStatus.NOT_REQUIRED -> HiddenApiStatus.NOT_REQUIRED
             ReflectUtil.HiddenApiAccessStatus.EXEMPTIONS_APPLIED -> HiddenApiStatus.EXEMPTIONS_APPLIED
@@ -263,7 +275,11 @@ internal object DeviceCapabilityProbe {
                         } else {
                             CapabilityEvidenceKind.METHOD_RESOLVED
                         },
-                        backend.failure ?: backend.backend,
+                        if (externalHiddenApiAccess) {
+                            "Host exemption provider succeeded; ${backend.failure ?: backend.backend}"
+                        } else {
+                            backend.failure ?: backend.backend
+                        },
                     ),
                 ),
             ),
@@ -274,20 +290,25 @@ internal object DeviceCapabilityProbe {
                 updateModes = updateModes,
                 awaitUpdate = codeCapability("WAIT_FOR_UPDATE_FINISHED"),
                 handwritingRepaint = codeCapability("HANDWRITING_REPAINT"),
-                savePenAttachedFramebuffer = codeCapability("SAVE_PEN_ATTACHED_FB").copy(
-                    support = CapabilitySupport.UNVERIFIED,
-                    value = null,
-                    evidence = codeCapability("SAVE_PEN_ATTACHED_FB").evidence +
-                        CapabilityEvidence(
-                            CapabilityEvidenceKind.FALLBACK,
-                            "Experimental until overlay A/B validation passes",
-                        ),
-                ),
+                savePenAttachedFramebuffer = codeCapability("SAVE_PEN_ATTACHED_FB").let { capability ->
+                    capability.copy(
+                        support = CapabilitySupport.UNVERIFIED,
+                        value = null,
+                        evidence = capability.evidence +
+                            CapabilityEvidence(
+                                CapabilityEvidenceKind.FALLBACK,
+                                "Experimental until overlay A/B validation passes",
+                            ),
+                    )
+                },
             ),
             rawInk = RawInkCapabilities(
                 x = axisCapability(rawProbe?.x, "ABS_X"),
                 y = axisCapability(rawProbe?.y, "ABS_Y"),
-                pressure = rawProbe?.pressure?.let { axisCapability(it, "ABS_PRESSURE") } ?: pressure,
+                pressure = rawProbe?.pressure
+                    ?.let { axisCapability(it, "ABS_PRESSURE") }
+                    ?.takeIf { it.support == CapabilitySupport.SUPPORTED }
+                    ?: pressure,
                 tiltX = axisCapability(rawProbe?.tiltX, "ABS_TILT_X"),
                 tiltY = axisCapability(rawProbe?.tiltY, "ABS_TILT_Y"),
                 viewLocalCoordinates = Capability(
@@ -342,6 +363,7 @@ internal object DeviceCapabilityProbe {
                 }
             },
         )
+        }
     }
 
     private fun strictQuery(name: String, block: () -> Int): Capability<Int> =

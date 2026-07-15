@@ -42,21 +42,17 @@ final class FirmwareBinderBackend {
         transactionCodes.clear();
     }
 
-    FirmwareBackendInfo info() {
+    synchronized FirmwareBackendInfo info() {
         ensureInitialized();
+        IBinder target = binder;
         return new FirmwareBackendInfo(
-                binder != null && binder.isBinderAlive(),
+                target != null && target.isBinderAlive(),
                 BACKEND,
                 serviceName,
                 interfaceToken,
                 ReflectUtil.getHiddenApiAccessStatus(),
                 failure != null ? failure : ReflectUtil.getHiddenApiFailure(),
                 transactionCodes);
-    }
-
-    boolean supports(String operation) {
-        ensureInitialized();
-        return transactionCodes.containsKey(operation) && binder != null && binder.isBinderAlive();
     }
 
     void waitForUpdateFinished() {
@@ -178,7 +174,7 @@ final class FirmwareBinderBackend {
                 operation, BACKEND, "Firmware rejected transaction code " + code);
     }
 
-    private int requireCode(String operation) {
+    private synchronized int requireCode(String operation) {
         Integer code = transactionCodes.get(operation);
         if (code == null || code <= 0) {
             throw new FirmwareOperationException(
@@ -205,7 +201,8 @@ final class FirmwareBinderBackend {
 
     @SuppressLint("PrivateApi")
     private synchronized void ensureInitialized() {
-        if (initialized && binder != null && binder.isBinderAlive()) {
+        IBinder target = binder;
+        if (initialized && target != null && target.isBinderAlive()) {
             return;
         }
         initialized = true;

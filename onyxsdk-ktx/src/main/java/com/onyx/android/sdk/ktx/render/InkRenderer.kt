@@ -216,6 +216,11 @@ private inline fun <T> rendererResult(operation: String, block: () -> T): Result
                     operation,
                     failure.message ?: "Invalid renderer argument",
                 )
+                is IllegalStateException -> OnyxFailure.InvalidState(
+                    operation,
+                    diagnostic.id,
+                    failure.message ?: "Invalid renderer state",
+                )
                 is OnyxFailure -> failure
                 else -> OnyxFailure.NativeRendererFailure(
                     operation,

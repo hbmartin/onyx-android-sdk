@@ -1016,6 +1016,7 @@
 {"class":"com.onyx.android.sdk.pen.touch.AppTouchRender","member":{"annotations":[],"descriptor":"(Z)V","flags":["ACC_PUBLIC"],"kind":"method","name":"setPenUpRefreshEnabled","signature":null}}
 {"class":"com.onyx.android.sdk.pen.touch.AppTouchRender","member":{"annotations":[],"descriptor":"(I)V","flags":["ACC_PUBLIC"],"kind":"method","name":"setPenUpRefreshTimeMs","signature":null}}
 {"class":"com.onyx.android.sdk.pen.touch.AppTouchRender","member":{"annotations":[],"descriptor":"(Z)V","flags":["ACC_PUBLIC"],"kind":"method","name":"setPostInputEvent","signature":null}}
+{"class":"com.onyx.android.sdk.pen.touch.AppTouchRender","member":{"annotations":[],"descriptor":"(Lcom/onyx/android/sdk/pen/RawInputListenerV2;)V","flags":["ACC_PUBLIC"],"kind":"method","name":"setRawInputListenerV2","signature":null}}
 {"class":"com.onyx.android.sdk.pen.touch.AppTouchRender","member":{"annotations":[],"descriptor":"()V","flags":["ACC_PUBLIC"],"kind":"method","name":"setSingleRegionMode","signature":null}}
 {"class":"com.onyx.android.sdk.pen.touch.AppTouchRender","member":{"annotations":[],"descriptor":"(I)V","flags":["ACC_PUBLIC"],"kind":"method","name":"setStrokeColor","signature":null}}
 {"class":"com.onyx.android.sdk.pen.touch.AppTouchRender","member":{"annotations":[],"descriptor":"(I)V","flags":["ACC_PUBLIC"],"kind":"method","name":"setStrokeStyle","signature":null}}

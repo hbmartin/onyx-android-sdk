@@ -2,7 +2,9 @@ package com.onyx.android.sdk.pen;
 
 /**
  * Immutable v2 raw-input event. Coordinates are physical pixels local to the bound host view;
- * timestamps use the kernel input clock and are expressed as monotonic nanoseconds.
+ * timestamps use the source's monotonic input clock and are expressed as nanoseconds. Native
+ * SurfaceFlinger input uses the kernel event clock; the application renderer uses MotionEvent's
+ * monotonic event time.
  */
 public final class RawInputEventV2 {
     private final RawInputPhase phase;

@@ -22,6 +22,7 @@ val buildRustAndroid = tasks.register<Exec>("buildRustAndroid") {
         buildScript,
     )
     outputs.dir("src/main/jniLibs")
+    outputs.dir("src/androidTest/jniLibs")
     inputs.property("penReferenceNeoSo", providers.gradleProperty("penReferenceNeoSo").orElse(""))
     inputs.property("penNotableNeoSo", providers.gradleProperty("penNotableNeoSo").orElse(""))
     // The script picks its toolchain from these; a changed NDK must invalidate native outputs.

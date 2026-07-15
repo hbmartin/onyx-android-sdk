@@ -8,6 +8,12 @@ import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.api.device.epd.UpdateMode;
 import com.onyx.android.sdk.data.note.TouchPoint;
 import com.onyx.android.sdk.pen.RawInputCallback;
+import com.onyx.android.sdk.pen.RawInputAxisRange;
+import com.onyx.android.sdk.pen.RawInputDeviceInfo;
+import com.onyx.android.sdk.pen.RawInputEventV2;
+import com.onyx.android.sdk.pen.RawInputListenerV2;
+import com.onyx.android.sdk.pen.RawInputPhase;
+import com.onyx.android.sdk.pen.RawInputTool;
 import com.onyx.android.sdk.pen.data.TouchPointList;
 import com.onyx.android.sdk.rx.SingleThreadScheduler;
 import com.onyx.android.sdk.utils.TouchUtils;
@@ -18,6 +24,7 @@ import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class AppTouchRender implements TouchRender {
     private AppTouchInputReader a;
@@ -28,6 +35,9 @@ public class AppTouchRender implements TouchRender {
     private WeakReference<View> f;
     private Disposable g;
     private ObservableEmitter<TouchPoint> h;
+    private final AtomicLong rawSequence = new AtomicLong();
+    private volatile RawInputListenerV2 rawInputListenerV2;
+    private RawInputTool rawInputTool = RawInputTool.PEN;
 
     class a extends AppInputCallback {
         final /* synthetic */ RawInputCallback a;
@@ -39,6 +49,8 @@ public class AppTouchRender implements TouchRender {
         @Override // com.onyx.android.sdk.pen.touch.AppInputCallback
         public void onBeginRawDrawing(MotionEvent event, boolean shortcutDrawing, TouchPoint point) {
             AppTouchRender.this.a(event, point);
+            AppTouchRender.this.rawInputTool = RawInputTool.PEN;
+            AppTouchRender.this.emitRawInput(RawInputPhase.DOWN, point, false, false);
             if (AppTouchRender.this.e) {
                 this.a.onBeginRawDrawing(shortcutDrawing, point);
             }
@@ -48,6 +60,8 @@ public class AppTouchRender implements TouchRender {
         public void onEndRawDrawing(MotionEvent event, boolean outLimitRegion, TouchPoint point) {
             AppTouchRender.this.a();
             AppTouchRender.this.b(event, new TouchPoint(point));
+            AppTouchRender.this.emitRawInput(
+                    RawInputPhase.UP, point, outLimitRegion, false);
             if (AppTouchRender.this.e) {
                 this.a.onEndRawDrawing(outLimitRegion, point);
             }
@@ -58,6 +72,7 @@ public class AppTouchRender implements TouchRender {
             if (AppTouchRender.this.h != null) {
                 AppTouchRender.this.h.onNext(new TouchPoint(point));
             }
+            AppTouchRender.this.emitRawInput(RawInputPhase.MOVE, point, false, false);
             if (AppTouchRender.this.e) {
                 this.a.onRawDrawingTouchPointMoveReceived(point);
             }
@@ -68,6 +83,39 @@ public class AppTouchRender implements TouchRender {
             AppTouchRender.this.a();
             if (AppTouchRender.this.e) {
                 this.a.onRawDrawingTouchPointListReceived(pointList);
+            }
+        }
+
+        @Override
+        public void onBeginRawErasing(boolean shortcutErasing, TouchPoint point) {
+            AppTouchRender.this.rawInputTool = RawInputTool.TAIL_ERASER;
+            AppTouchRender.this.emitRawInput(RawInputPhase.DOWN, point, false, false);
+            if (AppTouchRender.this.e) {
+                this.a.onBeginRawErasing(shortcutErasing, point);
+            }
+        }
+
+        @Override
+        public void onEndRawErasing(boolean outLimitRegion, TouchPoint point) {
+            AppTouchRender.this.emitRawInput(
+                    RawInputPhase.UP, point, outLimitRegion, false);
+            if (AppTouchRender.this.e) {
+                this.a.onEndRawErasing(outLimitRegion, point);
+            }
+        }
+
+        @Override
+        public void onRawErasingTouchPointMoveReceived(TouchPoint point) {
+            AppTouchRender.this.emitRawInput(RawInputPhase.MOVE, point, false, false);
+            if (AppTouchRender.this.e) {
+                this.a.onRawErasingTouchPointMoveReceived(point);
+            }
+        }
+
+        @Override
+        public void onRawErasingTouchPointListReceived(TouchPointList pointList) {
+            if (AppTouchRender.this.e) {
+                this.a.onRawErasingTouchPointListReceived(pointList);
             }
         }
     }
@@ -96,6 +144,49 @@ public class AppTouchRender implements TouchRender {
             return this.a.processMotionEvent(event);
         }
         return false;
+    }
+
+    @Override
+    public void setRawInputListenerV2(RawInputListenerV2 listener) {
+        this.rawInputListenerV2 = listener;
+        if (listener == null) {
+            return;
+        }
+        View host = getHostView();
+        RawInputAxisRange x = host == null
+                ? null
+                : new RawInputAxisRange(0, Math.max(1, host.getWidth()), 0, 0, 0);
+        RawInputAxisRange y = host == null
+                ? null
+                : new RawInputAxisRange(0, Math.max(1, host.getHeight()), 0, 0, 0);
+        listener.onRawInputDeviceInfo(new RawInputDeviceInfo(
+                x, y, new RawInputAxisRange(0, 4096, 0, 0, 0), null, null, true));
+    }
+
+    private void emitRawInput(
+            RawInputPhase phase,
+            TouchPoint point,
+            boolean outsideLimitRegion,
+            boolean forced) {
+        RawInputListenerV2 listener = rawInputListenerV2;
+        if (listener == null) {
+            return;
+        }
+        float normalizedPressure = Math.max(0.0f, Math.min(1.0f, point.getPressure()));
+        listener.onRawInputEvent(new RawInputEventV2(
+                phase,
+                rawInputTool,
+                point.getX(),
+                point.getY(),
+                Math.round(normalizedPressure * 4096.0f),
+                normalizedPressure,
+                4096,
+                point.getTiltX(),
+                point.getTiltY(),
+                point.getTimestamp() * 1_000_000L,
+                rawSequence.incrementAndGet(),
+                outsideLimitRegion,
+                forced));
     }
 
     @Override // com.onyx.android.sdk.pen.touch.TouchRender

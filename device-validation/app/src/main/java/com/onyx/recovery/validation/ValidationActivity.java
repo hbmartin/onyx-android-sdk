@@ -32,6 +32,7 @@ public final class ValidationActivity extends Activity {
     private String scenario;
     private String mmkvMode;
     private boolean finished;
+    private StableSurfaceStarter surfaceStarter;
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
 
     @Override
@@ -63,9 +64,9 @@ public final class ValidationActivity extends Activity {
             canvas.post(() -> runSuite(suite));
             return;
         }
-        StableSurfaceStarter starter = new StableSurfaceStarter();
-        rawSurface.getHolder().addCallback(starter);
-        starter.schedule();
+        surfaceStarter = new StableSurfaceStarter();
+        rawSurface.getHolder().addCallback(surfaceStarter);
+        surfaceStarter.schedule();
     }
 
     /** Waits past the first layout-time Surface replacement before exercising raw ink. */
@@ -84,6 +85,10 @@ public final class ValidationActivity extends Activity {
         @Override
         public void run() {
             scheduled = false;
+            if (isDestroyed() || isFinishing()) {
+                cancel();
+                return;
+            }
             boolean valid = rawSurface.isAttachedToWindow()
                     && rawSurface.getWidth() > 0
                     && rawSurface.getHeight() > 0
@@ -112,6 +117,13 @@ public final class ValidationActivity extends Activity {
         public void surfaceDestroyed(SurfaceHolder holder) {
             consecutiveValidFrames = 0;
             schedule();
+        }
+
+        void cancel() {
+            started = true;
+            scheduled = false;
+            rawSurface.removeCallbacks(this);
+            rawSurface.getHolder().removeCallback(this);
         }
     }
 
@@ -221,6 +233,7 @@ public final class ValidationActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        if (surfaceStarter != null) surfaceStarter.cancel();
         if (pen != null) pen.quit();
         if (sdkHarness != null) sdkHarness.close();
         worker.shutdownNow();
