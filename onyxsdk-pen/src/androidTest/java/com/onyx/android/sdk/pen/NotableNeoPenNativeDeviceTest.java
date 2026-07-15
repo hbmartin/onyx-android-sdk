@@ -2,6 +2,7 @@ package com.onyx.android.sdk.pen;
 
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -16,6 +17,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import org.junit.Assume;
 import org.junit.BeforeClass;
@@ -238,10 +240,16 @@ public final class NotableNeoPenNativeDeviceTest {
     }
 
     private static PenConfig notableConfig(int type, boolean fastMode) {
-        return new PenConfig().setType(type).setFastMode(fastMode)
-                .setWidth(6f).setMinWidth(0.001f)
-                .setPressureSensitivity(0.3f).setVelocitySensitivity(0.5f)
-                .setSmoothLevel(0.6f).setTiltScale(3f);
+        PenConfig config = new PenConfig();
+        config.setType(type);
+        config.setFastMode(fastMode);
+        config.setWidth(6f);
+        config.setMinWidth(0.001f);
+        config.setPressureSensitivity(0.3f);
+        config.setVelocitySensitivity(0.5f);
+        config.setSmoothLevel(0.6f);
+        config.setTiltScale(3f);
+        return config;
     }
 
     private static void appendCase(
@@ -316,36 +324,37 @@ public final class NotableNeoPenNativeDeviceTest {
     private static PenConfig fieldVariant(String field, int penType) {
         PenConfig config = notableConfig(penType, false);
         switch (field) {
-            case "color": return config.setColor(0xff336699);
-            case "width": return config.setWidth(8f);
-            case "minWidth": return config.setMinWidth(1f);
-            case "rotateAngle": return config.setRotateAngle(45);
-            case "tiltEnabled": return config.setTiltEnabled(true);
-            case "tiltScale": return config.setTiltScale(7f);
-            case "directionEnabled": return config.setDirectionEnabled(true);
-            case "maxTouchPressure": return config.setMaxTouchPressure(4096f);
-            case "dpi": return config.setDpi(160f);
-            case "displayScaleX": return config.setDisplayScaleX(1.5f);
-            case "displayScaleY": return config.setDisplayScaleY(0.75f);
-            case "scalePrecision": return config.setScalePrecision(2f);
-            case "brushSpacing": return config.setBrushSpacing(0.5f);
-            case "brushShape": return config.setBrushShape(PenConfig.NEOPEN_BRUSH_SHAPE_ELLIPSE);
-            case "brushRatio": return config.setBrushRatio(2f);
-            case "brushAngle": return config.setBrushAngle(30f);
-            case "pressureSensitivity": return config.setPressureSensitivity(0.8f);
-            case "velocitySensitivity": return config.setVelocitySensitivity(0.8f);
-            case "velocityAmplifier": return config.setVelocityAmplifier(0.5f);
-            case "velocityIgnoreThreshold": return config.setVelocityIgnoreThreshold(0.1f);
-            case "velocityLowerBound": return config.setVelocityLowerBound(2f);
-            case "velocityUpperBound": return config.setVelocityUpperBound(20f);
-            case "smoothLevel": return config.setSmoothLevel(0.8f);
-            case "startPointLimit": return config.setStartPointLimit(2f);
-            case "startLengthLimit": return config.setStartLengthLimit(4f);
-            case "endVelocitySensitivity": return config.setEndVelocitySensitivity(0.5f);
-            case "endThinningRate": return config.setEndThinningRate(0.5f);
-            case "ignorePressure": return config.setIgnorePressure(0.5f);
+            case "color": config.setColor(0xff336699); break;
+            case "width": config.setWidth(8f); break;
+            case "minWidth": config.setMinWidth(1f); break;
+            case "rotateAngle": config.setRotateAngle(45); break;
+            case "tiltEnabled": config.setTiltEnabled(true); break;
+            case "tiltScale": config.setTiltScale(7f); break;
+            case "directionEnabled": config.setDirectionEnabled(true); break;
+            case "maxTouchPressure": config.setMaxTouchPressure(4096f); break;
+            case "dpi": config.setDpi(160f); break;
+            case "displayScaleX": config.setDisplayScaleX(1.5f); break;
+            case "displayScaleY": config.setDisplayScaleY(0.75f); break;
+            case "scalePrecision": config.setScalePrecision(2f); break;
+            case "brushSpacing": config.setBrushSpacing(0.5f); break;
+            case "brushShape": config.setBrushShape(PenConfig.NEOPEN_BRUSH_SHAPE_ELLIPSE); break;
+            case "brushRatio": config.setBrushRatio(2f); break;
+            case "brushAngle": config.setBrushAngle(30f); break;
+            case "pressureSensitivity": config.setPressureSensitivity(0.8f); break;
+            case "velocitySensitivity": config.setVelocitySensitivity(0.8f); break;
+            case "velocityAmplifier": config.setVelocityAmplifier(0.5f); break;
+            case "velocityIgnoreThreshold": config.setVelocityIgnoreThreshold(0.1f); break;
+            case "velocityLowerBound": config.setVelocityLowerBound(2f); break;
+            case "velocityUpperBound": config.setVelocityUpperBound(20f); break;
+            case "smoothLevel": config.setSmoothLevel(0.8f); break;
+            case "startPointLimit": config.setStartPointLimit(2f); break;
+            case "startLengthLimit": config.setStartLengthLimit(4f); break;
+            case "endVelocitySensitivity": config.setEndVelocitySensitivity(0.5f); break;
+            case "endThinningRate": config.setEndThinningRate(0.5f); break;
+            case "ignorePressure": config.setIgnorePressure(0.5f); break;
             default: throw new IllegalArgumentException(field);
         }
+        return config;
     }
 
     @Test
@@ -354,9 +363,11 @@ public final class NotableNeoPenNativeDeviceTest {
                 "External Notable reference was not supplied or could not load: " + loadFailure,
                 available);
         StringBuilder output = new StringBuilder();
-        for (int penType = 1; penType <= 9; penType++) {
+        for (int penType = 1; penType <= PenConfig.NEOPEN_PEN_TYPE_BRUSH_SIGN; penType++) {
             for (boolean fastMode : new boolean[]{false, true}) {
-                PenConfig config = new PenConfig().setType(penType).setFastMode(fastMode);
+                PenConfig config = new PenConfig();
+                config.setType(penType);
+                config.setFastMode(fastMode);
                 long handle = NeoPenNative.INSTANCE.createPen(penType, config);
                 output.append("type=").append(penType).append(",fast=").append(fastMode)
                         .append(",handle=").append(handle == 0 ? 0 : 1).append('\n');
@@ -405,9 +416,10 @@ public final class NotableNeoPenNativeDeviceTest {
             }
         }
 
+        PenConfig rawPressureConfig = notableConfig(6, false);
+        rawPressureConfig.setMaxTouchPressure(4096f);
         appendCase(output, "recovered_fixture_raw_pressure", 6,
-                notableConfig(6, false).setMaxTouchPressure(4096f),
-                recoveredFixtureTrace(false), true);
+                rawPressureConfig, recoveredFixtureTrace(false), true);
         appendCase(output, "recovered_fixture_normalized_pressure", 6,
                 notableConfig(6, false), recoveredFixtureTrace(true), true);
         appendCase(output, "notable_issue_8_quick_writing", 6,
@@ -469,7 +481,10 @@ public final class NotableNeoPenNativeDeviceTest {
                 Color.TRANSPARENT, 0x80ffffff, 0xff336699
         }, 0, 3, 0, 0, 3, 2);
         String before = bitmapSnapshot(bitmap, true);
-        boolean result = NeoPenNative.INSTANCE.setBitmapColor(bitmap);
+        Method bitmapColor = NeoPenNative.class.getDeclaredMethod(
+                "nativeSetBitmapColor", Bitmap.class);
+        bitmapColor.setAccessible(true);
+        boolean result = (boolean) bitmapColor.invoke(NeoPenNative.INSTANCE, bitmap);
         String after = bitmapSnapshot(bitmap, true);
         output.append("{\"case\":\"setBitmapColor\",\"result\":").append(result)
                 .append(",\"before\":").append(before)
@@ -480,6 +495,39 @@ public final class NotableNeoPenNativeDeviceTest {
                 "libneopen-jni-utility.jsonl");
         try (FileOutputStream stream = new FileOutputStream(snapshot)) {
             stream.write(output.toString().getBytes(StandardCharsets.UTF_8));
+        }
+    }
+
+    @Test
+    public void modernRuntimeSupportsEveryNotablePenType() {
+        Assume.assumeTrue(
+                "Modern native library was not supplied or could not load: " + loadFailure,
+                available);
+        long logger = NeoPenNative.INSTANCE.createLogger();
+        assertNotEquals(0L, logger);
+        NeoPenNative.INSTANCE.registerLogger(logger);
+
+        Trace trace = quickWritingTrace();
+        for (int penType = 1; penType <= PenConfig.NEOPEN_PEN_TYPE_BRUSH_SIGN; penType++) {
+            long handle = NeoPenNative.INSTANCE.createPen(penType, notableConfig(penType, false));
+            assertNotEquals("pen type " + penType, 0L, handle);
+            try {
+                PenInkResult down = NeoPenNative.INSTANCE.onPenDown(
+                        handle, trace.down, false);
+                PenInkResult move = NeoPenNative.INSTANCE.onPenMove(
+                        handle, trace.move, trace.prediction, false);
+                PenInkResult up = NeoPenNative.INSTANCE.onPenUp(
+                        handle, trace.up, false);
+                assertNotNull("down result for type " + penType, down);
+                assertNotNull("move result for type " + penType, move);
+                assertNotNull("up result for type " + penType, up);
+                int recordCount = down.getRealInk().getPointSizeArray().length
+                        + move.getRealInk().getPointSizeArray().length
+                        + up.getRealInk().getPointSizeArray().length;
+                assertTrue("pen type " + penType + " emitted no records", recordCount > 0);
+            } finally {
+                NeoPenNative.INSTANCE.destroyPen(handle);
+            }
         }
     }
 }

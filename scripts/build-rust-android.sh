@@ -65,7 +65,11 @@ build_one() {
   mkdir -p "$OUTPUT_ROOT/$abi"
   cp "$NATIVE_ROOT/target/$target/release/libonyx_pen_touch_reader$SHARED_LIBRARY_SUFFIX" \
     "$OUTPUT_ROOT/$abi/libonyx_pen_touch_reader$SHARED_LIBRARY_SUFFIX"
-  cp "$NATIVE_ROOT/target/$target/release/libneo_pen$SHARED_LIBRARY_SUFFIX" \
+  cp "$NATIVE_ROOT/target/$target/release/libneopen_jni$SHARED_LIBRARY_SUFFIX" \
+    "$OUTPUT_ROOT/$abi/libneopen_jni$SHARED_LIBRARY_SUFFIX"
+  # The single modern binary exports both JNI namespaces. Keep the historical soname as an
+  # application-compatibility alias for external penbrush AARs that still load "neo_pen".
+  cp "$NATIVE_ROOT/target/$target/release/libneopen_jni$SHARED_LIBRARY_SUFFIX" \
     "$OUTPUT_ROOT/$abi/libneo_pen$SHARED_LIBRARY_SUFFIX"
 }
 
@@ -74,4 +78,4 @@ build_one aarch64-linux-android arm64-v8a
 build_one i686-linux-android x86
 build_one x86_64-linux-android x86_64
 
-echo "Recovered Rust pen libraries are in $OUTPUT_ROOT"
+echo "Modern Rust pen libraries and legacy compatibility aliases are in $OUTPUT_ROOT"

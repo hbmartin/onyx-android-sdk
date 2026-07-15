@@ -1,9 +1,8 @@
 @file:Suppress(
-    // Legacy renderer objects are deliberately type-erased at the bytecode boundary so KTX
-    // never exports their descriptors. Casts are confined to this adapter and state is locked.
+    // Renderer lifecycle and native record decoding are intentionally stateful and iterative.
     "AvoidVarsExceptWithDelegate",
-    "DontForceCast",
     "MagicNumber",
+    "NestedBlockDepth",
     "NoCallbacksInFunctions",
     "NoVarsInConstructor",
     "TooGenericExceptionCaught",
@@ -11,36 +10,68 @@
 
 package com.onyx.android.sdk.ktx.render
 
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.RectF
-import com.onyx.android.sdk.base.data.TouchPoint
 import com.onyx.android.sdk.ktx.diagnostics.FirmwareBackendKind
 import com.onyx.android.sdk.ktx.diagnostics.FirmwareDiagnosticPhase
 import com.onyx.android.sdk.ktx.diagnostics.FirmwareDiagnosticStatus
 import com.onyx.android.sdk.ktx.diagnostics.OnyxDiagnostics
 import com.onyx.android.sdk.ktx.model.BrushConfiguration
+import com.onyx.android.sdk.ktx.model.BrushShape
 import com.onyx.android.sdk.ktx.model.ExperimentalOnyxRendererApi
 import com.onyx.android.sdk.ktx.model.InkPoint
 import com.onyx.android.sdk.ktx.model.OnyxFailure
 import com.onyx.android.sdk.ktx.model.PenKind
-import com.onyx.android.sdk.pen.NeoBallpointInkPen
-import com.onyx.android.sdk.pen.NeoBrushPen
-import com.onyx.android.sdk.pen.NeoCharcoalPen
-import com.onyx.android.sdk.pen.NeoCharcoalPenV2
-import com.onyx.android.sdk.pen.NeoFountainPen
-import com.onyx.android.sdk.pen.NeoFountainPenV2
-import com.onyx.android.sdk.pen.NeoMarkerPen
-import com.onyx.android.sdk.pen.NeoPen
-import com.onyx.android.sdk.pen.NeoPenConfig
-import com.onyx.android.sdk.pen.NeoPencilPen
-import com.onyx.android.sdk.pen.NeoSquarePen
-import com.onyx.android.sdk.pen.PenResult
+import com.onyx.android.sdk.pennative.NeoPenNative
+import com.onyx.android.sdk.pennative.PenConfig
+import com.onyx.android.sdk.pennative.PenInk
+import com.onyx.android.sdk.pennative.PenInkResult
 import java.io.Closeable
+import kotlin.math.max
 
-/** Immutable render output. The legacy pen implementation remains private to KTX. */
+private sealed interface NativeDrawCommand {
+    val bounds: RectF
+    fun draw(canvas: Canvas, paint: Paint)
+}
+
+private class NativePathCommand(
+    private val path: Path,
+    override val bounds: RectF,
+) : NativeDrawCommand {
+    override fun draw(canvas: Canvas, paint: Paint) = canvas.drawPath(path, paint)
+}
+
+private class NativePointCommand(
+    private val x: Float,
+    private val y: Float,
+    private val radius: Float,
+    private val alpha: Int? = null,
+) : NativeDrawCommand {
+    override val bounds = RectF(x - radius, y - radius, x + radius, y + radius)
+
+    override fun draw(canvas: Canvas, paint: Paint) {
+        val drawingPaint = Paint(paint)
+        alpha?.let { drawingPaint.alpha = it }
+        canvas.drawCircle(x, y, radius, drawingPaint)
+    }
+}
+
+private class NativeBitmapCommand(
+    private val bitmap: Bitmap,
+    private val x: Float,
+    private val y: Float,
+) : NativeDrawCommand {
+    override val bounds = RectF(x, y, x + bitmap.width, y + bitmap.height)
+
+    override fun draw(canvas: Canvas, paint: Paint) = canvas.drawBitmap(bitmap, x, y, paint)
+}
+
+/** Immutable render output backed only by the modern pennative result format. */
 class RenderLayer internal constructor(
-    private val nativeResults: List<Any>,
+    private val drawCommands: List<(Canvas, Paint) -> Unit>,
     bounds: RectF,
     paint: Paint,
 ) {
@@ -51,8 +82,7 @@ class RenderLayer internal constructor(
         get() = RectF(immutableBounds)
 
     fun draw(canvas: Canvas) {
-        val drawingPaint = Paint(immutablePaint)
-        nativeResults.forEach { (it as PenResult).draw(canvas, drawingPaint) }
+        drawCommands.forEach { it(canvas, immutablePaint) }
     }
 }
 
@@ -74,15 +104,13 @@ class RenderFrame internal constructor(
 }
 
 /**
- * Deterministically owned native renderer with one checked state machine for both live and
- * offline rendering. Input is copied and pressure is always passed to native code normalized.
+ * Deterministically owned renderer backed exclusively by `libneopen_jni.so` and the
+ * `com.onyx.android.sdk.pennative` JNI contract.
  */
 class InkRenderer private constructor(
     private val kind: PenKind,
     private val configuration: BrushConfiguration,
-    // Erased so Kotlin's synthetic private-constructor and helper bridges do not publish a
-    // legacy SDK descriptor from the KTX bytecode surface.
-    private var nativePen: Any,
+    private var nativeHandle: Long,
 ) : Closeable {
     private sealed interface State {
         data object Idle : State
@@ -96,9 +124,11 @@ class InkRenderer private constructor(
     fun begin(point: InkPoint): Result<RenderFrame> = rendererResult("renderer.begin") {
         synchronized(lock) {
             requireState(State.Idle, "begin")
-            val frame = (nativePen as NeoPen)
-                .onPenDown(point.toNativePoint() as TouchPoint, false)
-                .toFrame(configuration)
+            val frame = NeoPenNative.onPenDown(
+                nativeHandle,
+                point.toNativePoint(),
+                false,
+            ).toFrame(configuration)
             state = State.Drawing
             frame
         }
@@ -111,12 +141,11 @@ class InkRenderer private constructor(
         require(points.isNotEmpty()) { "points must not be empty" }
         synchronized(lock) {
             requireState(State.Drawing, "append")
-            val chunks = points.chunked(NATIVE_POINT_CHUNK)
-            chunks.mapIndexed { index, chunk ->
-                (nativePen as NeoPen).onPenMove(
-                    chunk.map { it.toNativePoint() as TouchPoint },
-                    prediction?.takeIf { index == chunks.lastIndex }
-                        ?.toNativePoint() as? TouchPoint,
+            points.chunked(NATIVE_POINT_CHUNK).mapIndexed { index, chunk ->
+                NeoPenNative.onPenMove(
+                    nativeHandle,
+                    chunk.toNativePoints(),
+                    prediction?.takeIf { index == points.lastChunkIndex() }?.toNativePoint(),
                     false,
                 )
             }.toFrame(configuration)
@@ -126,38 +155,39 @@ class InkRenderer private constructor(
     fun end(point: InkPoint): Result<RenderFrame> = rendererResult("renderer.end") {
         synchronized(lock) {
             requireState(State.Drawing, "end")
-            val frame = (nativePen as NeoPen)
-                .onPenUp(point.toNativePoint() as TouchPoint, false)
-                .toFrame(configuration)
+            val frame = NeoPenNative.onPenUp(
+                nativeHandle,
+                point.toNativePoint(),
+                false,
+            ).toFrame(configuration)
             state = State.Idle
             frame
         }
     }
 
-    /** Runs the same down/move/up sequence on an isolated native handle. */
+    /** Runs the same down/move/up sequence on an isolated modern native handle. */
     fun render(points: List<InkPoint>): Result<RenderFrame> = rendererResult("renderer.render") {
         require(points.isNotEmpty()) { "points must not be empty" }
         synchronized(lock) {
             requireState(State.Idle, "render")
-            val offline = checkNotNull(createNativePen(kind, configuration) as? NeoPen) {
-                "Native renderer creation returned null"
-            }
+            val offline = createNativeHandle(kind, configuration)
             try {
-                val outputs = ArrayList<Pair<PenResult?, PenResult?>>(3)
-                outputs += offline.onPenDown(points.first().toNativePoint() as TouchPoint, false)
+                val outputs = ArrayList<PenInkResult?>(3)
+                outputs += NeoPenNative.onPenDown(offline, points.first().toNativePoint(), false)
                 if (points.size > 2) {
                     points.subList(1, points.lastIndex).chunked(NATIVE_POINT_CHUNK).forEach { chunk ->
-                        outputs += offline.onPenMove(
-                            chunk.map { it.toNativePoint() as TouchPoint },
+                        outputs += NeoPenNative.onPenMove(
+                            offline,
+                            chunk.toNativePoints(),
                             null,
                             false,
                         )
                     }
                 }
-                outputs += offline.onPenUp(points.last().toNativePoint() as TouchPoint, false)
+                outputs += NeoPenNative.onPenUp(offline, points.last().toNativePoint(), false)
                 outputs.toFrame(configuration)
             } finally {
-                offline.destroy()
+                NeoPenNative.destroyPen(offline)
             }
         }
     }
@@ -165,7 +195,8 @@ class InkRenderer private constructor(
     override fun close() {
         synchronized(lock) {
             if (state == State.Closed) return
-            (nativePen as NeoPen).destroy()
+            NeoPenNative.destroyPen(nativeHandle)
+            nativeHandle = 0
             state = State.Closed
         }
     }
@@ -181,10 +212,24 @@ class InkRenderer private constructor(
             kind: PenKind,
             configuration: BrushConfiguration = BrushConfiguration(),
         ): Result<InkRenderer> = rendererResult("renderer.create") {
-            val pen = checkNotNull(createNativePen(kind, configuration)) {
-                "Native renderer creation returned null for $kind"
-            }
-            InkRenderer(kind, configuration, pen)
+            ModernNativeRuntime.ensureLoggerRegistered()
+            InkRenderer(kind, configuration, createNativeHandle(kind, configuration))
+        }
+    }
+}
+
+private object ModernNativeRuntime {
+    @Volatile
+    private var loggerRegistered = false
+
+    fun ensureLoggerRegistered() {
+        if (loggerRegistered) return
+        synchronized(this) {
+            if (loggerRegistered) return
+            val logger = NeoPenNative.createLogger()
+            check(logger != 0L) { "Native logger creation returned zero" }
+            NeoPenNative.registerLogger(logger)
+            loggerRegistered = true
         }
     }
 }
@@ -233,26 +278,33 @@ private inline fun <T> rendererResult(operation: String, block: () -> T): Result
     }
 }
 
-/** Return type is erased to keep this compiler-generated bridge out of the public descriptor. */
-private fun InkPoint.toNativePoint(): Any = TouchPoint(
-    xPx,
-    yPx,
-    normalizedPressure,
-    0f,
-    tiltX,
-    tiltY,
-    eventTimeNanos,
+private fun InkPoint.toNativePoint(): DoubleArray = doubleArrayOf(
+    xPx.toDouble(),
+    yPx.toDouble(),
+    normalizedPressure.toDouble(),
+    0.0,
+    tiltX.toDouble(),
+    tiltY.toDouble(),
+    eventTimeNanos.toDouble(),
 )
 
-private fun Pair<PenResult?, PenResult?>.toFrame(
+private fun List<InkPoint>.toNativePoints(): DoubleArray {
+    val output = DoubleArray(size * NATIVE_VALUES_PER_POINT)
+    forEachIndexed { index, point ->
+        point.toNativePoint().copyInto(output, index * NATIVE_VALUES_PER_POINT)
+    }
+    return output
+}
+
+private fun List<InkPoint>.lastChunkIndex(): Int = (size - 1) / 1_024
+
+private fun PenInkResult?.toFrame(
     configuration: BrushConfiguration,
 ): RenderFrame = listOf(this).toFrame(configuration)
 
-private fun List<Pair<PenResult?, PenResult?>>.toFrame(
+private fun List<PenInkResult?>.toFrame(
     configuration: BrushConfiguration,
 ): RenderFrame {
-    val committed = mapNotNull { it.first }
-    val prediction = lastOrNull { it.second != null }?.second
     val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = configuration.color
         style = Paint.Style.FILL_AND_STROKE
@@ -260,52 +312,138 @@ private fun List<Pair<PenResult?, PenResult?>>.toFrame(
         strokeJoin = Paint.Join.ROUND
         strokeWidth = configuration.widthPx
     }
+    val committed = mapNotNull { it?.realInk }.toLayer(paint)
+    val prediction = lastOrNull { it?.predictionInk?.isEmpty() == false }?.predictionInk
     return RenderFrame(
-        committed = committed.toLayer(paint),
+        committed = committed,
         predicted = listOfNotNull(prediction).toLayer(paint),
     )
 }
 
-private fun List<PenResult>.toLayer(paint: Paint): RenderLayer? {
-    if (isEmpty()) return null
-    val bounds = RectF(first().rect)
-    drop(1).forEach { bounds.union(it.rect) }
-    return RenderLayer(map { it as Any }, bounds, paint)
+private fun PenInk.isEmpty(): Boolean =
+    points.isEmpty() && pointSizeArray.isEmpty() && bitmaps.isEmpty()
+
+private fun List<PenInk>.toLayer(paint: Paint): RenderLayer? {
+    val commands = flatMap { it.toDrawCommands() }
+    if (commands.isEmpty()) return null
+    val bounds = RectF(commands.first().bounds)
+    commands.drop(1).forEach { bounds.union(it.bounds) }
+    return RenderLayer(
+        commands.map { command -> { canvas, drawingPaint -> command.draw(canvas, drawingPaint) } },
+        bounds,
+        paint,
+    )
+}
+
+private fun PenInk.toDrawCommands(): List<NativeDrawCommand> {
+    if (bitmaps.isNotEmpty()) {
+        return bitmaps.mapIndexedNotNull { index, bitmap ->
+            val offset = index * 2
+            if (offset + 1 >= points.size) null
+            else NativeBitmapCommand(bitmap, points[offset], points[offset + 1])
+        }
+    }
+
+    val commands = ArrayList<NativeDrawCommand>(pointSizeArray.size)
+    var offset = 0
+    pointSizeArray.forEach { recordSize ->
+        val end = offset + recordSize
+        if (recordSize <= 0 || end > points.size) return@forEach
+        when {
+            recordSize == 3 -> {
+                commands += NativePointCommand(
+                    points[offset],
+                    points[offset + 1],
+                    max(points[offset + 2] * 0.5f, 0.25f),
+                )
+            }
+            recordSize == 5 -> {
+                commands += NativePointCommand(
+                    points[offset],
+                    points[offset + 1],
+                    max(points[offset + 2] * 0.5f, 0.25f),
+                    (points[offset + 4].coerceIn(0f, 1f) * 255).toInt(),
+                )
+            }
+            recordSize >= 4 && recordSize % 2 == 0 -> {
+                val path = Path().apply {
+                    moveTo(points[offset], points[offset + 1])
+                    var pointOffset = offset + 2
+                    while (pointOffset + 1 < end) {
+                        lineTo(points[pointOffset], points[pointOffset + 1])
+                        pointOffset += 2
+                    }
+                    close()
+                }
+                val bounds = RectF()
+                path.computeBounds(bounds, true)
+                commands += NativePathCommand(path, bounds)
+            }
+        }
+        offset = end
+    }
+    return commands
 }
 
 @OptIn(ExperimentalOnyxRendererApi::class)
-private fun createNativePen(kind: PenKind, brush: BrushConfiguration): Any? {
-    val config = NeoPenConfig().apply {
+private fun createNativeHandle(kind: PenKind, brush: BrushConfiguration): Long {
+    val config = PenConfig().apply {
         type = kind.nativeType
+        fastMode = brush.fastMode
         color = brush.color
         width = brush.widthPx
-        maxTouchPressure = 1f
+        minWidth = brush.minWidthPx
+        rotateAngle = brush.rotateAngleDegrees
         tiltEnabled = brush.tiltEnabled
-        fastMode = brush.fastMode
+        tiltScale = brush.tiltScale
+        directionEnabled = brush.directionEnabled
+        maxTouchPressure = brush.maxTouchPressure
+        dpi = brush.dpi
+        displayScaleX = brush.displayScaleX
+        displayScaleY = brush.displayScaleY
+        scalePrecision = brush.scalePrecision
+        brushSpacing = brush.brushSpacing
+        brushShape = brush.brushShape.nativeType
+        brushRatio = brush.brushRatio
+        brushAngle = brush.brushAngleDegrees
+        pressureSensitivity = brush.pressureSensitivity
+        velocitySensitivity = brush.velocitySensitivity
+        velocityAmplifier = brush.velocityAmplifier
+        velocityIgnoreThreshold = brush.velocityIgnoreThreshold
+        velocityLowerBound = brush.velocityLowerBound
+        velocityUpperBound = brush.velocityUpperBound
+        smoothLevel = brush.smoothLevel
+        startPointLimit = brush.startPointLimit
+        startLengthLimit = brush.startLengthLimit
+        endVelocitySensitivity = brush.endVelocitySensitivity
+        endThinningRate = brush.endThinningRate
+        ignorePressure = brush.ignorePressure
     }
-    return when (kind) {
-        PenKind.BALLPOINT -> NeoBallpointInkPen.Companion.create(config)
-        PenKind.FOUNTAIN -> NeoFountainPen.Companion.create(config)
-        PenKind.FOUNTAIN_V2 -> NeoFountainPenV2.Companion.create(config)
-        PenKind.PENCIL -> NeoPencilPen.Companion.create(config)
-        PenKind.CHARCOAL -> NeoCharcoalPen.Companion.create(config)
-        PenKind.SQUARE -> NeoSquarePen.Companion.create(config)
-        PenKind.BRUSH -> NeoBrushPen.Companion.create(config)
-        PenKind.MARKER -> NeoMarkerPen.Companion.create(config)
-        PenKind.CHARCOAL_V2 -> NeoCharcoalPenV2.Companion.create(config)
+    return NeoPenNative.createPen(kind.nativeType, config).also { handle ->
+        check(handle != 0L) { "Modern native renderer creation returned zero for $kind" }
     }
 }
 
 @OptIn(ExperimentalOnyxRendererApi::class)
 private val PenKind.nativeType: Int
     get() = when (this) {
-        PenKind.BALLPOINT -> NeoPenConfig.NEOPEN_PEN_TYPE_BALLPOINT
-        PenKind.FOUNTAIN -> NeoPenConfig.NEOPEN_PEN_TYPE_FOUNTAIN
-        PenKind.FOUNTAIN_V2 -> NeoPenConfig.NEOPEN_PEN_TYPE_FOUNTAIN_V2
-        PenKind.PENCIL -> NeoPenConfig.NEOPEN_PEN_TYPE_PENCIL
-        PenKind.CHARCOAL -> NeoPenConfig.NEOPEN_PEN_TYPE_CHARCOAL
-        PenKind.SQUARE -> NeoPenConfig.NEOPEN_PEN_TYPE_SQUARE
-        PenKind.BRUSH -> NeoPenConfig.NEOPEN_PEN_TYPE_BRUSH
-        PenKind.MARKER -> NeoPenConfig.NEOPEN_PEN_TYPE_MARKER
-        PenKind.CHARCOAL_V2 -> NeoPenConfig.NEOPEN_PEN_TYPE_CHARCOAL_V2
+        PenKind.BRUSH -> PenConfig.NEOPEN_PEN_TYPE_BRUSH
+        PenKind.FOUNTAIN -> PenConfig.NEOPEN_PEN_TYPE_FOUNTAIN
+        PenKind.MARKER -> PenConfig.NEOPEN_PEN_TYPE_MARKER
+        PenKind.CHARCOAL -> PenConfig.NEOPEN_PEN_TYPE_CHARCOAL
+        PenKind.CHARCOAL_V2 -> PenConfig.NEOPEN_PEN_TYPE_CHARCOAL_V2
+        PenKind.FOUNTAIN_V2 -> PenConfig.NEOPEN_PEN_TYPE_FOUNTAIN_V2
+        PenKind.PENCIL -> PenConfig.NEOPEN_PEN_TYPE_PENCIL
+        PenKind.BALLPOINT -> PenConfig.NEOPEN_PEN_TYPE_BALLPOINT
+        PenKind.SQUARE -> PenConfig.NEOPEN_PEN_TYPE_SQUARE
+        PenKind.BRUSH_SIGN -> PenConfig.NEOPEN_PEN_TYPE_BRUSH_SIGN
     }
+
+private val BrushShape.nativeType: Int
+    get() = when (this) {
+        BrushShape.CIRCLE -> PenConfig.NEOPEN_BRUSH_SHAPE_CIRCLE
+        BrushShape.ELLIPSE -> PenConfig.NEOPEN_BRUSH_SHAPE_ELLIPSE
+        BrushShape.RECTANGLE -> PenConfig.NEOPEN_BRUSH_SHAPE_RECTANGLE
+    }
+
+private const val NATIVE_VALUES_PER_POINT = 7

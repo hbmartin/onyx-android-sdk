@@ -249,7 +249,8 @@
         "com.onyx.android.sdk.pen.multiview",
         "com.onyx.android.sdk.pen.style",
         "com.onyx.android.sdk.pen.touch",
-        "com.onyx.android.sdk.pen.utils"
+        "com.onyx.android.sdk.pen.utils",
+        "com.onyx.android.sdk.pennative"
       ],
       "legacyOwnedTypes": []
     },

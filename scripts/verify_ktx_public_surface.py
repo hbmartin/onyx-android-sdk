@@ -7,6 +7,7 @@ import json
 import re
 import sys
 import tempfile
+import zipfile
 from pathlib import Path
 
 from jvm_api_contracts import contract_for_jar, extract_classes
@@ -15,12 +16,28 @@ from module_registry import load_registry
 
 ROOT = Path(__file__).resolve().parent.parent
 FORBIDDEN = {
-    "legacy Onyx SDK": re.compile(r"com[./]onyx[./]android[./]sdk[./](?!ktx[./])"),
+    "legacy Onyx pen SDK": re.compile(r"com[./]onyx[./]android[./]sdk[./]pen[./]"),
     "EventBus": re.compile(r"org[./]greenrobot[./]eventbus[./]"),
     "RxJava": re.compile(r"(?:io[./]reactivex|rx)[./]"),
     "AndroidX Fragment": re.compile(r"androidx[./]fragment[./]"),
     "Android Data Binding": re.compile(r"androidx?[./]databinding[./]"),
 }
+
+LEGACY_RENDERER_BYTECODE = (
+    b"com/onyx/android/sdk/pen/NeoPenNative",
+    b"com/onyx/android/sdk/pen/NeoPenConfig",
+    b"com/onyx/android/sdk/pen/NeoPenResult",
+    b"com/onyx/android/sdk/pen/NeoNativePen",
+    b"com/onyx/android/sdk/pen/NeoBallpointInkPen",
+    b"com/onyx/android/sdk/pen/NeoBrushPen",
+    b"com/onyx/android/sdk/pen/NeoCharcoalPen",
+    b"com/onyx/android/sdk/pen/NeoCharcoalPenV2",
+    b"com/onyx/android/sdk/pen/NeoFountainPen",
+    b"com/onyx/android/sdk/pen/NeoFountainPenV2",
+    b"com/onyx/android/sdk/pen/NeoMarkerPen",
+    b"com/onyx/android/sdk/pen/NeoPencilPen",
+    b"com/onyx/android/sdk/pen/NeoSquarePen",
+)
 
 
 def main() -> int:
@@ -31,8 +48,22 @@ def main() -> int:
     with tempfile.TemporaryDirectory() as temporary:
         jar = extract_classes(aar, Path(temporary))
         contract = contract_for_jar(jar, module.artifact_id)
+        with zipfile.ZipFile(jar) as classes:
+            bytecode = b"".join(
+                classes.read(name) for name in classes.namelist() if name.endswith(".class")
+            )
 
     failures: list[str] = []
+    referenced_legacy_renderers = [
+        marker.decode("ascii") for marker in LEGACY_RENDERER_BYTECODE if marker in bytecode
+    ]
+    if referenced_legacy_renderers:
+        failures.append(
+            "KTX bytecode references legacy native renderer classes: "
+            + ", ".join(referenced_legacy_renderers)
+        )
+    if b"com/onyx/android/sdk/pennative/NeoPenNative" not in bytecode:
+        failures.append("KTX bytecode does not reference the modern pennative renderer")
     for class_name, class_payload in contract["classes"].items():
         values = {
             "class signature": class_payload.get("signature"),

@@ -10,7 +10,7 @@ plugins {
 
 val buildRustAndroid = tasks.register<Exec>("buildRustAndroid") {
     group = "build"
-    description = "Cross-compiles both recovered pen libraries for all four Android ABIs."
+    description = "Cross-compiles the modern renderer, legacy alias, and touch reader for all ABIs."
     val buildScript = rootProject.layout.projectDirectory.file("scripts/build-rust-android.sh")
     val sharedLibrarySuffix = ".so"
     inputs.files(

@@ -1,3 +1,8 @@
+@file:Suppress(
+    // Numeric bounds mirror the native renderer configuration contract.
+    "MagicNumber",
+)
+
 package com.onyx.android.sdk.ktx.model
 
 import android.graphics.Rect
@@ -30,6 +35,7 @@ enum class LeasePolicy { FAIL_FAST, WAIT }
 enum class RegionMode { MULTI_REGION, SINGLE_REGION }
 enum class InkTool { PEN, SIDE_ERASER, TAIL_ERASER }
 enum class StrokeStyle { PENCIL, FOUNTAIN, MARKER, BRUSH, CHARCOAL, DASH, CHARCOAL_V2, SQUARE }
+enum class BrushShape { CIRCLE, ELLIPSE, RECTANGLE }
 
 @RequiresOptIn(
     level = RequiresOptIn.Level.WARNING,
@@ -55,6 +61,9 @@ enum class PenKind {
 
     @ExperimentalOnyxRendererApi
     CHARCOAL_V2,
+
+    @ExperimentalOnyxRendererApi
+    BRUSH_SIGN,
 }
 
 data class BrushConfiguration(
@@ -63,9 +72,80 @@ data class BrushConfiguration(
     val widthPx: Float = 3f,
     val tiltEnabled: Boolean = true,
     val fastMode: Boolean = false,
+    val minWidthPx: Float = 0f,
+    val rotateAngleDegrees: Int = 0,
+    val tiltScale: Float = 0f,
+    val directionEnabled: Boolean = false,
+    val maxTouchPressure: Float = 1f,
+    val dpi: Float = 320f,
+    val displayScaleX: Float = 1f,
+    val displayScaleY: Float = 1f,
+    val scalePrecision: Float = 1f,
+    val brushSpacing: Float = 0.25f,
+    val brushShape: BrushShape = BrushShape.CIRCLE,
+    val brushRatio: Float = 5f,
+    val brushAngleDegrees: Float = 0f,
+    val pressureSensitivity: Float = 0f,
+    val velocitySensitivity: Float = 0f,
+    val velocityAmplifier: Float = 0f,
+    val velocityIgnoreThreshold: Float = 0f,
+    val velocityLowerBound: Float = 0f,
+    val velocityUpperBound: Float = 0f,
+    val smoothLevel: Float = 0.2f,
+    val startPointLimit: Float = 0f,
+    val startLengthLimit: Float = 0f,
+    val endVelocitySensitivity: Float = 0f,
+    val endThinningRate: Float = 0f,
+    val ignorePressure: Float = 0f,
 ) {
     init {
         require(widthPx.isFinite() && widthPx > 0f) { "widthPx must be finite and positive" }
+        require(minWidthPx.isFinite() && minWidthPx >= 0f) {
+            "minWidthPx must be finite and non-negative"
+        }
+        require(tiltScale.isFinite()) { "tiltScale must be finite" }
+        require(maxTouchPressure.isFinite() && maxTouchPressure > 0f) {
+            "maxTouchPressure must be finite and positive"
+        }
+        require(dpi.isFinite() && dpi > 0f) { "dpi must be finite and positive" }
+        require(displayScaleX.isFinite() && displayScaleX > 0f) {
+            "displayScaleX must be finite and positive"
+        }
+        require(displayScaleY.isFinite() && displayScaleY > 0f) {
+            "displayScaleY must be finite and positive"
+        }
+        require(scalePrecision.isFinite() && scalePrecision > 0f) {
+            "scalePrecision must be finite and positive"
+        }
+        require(brushSpacing in 0.1f..1f) { "brushSpacing must be in 0.1..1" }
+        require(brushRatio.isFinite() && brushRatio > 0f) {
+            "brushRatio must be finite and positive"
+        }
+        require(brushAngleDegrees.isFinite()) { "brushAngleDegrees must be finite" }
+        require(pressureSensitivity in 0f..1f) { "pressureSensitivity must be in 0..1" }
+        require(velocitySensitivity in 0f..1f) { "velocitySensitivity must be in 0..1" }
+        require(velocityAmplifier in 0f..1f) { "velocityAmplifier must be in 0..1" }
+        require(velocityIgnoreThreshold in 0f..50f) {
+            "velocityIgnoreThreshold must be in 0..50"
+        }
+        require(velocityLowerBound in 0f..50f) {
+            "velocityLowerBound must be in 0..50"
+        }
+        require(velocityUpperBound in 0f..50f) {
+            "velocityUpperBound must be in 0..50"
+        }
+        require(smoothLevel in 0f..1f) { "smoothLevel must be in 0..1" }
+        require(startPointLimit.isFinite() && startPointLimit >= 0f) {
+            "startPointLimit must be finite and non-negative"
+        }
+        require(startLengthLimit.isFinite() && startLengthLimit >= 0f) {
+            "startLengthLimit must be finite and non-negative"
+        }
+        require(endVelocitySensitivity in 0f..1f) {
+            "endVelocitySensitivity must be in 0..1"
+        }
+        require(endThinningRate in 0f..1f) { "endThinningRate must be in 0..1" }
+        require(ignorePressure in 0f..1f) { "ignorePressure must be in 0..1" }
     }
 }
 

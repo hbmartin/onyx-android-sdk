@@ -2,7 +2,7 @@
 name = "onyx-neo-pen"
 version = "1.5.4-recovered"
 edition = "2021"
-description = "Source-native Rust reconstruction of libneo_pen.so"
+description = "Modern Rust renderer shared by libneopen_jni.so and the libneo_pen.so compatibility facade"
 authors.workspace = true
 homepage.workspace = true
 license.workspace = true
@@ -10,7 +10,7 @@ repository.workspace = true
 publish = false
 
 [lib]
-name = "neo_pen"
+name = "neopen_jni"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]

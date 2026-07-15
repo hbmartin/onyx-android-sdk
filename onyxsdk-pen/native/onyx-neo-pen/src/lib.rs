@@ -49,6 +49,11 @@ struct PenConfig {
     velocity_lower_bound: f32,
     velocity_upper_bound: f32,
     smooth_level: f32,
+    start_point_limit: f32,
+    start_length_limit: f32,
+    end_velocity_sensitivity: f32,
+    end_thinning_rate: f32,
+    ignore_pressure: f32,
     tilt_enabled: bool,
     tilt_scale: f32,
     direction_enabled: bool,
@@ -78,6 +83,11 @@ impl Default for PenConfig {
             velocity_lower_bound: 0.0,
             velocity_upper_bound: 0.0,
             smooth_level: 0.2,
+            start_point_limit: 0.0,
+            start_length_limit: 0.0,
+            end_velocity_sensitivity: 0.0,
+            end_thinning_rate: 0.0,
+            ignore_pressure: 0.0,
             tilt_enabled: false,
             tilt_scale: 3.0,
             direction_enabled: false,
@@ -115,6 +125,19 @@ impl PenConfig {
         )
         .clamp(0.0, self.velocity_lower_bound);
         self.smooth_level = finite_or(self.smooth_level, defaults.smooth_level).clamp(0.0, 1.0);
+        self.start_point_limit =
+            finite_or(self.start_point_limit, defaults.start_point_limit).max(0.0);
+        self.start_length_limit =
+            finite_or(self.start_length_limit, defaults.start_length_limit).max(0.0);
+        self.end_velocity_sensitivity = finite_or(
+            self.end_velocity_sensitivity,
+            defaults.end_velocity_sensitivity,
+        )
+        .clamp(0.0, 1.0);
+        self.end_thinning_rate =
+            finite_or(self.end_thinning_rate, defaults.end_thinning_rate).clamp(0.0, 1.0);
+        self.ignore_pressure =
+            finite_or(self.ignore_pressure, defaults.ignore_pressure).clamp(0.0, 1.0);
         self.tilt_scale = finite_or(self.tilt_scale, defaults.tilt_scale);
         self
     }
@@ -663,6 +686,111 @@ impl PenState {
         ink
     }
 
+    fn brush_sign_width(&self, previous: Option<Touch>, point: Touch) -> f32 {
+        let min_width = self.config.min_width.max(0.001);
+        let pressure = if point.pressure <= self.config.ignore_pressure {
+            0.5
+        } else {
+            point.pressure
+        };
+        let pressure_curve = pressure
+            .clamp(0.0, 1.0)
+            .powf(1.5 - self.config.pressure_sensitivity.clamp(0.0, 1.0));
+        let mut width = min_width + (self.config.width.max(min_width) - min_width) * pressure_curve;
+        if let Some(start) = previous {
+            let velocity = Self::segment_velocity(start, point);
+            let velocity_factor = self.normalized_velocity(velocity);
+            width *= 1.0 - velocity_factor * self.config.velocity_sensitivity.clamp(0.0, 1.0) * 0.5;
+            width *= 1.0 + velocity_factor * self.config.velocity_amplifier.clamp(0.0, 1.0) * 0.35;
+        }
+        if self.config.tilt_enabled {
+            let tilt = (point.tilt_x.powi(2) + point.tilt_y.powi(2)).sqrt() / 90.0;
+            width *= 1.0 + tilt.clamp(0.0, 1.0) * self.config.tilt_scale.clamp(0.0, 10.0) * 0.05;
+        }
+        width.clamp(min_width, self.config.width.max(min_width) * 2.0)
+    }
+
+    fn push_brush_sign_segment(
+        ink: &mut InkData,
+        start: Touch,
+        end: Touch,
+        start_width: f32,
+        end_width: f32,
+    ) {
+        let dx = end.x - start.x;
+        let dy = end.y - start.y;
+        let length = (dx * dx + dy * dy).sqrt();
+        if length <= f32::EPSILON || ink.points.len().saturating_add(8) > MAX_OUTPUT_FLOAT_VALUES {
+            return;
+        }
+        let nx = -dy / length;
+        let ny = dx / length;
+        let start_half = start_width.max(0.001) * 0.5;
+        let end_half = end_width.max(0.001) * 0.5;
+        ink.points.extend_from_slice(&[
+            start.x + nx * start_half,
+            start.y + ny * start_half,
+            end.x + nx * end_half,
+            end.y + ny * end_half,
+            end.x - nx * end_half,
+            end.y - ny * end_half,
+            start.x - nx * start_half,
+            start.y - ny * start_half,
+        ]);
+        ink.point_sizes.push(8);
+    }
+
+    fn brush_sign_segments(&self, points: &[Touch], finish: bool) -> InkData {
+        let mut ink = InkData::default();
+        if points.len() < 2 {
+            return ink;
+        }
+        let point_limit = self.config.start_point_limit.max(0.0).round() as usize;
+        if points.len() <= point_limit {
+            return ink;
+        }
+        let first = points[0];
+        let mut traveled = 0.0f32;
+        for (index, pair) in points.windows(2).enumerate() {
+            let start = pair[0];
+            let end = pair[1];
+            let distance = ((end.x - start.x).powi(2) + (end.y - start.y).powi(2)).sqrt();
+            traveled += distance;
+            if traveled < self.config.start_length_limit {
+                continue;
+            }
+            let mut start_width = self.brush_sign_width(
+                if index == 0 {
+                    None
+                } else {
+                    Some(points[index - 1])
+                },
+                start,
+            );
+            let mut end_width = self.brush_sign_width(Some(start), end);
+            if finish && index + 2 == points.len() {
+                let velocity = Self::segment_velocity(start, end);
+                let velocity_thinning = (velocity / (velocity + 1.0))
+                    * self.config.end_velocity_sensitivity.clamp(0.0, 1.0);
+                let thinning = self.config.end_thinning_rate.max(velocity_thinning);
+                end_width *= 1.0 - thinning.clamp(0.0, 1.0);
+                start_width = start_width.max(end_width);
+            }
+            Self::push_brush_sign_segment(&mut ink, start, end, start_width, end_width);
+        }
+        if ink.point_sizes.is_empty() && first != *points.last().unwrap_or(&first) {
+            let end = *points.last().unwrap_or(&first);
+            Self::push_brush_sign_segment(
+                &mut ink,
+                first,
+                end,
+                self.brush_sign_width(None, first),
+                self.brush_sign_width(Some(first), end),
+            );
+        }
+        ink
+    }
+
     fn process(
         &mut self,
         input: &[Touch],
@@ -699,6 +827,8 @@ impl PenState {
                     }
                     2 => Self::push_point(&mut real, point, self.fountain_width(point)),
                     3 => Self::push_point(&mut real, point, self.marker_width(point)),
+                    // NeoBrushSignPen deliberately buffers its first point until move/up.
+                    10 => {}
                     _ => {}
                 }
             }
@@ -783,6 +913,16 @@ impl PenState {
                             predicted = self.pencil_ink(&points, 33);
                         }
                     }
+                    10 => {
+                        let mut points = previous_history;
+                        points.extend(transformed.iter().copied());
+                        real = self.brush_sign_segments(&points, false);
+                        if let Some(point) = prediction.map(|point| self.transform(point)) {
+                            let mut predicted_points = points;
+                            predicted_points.push(point);
+                            predicted = self.brush_sign_segments(&predicted_points, false);
+                        }
+                    }
                     _ => {}
                 }
             }
@@ -862,6 +1002,11 @@ impl PenState {
                         points.push(end);
                         real = self.pencil_ink(&points, 31);
                     }
+                    10 => {
+                        let mut points = self.history.clone();
+                        points.push(end);
+                        real = self.brush_sign_segments(&points, true);
+                    }
                     _ => {}
                 }
                 self.history.push(end);
@@ -874,6 +1019,8 @@ impl PenState {
 
 struct Runtime {
     next_handle: AtomicI64,
+    next_logger: AtomicI64,
+    registered_logger: AtomicI64,
     pens: Mutex<HashMap<i64, PenState>>,
     log_level: AtomicI32,
     legacy_handle: Mutex<Option<i64>>,
@@ -884,6 +1031,8 @@ fn runtime() -> &'static Runtime {
     static RUNTIME: OnceLock<Runtime> = OnceLock::new();
     RUNTIME.get_or_init(|| Runtime {
         next_handle: AtomicI64::new(1),
+        next_logger: AtomicI64::new(1),
+        registered_logger: AtomicI64::new(0),
         pens: Mutex::new(HashMap::new()),
         log_level: AtomicI32::new(0),
         legacy_handle: Mutex::new(None),
@@ -909,11 +1058,14 @@ fn get_bool(env: &mut Env, object: &JObject, name: &str, default: bool) -> bool 
         .unwrap_or(default)
 }
 
-fn read_config(env: &mut Env, object: &JObject) -> PenConfig {
+fn read_config(env: &mut Env, object: &JObject, modern: bool) -> PenConfig {
     let defaults = PenConfig::default();
     PenConfig {
-        renderer_version: get_int(env, object, "rendererVersion", defaults.renderer_version)
-            .clamp(1, 2),
+        renderer_version: if modern {
+            2
+        } else {
+            get_int(env, object, "rendererVersion", defaults.renderer_version).clamp(1, 2)
+        },
         color: get_int(env, object, "color", defaults.color),
         width: get_float(env, object, "width", defaults.width),
         min_width: get_float(env, object, "minWidth", defaults.min_width),
@@ -963,6 +1115,36 @@ fn read_config(env: &mut Env, object: &JObject) -> PenConfig {
             defaults.velocity_upper_bound,
         ),
         smooth_level: get_float(env, object, "smoothLevel", defaults.smooth_level),
+        start_point_limit: if modern {
+            get_float(env, object, "startPointLimit", defaults.start_point_limit)
+        } else {
+            defaults.start_point_limit
+        },
+        start_length_limit: if modern {
+            get_float(env, object, "startLengthLimit", defaults.start_length_limit)
+        } else {
+            defaults.start_length_limit
+        },
+        end_velocity_sensitivity: if modern {
+            get_float(
+                env,
+                object,
+                "endVelocitySensitivity",
+                defaults.end_velocity_sensitivity,
+            )
+        } else {
+            defaults.end_velocity_sensitivity
+        },
+        end_thinning_rate: if modern {
+            get_float(env, object, "endThinningRate", defaults.end_thinning_rate)
+        } else {
+            defaults.end_thinning_rate
+        },
+        ignore_pressure: if modern {
+            get_float(env, object, "ignorePressure", defaults.ignore_pressure)
+        } else {
+            defaults.ignore_pressure
+        },
         tilt_enabled: get_bool(env, object, "tiltEnabled", defaults.tilt_enabled),
         tilt_scale: get_float(env, object, "tiltScale", defaults.tilt_scale),
         direction_enabled: get_bool(env, object, "directionEnabled", defaults.direction_enabled),
@@ -1079,10 +1261,17 @@ fn create_bitmap<'local>(
     Ok(bitmap)
 }
 
+#[derive(Clone, Copy)]
+enum JavaResultApi {
+    Legacy,
+    Modern,
+}
+
 fn build_pen_ink<'local>(
     env: &mut Env<'local>,
     ink: &InkData,
     color: i32,
+    api: JavaResultApi,
 ) -> jni::errors::Result<JObject<'local>> {
     let points: JFloatArray = env.new_float_array(ink.points.len())?;
     points.set_region(env, 0, &ink.points)?;
@@ -1101,8 +1290,12 @@ fn build_pen_ink<'local>(
     let points_object = JObject::from(points);
     let sizes_object = JObject::from(sizes);
     let bitmaps_object = JObject::from(bitmaps);
+    let class_name = match api {
+        JavaResultApi::Legacy => jni_str!("com/onyx/android/sdk/pen/PenInk"),
+        JavaResultApi::Modern => jni_str!("com/onyx/android/sdk/pennative/PenInk"),
+    };
     env.new_object(
-        jni_str!("com/onyx/android/sdk/pen/PenInk"),
+        class_name,
         jni_sig!("([F[I[Landroid/graphics/Bitmap;)V"),
         &[
             JValue::Object(&points_object),
@@ -1117,17 +1310,30 @@ fn build_result<'local>(
     real: &InkData,
     prediction: &InkData,
     color: i32,
+    api: JavaResultApi,
 ) -> jni::errors::Result<JObject<'local>> {
-    let real_object = build_pen_ink(env, real, color)?;
-    let prediction_object = build_pen_ink(env, prediction, color)?;
-    env.new_object(
-        jni_str!("com/onyx/android/sdk/pen/NeoPenResult"),
-        jni_sig!("(Lcom/onyx/android/sdk/pen/PenInk;Lcom/onyx/android/sdk/pen/PenInk;)V"),
-        &[
-            JValue::Object(&real_object),
-            JValue::Object(&prediction_object),
-        ],
-    )
+    let real_object = build_pen_ink(env, real, color, api)?;
+    let prediction_object = build_pen_ink(env, prediction, color, api)?;
+    match api {
+        JavaResultApi::Legacy => env.new_object(
+            jni_str!("com/onyx/android/sdk/pen/NeoPenResult"),
+            jni_sig!("(Lcom/onyx/android/sdk/pen/PenInk;Lcom/onyx/android/sdk/pen/PenInk;)V"),
+            &[
+                JValue::Object(&real_object),
+                JValue::Object(&prediction_object),
+            ],
+        ),
+        JavaResultApi::Modern => env.new_object(
+            jni_str!("com/onyx/android/sdk/pennative/PenInkResult"),
+            jni_sig!(
+                "(Lcom/onyx/android/sdk/pennative/PenInk;Lcom/onyx/android/sdk/pennative/PenInk;)V"
+            ),
+            &[
+                JValue::Object(&real_object),
+                JValue::Object(&prediction_object),
+            ],
+        ),
+    }
 }
 
 fn process_handle(
@@ -1153,6 +1359,20 @@ fn throw_native_failure(env: &mut Env, message: &str) {
     );
 }
 
+fn throw_api_failure(env: &mut Env, api: JavaResultApi, message: &str) {
+    match api {
+        JavaResultApi::Legacy => throw_native_failure(env, message),
+        JavaResultApi::Modern => {
+            let class = if message.starts_with("[INVALID_ARGUMENT]") {
+                jni_str!("java/lang/IllegalArgumentException")
+            } else {
+                jni_str!("java/lang/IllegalStateException")
+            };
+            let _ = env.throw_new(class, JNIString::new(message));
+        }
+    }
+}
+
 fn panic_message(payload: Box<dyn Any + Send>) -> String {
     if let Some(message) = payload.downcast_ref::<&str>() {
         (*message).to_owned()
@@ -1173,6 +1393,24 @@ fn jni_boundary<'local, T: Default>(
             let message = format!("[PANIC] {}", panic_message(payload));
             env.with_env(|owned| -> jni::errors::Result<()> {
                 throw_native_failure(owned, &message);
+                Ok(())
+            })
+            .resolve::<jni::errors::LogErrorAndDefault>();
+            T::default()
+        }
+    }
+}
+
+fn modern_jni_boundary<'local, T: Default>(
+    env: &mut EnvUnowned<'local>,
+    operation: impl FnOnce(&mut EnvUnowned<'local>) -> T,
+) -> T {
+    match catch_unwind(AssertUnwindSafe(|| operation(env))) {
+        Ok(value) => value,
+        Err(payload) => {
+            let message = format!("[PANIC] {}", panic_message(payload));
+            env.with_env(|owned| -> jni::errors::Result<()> {
+                throw_api_failure(owned, JavaResultApi::Modern, &message);
                 Ok(())
             })
             .resolve::<jni::errors::LogErrorAndDefault>();
@@ -1212,7 +1450,7 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenNative_nativeCreatePe
         unowned_env
             .with_env(|env| -> jni::errors::Result<jlong> {
                 let handle = runtime().next_handle.fetch_add(1, Ordering::Relaxed);
-                let state = PenState::new(pen_type, read_config(env, &config));
+                let state = PenState::new(pen_type, read_config(env, &config, false));
                 Ok(match runtime().pens.lock() {
                     Ok(mut pens) => {
                         pens.insert(handle, state);
@@ -1259,11 +1497,12 @@ fn render_call(
     points: JDoubleArray,
     prediction: Option<JDoubleArray>,
     phase: Phase,
+    api: JavaResultApi,
 ) -> jobject {
     let touches = match read_touches(env, points) {
         Ok(touches) => touches,
         Err(message) => {
-            throw_native_failure(env, message);
+            throw_api_failure(env, api, message);
             return JObject::null().into_raw();
         }
     };
@@ -1274,7 +1513,7 @@ fn render_call(
         Some(array) => match read_touches(env, array) {
             Ok(touches) => touches.into_iter().next(),
             Err(message) => {
-                throw_native_failure(env, message);
+                throw_api_failure(env, api, message);
                 return JObject::null().into_raw();
             }
         },
@@ -1285,17 +1524,19 @@ fn render_call(
         return JObject::null().into_raw();
     };
     if real.overflowed || predicted.overflowed {
-        throw_native_failure(
+        throw_api_failure(
             env,
+            api,
             "[ALLOCATION_LIMIT] Renderer output exceeds the per-call safety limit",
         );
         return JObject::null().into_raw();
     }
-    match build_result(env, &real, &predicted, color) {
+    match build_result(env, &real, &predicted, color, api) {
         Ok(result) => result.into_raw(),
         Err(error) => {
-            throw_native_failure(
+            throw_api_failure(
                 env,
+                api,
                 &format!("[JNI_FAILURE] Failed to create pen result: {error}"),
             );
             JObject::null().into_raw()
@@ -1314,7 +1555,14 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenNative_nativeOnPenDow
     jni_boundary(&mut unowned_env, |unowned_env| {
         unowned_env
             .with_env(|env| -> jni::errors::Result<jobject> {
-                Ok(render_call(env, handle, points, None, Phase::Down))
+                Ok(render_call(
+                    env,
+                    handle,
+                    points,
+                    None,
+                    Phase::Down,
+                    JavaResultApi::Legacy,
+                ))
             })
             .resolve::<jni::errors::LogErrorAndDefault>()
     })
@@ -1333,7 +1581,14 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenNative_nativeOnPenMov
     jni_boundary(&mut unowned_env, |unowned_env| {
         unowned_env
             .with_env(|env| -> jni::errors::Result<jobject> {
-                Ok(render_call(env, handle, points, prediction, Phase::Move))
+                Ok(render_call(
+                    env,
+                    handle,
+                    points,
+                    prediction,
+                    Phase::Move,
+                    JavaResultApi::Legacy,
+                ))
             })
             .resolve::<jni::errors::LogErrorAndDefault>()
     })
@@ -1350,7 +1605,14 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenNative_nativeOnPenUp<
     jni_boundary(&mut unowned_env, |unowned_env| {
         unowned_env
             .with_env(|env| -> jni::errors::Result<jobject> {
-                Ok(render_call(env, handle, points, None, Phase::Up))
+                Ok(render_call(
+                    env,
+                    handle,
+                    points,
+                    None,
+                    Phase::Up,
+                    JavaResultApi::Legacy,
+                ))
             })
             .resolve::<jni::errors::LogErrorAndDefault>()
     })
@@ -1374,6 +1636,277 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenNative_nativeSetBitma
                     )?;
                 }
                 Ok(())
+            })
+            .resolve::<jni::errors::LogErrorAndDefault>()
+    })
+}
+
+#[no_mangle]
+pub extern "system" fn Java_com_onyx_android_sdk_pennative_NeoPenNative_nativeCreateLogger(
+    mut env: EnvUnowned,
+    _object: JObject,
+) -> jlong {
+    modern_jni_boundary(&mut env, |_| {
+        runtime().next_logger.fetch_add(1, Ordering::Relaxed)
+    })
+}
+
+#[no_mangle]
+pub extern "system" fn Java_com_onyx_android_sdk_pennative_NeoPenNative_nativeRegisterLogger(
+    mut env: EnvUnowned,
+    _object: JObject,
+    logger: jlong,
+) {
+    modern_jni_boundary(&mut env, |_| {
+        runtime()
+            .registered_logger
+            .store(logger.max(0), Ordering::Relaxed);
+    });
+}
+
+#[no_mangle]
+pub extern "system" fn Java_com_onyx_android_sdk_pennative_NeoPenNative_nativeSetLogLevel(
+    mut env: EnvUnowned,
+    _object: JObject,
+    level: jint,
+) {
+    modern_jni_boundary(&mut env, |_| {
+        runtime().log_level.store(level, Ordering::Relaxed);
+    });
+}
+
+#[no_mangle]
+pub extern "system" fn Java_com_onyx_android_sdk_pennative_NeoPenNative_nativeCreatePen<'local>(
+    mut unowned_env: EnvUnowned<'local>,
+    _object: JObject<'local>,
+    pen_type: jint,
+    config: JObject<'local>,
+) -> jlong {
+    modern_jni_boundary(&mut unowned_env, |unowned_env| {
+        if !(1..=10).contains(&pen_type) || config.is_null() {
+            unowned_env
+                .with_env(|env| -> jni::errors::Result<()> {
+                    throw_api_failure(
+                        env,
+                        JavaResultApi::Modern,
+                        "[INVALID_ARGUMENT] Unknown pen type or null config",
+                    );
+                    Ok(())
+                })
+                .resolve::<jni::errors::LogErrorAndDefault>();
+            return 0;
+        }
+        unowned_env
+            .with_env(|env| -> jni::errors::Result<jlong> {
+                let handle = runtime().next_handle.fetch_add(1, Ordering::Relaxed);
+                let state = PenState::new(pen_type, read_config(env, &config, true));
+                Ok(match runtime().pens.lock() {
+                    Ok(mut pens) => {
+                        pens.insert(handle, state);
+                        handle
+                    }
+                    Err(_) => {
+                        throw_api_failure(
+                            env,
+                            JavaResultApi::Modern,
+                            "[NATIVE_FAILURE] Renderer state lock is poisoned",
+                        );
+                        0
+                    }
+                })
+            })
+            .resolve::<jni::errors::LogErrorAndDefault>()
+    })
+}
+
+#[no_mangle]
+pub extern "system" fn Java_com_onyx_android_sdk_pennative_NeoPenNative_nativeDestroyPen(
+    mut env: EnvUnowned,
+    _object: JObject,
+    handle: jlong,
+) {
+    modern_jni_boundary(&mut env, |env| match runtime().pens.lock() {
+        Ok(mut pens) => {
+            pens.remove(&handle);
+        }
+        Err(_) => {
+            env.with_env(|owned| -> jni::errors::Result<()> {
+                throw_api_failure(
+                    owned,
+                    JavaResultApi::Modern,
+                    "[NATIVE_FAILURE] Renderer state lock is poisoned",
+                );
+                Ok(())
+            })
+            .resolve::<jni::errors::LogErrorAndDefault>();
+        }
+    });
+}
+
+#[no_mangle]
+pub extern "system" fn Java_com_onyx_android_sdk_pennative_NeoPenNative_nativeOnPenDown<'local>(
+    mut unowned_env: EnvUnowned<'local>,
+    _object: JObject<'local>,
+    handle: jlong,
+    points: JDoubleArray<'local>,
+    _repaint: jboolean,
+) -> jobject {
+    modern_jni_boundary(&mut unowned_env, |unowned_env| {
+        unowned_env
+            .with_env(|env| -> jni::errors::Result<jobject> {
+                Ok(render_call(
+                    env,
+                    handle,
+                    points,
+                    None,
+                    Phase::Down,
+                    JavaResultApi::Modern,
+                ))
+            })
+            .resolve::<jni::errors::LogErrorAndDefault>()
+    })
+}
+
+#[no_mangle]
+pub extern "system" fn Java_com_onyx_android_sdk_pennative_NeoPenNative_nativeOnPenMove<'local>(
+    mut unowned_env: EnvUnowned<'local>,
+    _object: JObject<'local>,
+    handle: jlong,
+    points: JDoubleArray<'local>,
+    prediction: JDoubleArray<'local>,
+    _repaint: jboolean,
+) -> jobject {
+    let prediction = (!prediction.is_null()).then_some(prediction);
+    modern_jni_boundary(&mut unowned_env, |unowned_env| {
+        unowned_env
+            .with_env(|env| -> jni::errors::Result<jobject> {
+                Ok(render_call(
+                    env,
+                    handle,
+                    points,
+                    prediction,
+                    Phase::Move,
+                    JavaResultApi::Modern,
+                ))
+            })
+            .resolve::<jni::errors::LogErrorAndDefault>()
+    })
+}
+
+#[no_mangle]
+pub extern "system" fn Java_com_onyx_android_sdk_pennative_NeoPenNative_nativeOnPenUp<'local>(
+    mut unowned_env: EnvUnowned<'local>,
+    _object: JObject<'local>,
+    handle: jlong,
+    points: JDoubleArray<'local>,
+    _repaint: jboolean,
+) -> jobject {
+    modern_jni_boundary(&mut unowned_env, |unowned_env| {
+        unowned_env
+            .with_env(|env| -> jni::errors::Result<jobject> {
+                Ok(render_call(
+                    env,
+                    handle,
+                    points,
+                    None,
+                    Phase::Up,
+                    JavaResultApi::Modern,
+                ))
+            })
+            .resolve::<jni::errors::LogErrorAndDefault>()
+    })
+}
+
+fn set_modern_bitmap_color(env: &mut Env, bitmap: &JObject) -> jni::errors::Result<bool> {
+    if bitmap.is_null() {
+        return Ok(false);
+    }
+    let width = env
+        .call_method(bitmap, jni_str!("getWidth"), jni_sig!("()I"), &[])?
+        .i()?;
+    let height = env
+        .call_method(bitmap, jni_str!("getHeight"), jni_sig!("()I"), &[])?
+        .i()?;
+    let Some(pixel_count) = usize::try_from(width).ok().and_then(|width| {
+        usize::try_from(height)
+            .ok()
+            .and_then(|height| width.checked_mul(height))
+    }) else {
+        return Ok(false);
+    };
+    if pixel_count == 0 || pixel_count > 16_777_216 {
+        return Ok(false);
+    }
+
+    let colors: JIntArray = env.new_int_array(pixel_count)?;
+    env.call_method(
+        bitmap,
+        jni_str!("getPixels"),
+        jni_sig!("([IIIIIII)V"),
+        &[
+            JValue::Object(colors.as_ref()),
+            JValue::Int(0),
+            JValue::Int(width),
+            JValue::Int(0),
+            JValue::Int(0),
+            JValue::Int(width),
+            JValue::Int(height),
+        ],
+    )?;
+    let mut pixels = vec![0i32; pixel_count];
+    colors.get_region(env, 0, &mut pixels)?;
+    for pixel in &mut pixels {
+        *pixel = modern_bitmap_pixel(*pixel);
+    }
+    colors.set_region(env, 0, &pixels)?;
+    env.call_method(
+        bitmap,
+        jni_str!("setPixels"),
+        jni_sig!("([IIIIIII)V"),
+        &[
+            JValue::Object(colors.as_ref()),
+            JValue::Int(0),
+            JValue::Int(width),
+            JValue::Int(0),
+            JValue::Int(0),
+            JValue::Int(width),
+            JValue::Int(height),
+        ],
+    )?;
+    Ok(true)
+}
+
+fn modern_bitmap_pixel(pixel: i32) -> i32 {
+    if pixel == 0xffff_ffffu32 as i32 {
+        0
+    } else {
+        0x8000_00ffu32 as i32
+    }
+}
+
+#[no_mangle]
+pub extern "system" fn Java_com_onyx_android_sdk_pennative_NeoPenNative_nativeSetBitmapColor<
+    'local,
+>(
+    mut unowned_env: EnvUnowned<'local>,
+    _object: JObject<'local>,
+    bitmap: JObject<'local>,
+) -> jboolean {
+    modern_jni_boundary(&mut unowned_env, |unowned_env| {
+        unowned_env
+            .with_env(|env| -> jni::errors::Result<jboolean> {
+                match set_modern_bitmap_color(env, &bitmap) {
+                    Ok(true) => Ok(true),
+                    Ok(false) => Ok(false),
+                    Err(error) => {
+                        throw_api_failure(
+                            env,
+                            JavaResultApi::Modern,
+                            &format!("[JNI_FAILURE] Failed to recolor bitmap: {error}"),
+                        );
+                        Ok(false)
+                    }
+                }
             })
             .resolve::<jni::errors::LogErrorAndDefault>()
     })
@@ -1403,7 +1936,7 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenWrapper_nativeInitPen
             .with_env(|env| -> jni::errors::Result<jboolean> {
                 let pen_type = get_int(env, &config, "type", 1);
                 let handle = runtime().next_handle.fetch_add(1, Ordering::Relaxed);
-                let state = PenState::new(pen_type, read_config(env, &config));
+                let state = PenState::new(pen_type, read_config(env, &config, false));
                 if let Ok(mut pens) = runtime().pens.lock() {
                     pens.insert(handle, state);
                 } else {
@@ -1583,15 +2116,15 @@ fn legacy_compute(env: &mut Env, points: JDoubleArray) -> jobjectArray {
         let (up, _) = scratch.process(&touches[touches.len() - 1..], None, Phase::Up);
         append(&mut combined, up);
     }
-    if let Ok(mut stamps) = runtime().legacy_bitmaps.lock() {
-        *stamps = combined.stamps.clone();
-    }
     if combined.overflowed {
         throw_native_failure(
             env,
             "[ALLOCATION_LIMIT] Renderer output exceeds the per-call safety limit",
         );
         return JObjectArray::<JObject>::null().into_raw();
+    }
+    if let Ok(mut stamps) = runtime().legacy_bitmaps.lock() {
+        *stamps = combined.stamps.clone();
     }
     build_legacy_points(env, &combined)
         .map(JObjectArray::into_raw)
@@ -1772,6 +2305,68 @@ mod tests {
                 }
             }
             assert!(produced, "pen type {pen_type} emitted nothing");
+        }
+    }
+
+    #[test]
+    fn brush_sign_emits_finite_polygon_records_and_isolates_prediction() {
+        let mut pen = PenState::new(
+            10,
+            PenConfig {
+                width: 8.0,
+                min_width: 0.5,
+                pressure_sensitivity: 0.7,
+                velocity_sensitivity: 0.4,
+                end_velocity_sensitivity: 0.5,
+                end_thinning_rate: 0.6,
+                ..PenConfig::default()
+            },
+        );
+        let (down, _) = pen.process(&[touch(10.0, 10.0, 0.2, 1.0)], None, Phase::Down);
+        assert!(down.points.is_empty());
+
+        let before_prediction = pen.clone();
+        let (moved, predicted) = pen.process(
+            &[touch(20.0, 16.0, 0.7, 2.0), touch(30.0, 19.0, 0.9, 3.0)],
+            Some(touch(40.0, 22.0, 0.5, 4.0)),
+            Phase::Move,
+        );
+        assert!(!moved.points.is_empty());
+        assert!(!predicted.points.is_empty());
+        assert!(moved.point_sizes.iter().all(|size| *size == 8));
+        assert!(predicted.point_sizes.iter().all(|size| *size == 8));
+        assert!(moved.points.iter().all(|value| value.is_finite()));
+        assert!(predicted.points.iter().all(|value| value.is_finite()));
+        assert_ne!(pen.history, before_prediction.history);
+
+        let (up, _) = pen.process(&[touch(30.0, 19.0, 0.1, 5.0)], None, Phase::Up);
+        assert!(up.points.iter().all(|value| value.is_finite()));
+        assert!(up.point_sizes.iter().all(|size| *size == 8));
+    }
+
+    #[test]
+    fn brush_sign_degenerate_trace_is_safe() {
+        let mut pen = PenState::new(10, PenConfig::default());
+        let repeated = touch(12.5, 9.25, 0.5, 1.0);
+        pen.process(&[repeated], None, Phase::Down);
+        let (moved, predicted) = pen.process(&[repeated], Some(repeated), Phase::Move);
+        let (up, _) = pen.process(&[repeated], None, Phase::Up);
+        assert!(moved.points.is_empty());
+        assert!(predicted.points.is_empty());
+        assert!(up.points.is_empty());
+    }
+
+    #[test]
+    fn modern_bitmap_mapping_matches_the_observed_native_contract() {
+        assert_eq!(modern_bitmap_pixel(0xffff_ffffu32 as i32), 0);
+        for pixel in [
+            0xff00_0000u32 as i32,
+            0xffff_0000u32 as i32,
+            0,
+            0x80ff_ffffu32 as i32,
+            0xff33_6699u32 as i32,
+        ] {
+            assert_eq!(modern_bitmap_pixel(pixel), 0x8000_00ffu32 as i32);
         }
     }
 
