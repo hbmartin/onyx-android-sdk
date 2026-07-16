@@ -47,51 +47,54 @@ class RawInkSessionActorTest {
             }
         }
         val dispatcher = executor.asCoroutineDispatcher()
-        val releases = AtomicInteger()
-        val session = createSession(dispatcher) { releases.incrementAndGet() }
-        val state = RawInkSession::class.java.getDeclaredField("mutableState").run {
-            isAccessible = true
-            @Suppress("UNCHECKED_CAST")
-            get(session) as kotlinx.coroutines.flow.MutableStateFlow<RawInkSessionState>
-        }
-        state.value = RawInkSessionState.Active(1)
-        val listener = RawInkSession::class.java.getDeclaredField("rawListener").run {
-            isAccessible = true
-            get(session) as RawInputListenerV2
-        }
-        val strokeTerminal = async(start = CoroutineStart.UNDISPATCHED) {
-            runCatching { session.completedStrokes.collect { } }.exceptionOrNull()
-        }
-        val eventTerminal = async(start = CoroutineStart.UNDISPATCHED) {
-            runCatching { session.events.collect { } }.exceptionOrNull()
-        }
-
-        listener.onRawInputEvent(event(RawInputPhase.DOWN, 1))
-        listener.onRawInputEvent(event(RawInputPhase.MOVE, 2))
-
-        val failed = withTimeout(5_000) {
-            var terminal: RawInkSessionState.Failed? = null
-            while (terminal == null) {
-                shadowOf(Looper.getMainLooper()).idle()
-                terminal = session.state.value as? RawInkSessionState.Failed
-                if (terminal == null) delay(10)
+        try {
+            val releases = AtomicInteger()
+            val session = createSession(dispatcher) { releases.incrementAndGet() }
+            val state = RawInkSession::class.java.getDeclaredField("mutableState").run {
+                isAccessible = true
+                @Suppress("UNCHECKED_CAST")
+                get(session) as kotlinx.coroutines.flow.MutableStateFlow<RawInkSessionState>
             }
-            terminal
-        }
-        val strokeFailure = withTimeout(5_000) { strokeTerminal.await() }
-        val eventFailure = withTimeout(5_000) { eventTerminal.await() }
+            state.value = RawInkSessionState.Active(1)
+            val listener = RawInkSession::class.java.getDeclaredField("rawListener").run {
+                isAccessible = true
+                get(session) as RawInputListenerV2
+            }
+            val strokeTerminal = async(start = CoroutineStart.UNDISPATCHED) {
+                runCatching { session.completedStrokes.collect { } }.exceptionOrNull()
+            }
+            val eventTerminal = async(start = CoroutineStart.UNDISPATCHED) {
+                runCatching { session.events.collect { } }.exceptionOrNull()
+            }
 
-        assertTrue(failed.failure is OnyxFailure.EventOverflow)
-        assertSame(failed.failure, strokeFailure)
-        assertSame(failed.failure, eventFailure)
-        assertEquals(1, releases.get())
-        assertNull(session.preview.value)
-        assertSame(failed.failure, session.pause().exceptionOrNull())
-        assertNotNull(session.resume().exceptionOrNull())
-        assertSame(failed.failure, session.closeAndAwait().exceptionOrNull())
-        assertTrue(executor.awaitTermination(5, TimeUnit.SECONDS))
-        assertNull(uncaughtActorFailure.get())
-        dispatcher.close()
+            listener.onRawInputEvent(event(RawInputPhase.DOWN, 1))
+            listener.onRawInputEvent(event(RawInputPhase.MOVE, 2))
+
+            val failed = withTimeout(5_000) {
+                var terminal: RawInkSessionState.Failed? = null
+                while (terminal == null) {
+                    shadowOf(Looper.getMainLooper()).idle()
+                    terminal = session.state.value as? RawInkSessionState.Failed
+                    if (terminal == null) delay(10)
+                }
+                terminal
+            }
+            val strokeFailure = withTimeout(5_000) { strokeTerminal.await() }
+            val eventFailure = withTimeout(5_000) { eventTerminal.await() }
+
+            assertTrue(failed.failure is OnyxFailure.EventOverflow)
+            assertSame(failed.failure, strokeFailure)
+            assertSame(failed.failure, eventFailure)
+            assertEquals(1, releases.get())
+            assertNull(session.preview.value)
+            assertSame(failed.failure, session.pause().exceptionOrNull())
+            assertNotNull(session.resume().exceptionOrNull())
+            assertSame(failed.failure, session.closeAndAwait().exceptionOrNull())
+            assertTrue(executor.awaitTermination(5, TimeUnit.SECONDS))
+            assertNull(uncaughtActorFailure.get())
+        } finally {
+            dispatcher.close()
+        }
     }
 
     private fun createSession(

@@ -241,6 +241,8 @@ class RawInkSession private constructor(
                 val command = commands.receiveCatching().getOrNull() ?: break
                 try {
                     process(command)
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
                 } catch (failure: Throwable) {
                     abortActor(command, failure)
                     return@launch
