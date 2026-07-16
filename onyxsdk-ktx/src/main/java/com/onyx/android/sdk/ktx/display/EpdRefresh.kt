@@ -1,7 +1,10 @@
 @file:Suppress(
     // Firmware waits use explicit early-return circuit-breaker paths; legacy update modes are
-    // type-erased from KTX bytecode and cast only at the internal dispatch boundary.
+    // type-erased from KTX bytecode and cast only at the internal dispatch boundary. The
+    // process-owned waiter deliberately uses Dispatchers.IO around Future.get; callers cannot
+    // inject a dispatcher into this singleton API.
     "DontForceCast",
+    "InjectDispatcher",
     "LongMethod",
     "ReturnCount",
     "TooGenericExceptionCaught",
