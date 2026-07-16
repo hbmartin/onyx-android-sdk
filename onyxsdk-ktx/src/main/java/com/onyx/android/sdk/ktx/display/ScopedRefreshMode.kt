@@ -104,19 +104,20 @@ suspend fun <T> withRefreshMode(
     block: suspend () -> T,
 ): Result<T> {
     val token = RefreshModeController.acquire(mode).getOrElse { return Result.failure(it) }
-    val outcome = try {
-        Result.success(block())
+    var outcome: Result<T>? = null
+    try {
+        outcome = Result.success(block())
     } catch (cancellation: kotlinx.coroutines.CancellationException) {
         throw cancellation
     } catch (failure: Throwable) {
-        Result.failure(failure)
+        outcome = Result.failure(failure)
+    } finally {
+        val released = withContext(NonCancellable) { token.closeAndAwait() }
+        if (outcome?.isSuccess == true && released.isFailure) {
+            outcome = Result.failure(requireNotNull(released.exceptionOrNull()))
+        }
     }
-    val released = withContext(NonCancellable) { token.closeAndAwait() }
-    return if (outcome.isSuccess && released.isFailure) {
-        Result.failure(requireNotNull(released.exceptionOrNull()))
-    } else {
-        outcome
-    }
+    return requireNotNull(outcome)
 }
 
 internal class ScopedRefreshModeOwner(
