@@ -8,8 +8,11 @@ import com.onyx.android.sdk.pen.RawInputEventV2
 import com.onyx.android.sdk.pen.RawInputListenerV2
 import com.onyx.android.sdk.pen.RawInputPhase
 import com.onyx.android.sdk.pen.RawInputTool
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
@@ -35,7 +38,15 @@ import org.robolectric.annotation.Config
 class RawInkSessionActorTest {
     @Test
     fun overflowIsTerminalReleasesLeaseAndClosesCollectorsWithCause() = runBlocking {
-        val dispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+        val uncaughtActorFailure = AtomicReference<Throwable?>()
+        val executor: ExecutorService = Executors.newSingleThreadExecutor { runnable ->
+            Thread(runnable, "raw-ink-session-actor-test").apply {
+                uncaughtExceptionHandler = Thread.UncaughtExceptionHandler { _, failure ->
+                    uncaughtActorFailure.compareAndSet(null, failure)
+                }
+            }
+        }
+        val dispatcher = executor.asCoroutineDispatcher()
         val releases = AtomicInteger()
         val session = createSession(dispatcher) { releases.incrementAndGet() }
         val state = RawInkSession::class.java.getDeclaredField("mutableState").run {
@@ -78,6 +89,8 @@ class RawInkSessionActorTest {
         assertSame(failed.failure, session.pause().exceptionOrNull())
         assertNotNull(session.resume().exceptionOrNull())
         assertSame(failed.failure, session.closeAndAwait().exceptionOrNull())
+        assertTrue(executor.awaitTermination(5, TimeUnit.SECONDS))
+        assertNull(uncaughtActorFailure.get())
         dispatcher.close()
     }
 

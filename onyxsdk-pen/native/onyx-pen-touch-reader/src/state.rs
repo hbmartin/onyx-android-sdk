@@ -186,6 +186,7 @@ impl PenManager {
         self.btn_tool_brush = false;
         self.pressure = 0;
         self.smoothed_pressure = -1;
+        self.pressure_tool = Self::default().pressure_tool;
         out
     }
 
@@ -428,6 +429,8 @@ mod tests {
     #[test]
     fn reset_reader_clears_stale_buttons_and_pressure_before_reopen() {
         let mut p = PenManager::default();
+        feed(&mut p, EV_KEY, PRESSURE_CURVE_TOOL, 1);
+        assert_eq!(p.pressure_tool, PRESSURE_CURVE_TOOL);
         feed(&mut p, EV_KEY, BTN_STYLUS, 1);
         feed(&mut p, EV_KEY, BTN_TOOL_RUBBER, 1);
         feed(&mut p, EV_KEY, BTN_TOUCH, 1);
@@ -452,5 +455,6 @@ mod tests {
         assert!(!p.btn_stylus);
         assert!(!p.btn_tool_rubber);
         assert!(!p.btn_tool_brush);
+        assert_eq!(p.pressure_tool, PenManager::default().pressure_tool);
     }
 }
