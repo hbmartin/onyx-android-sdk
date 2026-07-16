@@ -1,5 +1,6 @@
 package com.onyx.android.sdk.ktx
 
+import com.onyx.android.sdk.ktx.model.BrushConfiguration
 import com.onyx.android.sdk.ktx.model.InkPoint
 import com.onyx.android.sdk.ktx.model.InkTool
 import org.junit.Assert.assertEquals
@@ -44,6 +45,23 @@ class InkContractsTest {
     fun normalizedPressureAcceptsDocumentedBoundaries() {
         assertEquals(0f, point(normalizedPressure = 0f).normalizedPressure)
         assertEquals(1f, point(normalizedPressure = 1f).normalizedPressure)
+    }
+
+    @Test
+    fun brushConfigurationRejectsReversedVelocityBounds() {
+        assertThrows(IllegalArgumentException::class.java) {
+            BrushConfiguration(
+                velocityLowerBound = 20f,
+                velocityUpperBound = 2f,
+            )
+        }
+        assertEquals(
+            2f,
+            BrushConfiguration(
+                velocityLowerBound = 2f,
+                velocityUpperBound = 20f,
+            ).velocityLowerBound,
+        )
     }
 
     private fun point(

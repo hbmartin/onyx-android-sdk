@@ -88,7 +88,7 @@ public class AppTouchRender implements TouchRender {
 
         @Override
         public void onBeginRawErasing(boolean shortcutErasing, TouchPoint point) {
-            AppTouchRender.this.rawInputTool = RawInputTool.TAIL_ERASER;
+            AppTouchRender.this.rawInputTool = rawInputToolForErasing(shortcutErasing);
             AppTouchRender.this.emitRawInput(RawInputPhase.DOWN, point, false, false);
             if (AppTouchRender.this.e) {
                 this.a.onBeginRawErasing(shortcutErasing, point);
@@ -121,6 +121,10 @@ public class AppTouchRender implements TouchRender {
     }
 
     public AppTouchRender(View view, RawInputCallback callback) {
+    }
+
+    static RawInputTool rawInputToolForErasing(boolean shortcutErasing) {
+        return shortcutErasing ? RawInputTool.SIDE_ERASER : RawInputTool.TAIL_ERASER;
     }
 
     private void d() {
@@ -215,10 +219,12 @@ public class AppTouchRender implements TouchRender {
 
     @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setSingleRegionMode() {
+        this.a.setSingleRegionMode();
     }
 
     @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void setMultiRegionMode() {
+        this.a.setMultiRegionMode();
     }
 
     @Override // com.onyx.android.sdk.pen.touch.TouchRender
@@ -239,6 +245,7 @@ public class AppTouchRender implements TouchRender {
 
     @Override // com.onyx.android.sdk.pen.touch.TouchRender
     public void enableSideBtnErase(boolean enable) {
+        this.a.enableSideBtnErase(enable);
     }
 
     @Override // com.onyx.android.sdk.pen.touch.TouchRender

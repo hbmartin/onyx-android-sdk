@@ -749,14 +749,13 @@ impl PenState {
         if points.len() <= point_limit {
             return ink;
         }
-        let first = points[0];
         let mut traveled = 0.0f32;
         for (index, pair) in points.windows(2).enumerate() {
             let start = pair[0];
             let end = pair[1];
             let distance = ((end.x - start.x).powi(2) + (end.y - start.y).powi(2)).sqrt();
             traveled += distance;
-            if traveled < self.config.start_length_limit {
+            if index < point_limit || traveled < self.config.start_length_limit {
                 continue;
             }
             let mut start_width = self.brush_sign_width(
@@ -777,16 +776,6 @@ impl PenState {
                 start_width = start_width.max(end_width);
             }
             Self::push_brush_sign_segment(&mut ink, start, end, start_width, end_width);
-        }
-        if ink.point_sizes.is_empty() && first != *points.last().unwrap_or(&first) {
-            let end = *points.last().unwrap_or(&first);
-            Self::push_brush_sign_segment(
-                &mut ink,
-                first,
-                end,
-                self.brush_sign_width(None, first),
-                self.brush_sign_width(Some(first), end),
-            );
         }
         ink
     }
@@ -1360,6 +1349,7 @@ fn throw_native_failure(env: &mut Env, message: &str) {
 }
 
 fn throw_api_failure(env: &mut Env, api: JavaResultApi, message: &str) {
+    env.exception_clear();
     match api {
         JavaResultApi::Legacy => throw_native_failure(env, message),
         JavaResultApi::Modern => {
@@ -2354,6 +2344,36 @@ mod tests {
         assert!(moved.points.is_empty());
         assert!(predicted.points.is_empty());
         assert!(up.points.is_empty());
+    }
+
+    #[test]
+    fn brush_sign_skips_segments_before_the_start_point_limit() {
+        let pen = PenState::new(
+            10,
+            PenConfig {
+                width: 4.0,
+                start_point_limit: 2.0,
+                ..PenConfig::default()
+            },
+        );
+        let points = [
+            touch(0.0, 0.0, 0.5, 1.0),
+            touch(1.0, 0.0, 0.5, 2.0),
+            touch(2.0, 0.0, 0.5, 3.0),
+            touch(3.0, 0.0, 0.5, 4.0),
+        ];
+
+        assert!(pen
+            .brush_sign_segments(&points[..3], false)
+            .points
+            .is_empty());
+        let ink = pen.brush_sign_segments(&points, false);
+
+        assert_eq!(ink.point_sizes, vec![8]);
+        assert_eq!(ink.points[0], 2.0);
+        assert_eq!(ink.points[2], 3.0);
+        assert_eq!(ink.points[4], 3.0);
+        assert_eq!(ink.points[6], 2.0);
     }
 
     #[test]

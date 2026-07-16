@@ -32,30 +32,65 @@ public class AppTouchInputReader {
     private boolean g = true;
     private boolean h = false;
     private float j = 1500.0f;
+    private int regionMode = p;
+    private int lastRegionHit = -1;
+    private boolean sideButtonEraseEnabled = true;
+    private boolean currentErasing;
+    private boolean currentShortcutErasing;
 
     public AppTouchInputReader(@NonNull AppInputCallback callback) {
         this.f = callback;
     }
 
     private boolean c(float px, float py) {
-        return b(px, py) && !a(px, py);
+        int hit = b(px, py);
+        if (!CollectionUtils.isNullOrEmpty(this.a) && hit < 0) {
+            return false;
+        }
+        if (this.regionMode != p && !CollectionUtils.isNullOrEmpty(this.a)) {
+            if (this.lastRegionHit < 0) {
+                this.lastRegionHit = hit;
+            } else if (this.regionMode != q || this.lastRegionHit != hit) {
+                return false;
+            }
+        }
+        return !a(px, py);
     }
 
-    private boolean b(float x, float y) {
+    private int b(float x, float y) {
         if (CollectionUtils.isNullOrEmpty(this.a)) {
-            return true;
+            return -1;
         }
-        return a(this.a, x, y);
+        float margin = this.d / 2.0f;
+        for (int index = 0; index < this.a.size(); index++) {
+            Rect rect = this.a.get(index);
+            if (isStrokeContained(
+                    rect.left, rect.top, rect.right, rect.bottom, x, y, margin)) {
+                return index;
+            }
+        }
+        return -1;
     }
 
     private boolean a(float x, float y) {
         if (CollectionUtils.isNullOrEmpty(this.b)) {
             return false;
         }
-        return a(this.b, x, y);
+        float margin = this.d / 2.0f;
+        for (Rect rect : this.b) {
+            if (doesStrokeIntersect(
+                    rect.left, rect.top, rect.right, rect.bottom, x, y, margin)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean e(MotionEvent event) {
+        this.e = k;
+        this.lastRegionHit = -1;
+        this.currentErasing = false;
+        this.currentShortcutErasing = false;
         if (!c(event.getX(), event.getY()) || a(event)) {
             return false;
         }
@@ -64,11 +99,17 @@ public class AppTouchInputReader {
     }
 
     private void f(MotionEvent event) {
-        if (a(event) || this.e == 0) {
-            return;
+        try {
+            if (a(event) || this.e == k) {
+                return;
+            }
+            a(event, m);
+        } finally {
+            this.e = k;
+            this.lastRegionHit = -1;
+            this.currentErasing = false;
+            this.currentShortcutErasing = false;
         }
-        a(event, 2);
-        this.e = 0;
     }
 
     private void d(MotionEvent event) {
@@ -81,9 +122,13 @@ public class AppTouchInputReader {
         a();
         TouchPoint touchPointCreate = TouchPoint.create(event);
         b(touchPointCreate);
+        this.currentShortcutErasing = isSideButtonErasing(
+                this.sideButtonEraseEnabled, event.getButtonState());
+        this.currentErasing = TouchUtils.isEraserTouchType(event)
+                || this.currentShortcutErasing;
         if (a(touchPointCreate)) {
-            if (TouchUtils.isEraserTouchType(event)) {
-                this.f.onBeginRawErasing(false, touchPointCreate);
+            if (this.currentErasing) {
+                this.f.onBeginRawErasing(this.currentShortcutErasing, touchPointCreate);
             } else {
                 this.f.onBeginRawDrawing(event, false, touchPointCreate);
             }
@@ -101,6 +146,7 @@ public class AppTouchInputReader {
 
     public void setLimitRectList(View hostView, List<Rect> limitRectList) {
         CollectionUtils.safeAddAll(this.a, limitRectList, true);
+        this.lastRegionHit = -1;
         EpdController.setScreenHandWritingRegionLimit(hostView, (Rect[]) limitRectList.toArray(new Rect[0]));
     }
 
@@ -126,6 +172,20 @@ public class AppTouchInputReader {
 
     public void setEnableFingerTouchPressure(boolean enableFingerTouchPressure) {
         this.i = enableFingerTouchPressure;
+    }
+
+    void setSingleRegionMode() {
+        this.regionMode = q;
+        this.lastRegionHit = -1;
+    }
+
+    void setMultiRegionMode() {
+        this.regionMode = p;
+        this.lastRegionHit = -1;
+    }
+
+    void enableSideBtnErase(boolean enable) {
+        this.sideButtonEraseEnabled = enable;
     }
 
     public boolean processMotionEvent(MotionEvent event) {
@@ -165,28 +225,18 @@ public class AppTouchInputReader {
         this.e = i;
     }
 
-    private boolean a(List<Rect> rectList, float x, float y) {
-        float f = this.d / 2.0f;
-        for (Rect rect : rectList) {
-            if (rect.left <= x - f && x + f <= rect.right && rect.top <= y - f && y + f <= rect.bottom) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private void b(MotionEvent event) {
         int historySize = event.getHistorySize();
         for (int i = 0; i < historySize; i++) {
             TouchPoint touchPoint = new TouchPoint(event.getHistoricalX(i), event.getHistoricalY(i), event.getHistoricalPressure(i), event.getHistoricalSize(i), event.getHistoricalEventTime(i));
             b(touchPoint);
             a(touchPoint);
-            a(touchPoint, TouchUtils.isEraserTouchType(event));
+            a(touchPoint, this.currentErasing);
         }
         TouchPoint touchPointCreate = TouchPoint.create(event);
         b(touchPointCreate);
         a(touchPointCreate);
-        a(touchPointCreate, TouchUtils.isEraserTouchType(event));
+        a(touchPointCreate, this.currentErasing);
     }
 
     private boolean a(MotionEvent event) {
@@ -219,7 +269,7 @@ public class AppTouchInputReader {
     }
 
     private void a(MotionEvent event, boolean releaseOutLimitRegion) {
-        boolean zIsEraserTouchType = TouchUtils.isEraserTouchType(event);
+        boolean zIsEraserTouchType = this.currentErasing;
         TouchPoint touchPointCreate = TouchPoint.create(event);
         b(touchPointCreate);
         TouchPointList touchPointList = this.c;
@@ -260,5 +310,36 @@ public class AppTouchInputReader {
         this.c.add(touchPoint);
         return true;
     }
-}
 
+    static boolean isStrokeContained(
+            float left,
+            float top,
+            float right,
+            float bottom,
+            float x,
+            float y,
+            float margin) {
+        return x - margin >= left
+                && x + margin <= right
+                && y - margin >= top
+                && y + margin <= bottom;
+    }
+
+    static boolean doesStrokeIntersect(
+            float left,
+            float top,
+            float right,
+            float bottom,
+            float x,
+            float y,
+            float margin) {
+        return x + margin >= left
+                && x - margin <= right
+                && y + margin >= top
+                && y - margin <= bottom;
+    }
+
+    static boolean isSideButtonErasing(boolean enabled, int buttonState) {
+        return enabled && (buttonState & MotionEvent.BUTTON_STYLUS_PRIMARY) != 0;
+    }
+}

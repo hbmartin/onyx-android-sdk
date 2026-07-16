@@ -81,13 +81,21 @@ final class SdkHarnessFactory {
 
         private void closeInk() {
             if (activeHelper == null) return;
+            TouchHelper helper = activeHelper;
             try {
-                activeHelper.setRawDrawingEnabled(false);
-                activeHelper.closeRawDrawing();
-            } catch (Throwable failure) {
-                recorder.failure("sdk-facade", "reference_legacy_ink_close", failure);
+                try {
+                    helper.setRawDrawingEnabled(false);
+                } catch (Throwable failure) {
+                    recorder.failure("sdk-facade", "reference_legacy_ink_close", failure);
+                }
             } finally {
-                activeHelper = null;
+                try {
+                    helper.closeRawDrawing();
+                } catch (Throwable failure) {
+                    recorder.failure("sdk-facade", "reference_legacy_ink_close", failure);
+                } finally {
+                    activeHelper = null;
+                }
             }
         }
     }

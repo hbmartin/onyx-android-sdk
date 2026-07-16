@@ -53,7 +53,14 @@ impl Rect {
         }
     }
 
-    fn contains_expanded(self, x: f32, y: f32, margin: f32) -> bool {
+    fn contains_stroke(self, x: f32, y: f32, margin: f32) -> bool {
+        x - margin >= self.left
+            && x + margin <= self.right
+            && y - margin >= self.top
+            && y + margin <= self.bottom
+    }
+
+    fn intersects_stroke(self, x: f32, y: f32, margin: f32) -> bool {
         x + margin >= self.left
             && x - margin <= self.right
             && y + margin >= self.top
@@ -287,7 +294,7 @@ impl PenManager {
         let hit = self
             .limit_regions
             .iter()
-            .position(|r| r.contains_expanded(x, y, margin));
+            .position(|r| r.contains_stroke(x, y, margin));
         if !self.limit_regions.is_empty() && hit.is_none() {
             return false;
         }
@@ -302,7 +309,7 @@ impl PenManager {
         !self
             .exclude_regions
             .iter()
-            .any(|r| r.contains_expanded(x, y, margin))
+            .any(|r| r.intersects_stroke(x, y, margin))
     }
 
     fn normalized_pressure(&mut self) -> i32 {
@@ -384,6 +391,21 @@ mod tests {
         assert!(!p.in_valid_region(25.0, 25.0));
         p.set_exclude_regions(&[3.0, 3.0, 7.0, 7.0]);
         assert!(!p.in_valid_region(5.0, 5.0));
+    }
+
+    #[test]
+    fn limit_contains_the_stroke_while_exclude_rejects_any_overlap() {
+        let mut p = PenManager::default();
+        p.set_stroke_width(20.0);
+        p.set_limit_regions(&[0.0, 0.0, 100.0, 100.0]);
+
+        assert!(!p.in_valid_region(5.0, 50.0));
+        assert!(p.in_valid_region(10.0, 50.0));
+
+        p.set_limit_regions(&[]);
+        p.set_exclude_regions(&[0.0, 0.0, 100.0, 100.0]);
+        assert!(!p.in_valid_region(-5.0, 50.0));
+        assert!(p.in_valid_region(-11.0, 50.0));
     }
 
     #[test]

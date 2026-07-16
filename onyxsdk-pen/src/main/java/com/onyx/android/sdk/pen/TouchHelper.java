@@ -298,9 +298,13 @@ public class TouchHelper {
     }
 
     public void setFilterRepeatMovePoint(boolean filter) {
-        Iterator<TouchRender> it = this.d.iterator();
-        while (it.hasNext()) {
-            it.next().setPenUpRefreshEnabled(filter);
+        dispatchFilterRepeatMovePoint(this.d, filter);
+    }
+
+    static void dispatchFilterRepeatMovePoint(
+            Iterable<TouchRender> renderers, boolean filter) {
+        for (TouchRender renderer : renderers) {
+            renderer.setFilterRepeatMovePoint(filter);
         }
     }
 
