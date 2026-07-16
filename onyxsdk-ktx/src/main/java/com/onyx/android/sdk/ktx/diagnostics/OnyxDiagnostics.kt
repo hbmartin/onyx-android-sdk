@@ -1,6 +1,8 @@
 @file:Suppress(
-    // The public diagnostics level is intentionally configurable. Result capture is the one
-    // boundary that must classify arbitrary firmware/reflection failures.
+    // The public diagnostics level is intentionally configurable, and the bounded synchronized
+    // history requires a mutable deque. Result capture is the one boundary that must classify
+    // arbitrary firmware/reflection failures.
+    "AvoidMutableCollections",
     "AvoidVarsExceptWithDelegate",
     "LongParameterList",
     "NoCallbacksInFunctions",

@@ -177,6 +177,15 @@ impl PenManager {
         self.reader = ReaderType::Button;
         self.reader_state = 0;
         self.last_region_hit = None;
+        // A reopened evdev file starts with a fresh key snapshot. Keeping the
+        // previous file's button/pressure state can synthesize a DOWN on the
+        // first SYN from the replacement device before any key event arrives.
+        self.btn_touch = false;
+        self.btn_stylus = false;
+        self.btn_tool_rubber = false;
+        self.btn_tool_brush = false;
+        self.pressure = 0;
+        self.smoothed_pressure = -1;
         out
     }
 
@@ -414,5 +423,34 @@ mod tests {
         feed(&mut p, EV_KEY, PRESSURE_CURVE_TOOL, 1);
         feed(&mut p, EV_ABS, ABS_PRESSURE, 4096);
         assert_eq!(p.normalized_pressure(), 4096);
+    }
+
+    #[test]
+    fn reset_reader_clears_stale_buttons_and_pressure_before_reopen() {
+        let mut p = PenManager::default();
+        feed(&mut p, EV_KEY, BTN_STYLUS, 1);
+        feed(&mut p, EV_KEY, BTN_TOOL_RUBBER, 1);
+        feed(&mut p, EV_KEY, BTN_TOUCH, 1);
+        feed(&mut p, EV_ABS, ABS_PRESSURE, 300);
+        feed(&mut p, EV_SYN, 0, 0);
+
+        assert_eq!(
+            p.reset_reader()
+                .iter()
+                .map(|event| event.state)
+                .collect::<Vec<_>>(),
+            vec![2]
+        );
+        let reopened = feed(&mut p, EV_SYN, 0, 0);
+
+        assert_eq!(
+            reopened.iter().map(|event| event.state).collect::<Vec<_>>(),
+            vec![5]
+        );
+        assert_eq!(reopened[0].pressure, 0);
+        assert!(!p.btn_touch);
+        assert!(!p.btn_stylus);
+        assert!(!p.btn_tool_rubber);
+        assert!(!p.btn_tool_brush);
     }
 }

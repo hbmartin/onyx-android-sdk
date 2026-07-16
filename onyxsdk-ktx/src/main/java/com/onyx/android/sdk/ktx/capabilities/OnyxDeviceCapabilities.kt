@@ -580,6 +580,19 @@ internal object DeviceCapabilityProbe {
     private suspend fun probeUpdateModes(
         surfaceView: SurfaceView,
     ): Map<EpdUpdateMode, Capability<Unit>> = withContext(Dispatchers.Main.immediate) {
+        if (Device.currentDevice().javaClass == BaseDevice::class.java) {
+            return@withContext EpdUpdateMode.entries.associateWith { mode ->
+                Capability(
+                    CapabilitySupport.UNSUPPORTED,
+                    evidence = listOf(
+                        CapabilityEvidence(
+                            CapabilityEvidenceKind.FALLBACK,
+                            "${mode.name} resolves only through the BaseDevice no-op",
+                        ),
+                    ),
+                )
+            }
+        }
         val original = EpdController.getViewDefaultUpdateMode(surfaceView)
         try {
             EpdUpdateMode.entries.associateWith { mode ->

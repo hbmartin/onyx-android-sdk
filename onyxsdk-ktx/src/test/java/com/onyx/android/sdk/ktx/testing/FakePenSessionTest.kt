@@ -6,7 +6,10 @@ import com.onyx.android.sdk.ktx.model.InkTool
 import com.onyx.android.sdk.ktx.model.PenEvent
 import com.onyx.android.sdk.ktx.model.PenPhase
 import kotlinx.coroutines.async
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -28,6 +31,30 @@ class FakePenSessionTest {
         assertTrue(session.state.value is RawInkSessionState.Active)
         session.closeAndAwait().getOrThrow()
         assertEquals(RawInkSessionState.Closed, session.state.value)
+    }
+
+    @Test
+    fun proximityKeepsPreviewAndSuspendedSessionsDropEvents() = runBlocking {
+        val session = FakePenSession()
+        val down = PenEvent(PenPhase.DOWN, point())
+        val received = async(start = CoroutineStart.UNDISPATCHED) { session.events.first() }
+        session.emit(down)
+        assertEquals(down, received.await())
+        val preview = session.preview.value
+
+        val proximity = PenEvent(PenPhase.PROXIMITY, point().copy(sequence = 5))
+        val proximityReceived = async(start = CoroutineStart.UNDISPATCHED) {
+            session.events.first()
+        }
+        session.emit(proximity)
+        assertEquals(proximity, proximityReceived.await())
+
+        assertEquals(preview, session.preview.value)
+        session.pause().getOrThrow()
+        val waiting = launch(start = CoroutineStart.UNDISPATCHED) { session.events.first() }
+        session.emit(PenEvent(PenPhase.MOVE, point().copy(sequence = 6)))
+        assertTrue(waiting.isActive)
+        waiting.cancelAndJoin()
     }
 
     private fun point() = InkPoint(

@@ -61,6 +61,7 @@ public final class RawInputListeners {
                     delegate.execute(active);
                 } catch (RuntimeException | Error failure) {
                     active = null;
+                    tasks.clear();
                     throw failure;
                 }
             }

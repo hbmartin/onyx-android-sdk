@@ -186,7 +186,7 @@ for abi in armeabi-v7a arm64-v8a x86 x86_64; do
     fi
   done
 
-  modern_rebuilt="$ROOT/onyxsdk-pen/src/main/jniLibs/$abi/libneopen_jni$shared_library_suffix"
+  modern_rebuilt="$ROOT/onyxsdk-pen-core/src/main/jniLibs/$abi/libneopen_jni$shared_library_suffix"
   test -s "$modern_rebuilt" || fail "missing source-built $abi libneopen_jni$shared_library_suffix"
   cmp -s "$ROOT/onyxsdk-pen/src/main/jniLibs/$abi/libneo_pen$shared_library_suffix" "$modern_rebuilt" \
     || fail "$abi legacy and modern pen sonames are not the same renderer binary"

@@ -55,10 +55,28 @@ def javap_api(classpath: str | Path, class_name: str) -> tuple[str, tuple[tuple[
 
 
 def compatibility_signature(member: tuple[str, str]) -> tuple[str, str]:
-    """Ignore modifiers whose removal only broadens binary compatibility."""
+    """Key members without modifiers whose removal broadens binary compatibility."""
     declaration, descriptor = member
     normalized = declaration.replace(" abstract ", " ").replace(" final ", " ")
     return normalized, descriptor
+
+
+def declaration_is_compatible(expected: str, actual: str) -> bool:
+    """Allow removing final/abstract, but reject adding either narrowing modifier."""
+    expected_key = compatibility_signature((expected, ""))[0]
+    actual_key = compatibility_signature((actual, ""))[0]
+    if expected_key != actual_key:
+        return False
+    narrowing = {"abstract", "final"}
+    expected_modifiers = set(expected.replace("(", " ").split()) & narrowing
+    actual_modifiers = set(actual.replace("(", " ").split()) & narrowing
+    return not (actual_modifiers - expected_modifiers)
+
+
+def member_map(
+    members: tuple[tuple[str, str], ...] | set[tuple[str, str]],
+) -> dict[tuple[str, str], tuple[str, str]]:
+    return {compatibility_signature(member): member for member in members}
 
 
 def main() -> int:
@@ -127,35 +145,58 @@ def main() -> int:
                 continue
             expected_declaration, expected_member_tuple = expected
             actual_declaration, actual_member_tuple = actual
-            expected_members = {compatibility_signature(item) for item in expected_member_tuple}
-            actual_members = {compatibility_signature(item) for item in actual_member_tuple}
-            extra_members = actual_members - expected_members
-            allowed_members = {
-                compatibility_signature(item)
-                for item in accepted_additions.get(class_name, set())
+            expected_members = member_map(expected_member_tuple)
+            actual_members = member_map(actual_member_tuple)
+            expected_keys = set(expected_members)
+            actual_keys = set(actual_members)
+            extra_members = actual_keys - expected_keys
+            allowed_members = member_map(accepted_additions.get(class_name, set()))
+            unaccepted_extras = {
+                key
+                for key in extra_members
+                if key not in allowed_members
+                or not declaration_is_compatible(
+                    allowed_members[key][0], actual_members[key][0]
+                )
             }
-            unaccepted_extras = extra_members - allowed_members
+            incompatible_members = {
+                key
+                for key in expected_keys & actual_keys
+                if not declaration_is_compatible(
+                    expected_members[key][0], actual_members[key][0]
+                )
+            }
             # Compatibility is one-directional: every reference member must
             # remain, while only explicitly listed additive API is allowed.
-            if (expected_declaration == actual_declaration
-                    and expected_members.issubset(actual_members)
+            if (declaration_is_compatible(expected_declaration, actual_declaration)
+                    and expected_keys.issubset(actual_keys)
+                    and not incompatible_members
                     and not unaccepted_extras):
                 observed_additions.update((class_name, item) for item in extra_members)
                 continue
             details = [f"API mismatch: {class_name}"]
-            if expected_declaration != actual_declaration:
+            if not declaration_is_compatible(expected_declaration, actual_declaration):
                 details.extend(
                     [f"  expected declaration: {expected_declaration}", f"  actual declaration:   {actual_declaration}"]
                 )
-            details.extend(f"  missing: {item}" for item in sorted(expected_members - actual_members))
+            details.extend(f"  missing: {item}" for item in sorted(expected_keys - actual_keys))
+            details.extend(
+                "  incompatible modifiers: "
+                f"expected {expected_members[item][0]} / actual {actual_members[item][0]}"
+                for item in sorted(incompatible_members)
+            )
             details.extend(f"  unaccepted extra: {item}" for item in sorted(unaccepted_extras))
             failures.append("\n".join(details))
 
-    candidate_only = sorted(
-        class_name
-        for class_name in candidate_names - reference_names
-        if javap_api(candidate_classpath, class_name)[0].startswith("public ")
-    )
+    candidate_only = []
+    for class_name in sorted(candidate_names - reference_names):
+        try:
+            declaration = javap_api(candidate_classpath, class_name)[0]
+        except RuntimeError as error:
+            failures.append(f"candidate JAR: {error}")
+            continue
+        if declaration.startswith("public "):
+            candidate_only.append(class_name)
     unaccepted_classes = sorted(set(candidate_only) - accepted_extra_classes)
     if unaccepted_classes:
         failures.append("Unaccepted candidate-only classes: " + ", ".join(unaccepted_classes))

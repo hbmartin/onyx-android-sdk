@@ -169,7 +169,7 @@ internal class ScopedRefreshModeOwner(
             if (!activeTokens.remove(tokenId)) return Result.success(Unit)
             if (activeTokens.isNotEmpty()) return Result.success(Unit)
             val cleared = clearMode()
-            if (cleared.isSuccess) activeMode = null
+            activeMode = null
             return cleared
         } finally {
             mutex.unlock()

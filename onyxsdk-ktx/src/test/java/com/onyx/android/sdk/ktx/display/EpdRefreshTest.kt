@@ -5,8 +5,8 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.Assert.assertEquals
@@ -57,7 +57,7 @@ class EpdRefreshTest {
             var recovered: FirmwareWaitAttempt = FirmwareWaitAttempt.Recovering
             repeat(100) {
                 if (recovered == FirmwareWaitAttempt.Recovering) {
-                    Thread.sleep(5)
+                    delay(5)
                     recovered = coordinator.await(200.milliseconds)
                 }
             }
@@ -79,8 +79,8 @@ class EpdRefreshTest {
             Thread.sleep(40)
         }
         try {
-            val first = async(Dispatchers.Default) { coordinator.await(250.milliseconds) }
-            val second = async(Dispatchers.Default) { coordinator.await(250.milliseconds) }
+            val first = async { coordinator.await(250.milliseconds) }
+            val second = async { coordinator.await(250.milliseconds) }
 
             assertSame(FirmwareWaitAttempt.Returned, first.await())
             assertSame(FirmwareWaitAttempt.Returned, second.await())

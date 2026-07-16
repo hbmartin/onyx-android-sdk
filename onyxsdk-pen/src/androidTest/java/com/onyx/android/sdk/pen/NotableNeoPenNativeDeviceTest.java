@@ -36,7 +36,9 @@ public final class NotableNeoPenNativeDeviceTest {
     @BeforeClass
     public static void loadExternalReference() {
         try {
-            System.loadLibrary("neopen_jni");
+            // The oracle is packaged under a distinct filename so the candidate modern
+            // renderer from pen-core remains available to the rest of the test APK.
+            System.loadLibrary("notable_neopen_jni");
             available = true;
         } catch (UnsatisfiedLinkError unavailable) {
             available = false;

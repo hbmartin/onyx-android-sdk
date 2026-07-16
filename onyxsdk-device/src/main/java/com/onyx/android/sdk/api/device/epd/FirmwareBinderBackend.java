@@ -28,6 +28,8 @@ final class FirmwareBinderBackend {
     @Nullable
     private volatile IBinder binder;
     @Nullable
+    private volatile IBinder.DeathRecipient deathRecipient;
+    @Nullable
     private volatile String failure;
     private volatile boolean initialized;
 
@@ -36,7 +38,7 @@ final class FirmwareBinderBackend {
     }
 
     synchronized void resetForExternalExemption() {
-        binder = null;
+        unlinkCurrentBinder();
         failure = null;
         initialized = false;
         transactionCodes.clear();
@@ -189,7 +191,8 @@ final class FirmwareBinderBackend {
 
     private synchronized void invalidate(TransactionTarget transaction, Throwable error) {
         if (binder == transaction.binder) {
-            binder = null;
+            unlinkCurrentBinder();
+            initialized = false;
             failure = error.getClass().getName() + ": " + error.getMessage();
         }
     }
@@ -197,18 +200,37 @@ final class FirmwareBinderBackend {
     private synchronized void binderDied(IBinder deadBinder) {
         if (binder == deadBinder) {
             binder = null;
+            deathRecipient = null;
+            initialized = false;
             failure = "SurfaceFlinger Binder died";
+        }
+    }
+
+    private void unlinkCurrentBinder() {
+        IBinder target = binder;
+        IBinder.DeathRecipient recipient = deathRecipient;
+        binder = null;
+        deathRecipient = null;
+        if (target == null || recipient == null) {
+            return;
+        }
+        try {
+            target.unlinkToDeath(recipient, 0);
+        } catch (RuntimeException ignored) {
+            // A concurrently dead Binder may already have removed the recipient.
         }
     }
 
     @SuppressLint("PrivateApi")
     private synchronized void ensureInitialized() {
         IBinder target = binder;
-        if (initialized && target != null && target.isBinderAlive()) {
-            return;
+        if (initialized) {
+            if (target == null || target.isBinderAlive()) {
+                return;
+            }
         }
+        unlinkCurrentBinder();
         initialized = true;
-        binder = null;
         transactionCodes.clear();
         try {
             Class<?> helper = Class.forName(HELPER_CLASS);
@@ -237,12 +259,14 @@ final class FirmwareBinderBackend {
                 throw new IllegalStateException("SurfaceFlinger returned no Binder");
             }
             IBinder resolved = (IBinder) result;
-            resolved.linkToDeath(() -> binderDied(resolved), 0);
+            IBinder.DeathRecipient recipient = () -> binderDied(resolved);
+            resolved.linkToDeath(recipient, 0);
             binder = resolved;
+            deathRecipient = recipient;
             failure = null;
         } catch (Throwable error) {
             failure = error.getClass().getName() + ": " + error.getMessage();
-            binder = null;
+            unlinkCurrentBinder();
         }
     }
 

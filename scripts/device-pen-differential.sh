@@ -107,7 +107,8 @@ capture_snapshot() {
 echo "Building and capturing the supplied reference libneo_pen.so"
 ANDROID_HOME="$SDK_ROOT" ANDROID_SDK_ROOT="$SDK_ROOT" \
   "$ROOT/gradlew" -p "$ROOT" :onyxsdk-pen:assembleDebugAndroidTest \
-  -PpenReferenceNeoSo="$REFERENCE_LIBRARY" "${NOTABLE_GRADLE_ARG[@]}" >/dev/null
+  -PpenReferenceNeoSo="$REFERENCE_LIBRARY" \
+  ${NOTABLE_GRADLE_ARG[@]+"${NOTABLE_GRADLE_ARG[@]}"} >/dev/null
 capture_snapshot "$TMP/reference.txt"
 if [[ -n "$NOTABLE_LIBRARY" ]]; then
   echo "Capturing the hash-pinned Notable 0.2.3 libneopen_jni.so"
@@ -117,7 +118,7 @@ fi
 echo "Building and capturing the Rust implementation"
 ANDROID_HOME="$SDK_ROOT" ANDROID_SDK_ROOT="$SDK_ROOT" \
   "$ROOT/gradlew" -p "$ROOT" :onyxsdk-pen:assembleDebugAndroidTest \
-  "${NOTABLE_GRADLE_ARG[@]}" >/dev/null
+  ${NOTABLE_GRADLE_ARG[@]+"${NOTABLE_GRADLE_ARG[@]}"} >/dev/null
 capture_snapshot "$TMP/candidate.txt"
 
 python3 "$ROOT/scripts/compare-pen-snapshots.py" \
@@ -130,5 +131,5 @@ fi
 echo "Running the complete candidate instrumentation suite"
 ANDROID_HOME="$SDK_ROOT" ANDROID_SDK_ROOT="$SDK_ROOT" \
   "$ROOT/gradlew" -p "$ROOT" :onyxsdk-pen:connectedDebugAndroidTest \
-  "${NOTABLE_GRADLE_ARG[@]}" >/dev/null
+  ${NOTABLE_GRADLE_ARG[@]+"${NOTABLE_GRADLE_ARG[@]}"} >/dev/null
 echo "Device pen differential and candidate instrumentation passed on $SERIAL."

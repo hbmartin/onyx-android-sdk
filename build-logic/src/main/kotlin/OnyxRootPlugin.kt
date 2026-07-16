@@ -82,7 +82,7 @@ class OnyxRootPlugin : Plugin<Project> {
 
         tasks.register("assembleRecovered") {
             group = "build"
-            description = "Builds all six source-native release AARs."
+            description = "Builds every registered source-native release AAR."
             dependsOn(releaseTasks)
         }
 
@@ -198,7 +198,7 @@ class OnyxRootPlugin : Plugin<Project> {
         }
         tasks.register<Exec>("verifyPublicationMetadata") {
             group = "verification"
-            description = "Validates all six generated Maven publications without credentials."
+            description = "Validates every registered generated Maven publication without credentials."
             dependsOn(releaseTasks, publicationArtifactTasks)
             commandLine(
                 "python3",

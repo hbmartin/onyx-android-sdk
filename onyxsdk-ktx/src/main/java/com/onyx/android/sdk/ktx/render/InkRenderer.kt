@@ -56,9 +56,11 @@ private class NativePointCommand(
     override val bounds = RectF(x - radius, y - radius, x + radius, y + radius)
 
     override fun draw(canvas: Canvas, paint: Paint) {
-        val drawingPaint = Paint(paint)
-        alpha?.let { drawingPaint.alpha = it }
-        canvas.drawCircle(x, y, radius, drawingPaint)
+        if (alpha == null) {
+            canvas.drawCircle(x, y, radius, paint)
+        } else {
+            canvas.drawCircle(x, y, radius, Paint(paint).apply { this.alpha = alpha })
+        }
     }
 }
 

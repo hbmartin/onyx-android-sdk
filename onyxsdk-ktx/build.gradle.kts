@@ -17,6 +17,7 @@ dependencies {
     implementation(libs.coroutines.android)
 
     testImplementation(libs.junit4)
+    testImplementation(libs.robolectric)
 }
 
 tasks.register("assembleRecovered") {

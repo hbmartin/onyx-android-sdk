@@ -56,12 +56,16 @@ private class RecoveredKtxHarness(
                 recordRefresh(surface)
                 recordSessionAndCommit(surface)
                 recordRenderers()
-                exportDiagnostics()
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (failure: Throwable) {
                 recorder.failure("sdk-facade", "automated", failure)
             } finally {
+                withContext(NonCancellable) {
+                    runCatching { exportDiagnostics() }.onFailure { failure ->
+                        recorder.failure("sdk-facade", "diagnostics_export", failure)
+                    }
+                }
                 finishIfActive(finished)
             }
         }
@@ -158,7 +162,14 @@ private class RecoveredKtxHarness(
             PenKind.entries.associateWith { kind ->
                 InkRenderer.create(kind, BrushConfiguration(widthPx = 4f)).fold(
                     onSuccess = { renderer ->
-                        renderer.use { it.render(points).getOrThrow().bounds.toString() }
+                        renderer.use {
+                            it.render(points).fold(
+                                onSuccess = { frame -> frame.bounds.toString() },
+                                onFailure = { failure ->
+                                    "${failure.javaClass.simpleName}: ${failure.message}"
+                                },
+                            )
+                        }
                     },
                     onFailure = { "${it.javaClass.simpleName}: ${it.message}" },
                 )
