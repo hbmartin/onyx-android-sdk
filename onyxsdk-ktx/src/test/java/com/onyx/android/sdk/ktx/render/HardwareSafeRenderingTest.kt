@@ -25,6 +25,23 @@ class HardwareSafeRenderingTest {
     }
 
     @Test
+    fun monochromeSoftwareFallbackPreservesAuthoredAlpha() {
+        val result = 0x4000ff00.toInt().toHardwareSafeColor(
+            HardwareRenderingProfile(
+                colorMode = DisplayColorMode.MONOCHROME,
+                colorDepthBits = 4,
+                nativeAlpha = NativeAlphaSupport.OPAQUE_ONLY,
+                maximumHardwareStrokeWidthPx = 20f,
+            ),
+            alphaPolicy = AlphaPolicy.PRESERVE_USING_SOFTWARE,
+        )
+
+        assertEquals(0x40, result.color ushr 24)
+        assertEquals(RenderingPath.SOFTWARE_CANVAS, result.path)
+        assertTrue(RenderingWarning.ALPHA_REQUIRES_SOFTWARE in result.warnings)
+    }
+
+    @Test
     fun unknownWidthLimitChoosesLosslessSoftwareFallback() {
         val result = 200f.toHardwareSafeStrokeWidth(
             HardwareRenderingProfile(

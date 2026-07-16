@@ -75,7 +75,7 @@ fun Int.toHardwareSafeColor(
         DisplayColorMode.MONOCHROME -> {
             val gray = luminance(alphaSafe.color)
             alphaSafe.copy(
-                color = argb(CHANNEL_MAX, gray, gray, gray),
+                color = argb(channel(alphaSafe.color, ALPHA_SHIFT), gray, gray, gray),
                 warnings = alphaSafe.warnings + RenderingWarning.COLOR_CONVERTED_TO_GRAYSCALE,
             )
         }

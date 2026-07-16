@@ -4,7 +4,7 @@ use std::any::Any;
 use std::collections::HashMap;
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::sync::atomic::{AtomicI32, AtomicI64, Ordering};
-use std::sync::{Mutex, OnceLock};
+use std::sync::{Arc, Mutex, MutexGuard, OnceLock};
 
 use jni::objects::{JDoubleArray, JFloatArray, JIntArray, JObject, JObjectArray, JValue};
 use jni::strings::JNIString;
@@ -232,6 +232,8 @@ struct PenState {
     last: Option<Touch>,
     last_width: f32,
     history: Vec<Touch>,
+    brush_sign_traveled: f32,
+    brush_sign_segments_seen: usize,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -251,6 +253,8 @@ impl PenState {
             last: None,
             last_width,
             history: Vec::new(),
+            brush_sign_traveled: 0.0,
+            brush_sign_segments_seen: 0,
         }
     }
 
@@ -258,6 +262,8 @@ impl PenState {
         self.last = None;
         self.last_width = self.config.width.max(self.config.min_width);
         self.history.clear();
+        self.brush_sign_traveled = 0.0;
+        self.brush_sign_segments_seen = 0;
     }
 
     fn transform(&self, mut point: Touch) -> Touch {
@@ -720,7 +726,11 @@ impl PenState {
         let dx = end.x - start.x;
         let dy = end.y - start.y;
         let length = (dx * dx + dy * dy).sqrt();
-        if length <= f32::EPSILON || ink.points.len().saturating_add(8) > MAX_OUTPUT_FLOAT_VALUES {
+        if length <= f32::EPSILON {
+            return;
+        }
+        if ink.points.len().saturating_add(8) > MAX_OUTPUT_FLOAT_VALUES {
+            ink.overflowed = true;
             return;
         }
         let nx = -dy / length;
@@ -740,6 +750,7 @@ impl PenState {
         ink.point_sizes.push(8);
     }
 
+    #[cfg(test)]
     fn brush_sign_segments(&self, points: &[Touch], finish: bool) -> InkData {
         let mut ink = InkData::default();
         if points.len() < 2 {
@@ -776,6 +787,44 @@ impl PenState {
                 start_width = start_width.max(end_width);
             }
             Self::push_brush_sign_segment(&mut ink, start, end, start_width, end_width);
+        }
+        ink
+    }
+
+    fn emit_incremental_brush_sign(&mut self, points: &[Touch], finish: bool) -> InkData {
+        let mut ink = InkData::default();
+        let point_limit = self.config.start_point_limit.max(0.0).round() as usize;
+        for (input_index, end) in points.iter().copied().enumerate() {
+            let Some(start) = self.history.last().copied() else {
+                self.history.push(end);
+                self.last = Some(end);
+                continue;
+            };
+            let previous = self.history.iter().rev().nth(1).copied();
+            let distance = ((end.x - start.x).powi(2) + (end.y - start.y).powi(2)).sqrt();
+            self.brush_sign_traveled += distance;
+            let segment_index = self.brush_sign_segments_seen;
+            self.brush_sign_segments_seen = self.brush_sign_segments_seen.saturating_add(1);
+            if segment_index >= point_limit
+                && self.brush_sign_traveled >= self.config.start_length_limit
+            {
+                let mut start_width = self.brush_sign_width(previous, start);
+                let mut end_width = self.brush_sign_width(Some(start), end);
+                if finish && input_index + 1 == points.len() {
+                    let velocity = Self::segment_velocity(start, end);
+                    let velocity_thinning = (velocity / (velocity + 1.0))
+                        * self.config.end_velocity_sensitivity.clamp(0.0, 1.0);
+                    let thinning = self.config.end_thinning_rate.max(velocity_thinning);
+                    end_width *= 1.0 - thinning.clamp(0.0, 1.0);
+                    start_width = start_width.max(end_width);
+                }
+                Self::push_brush_sign_segment(&mut ink, start, end, start_width, end_width);
+            }
+            self.history.push(end);
+            if self.history.len() > 2 {
+                self.history.remove(0);
+            }
+            self.last = Some(end);
         }
         ink
     }
@@ -822,6 +871,14 @@ impl PenState {
                 }
             }
             Phase::Move => {
+                if self.pen_type == 10 {
+                    real = self.emit_incremental_brush_sign(&transformed, false);
+                    if let Some(point) = prediction.map(|point| self.transform(point)) {
+                        let mut scratch = self.clone();
+                        predicted = scratch.emit_incremental_brush_sign(&[point], false);
+                    }
+                    return (real, predicted);
+                }
                 let previous_history = self.history.clone();
                 self.history.extend(transformed.iter().copied());
                 self.last = self.history.last().copied();
@@ -902,16 +959,6 @@ impl PenState {
                             predicted = self.pencil_ink(&points, 33);
                         }
                     }
-                    10 => {
-                        let mut points = previous_history;
-                        points.extend(transformed.iter().copied());
-                        real = self.brush_sign_segments(&points, false);
-                        if let Some(point) = prediction.map(|point| self.transform(point)) {
-                            let mut predicted_points = points;
-                            predicted_points.push(point);
-                            predicted = self.brush_sign_segments(&predicted_points, false);
-                        }
-                    }
                     _ => {}
                 }
             }
@@ -919,6 +966,10 @@ impl PenState {
                 let Some(end) = transformed.first().copied() else {
                     return (real, predicted);
                 };
+                if self.pen_type == 10 {
+                    real = self.emit_incremental_brush_sign(&[end], true);
+                    return (real, predicted);
+                }
                 match self.pen_type {
                     1 => {
                         if let Some(point) = self.history.last().copied() {
@@ -991,11 +1042,6 @@ impl PenState {
                         points.push(end);
                         real = self.pencil_ink(&points, 31);
                     }
-                    10 => {
-                        let mut points = self.history.clone();
-                        points.push(end);
-                        real = self.brush_sign_segments(&points, true);
-                    }
                     _ => {}
                 }
                 self.history.push(end);
@@ -1010,7 +1056,7 @@ struct Runtime {
     next_handle: AtomicI64,
     next_logger: AtomicI64,
     registered_logger: AtomicI64,
-    pens: Mutex<HashMap<i64, PenState>>,
+    pens: Mutex<HashMap<i64, Arc<Mutex<PenState>>>>,
     log_level: AtomicI32,
     legacy_handle: Mutex<Option<i64>>,
     legacy_bitmaps: Mutex<Vec<Stamp>>,
@@ -1027,6 +1073,12 @@ fn runtime() -> &'static Runtime {
         legacy_handle: Mutex::new(None),
         legacy_bitmaps: Mutex::new(Vec::new()),
     })
+}
+
+fn lock_recover<T>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {
+    mutex
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
 }
 
 fn get_float(env: &mut Env, object: &JObject, name: &str, default: f32) -> f32 {
@@ -1325,20 +1377,29 @@ fn build_result<'local>(
     }
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum ProcessHandleError {
+    Missing,
+    Poisoned,
+}
+
 fn process_handle(
     handle: i64,
     touches: &[Touch],
     prediction: Option<Touch>,
     phase: Phase,
-) -> Option<(InkData, InkData, i32)> {
-    let mut pens = runtime().pens.lock().ok()?;
-    let pen = pens.get_mut(&handle)?;
+) -> Result<(InkData, InkData, i32), ProcessHandleError> {
+    let pen = lock_recover(&runtime().pens)
+        .get(&handle)
+        .cloned()
+        .ok_or(ProcessHandleError::Missing)?;
+    let mut pen = pen.lock().map_err(|_| ProcessHandleError::Poisoned)?;
     let (real, predicted) = pen.process(touches, prediction, phase);
     let color = pen.config.color;
     if phase == Phase::Up {
         pen.reset();
     }
-    Some((real, predicted, color))
+    Ok((real, predicted, color))
 }
 
 fn throw_native_failure(env: &mut Env, message: &str) {
@@ -1441,19 +1502,8 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenNative_nativeCreatePe
             .with_env(|env| -> jni::errors::Result<jlong> {
                 let handle = runtime().next_handle.fetch_add(1, Ordering::Relaxed);
                 let state = PenState::new(pen_type, read_config(env, &config, false));
-                Ok(match runtime().pens.lock() {
-                    Ok(mut pens) => {
-                        pens.insert(handle, state);
-                        handle
-                    }
-                    Err(_) => {
-                        throw_native_failure(
-                            env,
-                            "[NATIVE_FAILURE] Renderer state lock is poisoned",
-                        );
-                        0
-                    }
-                })
+                lock_recover(&runtime().pens).insert(handle, Arc::new(Mutex::new(state)));
+                Ok(handle)
             })
             .resolve::<jni::errors::LogErrorAndDefault>()
     })
@@ -1465,19 +1515,10 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenNative_nativeDestroyP
     _object: JObject,
     handle: jlong,
 ) {
-    jni_boundary(&mut env, |env| match runtime().pens.lock() {
-        Ok(mut pens) => {
-            // The recovered Java wrapper has no destroyed-state guard and the original native
-            // implementation treated defensive double-destroy as an idempotent no-op.
-            pens.remove(&handle);
-        }
-        Err(_) => {
-            env.with_env(|owned| -> jni::errors::Result<()> {
-                throw_native_failure(owned, "[NATIVE_FAILURE] Renderer state lock is poisoned");
-                Ok(())
-            })
-            .resolve::<jni::errors::LogErrorAndDefault>();
-        }
+    jni_boundary(&mut env, |_| {
+        // The recovered Java wrapper has no destroyed-state guard and the original native
+        // implementation treated defensive double-destroy as an idempotent no-op.
+        lock_recover(&runtime().pens).remove(&handle);
     });
 }
 
@@ -1509,9 +1550,17 @@ fn render_call(
         },
         None => None,
     };
-    let Some((real, predicted, color)) = process_handle(handle, &touches, predicted_touch, phase)
-    else {
-        return JObject::null().into_raw();
+    let (real, predicted, color) = match process_handle(handle, &touches, predicted_touch, phase) {
+        Ok(result) => result,
+        Err(ProcessHandleError::Missing) => return JObject::null().into_raw(),
+        Err(ProcessHandleError::Poisoned) => {
+            throw_api_failure(
+                env,
+                api,
+                "[NATIVE_FAILURE] Renderer handle is unavailable after a caught panic",
+            );
+            return JObject::null().into_raw();
+        }
     };
     if real.overflowed || predicted.overflowed {
         throw_api_failure(
@@ -1690,20 +1739,8 @@ pub extern "system" fn Java_com_onyx_android_sdk_pennative_NeoPenNative_nativeCr
             .with_env(|env| -> jni::errors::Result<jlong> {
                 let handle = runtime().next_handle.fetch_add(1, Ordering::Relaxed);
                 let state = PenState::new(pen_type, read_config(env, &config, true));
-                Ok(match runtime().pens.lock() {
-                    Ok(mut pens) => {
-                        pens.insert(handle, state);
-                        handle
-                    }
-                    Err(_) => {
-                        throw_api_failure(
-                            env,
-                            JavaResultApi::Modern,
-                            "[NATIVE_FAILURE] Renderer state lock is poisoned",
-                        );
-                        0
-                    }
-                })
+                lock_recover(&runtime().pens).insert(handle, Arc::new(Mutex::new(state)));
+                Ok(handle)
             })
             .resolve::<jni::errors::LogErrorAndDefault>()
     })
@@ -1715,21 +1752,8 @@ pub extern "system" fn Java_com_onyx_android_sdk_pennative_NeoPenNative_nativeDe
     _object: JObject,
     handle: jlong,
 ) {
-    modern_jni_boundary(&mut env, |env| match runtime().pens.lock() {
-        Ok(mut pens) => {
-            pens.remove(&handle);
-        }
-        Err(_) => {
-            env.with_env(|owned| -> jni::errors::Result<()> {
-                throw_api_failure(
-                    owned,
-                    JavaResultApi::Modern,
-                    "[NATIVE_FAILURE] Renderer state lock is poisoned",
-                );
-                Ok(())
-            })
-            .resolve::<jni::errors::LogErrorAndDefault>();
-        }
+    modern_jni_boundary(&mut env, |_| {
+        lock_recover(&runtime().pens).remove(&handle);
     });
 }
 
@@ -1903,7 +1927,7 @@ pub extern "system" fn Java_com_onyx_android_sdk_pennative_NeoPenNative_nativeSe
 }
 
 fn legacy_handle() -> Option<i64> {
-    runtime().legacy_handle.lock().ok().and_then(|guard| *guard)
+    *lock_recover(&runtime().legacy_handle)
 }
 
 #[no_mangle]
@@ -1927,18 +1951,9 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenWrapper_nativeInitPen
                 let pen_type = get_int(env, &config, "type", 1);
                 let handle = runtime().next_handle.fetch_add(1, Ordering::Relaxed);
                 let state = PenState::new(pen_type, read_config(env, &config, false));
-                if let Ok(mut pens) = runtime().pens.lock() {
-                    pens.insert(handle, state);
-                } else {
-                    throw_native_failure(env, "[NATIVE_FAILURE] Renderer state lock is poisoned");
-                    return Ok(false);
-                }
-                if let Ok(mut legacy) = runtime().legacy_handle.lock() {
-                    if let Some(old) = legacy.replace(handle) {
-                        if let Ok(mut pens) = runtime().pens.lock() {
-                            pens.remove(&old);
-                        }
-                    }
+                lock_recover(&runtime().pens).insert(handle, Arc::new(Mutex::new(state)));
+                if let Some(old) = lock_recover(&runtime().legacy_handle).replace(handle) {
+                    lock_recover(&runtime().pens).remove(&old);
                 }
                 Ok(true)
             })
@@ -1952,12 +1967,8 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenWrapper_nativeDestroy
     _class: JObject,
 ) {
     jni_boundary(&mut env, |_| {
-        if let Ok(mut legacy) = runtime().legacy_handle.lock() {
-            if let Some(handle) = legacy.take() {
-                if let Ok(mut pens) = runtime().pens.lock() {
-                    pens.remove(&handle);
-                }
-            }
+        if let Some(handle) = lock_recover(&runtime().legacy_handle).take() {
+            lock_recover(&runtime().pens).remove(&handle);
         }
     });
 }
@@ -2038,8 +2049,18 @@ fn legacy_call(env: &mut Env, points: JDoubleArray, phase: Phase) -> jobjectArra
             return JObjectArray::<JObject>::null().into_raw();
         }
     };
-    let Some((ink, _, _)) = process_handle(handle, &touches, None, phase) else {
-        return JObjectArray::<JObject>::null().into_raw();
+    let ink = match process_handle(handle, &touches, None, phase) {
+        Ok((ink, _, _)) => ink,
+        Err(ProcessHandleError::Missing) => {
+            return JObjectArray::<JObject>::null().into_raw();
+        }
+        Err(ProcessHandleError::Poisoned) => {
+            throw_native_failure(
+                env,
+                "[NATIVE_FAILURE] Renderer handle is unavailable after a caught panic",
+            );
+            return JObjectArray::<JObject>::null().into_raw();
+        }
     };
     if ink.overflowed {
         throw_native_failure(
@@ -2048,9 +2069,7 @@ fn legacy_call(env: &mut Env, points: JDoubleArray, phase: Phase) -> jobjectArra
         );
         return JObjectArray::<JObject>::null().into_raw();
     }
-    if let Ok(mut stamps) = runtime().legacy_bitmaps.lock() {
-        *stamps = ink.stamps.clone();
-    }
+    *lock_recover(&runtime().legacy_bitmaps) = ink.stamps.clone();
     build_legacy_points(env, &ink)
         .map(JObjectArray::into_raw)
         .unwrap_or_else(|_| JObjectArray::<JObject>::null().into_raw())
@@ -2080,12 +2099,14 @@ fn legacy_compute(env: &mut Env, points: JDoubleArray) -> jobjectArray {
 
     // Offline rendering runs on a scratch copy of the legacy pen so an
     // in-progress interactive stroke on the shared handle is not reset.
-    let Some(mut scratch) = runtime()
-        .pens
-        .lock()
-        .ok()
-        .and_then(|pens| pens.get(&handle).cloned())
-    else {
+    let Some(pen) = lock_recover(&runtime().pens).get(&handle).cloned() else {
+        return JObjectArray::<JObject>::null().into_raw();
+    };
+    let Ok(mut scratch) = pen.lock().map(|pen| pen.clone()) else {
+        throw_native_failure(
+            env,
+            "[NATIVE_FAILURE] Renderer handle is unavailable after a caught panic",
+        );
         return JObjectArray::<JObject>::null().into_raw();
     };
     scratch.reset();
@@ -2113,9 +2134,7 @@ fn legacy_compute(env: &mut Env, points: JDoubleArray) -> jobjectArray {
         );
         return JObjectArray::<JObject>::null().into_raw();
     }
-    if let Ok(mut stamps) = runtime().legacy_bitmaps.lock() {
-        *stamps = combined.stamps.clone();
-    }
+    *lock_recover(&runtime().legacy_bitmaps) = combined.stamps.clone();
     build_legacy_points(env, &combined)
         .map(JObjectArray::into_raw)
         .unwrap_or_else(|_| JObjectArray::<JObject>::null().into_raw())
@@ -2184,20 +2203,10 @@ pub extern "system" fn Java_com_onyx_android_sdk_pen_NeoPenWrapper_nativeCompute
 }
 
 fn rendered_bitmaps(env: &mut Env) -> jobjectArray {
-    let stamps = runtime()
-        .legacy_bitmaps
-        .lock()
-        .map(|value| value.clone())
-        .unwrap_or_default();
+    let stamps = lock_recover(&runtime().legacy_bitmaps).clone();
     let color = legacy_handle()
-        .and_then(|handle| {
-            runtime()
-                .pens
-                .lock()
-                .ok()?
-                .get(&handle)
-                .map(|pen| pen.config.color)
-        })
+        .and_then(|handle| lock_recover(&runtime().pens).get(&handle).cloned())
+        .and_then(|pen| pen.lock().ok().map(|pen| pen.config.color))
         .unwrap_or(0xff00_0000u32 as i32);
     let Ok(array) = env.new_object_array(
         stamps.len() as i32,
@@ -2347,6 +2356,25 @@ mod tests {
     }
 
     #[test]
+    fn brush_sign_reports_output_limit_instead_of_silently_truncating() {
+        let mut ink = InkData {
+            points: vec![0.0; MAX_OUTPUT_FLOAT_VALUES],
+            ..InkData::default()
+        };
+
+        PenState::push_brush_sign_segment(
+            &mut ink,
+            touch(0.0, 0.0, 0.5, 1.0),
+            touch(1.0, 0.0, 0.5, 2.0),
+            1.0,
+            1.0,
+        );
+
+        assert!(ink.overflowed);
+        assert!(ink.point_sizes.is_empty());
+    }
+
+    #[test]
     fn brush_sign_skips_segments_before_the_start_point_limit() {
         let pen = PenState::new(
             10,
@@ -2374,6 +2402,34 @@ mod tests {
         assert_eq!(ink.points[2], 3.0);
         assert_eq!(ink.points[4], 3.0);
         assert_eq!(ink.points[6], 2.0);
+    }
+
+    #[test]
+    fn brush_sign_emits_each_segment_once_across_calls() {
+        let config = PenConfig {
+            width: 7.0,
+            min_width: 0.5,
+            end_thinning_rate: 0.4,
+            ..PenConfig::default()
+        };
+        let points = [
+            touch(0.0, 0.0, 0.3, 1.0),
+            touch(10.0, 2.0, 0.5, 2.0),
+            touch(20.0, 6.0, 0.7, 3.0),
+            touch(30.0, 7.0, 0.2, 4.0),
+        ];
+        let expected = PenState::new(10, config.clone()).brush_sign_segments(&points, true);
+        let mut pen = PenState::new(10, config);
+
+        pen.process(&points[..1], None, Phase::Down);
+        let (first, _) = pen.process(&points[1..2], None, Phase::Move);
+        let (second, _) = pen.process(&points[2..3], None, Phase::Move);
+        let (last, _) = pen.process(&points[3..], None, Phase::Up);
+        let actual_points = [first.points, second.points, last.points].concat();
+        let actual_sizes = [first.point_sizes, second.point_sizes, last.point_sizes].concat();
+
+        assert_eq!(actual_sizes, vec![8, 8, 8]);
+        assert_eq!(actual_points, expected.points);
     }
 
     #[test]
@@ -2642,12 +2698,55 @@ mod tests {
         runtime()
             .pens
             .lock()
-            .unwrap()
-            .insert(handle, PenState::new(1, PenConfig::default()));
-        assert!(process_handle(handle, &[touch(0.0, 0.0, 0.5, 1.0)], None, Phase::Down).is_some());
-        assert!(runtime().pens.lock().unwrap().remove(&handle).is_some());
-        assert!(process_handle(handle, &[touch(1.0, 1.0, 0.5, 2.0)], None, Phase::Move).is_none());
-        assert!(runtime().pens.lock().unwrap().remove(&handle).is_none());
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
+            .insert(
+                handle,
+                Arc::new(Mutex::new(PenState::new(1, PenConfig::default()))),
+            );
+        assert!(process_handle(handle, &[touch(0.0, 0.0, 0.5, 1.0)], None, Phase::Down).is_ok());
+        assert!(lock_recover(&runtime().pens).remove(&handle).is_some());
+        assert!(matches!(
+            process_handle(handle, &[touch(1.0, 1.0, 0.5, 2.0)], None, Phase::Move),
+            Err(ProcessHandleError::Missing)
+        ));
+        assert!(lock_recover(&runtime().pens).remove(&handle).is_none());
+    }
+
+    #[test]
+    fn a_panicked_pen_handle_does_not_poison_other_handles() {
+        let poisoned_handle = runtime().next_handle.fetch_add(1, Ordering::Relaxed);
+        let healthy_handle = runtime().next_handle.fetch_add(1, Ordering::Relaxed);
+        let poisoned_pen = Arc::new(Mutex::new(PenState::new(1, PenConfig::default())));
+        lock_recover(&runtime().pens).insert(poisoned_handle, poisoned_pen.clone());
+        lock_recover(&runtime().pens).insert(
+            healthy_handle,
+            Arc::new(Mutex::new(PenState::new(1, PenConfig::default()))),
+        );
+
+        let _ = catch_unwind(AssertUnwindSafe(|| {
+            let _pen = poisoned_pen.lock().unwrap();
+            panic!("poison only this pen handle");
+        }));
+
+        assert!(matches!(
+            process_handle(
+                poisoned_handle,
+                &[touch(0.0, 0.0, 0.5, 1.0)],
+                None,
+                Phase::Down
+            ),
+            Err(ProcessHandleError::Poisoned)
+        ));
+        assert!(process_handle(
+            healthy_handle,
+            &[touch(0.0, 0.0, 0.5, 1.0)],
+            None,
+            Phase::Down
+        )
+        .is_ok());
+
+        lock_recover(&runtime().pens).remove(&poisoned_handle);
+        lock_recover(&runtime().pens).remove(&healthy_handle);
     }
 
     #[test]

@@ -16,7 +16,7 @@ import org.junit.Test
 
 class CollectorBoundEventStreamTest {
     @Test
-    fun cancelledCollectorDoesNotLeakBufferedEventsToNextCollector() = runBlocking {
+    fun cancelledCollectorDiscardsItsPrivateBuffer() = runBlocking {
         val stream = CollectorBoundEventStream<Int>()
         assertFalse(stream.tryEmit(0))
 
@@ -32,6 +32,7 @@ class CollectorBoundEventStreamTest {
         assertEquals(1, firstValue.await())
         assertTrue(stream.tryEmit(2))
         firstCollector.cancelAndJoin()
+        assertFalse(stream.tryEmit(20))
 
         val secondValue = async(start = CoroutineStart.UNDISPATCHED) {
             stream.flow.first()

@@ -111,8 +111,8 @@ private object ProcessRawInkLease {
 class RawInkSession private constructor(
     private val surfaceView: SurfaceView,
     private val configuration: RawInkConfiguration,
-    private val leaseOwner: Any,
     private val actorDispatcher: CoroutineDispatcher,
+    private val releaseLease: () -> Unit,
 ) : PenSession {
     private val scope = CoroutineScope(SupervisorJob() + actorDispatcher)
     private val commands = Channel<Command>(Channel.UNLIMITED)
@@ -289,11 +289,11 @@ class RawInkSession private constructor(
     }
 
     override suspend fun closeAndAwait(): Result<Unit> {
-        if (closed) return Result.success(Unit)
+        if (closed) return closeCommand.reply.await()
         if (closeRequested.compareAndSet(false, true)) {
             if (commands.trySend(closeCommand).isFailure) {
                 return if (closed) {
-                    Result.success(Unit)
+                    closeCommand.reply.await()
                 } else {
                     Result.failure(
                         OnyxFailure.InvalidState("raw.close", null, "Session command queue is closed"),
@@ -305,7 +305,10 @@ class RawInkSession private constructor(
     }
 
     override suspend fun pause(): Result<Unit> {
-        if (closed) return Result.success(Unit)
+        if (closed) {
+            val failure = (mutableState.value as? RawInkSessionState.Failed)?.failure
+            return failure?.let { Result.failure(it) } ?: Result.success(Unit)
+        }
         return request(Command.SetPaused(SuspensionReason.REQUESTED, true))
     }
 
@@ -394,35 +397,15 @@ class RawInkSession private constructor(
     }
 
     private suspend fun abortActor(command: Command, failure: Throwable) {
-        val typed = failure as? OnyxFailure ?: OnyxFailure.FirmwareRejected(
-            "raw.actor",
-            null,
-            failure.message ?: "Raw ink actor failed",
-            failure,
+        val typed = terminateFailedSession(
+            failure as? OnyxFailure ?: OnyxFailure.FirmwareRejected(
+                "raw.actor",
+                null,
+                failure.message ?: "Raw ink actor failed",
+                failure,
+            ),
         )
-        closeRequested.set(true)
-        closed = true
-        failSession(typed)
-        try {
-            releaseFirmwareResources()
-        } catch (cleanupFailure: Throwable) {
-            typed.addSuppressed(cleanupFailure)
-        } finally {
-            helper = null
-            priorConfiguration = null
-            currentStroke = null
-            currentTool = null
-            mutableStrokeActive.value = false
-            ProcessRawInkLease.release(leaseOwner)
-            strokeChannel.close(typed)
-            eventStream.close(typed)
-            completeFailure(command, typed)
-            completeFailure(closeCommand, typed)
-            commands.close(typed)
-            failQueuedRequests(typed)
-            mutableState.value = RawInkSessionState.Failed(typed)
-            (actorDispatcher as? Closeable)?.close()
-        }
+        completeFailure(command, typed)
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -461,14 +444,14 @@ class RawInkSession private constructor(
     private suspend fun handleSurfaceCreated() {
         if (closed) return
         surfaceGeneration++
-        runFirmwareOperation("raw.surface-created") {
+        val result = runFirmwareOperation("raw.surface-created") {
             if (effectiveSuspensionReason() == null) {
                 startOrResumeForSurface()
             } else {
                 updateSuspendedState(requireNotNull(effectiveSuspensionReason()))
             }
         }
-            .onFailure(::failSession)
+        result.exceptionOrNull()?.let { terminateFailedSession(it) }
     }
 
     private suspend fun startOrResumeForSurface() {
@@ -550,7 +533,7 @@ class RawInkSession private constructor(
                     currentStroke = null
                     currentTool = null
                     mutableStrokeActive.value = false
-                    failSession(failure)
+                    terminateFailedSession(failure)
                 }
             }
             PenPhase.UP -> {
@@ -666,6 +649,7 @@ class RawInkSession private constructor(
         var cleanupFailure: Throwable? = null
         var previousUpdateMode: UpdateMode? = null
         var viewModeApplied = false
+        var viewModeRestored = false
         val warnings = mutableSetOf(CommitWarning.BEST_EFFORT_NOT_HARDWARE_ATOMIC)
         val outcome = try {
             withContext(Dispatchers.Main.immediate) {
@@ -734,17 +718,12 @@ class RawInkSession private constructor(
                 )
                 previousUpdateMode?.takeIf { viewModeApplied }?.let {
                     EpdController.setViewDefaultUpdateModeOrThrow(surfaceView, it)
+                    viewModeRestored = true
                 }
             }
             val refreshResult = awaitEpdIdle(command.options.refreshTimeout)
             if (refreshResult.isFailure) throw requireNotNull(refreshResult.exceptionOrNull())
             val refresh = refreshResult.getOrThrow()
-            withContext(Dispatchers.Main.immediate) {
-                applyConfiguration(requireNotNull(helper))
-                (helper as? TouchHelper)?.setRawDrawingRenderEnabled(true)
-                (helper as? TouchHelper)?.setRawInputReaderEnable(true)
-            }
-            mutableState.value = RawInkSessionState.Active(generation)
             Result.success(
                 CommitReceipt(
                     surfaceGeneration = generation,
@@ -779,8 +758,9 @@ class RawInkSession private constructor(
             withContext(NonCancellable + Dispatchers.Main.immediate) {
                 try {
                     if (generation == surfaceGeneration && surfaceView.holder.surface.isValid) {
-                        previousUpdateMode?.takeIf { viewModeApplied }?.let {
+                        previousUpdateMode?.takeIf { viewModeApplied && !viewModeRestored }?.let {
                             EpdController.setViewDefaultUpdateModeOrThrow(surfaceView, it)
+                            viewModeRestored = true
                         }
                         helper?.let(::applyConfiguration)
                         (helper as? TouchHelper)?.setRawDrawingRenderEnabled(true)
@@ -808,7 +788,7 @@ class RawInkSession private constructor(
             )
         }
         if (cleanup != null) {
-            failSession(cleanup)
+            terminateFailedSession(cleanup)
             return Result.failure(cleanup)
         }
         return outcome
@@ -817,6 +797,7 @@ class RawInkSession private constructor(
     private suspend fun closeOnActor(): Result<Unit> {
         if (closed) return Result.success(Unit)
         mutableState.value = RawInkSessionState.Closing
+        var closeFailure: OnyxFailure? = null
         return try {
             releaseFirmwareResources()
             mutableState.value = RawInkSessionState.Closed
@@ -828,7 +809,8 @@ class RawInkSession private constructor(
                 failure.message ?: "Raw ink close failed",
                 failure,
             )
-            failSession(typed)
+            closeFailure = typed
+            mutableState.value = RawInkSessionState.Failed(typed)
             Result.failure(typed)
         } finally {
             closed = true
@@ -837,10 +819,47 @@ class RawInkSession private constructor(
             currentStroke = null
             currentTool = null
             mutableStrokeActive.value = false
-            strokeChannel.close()
-            eventStream.close()
-            ProcessRawInkLease.release(leaseOwner)
+            mutablePreview.value = null
+            strokeChannel.close(closeFailure)
+            eventStream.close(closeFailure)
+            releaseLease()
         }
+    }
+
+    private suspend fun terminateFailedSession(failure: Throwable): OnyxFailure {
+        val typed = failure as? OnyxFailure ?: OnyxFailure.InvalidState(
+            "raw.session",
+            null,
+            failure.message ?: failure.javaClass.simpleName,
+        )
+        if (closed) {
+            mutableState.value = RawInkSessionState.Failed(typed)
+            return typed
+        }
+        closeRequested.set(true)
+        closed = true
+        mutableState.value = RawInkSessionState.Failed(typed)
+        try {
+            releaseFirmwareResources()
+        } catch (cleanupFailure: Throwable) {
+            typed.addSuppressed(cleanupFailure)
+        } finally {
+            helper = null
+            priorConfiguration = null
+            currentStroke = null
+            currentTool = null
+            mutableStrokeActive.value = false
+            mutablePreview.value = null
+            releaseLease()
+            strokeChannel.close(typed)
+            eventStream.close(typed)
+            completeFailure(closeCommand, typed)
+            commands.close(typed)
+            failQueuedRequests(typed)
+            mutableState.value = RawInkSessionState.Failed(typed)
+            (actorDispatcher as? Closeable)?.close()
+        }
+        return typed
     }
 
     private suspend fun releaseFirmwareResources() {
@@ -903,15 +922,6 @@ class RawInkSession private constructor(
             )
         }
         current.setRawDrawingEnabled(true, RawDrawingConfigurationPolicy.PRESERVE_CURRENT)
-    }
-
-    private fun failSession(failure: Throwable) {
-        val typed = failure as? OnyxFailure ?: OnyxFailure.InvalidState(
-            "raw.session",
-            null,
-            failure.message ?: failure.javaClass.simpleName,
-        )
-        mutableState.value = RawInkSessionState.Failed(typed)
     }
 
     private fun surfaceChanged(expected: Long) = OnyxFailure.SurfaceChanged(
@@ -1004,7 +1014,9 @@ class RawInkSession private constructor(
                 Thread(runnable, "onyx-raw-ink").apply { isDaemon = true }
             }.asCoroutineDispatcher()
             val session = try {
-                RawInkSession(surfaceView, configuration, owner, dispatcher)
+                RawInkSession(surfaceView, configuration, dispatcher) {
+                    ProcessRawInkLease.release(owner)
+                }
             } catch (failure: Throwable) {
                 dispatcher.close()
                 ProcessRawInkLease.release(owner)

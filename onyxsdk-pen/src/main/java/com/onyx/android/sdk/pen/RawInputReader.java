@@ -44,6 +44,7 @@ public class RawInputReader {
     private static final long I = 60;
     private static final ExecutorService J;
     private static final AtomicLong READER_SESSIONS = new AtomicLong();
+    private final Object rawInputListenerLock = new Object();
     private final AtomicLong eventSequences = new AtomicLong();
     private volatile RawInputListenerV2 rawInputListenerV2;
     private volatile RawInputDeviceInfo rawInputDeviceInfo;
@@ -238,10 +239,12 @@ public class RawInputReader {
 
     @AnyThread
     public void setRawInputListenerV2(RawInputListenerV2 listener) {
-        this.rawInputListenerV2 = listener;
-        RawInputDeviceInfo info = this.rawInputDeviceInfo;
-        if (listener != null && info != null) {
-            listener.onRawInputDeviceInfo(info);
+        synchronized (rawInputListenerLock) {
+            this.rawInputListenerV2 = listener;
+            RawInputDeviceInfo info = this.rawInputDeviceInfo;
+            if (listener != null && info != null) {
+                notifyRawInputDeviceInfoLocked(listener, info);
+            }
         }
     }
 
@@ -455,10 +458,12 @@ public class RawInputReader {
                 axisOrNull(tiltXMin, tiltXMax, tiltXFuzz, tiltXFlat, tiltXResolution),
                 axisOrNull(tiltYMin, tiltYMax, tiltYFuzz, tiltYFlat, tiltYResolution),
                 kernelMonotonicClock);
-        this.rawInputDeviceInfo = info;
-        RawInputListenerV2 listener = this.rawInputListenerV2;
-        if (listener != null) {
-            listener.onRawInputDeviceInfo(info);
+        synchronized (rawInputListenerLock) {
+            this.rawInputDeviceInfo = info;
+            RawInputListenerV2 listener = this.rawInputListenerV2;
+            if (listener != null) {
+                notifyRawInputDeviceInfoLocked(listener, info);
+            }
         }
     }
 
@@ -479,10 +484,6 @@ public class RawInputReader {
             boolean shortcutErasing,
             int state,
             long timestampNanos) {
-        RawInputListenerV2 listener = this.rawInputListenerV2;
-        if (listener == null) {
-            return;
-        }
         RawInputPhase phase;
         switch (state) {
             case 0:
@@ -502,27 +503,63 @@ public class RawInputReader {
             default:
                 return;
         }
-        TouchPoint mapped = new TouchPoint(rawX, rawY, pressure, 0, tiltX, tiltY, 0L);
-        d(mapped);
-        int maximum = Math.max(1, this.rawPressureMaximum);
-        float normalized = Math.max(0.0f, Math.min(1.0f, ((float) pressure) / maximum));
-        RawInputTool tool = !erasing
-                ? RawInputTool.PEN
-                : (shortcutErasing ? RawInputTool.SIDE_ERASER : RawInputTool.TAIL_ERASER);
-        listener.onRawInputEvent(new RawInputEventV2(
-                phase,
-                tool,
-                mapped.x,
-                mapped.y,
-                pressure,
-                normalized,
-                maximum,
-                tiltX,
-                tiltY,
-                timestampNanos,
-                this.eventSequences.incrementAndGet(),
-                state == 3,
-                state == 6));
+        synchronized (rawInputListenerLock) {
+            RawInputListenerV2 listener = this.rawInputListenerV2;
+            if (listener == null) {
+                return;
+            }
+            TouchPoint mapped = new TouchPoint(rawX, rawY, pressure, 0, tiltX, tiltY, 0L);
+            d(mapped);
+            int maximum = Math.max(1, this.rawPressureMaximum);
+            float normalized = Math.max(0.0f, Math.min(1.0f, ((float) pressure) / maximum));
+            RawInputTool tool = !erasing
+                    ? RawInputTool.PEN
+                    : (shortcutErasing ? RawInputTool.SIDE_ERASER : RawInputTool.TAIL_ERASER);
+            notifyRawInputEventLocked(listener, new RawInputEventV2(
+                    phase,
+                    tool,
+                    mapped.x,
+                    mapped.y,
+                    pressure,
+                    normalized,
+                    maximum,
+                    tiltX,
+                    tiltY,
+                    timestampNanos,
+                    this.eventSequences.incrementAndGet(),
+                    state == 3,
+                    state == 6));
+        }
+    }
+
+    private void notifyRawInputDeviceInfoLocked(
+            RawInputListenerV2 listener, RawInputDeviceInfo info) {
+        try {
+            listener.onRawInputDeviceInfo(info);
+        } catch (ThreadDeath | VirtualMachineError fatal) {
+            throw fatal;
+        } catch (Throwable failure) {
+            detachFailedRawInputListener(listener, failure);
+        }
+    }
+
+    private void notifyRawInputEventLocked(
+            RawInputListenerV2 listener, RawInputEventV2 event) {
+        try {
+            listener.onRawInputEvent(event);
+        } catch (ThreadDeath | VirtualMachineError fatal) {
+            throw fatal;
+        } catch (Throwable failure) {
+            detachFailedRawInputListener(listener, failure);
+        }
+    }
+
+    private void detachFailedRawInputListener(
+            RawInputListenerV2 listener, Throwable failure) {
+        Log.e(w, "RawInputListenerV2 callback failed; listener detached", failure);
+        if (this.rawInputListenerV2 == listener) {
+            this.rawInputListenerV2 = null;
+        }
     }
 
     public EventBusHolder getEventBusHolder() {

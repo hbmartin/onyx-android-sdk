@@ -146,9 +146,13 @@ public class TouchHelper {
             it.next().setLimitRect(limitRect, excludeRectList);
         }
         observe(null, null, null, null, null, null, null, null,
-                limitRect == null ? new ArrayList<>() : java.util.Collections.singletonList(limitRect),
+                observedSingleLimit(limitRect),
                 excludeRectList);
         return this;
+    }
+
+    static List<Rect> observedSingleLimit(Rect limitRect) {
+        return limitRect == null ? null : java.util.Collections.singletonList(limitRect);
     }
 
     public TouchHelper setExcludeRect(List<Rect> excludeRectList) {
@@ -416,19 +420,7 @@ public class TouchHelper {
     @AnyThread
     public RawDrawingConfigurationSnapshot captureRawDrawingConfiguration() {
         synchronized (configurationLock) {
-            RawDrawingConfigurationSnapshot value = observedConfiguration;
-            return new RawDrawingConfigurationSnapshot(
-                    value.getStrokeStyle(),
-                    value.getStrokeColor(),
-                    value.getStrokeWidth(),
-                    value.isBrushEnabled(),
-                    value.isEraserEnabled(),
-                    value.getEraserStyle(),
-                    value.isSideButtonEraserEnabled(),
-                    value.isSingleRegionMode(),
-                    value.getLimitRegions(),
-                    value.getExcludeRegions(),
-                    value.getEvidence());
+            return observedConfiguration;
         }
     }
 

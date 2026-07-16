@@ -28,6 +28,7 @@ dependencies {
     api(project(":onyxsdk-device"))
     api(project(":onyxsdk-base:support:onyxsdk-baselite"))
     api(project(":onyxsdk-base:support:onyxsdk-commons-io"))
+    api(libs.androidx.appcompat)
     api(libs.androidx.fragment)
     api(libs.androidx.databinding.common)
     api(libs.fastjson)

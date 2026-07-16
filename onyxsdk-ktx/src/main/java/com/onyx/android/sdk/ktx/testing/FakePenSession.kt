@@ -49,12 +49,14 @@ class FakePenSession(
 
     suspend fun emit(event: PenEvent) {
         check(!closed.get()) { "FakePenSession is closed" }
+        if (mutableState.value !is RawInkSessionState.Active) return
         eventChannel.send(event)
-        mutablePreview.value = event.toPreview()
+        event.toPreview()?.let { mutablePreview.value = it }
     }
 
     suspend fun emit(stroke: InkStroke) {
         check(!closed.get()) { "FakePenSession is closed" }
+        if (mutableState.value !is RawInkSessionState.Active) return
         strokeChannel.send(stroke)
     }
 

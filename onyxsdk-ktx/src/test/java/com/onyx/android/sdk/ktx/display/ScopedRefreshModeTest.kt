@@ -55,6 +55,29 @@ class ScopedRefreshModeTest {
         assertEquals(1, cleared.get())
     }
 
+    @Test
+    fun failedClearDoesNotRetainLogicalModeOwnership() = runBlocking {
+        val appliedModes = mutableListOf<TransientUpdateMode>()
+        val owner = ScopedRefreshModeOwner(
+            applyMode = { mode ->
+                appliedModes += mode
+                Result.success(Unit)
+            },
+            clearMode = { Result.failure(IllegalStateException("firmware clear failed")) },
+            asynchronousScope = this,
+        )
+
+        val first = owner.acquire(TransientUpdateMode.ANIMATION).getOrThrow()
+        assertTrue(first.closeAndAwait().isFailure)
+        val second = owner.acquire(TransientUpdateMode.ANIMATION_QUALITY).getOrThrow()
+
+        assertEquals(
+            listOf(TransientUpdateMode.ANIMATION, TransientUpdateMode.ANIMATION_QUALITY),
+            appliedModes,
+        )
+        assertTrue(second.closeAndAwait().isFailure)
+    }
+
     private fun owner(
         applied: AtomicInteger,
         cleared: AtomicInteger,

@@ -2,6 +2,7 @@ package com.onyx.android.sdk.pen.touch;
 
 import android.annotation.SuppressLint;
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import com.onyx.android.sdk.api.device.epd.EpdController;
@@ -27,6 +28,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class AppTouchRender implements TouchRender {
+    private static final String TAG = AppTouchRender.class.getSimpleName();
+    private final Object rawInputListenerLock = new Object();
     private AppTouchInputReader a;
     private boolean b;
     private boolean c;
@@ -152,8 +155,10 @@ public class AppTouchRender implements TouchRender {
 
     @Override
     public void setRawInputListenerV2(RawInputListenerV2 listener) {
-        this.rawInputListenerV2 = listener;
         if (listener == null) {
+            synchronized (rawInputListenerLock) {
+                this.rawInputListenerV2 = null;
+            }
             return;
         }
         View host = getHostView();
@@ -163,8 +168,12 @@ public class AppTouchRender implements TouchRender {
         RawInputAxisRange y = host == null
                 ? null
                 : new RawInputAxisRange(0, Math.max(1, host.getHeight()), 0, 0, 0);
-        listener.onRawInputDeviceInfo(new RawInputDeviceInfo(
-                x, y, new RawInputAxisRange(0, 4096, 0, 0, 0), null, null, true));
+        RawInputDeviceInfo info = new RawInputDeviceInfo(
+                x, y, new RawInputAxisRange(0, 4096, 0, 0, 0), null, null, true);
+        synchronized (rawInputListenerLock) {
+            this.rawInputListenerV2 = listener;
+            notifyRawInputDeviceInfoLocked(listener, info);
+        }
     }
 
     private void emitRawInput(
@@ -172,25 +181,57 @@ public class AppTouchRender implements TouchRender {
             TouchPoint point,
             boolean outsideLimitRegion,
             boolean forced) {
-        RawInputListenerV2 listener = rawInputListenerV2;
-        if (listener == null) {
-            return;
+        synchronized (rawInputListenerLock) {
+            RawInputListenerV2 listener = rawInputListenerV2;
+            if (listener == null) {
+                return;
+            }
+            float normalizedPressure = Math.max(0.0f, Math.min(1.0f, point.getPressure()));
+            notifyRawInputEventLocked(listener, new RawInputEventV2(
+                    phase,
+                    rawInputTool,
+                    point.getX(),
+                    point.getY(),
+                    Math.round(normalizedPressure * 4096.0f),
+                    normalizedPressure,
+                    4096,
+                    point.getTiltX(),
+                    point.getTiltY(),
+                    point.getTimestamp() * 1_000_000L,
+                    rawSequence.incrementAndGet(),
+                    outsideLimitRegion,
+                    forced));
         }
-        float normalizedPressure = Math.max(0.0f, Math.min(1.0f, point.getPressure()));
-        listener.onRawInputEvent(new RawInputEventV2(
-                phase,
-                rawInputTool,
-                point.getX(),
-                point.getY(),
-                Math.round(normalizedPressure * 4096.0f),
-                normalizedPressure,
-                4096,
-                point.getTiltX(),
-                point.getTiltY(),
-                point.getTimestamp() * 1_000_000L,
-                rawSequence.incrementAndGet(),
-                outsideLimitRegion,
-                forced));
+    }
+
+    private void notifyRawInputDeviceInfoLocked(
+            RawInputListenerV2 listener, RawInputDeviceInfo info) {
+        try {
+            listener.onRawInputDeviceInfo(info);
+        } catch (ThreadDeath | VirtualMachineError fatal) {
+            throw fatal;
+        } catch (Throwable failure) {
+            detachFailedRawInputListener(listener, failure);
+        }
+    }
+
+    private void notifyRawInputEventLocked(
+            RawInputListenerV2 listener, RawInputEventV2 event) {
+        try {
+            listener.onRawInputEvent(event);
+        } catch (ThreadDeath | VirtualMachineError fatal) {
+            throw fatal;
+        } catch (Throwable failure) {
+            detachFailedRawInputListener(listener, failure);
+        }
+    }
+
+    private void detachFailedRawInputListener(
+            RawInputListenerV2 listener, Throwable failure) {
+        Log.e(TAG, "RawInputListenerV2 callback failed; listener detached", failure);
+        if (rawInputListenerV2 == listener) {
+            rawInputListenerV2 = null;
+        }
     }
 
     @Override // com.onyx.android.sdk.pen.touch.TouchRender

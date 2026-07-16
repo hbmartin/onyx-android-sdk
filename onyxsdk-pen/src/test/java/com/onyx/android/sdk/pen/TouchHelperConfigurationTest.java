@@ -1,6 +1,7 @@
 package com.onyx.android.sdk.pen;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import com.onyx.android.sdk.pen.touch.TouchRender;
 import java.lang.reflect.Proxy;
@@ -39,5 +40,10 @@ public class TouchHelperConfigurationTest {
 
         assertEquals(1, filterCalls.get());
         assertEquals(0, refreshCalls.get());
+    }
+
+    @Test
+    public void nullSingleLimitLeavesTheObservedLimitUnchanged() {
+        assertNull(TouchHelper.observedSingleLimit(null));
     }
 }

@@ -129,6 +129,55 @@ public class FirmwareBinderBackendTest {
     }
 
     @Test
+    public void resetUnlinksTheInstalledDeathRecipient() throws Exception {
+        AtomicInteger unlinks = new AtomicInteger();
+        IBinder.DeathRecipient recipient = () -> {};
+        IBinder target = (IBinder) Proxy.newProxyInstance(
+                IBinder.class.getClassLoader(),
+                new Class<?>[]{IBinder.class},
+                (proxy, method, args) -> {
+                    if ("isBinderAlive".equals(method.getName())) return true;
+                    if ("unlinkToDeath".equals(method.getName())) {
+                        assertEquals(recipient, args[0]);
+                        unlinks.incrementAndGet();
+                        return true;
+                    }
+                    if ("toString".equals(method.getName())) return "linked-binder";
+                    throw new AssertionError("Unexpected IBinder call: " + method.getName());
+                });
+        FirmwareBinderBackend backend = backendWithBinder(target);
+        setField(backend, "deathRecipient", recipient);
+
+        backend.resetForExternalExemption();
+
+        assertEquals(1, unlinks.get());
+        assertNull(readField(backend, "binder"));
+        assertNull(readField(backend, "deathRecipient"));
+    }
+
+    @Test
+    public void terminalInitializationFailureIsCached() throws Exception {
+        FirmwareBinderBackend backend = new FirmwareBinderBackend();
+        synchronized (backend) {
+            setField(backend, "initialized", true);
+            setField(backend, "binder", null);
+            setField(backend, "failure", "cached terminal failure");
+            @SuppressWarnings("unchecked")
+            Map<String, Integer> codes =
+                    (Map<String, Integer>) readField(backend, "transactionCodes");
+            codes.put(OPERATION, CODE);
+        }
+
+        FirmwareBackendInfo first = backend.info();
+        FirmwareBackendInfo second = backend.info();
+
+        assertEquals("cached terminal failure", first.getFailure());
+        assertEquals("cached terminal failure", second.getFailure());
+        assertEquals(Integer.valueOf(CODE), first.getTransactionCodes().get(OPERATION));
+        assertEquals(Integer.valueOf(CODE), second.getTransactionCodes().get(OPERATION));
+    }
+
+    @Test
     public void transactionSnapshotCannotMixStateAcrossReset() throws Exception {
         CountDownLatch secondAliveCheck = new CountDownLatch(1);
         CountDownLatch releaseAliveCheck = new CountDownLatch(1);
@@ -225,6 +274,12 @@ public class FirmwareBinderBackendTest {
         Field field = target.getClass().getDeclaredField(name);
         field.setAccessible(true);
         field.set(target, value);
+    }
+
+    private static Object readField(Object target, String name) throws Exception {
+        Field field = target.getClass().getDeclaredField(name);
+        field.setAccessible(true);
+        return field.get(target);
     }
 
     private static void waitForResetToBlockOrComplete(

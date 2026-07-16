@@ -54,6 +54,10 @@ val buildRustAndroid = tasks.register<Exec>("buildRustAndroid") {
                         destination.resolve(modern.name),
                         overwrite = true,
                     )
+                    // The modern ABI belongs to pen-core. Removing this copy keeps the legacy
+                    // AAR duplicate-free while still allowing androidTest to package pen-core's
+                    // library through the normal project dependency.
+                    modern.delete()
                 }
             }
         referenceSoPath.orNull?.let { referencePath ->
@@ -64,11 +68,14 @@ val buildRustAndroid = tasks.register<Exec>("buildRustAndroid") {
             reference.copyTo(jniArm64.resolve("libneo_pen$sharedLibrarySuffix"), overwrite = true)
         }
         val notableTarget = projectDir.resolve(
-            "src/androidTest/jniLibs/arm64-v8a/libneopen_jni$sharedLibrarySuffix",
+            "src/androidTest/jniLibs/arm64-v8a/libnotable_neopen_jni$sharedLibrarySuffix",
         )
         val notableRuntimeTarget = projectDir.resolve(
             "src/androidTest/jniLibs/arm64-v8a/libc++_shared$sharedLibrarySuffix",
         )
+        projectDir.resolve(
+            "src/androidTest/jniLibs/arm64-v8a/libneopen_jni$sharedLibrarySuffix",
+        ).delete()
         notableTarget.delete()
         notableRuntimeTarget.delete()
         notableSoPath.orNull?.takeIf(String::isNotBlank)?.let { notablePath ->
@@ -88,12 +95,6 @@ val buildRustAndroid = tasks.register<Exec>("buildRustAndroid") {
 
 android {
     namespace = "com.onyx.android.sdk.pen"
-
-    packaging {
-        jniLibs {
-            excludes += "**/libneopen_jni.so"
-        }
-    }
 
     defaultConfig {
         consumerProguardFiles("consumer-rules.pro")

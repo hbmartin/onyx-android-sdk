@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import java.lang.reflect.Modifier
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -78,9 +79,14 @@ class PennativeApiContractTest {
 
     @Test
     fun penInkValueObjectsMatchThe104Behavior() {
-        val ink = PenInk(floatArrayOf(1f, 2.5f), intArrayOf(2), emptyArray<Bitmap>())
-        assertEquals("PenInk: 2 -> [1.0,2.5]", ink.toString())
-        assertEquals(ink, PenInkResult(ink, ink).realInk)
-        assertEquals(ink, PenInkResult.create(ink, ink).predictionInk)
+        val real = PenInk(floatArrayOf(1f, 2.5f), intArrayOf(2), emptyArray<Bitmap>())
+        val prediction = PenInk(floatArrayOf(3f, 4.5f), intArrayOf(2), emptyArray<Bitmap>())
+        assertEquals("PenInk: 2 -> [1.0,2.5]", real.toString())
+        val direct = PenInkResult(real, prediction)
+        val created = PenInkResult.create(real, prediction)
+        assertSame(real, direct.realInk)
+        assertSame(prediction, direct.predictionInk)
+        assertSame(real, created.realInk)
+        assertSame(prediction, created.predictionInk)
     }
 }
