@@ -2,6 +2,7 @@ package com.onyx.android.sdk.utils;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -73,6 +74,23 @@ public class RecoveredRenderingAndStorageTest {
             source.recycle();
             rounded.recycle();
             original.recycle();
+        }
+    }
+
+    @Test
+    public void resizedRoundedBitmapPreservesInputAndDimensions() {
+        Bitmap source = Bitmap.createBitmap(9, 7, Bitmap.Config.ARGB_8888);
+        source.eraseColor(Color.BLUE);
+        Bitmap rounded = BitmapUtils.roundCornerBitmap(source, 17, 13, 5.0f);
+        try {
+            assertFalse(source.isRecycled());
+            assertEquals(17, rounded.getWidth());
+            assertEquals(13, rounded.getHeight());
+            assertEquals(Color.BLUE, rounded.getPixel(8, 6));
+        }
+        finally {
+            source.recycle();
+            rounded.recycle();
         }
     }
 
