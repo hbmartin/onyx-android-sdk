@@ -57,7 +57,12 @@ public final class RawInputListeners {
         private synchronized void scheduleNext() {
             active = tasks.poll();
             if (active != null) {
-                delegate.execute(active);
+                try {
+                    delegate.execute(active);
+                } catch (RuntimeException | Error failure) {
+                    active = null;
+                    throw failure;
+                }
             }
         }
     }

@@ -141,7 +141,7 @@ class RawInkSession private constructor(
 
     override val state: StateFlow<RawInkSessionState> = mutableState.asStateFlow()
 
-    /** Lossless, ordered unified event stream with an enforced single collector. */
+    /** Lossless and ordered while collected; events are not retained without a collector. */
     override val events: Flow<PenEvent> = flow {
         check(eventConsumer.compareAndSet(false, true)) {
             "RawInkSession.events supports one collector at a time"
@@ -510,14 +510,16 @@ class RawInkSession private constructor(
     private suspend fun handleRawEvent(event: Command.RawEvent) {
         if (mutableState.value !is RawInkSessionState.Active) return
         val point = event.point
-        eventChannel.send(
-            PenEvent(
-                phase = event.phase,
-                point = point,
-                outsideLimitRegion = event.outsideLimitRegion,
-                forced = event.forced,
-            ),
-        )
+        if (eventConsumer.get()) {
+            eventChannel.send(
+                PenEvent(
+                    phase = event.phase,
+                    point = point,
+                    outsideLimitRegion = event.outsideLimitRegion,
+                    forced = event.forced,
+                ),
+            )
+        }
         if (event.phase == PenPhase.PROXIMITY) return
         val previewPhase = when (event.phase) {
             PenPhase.DOWN -> InkPreview.Phase.DOWN

@@ -1,14 +1,17 @@
 package com.onyx.android.sdk.pen;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
@@ -48,6 +51,27 @@ public class RawInputListenersTest {
     @Test
     public void legacyCallbackMethodsAreOptional() {
         new RawInputCallback() { };
+    }
+
+    @Test
+    public void rejectedExecutionDoesNotLeaveDispatcherStuck() {
+        AtomicInteger attempts = new AtomicInteger();
+        AtomicInteger delivered = new AtomicInteger();
+        Executor rejectOnce = command -> {
+            if (attempts.getAndIncrement() == 0) {
+                throw new RejectedExecutionException("first dispatch rejected");
+            }
+            command.run();
+        };
+        RawInputListenerV2 listener = RawInputListeners.dispatching(
+                rejectOnce,
+                event -> delivered.incrementAndGet());
+
+        assertThrows(RejectedExecutionException.class, () -> listener.onRawInputEvent(event(1)));
+        listener.onRawInputEvent(event(2));
+
+        assertEquals(2, attempts.get());
+        assertEquals(1, delivered.get());
     }
 
     private static RawInputEventV2 event(long sequence) {
