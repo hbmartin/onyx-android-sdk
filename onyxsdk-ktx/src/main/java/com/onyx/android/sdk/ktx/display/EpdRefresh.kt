@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 import kotlin.time.Duration
@@ -104,7 +105,7 @@ internal class FirmwareWaitCoordinator(
                 }
             } ?: return FirmwareWaitAttempt.Unavailable
             return try {
-                withContext(Dispatchers.IO) {
+                runInterruptible(Dispatchers.IO) {
                     future.get(timeout.inWholeMilliseconds.coerceAtLeast(1), TimeUnit.MILLISECONDS)
                 }
                 FirmwareWaitAttempt.Returned

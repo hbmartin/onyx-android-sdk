@@ -81,14 +81,13 @@ final class FirmwareBinderBackend {
     }
 
     int queryInt(String operation) {
-        IBinder target = requireBinder(operation);
-        int code = requireCode(operation);
+        TransactionTarget transaction = requireTransaction(operation);
         Parcel data = Parcel.obtain();
         Parcel reply = Parcel.obtain();
         try {
-            data.writeInterfaceToken(interfaceToken);
-            if (!target.transact(code, data, reply, 0)) {
-                throw rejected(operation, code);
+            data.writeInterfaceToken(transaction.interfaceToken);
+            if (!transaction.binder.transact(transaction.code, data, reply, 0)) {
+                throw rejected(operation, transaction.code);
             }
             if (reply.dataAvail() < Integer.BYTES) {
                 throw new FirmwareOperationException(
@@ -99,7 +98,7 @@ final class FirmwareBinderBackend {
             if (error instanceof FirmwareOperationException) {
                 throw (FirmwareOperationException) error;
             }
-            invalidate(error);
+            invalidate(transaction, error);
             throw new FirmwareOperationException(
                     operation, BACKEND, "Firmware query failed", error);
         } finally {
@@ -109,14 +108,13 @@ final class FirmwareBinderBackend {
     }
 
     float queryFloat(String operation) {
-        IBinder target = requireBinder(operation);
-        int code = requireCode(operation);
+        TransactionTarget transaction = requireTransaction(operation);
         Parcel data = Parcel.obtain();
         Parcel reply = Parcel.obtain();
         try {
-            data.writeInterfaceToken(interfaceToken);
-            if (!target.transact(code, data, reply, 0)) {
-                throw rejected(operation, code);
+            data.writeInterfaceToken(transaction.interfaceToken);
+            if (!transaction.binder.transact(transaction.code, data, reply, 0)) {
+                throw rejected(operation, transaction.code);
             }
             if (reply.dataAvail() < Float.BYTES) {
                 throw new FirmwareOperationException(
@@ -132,7 +130,7 @@ final class FirmwareBinderBackend {
             if (error instanceof FirmwareOperationException) {
                 throw (FirmwareOperationException) error;
             }
-            invalidate(error);
+            invalidate(transaction, error);
             throw new FirmwareOperationException(
                     operation, BACKEND, "Firmware float query failed", error);
         } finally {
@@ -146,22 +144,21 @@ final class FirmwareBinderBackend {
     }
 
     private void transactVoid(String operation, @Nullable ParcelWriter writer) {
-        IBinder target = requireBinder(operation);
-        int code = requireCode(operation);
+        TransactionTarget transaction = requireTransaction(operation);
         Parcel data = Parcel.obtain();
         try {
-            data.writeInterfaceToken(interfaceToken);
+            data.writeInterfaceToken(transaction.interfaceToken);
             if (writer != null) {
                 writer.write(data);
             }
-            if (!target.transact(code, data, null, 0)) {
-                throw rejected(operation, code);
+            if (!transaction.binder.transact(transaction.code, data, null, 0)) {
+                throw rejected(operation, transaction.code);
             }
         } catch (RemoteException | RuntimeException error) {
             if (error instanceof FirmwareOperationException) {
                 throw (FirmwareOperationException) error;
             }
-            invalidate(error);
+            invalidate(transaction, error);
             throw new FirmwareOperationException(
                     operation, BACKEND, "Firmware transaction failed", error);
         } finally {
@@ -174,16 +171,7 @@ final class FirmwareBinderBackend {
                 operation, BACKEND, "Firmware rejected transaction code " + code);
     }
 
-    private synchronized int requireCode(String operation) {
-        Integer code = transactionCodes.get(operation);
-        if (code == null || code <= 0) {
-            throw new FirmwareOperationException(
-                    operation, BACKEND, "Transaction code is not verified on this firmware");
-        }
-        return code;
-    }
-
-    private IBinder requireBinder(String operation) {
+    private synchronized TransactionTarget requireTransaction(String operation) {
         ensureInitialized();
         IBinder target = binder;
         if (target == null || !target.isBinderAlive()) {
@@ -191,12 +179,26 @@ final class FirmwareBinderBackend {
                     operation, BACKEND,
                     failure == null ? "SurfaceFlinger service is unavailable" : failure);
         }
-        return target;
+        Integer code = transactionCodes.get(operation);
+        if (code == null || code <= 0) {
+            throw new FirmwareOperationException(
+                    operation, BACKEND, "Transaction code is not verified on this firmware");
+        }
+        return new TransactionTarget(target, code, interfaceToken);
     }
 
-    private void invalidate(Throwable error) {
-        binder = null;
-        failure = error.getClass().getName() + ": " + error.getMessage();
+    private synchronized void invalidate(TransactionTarget transaction, Throwable error) {
+        if (binder == transaction.binder) {
+            binder = null;
+            failure = error.getClass().getName() + ": " + error.getMessage();
+        }
+    }
+
+    private synchronized void binderDied(IBinder deadBinder) {
+        if (binder == deadBinder) {
+            binder = null;
+            failure = "SurfaceFlinger Binder died";
+        }
     }
 
     @SuppressLint("PrivateApi")
@@ -235,10 +237,7 @@ final class FirmwareBinderBackend {
                 throw new IllegalStateException("SurfaceFlinger returned no Binder");
             }
             IBinder resolved = (IBinder) result;
-            resolved.linkToDeath(() -> {
-                binder = null;
-                failure = "SurfaceFlinger Binder died";
-            }, 0);
+            resolved.linkToDeath(() -> binderDied(resolved), 0);
             binder = resolved;
             failure = null;
         } catch (Throwable error) {
@@ -251,6 +250,18 @@ final class FirmwareBinderBackend {
         int code = ReflectUtil.getStaticIntDeclaredFieldSafely(helper, name);
         if (code > 0) {
             transactionCodes.put(name, code);
+        }
+    }
+
+    private static final class TransactionTarget {
+        private final IBinder binder;
+        private final int code;
+        private final String interfaceToken;
+
+        private TransactionTarget(IBinder binder, int code, String interfaceToken) {
+            this.binder = binder;
+            this.code = code;
+            this.interfaceToken = interfaceToken;
         }
     }
 

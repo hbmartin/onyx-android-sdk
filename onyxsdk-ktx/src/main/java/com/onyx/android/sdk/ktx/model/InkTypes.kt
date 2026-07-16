@@ -134,6 +134,9 @@ data class BrushConfiguration(
         require(velocityUpperBound in 0f..50f) {
             "velocityUpperBound must be in 0..50"
         }
+        require(velocityLowerBound <= velocityUpperBound) {
+            "velocityLowerBound must be less than or equal to velocityUpperBound"
+        }
         require(smoothLevel in 0f..1f) { "smoothLevel must be in 0..1" }
         require(startPointLimit.isFinite() && startPointLimit >= 0f) {
             "startPointLimit must be finite and non-negative"

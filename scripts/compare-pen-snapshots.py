@@ -161,9 +161,13 @@ def validate_notable_advanced(
     metrics: list[str] = []
     for pen_type in range(6, 10):
         for fast_mode in (False, True):
-            if not any(
+            expected_has_case = any(
                 key[0] == pen_type and key[1] == fast_mode for key in expected
-            ):
+            )
+            actual_has_case = any(
+                key[0] == pen_type and key[1] == fast_mode for key in actual
+            )
+            if not expected_has_case and not actual_has_case:
                 continue
             reference_coordinates: list[tuple[float, float]] = []
             candidate_coordinates: list[tuple[float, float]] = []
@@ -172,11 +176,17 @@ def validate_notable_advanced(
             for phase in ("down", "move", "up"):
                 for layer in ("real", "prediction"):
                     key = (pen_type, fast_mode, phase, layer)
-                    expected_ink = expected[key]
-                    actual_ink = actual[key]
+                    expected_ink = expected.get(key)
+                    actual_ink = actual.get(key)
                     label = (
                         f"type={pen_type},fast={fast_mode},phase={phase},ink={layer}"
                     )
+                    if expected_ink is not None:
+                        expected_xy = record_coordinates(expected_ink)
+                        reference_coordinates.extend(expected_xy)
+                        reference_records += len(expected_ink.sizes)
+                    if actual_ink is None:
+                        continue
                     if len(actual_ink.points) != sum(actual_ink.sizes):
                         errors.append(f"{label}: point count does not match record sizes")
                         continue
@@ -188,15 +198,13 @@ def validate_notable_advanced(
                     if not all(math.isfinite(value) for value in actual_ink.points):
                         errors.append(f"{label}: candidate contains a non-finite value")
                         continue
-                    expected_xy = record_coordinates(expected_ink)
                     actual_xy = record_coordinates(actual_ink)
-                    reference_coordinates.extend(expected_xy)
                     candidate_coordinates.extend(actual_xy)
-                    reference_records += len(expected_ink.sizes)
                     candidate_records += len(actual_ink.sizes)
 
             final_key = (pen_type, fast_mode, "up", "real")
-            if not actual[final_key].sizes:
+            final_ink = actual.get(final_key)
+            if final_ink is None or not final_ink.sizes:
                 errors.append(
                     f"type={pen_type},fast={fast_mode}: final committed layer is empty"
                 )
@@ -253,7 +261,7 @@ def main() -> int:
     for key in sorted(expected.keys() & actual.keys()):
         if args.profile == "legacy" or key[0] <= 5:
             compare_values(key, expected[key], actual[key], errors)
-    if args.profile == "notable-0.2.3" and not errors:
+    if args.profile == "notable-0.2.3":
         metrics = validate_notable_advanced(expected, actual, errors)
     if errors:
         print("\n".join(errors))

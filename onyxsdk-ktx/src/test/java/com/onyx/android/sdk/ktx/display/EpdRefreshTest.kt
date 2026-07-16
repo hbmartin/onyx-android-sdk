@@ -4,14 +4,18 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class EpdRefreshTest {
     @Test
@@ -82,6 +86,37 @@ class EpdRefreshTest {
             assertSame(FirmwareWaitAttempt.Returned, second.await())
             assertEquals(2, calls.get())
         } finally {
+            executor.shutdownNow()
+        }
+    }
+
+    @Test
+    fun cancellationInterruptsBlockingFirmwareWait() = runBlocking {
+        val executor = Executors.newSingleThreadExecutor()
+        val started = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        val interrupted = CountDownLatch(1)
+        val coordinator = FirmwareWaitCoordinator(executor) {
+            started.countDown()
+            try {
+                release.await()
+            } catch (_: InterruptedException) {
+                interrupted.countDown()
+            }
+        }
+        val wait = async(start = CoroutineStart.UNDISPATCHED) {
+            coordinator.await(30.seconds)
+        }
+        try {
+            assertTrue(started.await(1, TimeUnit.SECONDS))
+
+            wait.cancel()
+            withTimeout(2.seconds) { wait.join() }
+
+            assertTrue(interrupted.await(1, TimeUnit.SECONDS))
+        } finally {
+            wait.cancel()
+            release.countDown()
             executor.shutdownNow()
         }
     }

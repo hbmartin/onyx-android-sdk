@@ -23,6 +23,26 @@ class AdvancedSnapshotValidationTest(unittest.TestCase):
         self.assertEqual([], metrics)
         self.assertEqual([], errors)
 
+    def test_candidate_only_advanced_case_is_still_validated(self):
+        safe_ink = compare_pen_snapshots.Ink((1.0, 2.0, 0.5), (3,), ())
+        malformed_ink = compare_pen_snapshots.Ink(
+            (float("nan"), 2.0, 0.5), (3,), ()
+        )
+        actual = {
+            (6, False, phase, layer): (
+                malformed_ink if (phase, layer) == ("move", "real") else safe_ink
+            )
+            for phase in ("down", "move", "up")
+            for layer in ("real", "prediction")
+        }
+        errors = []
+
+        compare_pen_snapshots.validate_notable_advanced({}, actual, errors)
+
+        self.assertTrue(
+            any("candidate contains a non-finite value" in error for error in errors)
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

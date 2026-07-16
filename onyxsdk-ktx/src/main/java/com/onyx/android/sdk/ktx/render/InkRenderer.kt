@@ -141,11 +141,12 @@ class InkRenderer private constructor(
         require(points.isNotEmpty()) { "points must not be empty" }
         synchronized(lock) {
             requireState(State.Drawing, "append")
-            points.chunked(NATIVE_POINT_CHUNK).mapIndexed { index, chunk ->
+            val chunks = points.chunked(NATIVE_POINT_CHUNK)
+            chunks.mapIndexed { index, chunk ->
                 NeoPenNative.onPenMove(
                     nativeHandle,
                     chunk.toNativePoints(),
-                    prediction?.takeIf { index == points.lastChunkIndex() }?.toNativePoint(),
+                    prediction?.takeIf { index == chunks.lastIndex }?.toNativePoint(),
                     false,
                 )
             }.toFrame(configuration)
@@ -290,13 +291,19 @@ private fun InkPoint.toNativePoint(): DoubleArray = doubleArrayOf(
 
 private fun List<InkPoint>.toNativePoints(): DoubleArray {
     val output = DoubleArray(size * NATIVE_VALUES_PER_POINT)
-    forEachIndexed { index, point ->
-        point.toNativePoint().copyInto(output, index * NATIVE_VALUES_PER_POINT)
+    var offset = 0
+    forEach { point ->
+        output[offset] = point.xPx.toDouble()
+        output[offset + 1] = point.yPx.toDouble()
+        output[offset + 2] = point.normalizedPressure.toDouble()
+        output[offset + 3] = 0.0
+        output[offset + 4] = point.tiltX.toDouble()
+        output[offset + 5] = point.tiltY.toDouble()
+        output[offset + 6] = point.eventTimeNanos.toDouble()
+        offset += NATIVE_VALUES_PER_POINT
     }
     return output
 }
-
-private fun List<InkPoint>.lastChunkIndex(): Int = (size - 1) / 1_024
 
 private fun PenInkResult?.toFrame(
     configuration: BrushConfiguration,

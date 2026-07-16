@@ -47,10 +47,16 @@ object OnyxSdk {
         val externalHiddenApiAccess = withContext(Dispatchers.Default) {
             synchronized(bootstrapLock) {
                 discoveryStarted.set(true)
-                if (
-                    ReflectUtil.getHiddenApiAccessStatus() == ReflectUtil.HiddenApiAccessStatus.FAILED &&
-                    !externalExemptionAttempted.get()
-                ) {
+                val initialBackend = EpdController.getFirmwareBackendInfo()
+                val hiddenApiStatus = initialBackend.hiddenApiAccessStatus
+                val accessCanBeRetried =
+                    hiddenApiStatus == ReflectUtil.HiddenApiAccessStatus.NOT_ATTEMPTED ||
+                        hiddenApiStatus == ReflectUtil.HiddenApiAccessStatus.FAILED
+                val shouldAttemptExternalProvider =
+                    !initialBackend.isAvailable &&
+                        accessCanBeRetried &&
+                        !externalExemptionAttempted.get()
+                if (shouldAttemptExternalProvider) {
                     exemptionProvider.get()?.let { provider ->
                         externalExemptionAttempted.set(true)
                         externalExemptionSucceeded.set(runCatching(provider::enable).isSuccess)

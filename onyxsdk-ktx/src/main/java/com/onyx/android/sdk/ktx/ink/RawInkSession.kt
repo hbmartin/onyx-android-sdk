@@ -5,6 +5,7 @@
     "CyclomaticComplexMethod",
     "DontForceCast",
     "InstanceOfCheckForException",
+    "LargeClass",
     "LongMethod",
     "MagicNumber",
     "NoCallbacksInFunctions",
@@ -714,16 +715,33 @@ class RawInkSession private constructor(
 
     private suspend fun releaseFirmwareResources() {
         withContext(NonCancellable + Dispatchers.Main.immediate) {
-            surfaceView.holder.removeCallback(surfaceCallback)
-            (helper as? TouchHelper)?.setRawInputListenerV2(null)
-            (helper as? TouchHelper)?.setRawInputReaderEnable(false)
-            (helper as? TouchHelper)?.setRawDrawingRenderEnabled(false)
-            (priorConfiguration as? RawDrawingConfigurationSnapshot)?.let {
-                (helper as? TouchHelper)?.applyRawDrawingConfiguration(it)
+            val activeHelper = helper as? TouchHelper
+            var firstFailure: Throwable? = null
+            fun attempt(action: () -> Unit) {
+                try {
+                    action()
+                } catch (failure: Throwable) {
+                    if (firstFailure == null) {
+                        firstFailure = failure
+                    } else if (firstFailure !== failure) {
+                        firstFailure?.addSuppressed(failure)
+                    }
+                }
             }
-            if ((helper as? TouchHelper)?.isRawDrawingCreated == true) {
-                (helper as? TouchHelper)?.closeRawDrawing()
+
+            attempt { surfaceView.holder.removeCallback(surfaceCallback) }
+            attempt { activeHelper?.setRawInputListenerV2(null) }
+            attempt { activeHelper?.setRawInputReaderEnable(false) }
+            attempt { activeHelper?.setRawDrawingRenderEnabled(false) }
+            attempt {
+                (priorConfiguration as? RawDrawingConfigurationSnapshot)?.let { configuration ->
+                    activeHelper?.applyRawDrawingConfiguration(configuration)
+                }
             }
+            attempt {
+                if (activeHelper?.isRawDrawingCreated == true) activeHelper.closeRawDrawing()
+            }
+            firstFailure?.let { throw it }
         }
     }
 
