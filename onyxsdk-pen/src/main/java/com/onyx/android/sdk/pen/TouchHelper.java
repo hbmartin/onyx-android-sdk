@@ -16,6 +16,7 @@ import com.onyx.android.sdk.utils.EventBusHolder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 public class TouchHelper {
     public static final int STROKE_STYLE_PENCIL = 0;
@@ -213,6 +214,20 @@ public class TouchHelper {
                     hasNativeReader && !(touchRender instanceof SFTouchRender) ? null : listener);
         }
         return this;
+    }
+
+    /**
+     * Installs a v2 listener whose ordered, non-overlapping callbacks run on {@code executor}.
+     * Passing {@code null} as the listener removes the current listener without using the executor.
+     */
+    @AnyThread
+    public TouchHelper setRawInputListenerV2(
+            RawInputListenerV2 listener, Executor executor) {
+        if (executor == null) {
+            throw new IllegalArgumentException("executor must not be null");
+        }
+        return setRawInputListenerV2(
+                listener == null ? null : RawInputListeners.dispatching(executor, listener));
     }
 
     public boolean isRawDrawingInputEnabled() {

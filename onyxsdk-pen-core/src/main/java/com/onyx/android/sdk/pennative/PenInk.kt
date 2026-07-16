@@ -10,7 +10,7 @@ class PenInk(
 ) {
     override fun toString(): String = buildString {
         append("PenInk: ${points.size} -> [")
-        if (points.isNotEmpty()) append(points.first())
+        if (points.isNotEmpty()) append(points[0])
         for (index in 1 until points.size) append(",${points[index]}")
         append(']')
     }

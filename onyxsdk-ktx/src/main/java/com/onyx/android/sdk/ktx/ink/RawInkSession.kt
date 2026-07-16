@@ -2,8 +2,10 @@
     // Actor-owned mutable state and broad cleanup boundaries are intentional: every mutation
     // happens on one dispatcher, and cleanup must convert arbitrary framework/native failures.
     "AvoidVarsExceptWithDelegate",
+    "AvoidMutableCollections",
     "CyclomaticComplexMethod",
     "DontForceCast",
+    "DoubleMutabilityForCollection",
     "InstanceOfCheckForException",
     "LargeClass",
     "LongMethod",
@@ -23,6 +25,9 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import com.onyx.android.sdk.api.device.epd.EpdController
 import com.onyx.android.sdk.api.device.epd.UpdateMode
 import com.onyx.android.sdk.data.note.TouchPoint
@@ -42,9 +47,10 @@ import com.onyx.android.sdk.ktx.model.InkStroke
 import com.onyx.android.sdk.ktx.model.InkTool
 import com.onyx.android.sdk.ktx.model.LeasePolicy
 import com.onyx.android.sdk.ktx.model.OnyxFailure
+import com.onyx.android.sdk.ktx.model.PenEvent
+import com.onyx.android.sdk.ktx.model.PenPhase
 import com.onyx.android.sdk.ktx.model.RawInkConfiguration
 import com.onyx.android.sdk.ktx.model.RegionMode
-import com.onyx.android.sdk.ktx.model.StrokeStyle
 import com.onyx.android.sdk.pen.RawDrawingConfigurationPolicy
 import com.onyx.android.sdk.pen.RawDrawingConfigurationSnapshot
 import com.onyx.android.sdk.pen.RawInputCallback
@@ -107,10 +113,12 @@ class RawInkSession private constructor(
     private val configuration: RawInkConfiguration,
     private val leaseOwner: Any,
     private val actorDispatcher: CoroutineDispatcher,
-) : Closeable {
+) : PenSession {
     private val scope = CoroutineScope(SupervisorJob() + actorDispatcher)
     private val commands = Channel<Command>(Channel.UNLIMITED)
+    private val eventChannel = Channel<PenEvent>(Channel.UNLIMITED)
     private val strokeChannel = Channel<InkStroke>(Channel.UNLIMITED)
+    private val eventConsumer = AtomicBoolean()
     private val strokeConsumer = AtomicBoolean()
     private val closeRequested = AtomicBoolean()
     private val closeCommand = Command.Close()
@@ -125,16 +133,31 @@ class RawInkSession private constructor(
     private var surfaceGeneration = 0L
     private var currentStroke: MutableList<InkPoint>? = null
     private var currentTool: InkTool? = null
+    private var manuallyPaused = false
+    private var lifecyclePaused = false
+    private var lifecycleBinding: LifecycleBinding? = null
     @Volatile
     private var closed = false
 
-    val state: StateFlow<RawInkSessionState> = mutableState.asStateFlow()
+    override val state: StateFlow<RawInkSessionState> = mutableState.asStateFlow()
+
+    /** Lossless, ordered unified event stream with an enforced single collector. */
+    override val events: Flow<PenEvent> = flow {
+        check(eventConsumer.compareAndSet(false, true)) {
+            "RawInkSession.events supports one collector at a time"
+        }
+        try {
+            for (event in eventChannel) emit(event)
+        } finally {
+            eventConsumer.set(false)
+        }
+    }
 
     /** Latest-wins preview. Sequence numbers make any coalesced intermediate updates explicit. */
-    val preview: StateFlow<InkPreview?> = mutablePreview.asStateFlow()
+    override val preview: StateFlow<InkPreview?> = mutablePreview.asStateFlow()
 
     /** Lossless channel with an enforced single collector. */
-    val completedStrokes: Flow<InkStroke> = flow {
+    override val completedStrokes: Flow<InkStroke> = flow {
         check(strokeConsumer.compareAndSet(false, true)) {
             "RawInkSession.completedStrokes supports one collector at a time"
         }
@@ -147,7 +170,6 @@ class RawInkSession private constructor(
 
     private val rawListener = object : RawInputListenerV2 {
         override fun onRawInputEvent(event: RawInputEventV2) {
-            if (event.phase == RawInputPhase.PROXIMITY) return
             commands.trySend(
                 Command.RawEvent(
                     point = InkPoint(
@@ -167,12 +189,13 @@ class RawInkSession private constructor(
                         },
                     ),
                     phase = when (event.phase) {
-                        RawInputPhase.DOWN -> InkPreview.Phase.DOWN
-                        RawInputPhase.MOVE -> InkPreview.Phase.MOVE
-                        RawInputPhase.UP -> InkPreview.Phase.UP
-                        RawInputPhase.PROXIMITY -> return
+                        RawInputPhase.DOWN -> PenPhase.DOWN
+                        RawInputPhase.MOVE -> PenPhase.MOVE
+                        RawInputPhase.UP -> PenPhase.UP
+                        RawInputPhase.PROXIMITY -> PenPhase.PROXIMITY
                     },
                     outsideLimitRegion = event.isOutsideLimitRegion,
+                    forced = event.isForced,
                 ),
             )
         }
@@ -232,11 +255,11 @@ class RawInkSession private constructor(
         }
     }
 
-    suspend fun commit(
+    override suspend fun commit(
         bitmap: Bitmap,
         destination: Rect,
-        dirtyRegion: Rect = destination,
-        options: CommitOptions = CommitOptions(),
+        dirtyRegion: Rect,
+        options: CommitOptions,
     ): Result<CommitReceipt> {
         if (bitmap.isRecycled) {
             return Result.failure(OnyxFailure.InvalidArgument("raw.commit", "bitmap is recycled"))
@@ -273,7 +296,7 @@ class RawInkSession private constructor(
         return request(Command.Commit(bitmap, Rect(destination), Rect(dirtyRegion), options))
     }
 
-    suspend fun closeAndAwait(): Result<Unit> {
+    override suspend fun closeAndAwait(): Result<Unit> {
         if (closed) return Result.success(Unit)
         if (closeRequested.compareAndSet(false, true)) {
             if (commands.trySend(closeCommand).isFailure) {
@@ -289,6 +312,18 @@ class RawInkSession private constructor(
         return closeCommand.reply.await()
     }
 
+    override suspend fun pause(): Result<Unit> {
+        if (closed) return Result.success(Unit)
+        return request(Command.SetPaused(SuspensionReason.REQUESTED, true))
+    }
+
+    override suspend fun resume(): Result<Unit> {
+        if (closed) {
+            return Result.failure(OnyxFailure.InvalidState("raw.resume", null, "Session is closed"))
+        }
+        return request(Command.SetPaused(SuspensionReason.REQUESTED, false))
+    }
+
     override fun close() {
         if (closed) return
         if (closeRequested.compareAndSet(false, true)) {
@@ -297,6 +332,9 @@ class RawInkSession private constructor(
     }
 
     private suspend fun initialize(): Result<Unit> = request(Command.Open())
+
+    private suspend fun bindLifecycle(owner: LifecycleOwner): Result<Unit> =
+        request(Command.BindLifecycle(owner))
 
     internal suspend fun awaitInputProbe(timeout: Duration): Result<RawInputProbe> {
         mutableInputProbe.value?.let { return Result.success(it) }
@@ -344,6 +382,8 @@ class RawInkSession private constructor(
             when (command) {
                 is Command.Open -> openOnActor()
                 is Command.Commit -> commitOnActor(command)
+                is Command.SetPaused -> setPausedOnActor(command.reason, command.paused)
+                is Command.BindLifecycle -> bindLifecycleOnActor(command.owner)
                 is Command.Close -> closeOnActor()
             } as Result<Any?>
         } catch (cancelled: CancellationException) {
@@ -383,6 +423,7 @@ class RawInkSession private constructor(
             mutableStrokeActive.value = false
             ProcessRawInkLease.release(leaseOwner)
             strokeChannel.close(typed)
+            eventChannel.close(typed)
             completeFailure(command, typed)
             completeFailure(closeCommand, typed)
             commands.close(typed)
@@ -428,11 +469,21 @@ class RawInkSession private constructor(
     private suspend fun handleSurfaceCreated() {
         if (closed) return
         surfaceGeneration++
-        runFirmwareOperation("raw.surface-created") { startOrResumeForSurface() }
+        runFirmwareOperation("raw.surface-created") {
+            if (effectiveSuspensionReason() == null) {
+                startOrResumeForSurface()
+            } else {
+                updateSuspendedState(requireNotNull(effectiveSuspensionReason()))
+            }
+        }
             .onFailure(::failSession)
     }
 
     private suspend fun startOrResumeForSurface() {
+        effectiveSuspensionReason()?.let {
+            updateSuspendedState(it)
+            return
+        }
         withContext(Dispatchers.Main.immediate) {
             val current = requireNotNull(helper as? TouchHelper)
             if (!current.isRawDrawingCreated) {
@@ -452,26 +503,36 @@ class RawInkSession private constructor(
             (helper as? TouchHelper)?.setRawInputReaderEnable(false)
             (helper as? TouchHelper)?.setRawDrawingRenderEnabled(false)
         }
-        currentStroke = null
-        currentTool = null
-        mutableStrokeActive.value = false
-        mutableState.value = RawInkSessionState.Suspended(
-            surfaceGeneration,
-            SuspensionReason.SURFACE_DESTROYED,
-        )
+        clearActiveStroke()
+        updateSuspendedState(effectiveSuspensionReason() ?: SuspensionReason.SURFACE_DESTROYED)
     }
 
     private suspend fun handleRawEvent(event: Command.RawEvent) {
         if (mutableState.value !is RawInkSessionState.Active) return
         val point = event.point
-        mutablePreview.value = InkPreview(point, event.phase)
+        eventChannel.send(
+            PenEvent(
+                phase = event.phase,
+                point = point,
+                outsideLimitRegion = event.outsideLimitRegion,
+                forced = event.forced,
+            ),
+        )
+        if (event.phase == PenPhase.PROXIMITY) return
+        val previewPhase = when (event.phase) {
+            PenPhase.DOWN -> InkPreview.Phase.DOWN
+            PenPhase.MOVE -> InkPreview.Phase.MOVE
+            PenPhase.UP -> InkPreview.Phase.UP
+            PenPhase.PROXIMITY -> return
+        }
+        mutablePreview.value = InkPreview(point, previewPhase)
         when (event.phase) {
-            InkPreview.Phase.DOWN -> {
+            PenPhase.DOWN -> {
                 currentStroke = arrayListOf(point)
                 currentTool = point.tool
                 mutableStrokeActive.value = true
             }
-            InkPreview.Phase.MOVE -> {
+            PenPhase.MOVE -> {
                 val stroke = currentStroke ?: arrayListOf<InkPoint>().also {
                     currentStroke = it
                     currentTool = point.tool
@@ -500,7 +561,7 @@ class RawInkSession private constructor(
                     failSession(failure)
                 }
             }
-            InkPreview.Phase.UP -> {
+            PenPhase.UP -> {
                 val points = currentStroke?.also { it += point } ?: listOf(point)
                 val tool = currentTool ?: point.tool
                 currentStroke = null
@@ -515,7 +576,83 @@ class RawInkSession private constructor(
                     ),
                 )
             }
+            PenPhase.PROXIMITY -> Unit
         }
+    }
+
+    private suspend fun setPausedOnActor(
+        reason: SuspensionReason,
+        paused: Boolean,
+    ): Result<Unit> = runFirmwareOperation("raw.${if (paused) "pause" else "resume"}") {
+        when (reason) {
+            SuspensionReason.REQUESTED -> manuallyPaused = paused
+            SuspensionReason.LIFECYCLE_STOPPED -> lifecyclePaused = paused
+            SuspensionReason.SURFACE_UNAVAILABLE,
+            SuspensionReason.SURFACE_DESTROYED,
+            -> throw OnyxFailure.InvalidArgument("raw.pause", "$reason is not caller-controlled")
+        }
+        val activeSuspension = effectiveSuspensionReason()
+        if (activeSuspension != null) {
+            withContext(Dispatchers.Main.immediate) {
+                (helper as? TouchHelper)?.setRawInputReaderEnable(false)
+                (helper as? TouchHelper)?.setRawDrawingRenderEnabled(false)
+            }
+            clearActiveStroke()
+            updateSuspendedState(activeSuspension)
+        } else if (surfaceView.holder.surface.isValid) {
+            startOrResumeForSurface()
+        } else {
+            updateSuspendedState(SuspensionReason.SURFACE_UNAVAILABLE)
+        }
+    }
+
+    private suspend fun bindLifecycleOnActor(owner: LifecycleOwner): Result<Unit> =
+        runFirmwareOperation("raw.lifecycle-bind") {
+            withContext(Dispatchers.Main.immediate) {
+                check(owner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
+                    "Cannot attach a pen session to a destroyed lifecycle"
+                }
+                lifecycleBinding?.remove()
+                val observer = object : DefaultLifecycleObserver {
+                    override fun onStart(owner: LifecycleOwner) {
+                        commands.trySend(
+                            Command.SetPaused(SuspensionReason.LIFECYCLE_STOPPED, false),
+                        )
+                    }
+
+                    override fun onStop(owner: LifecycleOwner) {
+                        commands.trySend(
+                            Command.SetPaused(SuspensionReason.LIFECYCLE_STOPPED, true),
+                        )
+                    }
+
+                    override fun onDestroy(owner: LifecycleOwner) {
+                        close()
+                    }
+                }
+                lifecycleBinding = LifecycleBinding(owner.lifecycle, observer).also { it.add() }
+                lifecyclePaused = !owner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+            }
+            if (lifecyclePaused) {
+                setPausedOnActor(SuspensionReason.LIFECYCLE_STOPPED, true).getOrThrow()
+            }
+        }
+
+    private fun effectiveSuspensionReason(): SuspensionReason? = when {
+        manuallyPaused -> SuspensionReason.REQUESTED
+        lifecyclePaused -> SuspensionReason.LIFECYCLE_STOPPED
+        else -> null
+    }
+
+    private fun updateSuspendedState(reason: SuspensionReason) {
+        mutableState.value = RawInkSessionState.Suspended(surfaceGeneration, reason)
+    }
+
+    private fun clearActiveStroke() {
+        currentStroke = null
+        currentTool = null
+        mutableStrokeActive.value = false
+        mutablePreview.value = null
     }
 
     private suspend fun commitOnActor(command: Command.Commit): Result<CommitReceipt> {
@@ -709,6 +846,7 @@ class RawInkSession private constructor(
             currentTool = null
             mutableStrokeActive.value = false
             strokeChannel.close()
+            eventChannel.close()
             ProcessRawInkLease.release(leaseOwner)
         }
     }
@@ -730,6 +868,8 @@ class RawInkSession private constructor(
             }
 
             attempt { surfaceView.holder.removeCallback(surfaceCallback) }
+            attempt { lifecycleBinding?.remove() }
+            lifecycleBinding = null
             attempt { activeHelper?.setRawInputListenerV2(null) }
             attempt { activeHelper?.setRawInputReaderEnable(false) }
             attempt { activeHelper?.setRawDrawingRenderEnabled(false) }
@@ -748,11 +888,11 @@ class RawInkSession private constructor(
     private fun applyConfiguration(currentValue: Any) {
         val current = currentValue as TouchHelper
         current
-            .setStrokeStyle(configuration.brush.style.legacyValue)
+            .setStrokeStyle(configuration.brush.style.firmwareValue)
             .setStrokeColor(configuration.brush.color)
             .setStrokeWidth(configuration.brush.widthPx)
             .setBrushRawDrawingEnabled(true)
-            .setEraserRawDrawingEnabled(false, 5)
+            .setEraserRawDrawingEnabled(false, configuration.eraser.style.firmwareValue)
             .enableSideBtnErase(configuration.eraser.sideButtonEnabled)
         when (configuration.regionMode) {
             RegionMode.MULTI_REGION -> current.setMultiRegionMode()
@@ -763,6 +903,12 @@ class RawInkSession private constructor(
         }
         if (configuration.excludeRegions.isNotEmpty()) {
             current.setExcludeRect(configuration.excludeRegions.map(::Rect))
+        }
+        configuration.brush.dashPattern?.let { dash ->
+            EpdController.setStrokeParameters(
+                configuration.brush.style.firmwareValue,
+                floatArrayOf(dash.onLengthPx, dash.offLengthPx, dash.phasePx),
+            )
         }
         current.setRawDrawingEnabled(true, RawDrawingConfigurationPolicy.PRESERVE_CURRENT)
     }
@@ -821,11 +967,18 @@ class RawInkSession private constructor(
         data object SurfaceDestroyed : Command
         data class RawEvent(
             val point: InkPoint,
-            val phase: InkPreview.Phase,
+            val phase: PenPhase,
             val outsideLimitRegion: Boolean,
+            val forced: Boolean,
         ) : Command
 
         class Open : RequestCommand<Unit>("raw.open")
+        data class SetPaused(
+            val reason: SuspensionReason,
+            val paused: Boolean,
+        ) : RequestCommand<Unit>("raw.${if (paused) "pause" else "resume"}")
+        data class BindLifecycle(val owner: LifecycleOwner) :
+            RequestCommand<Unit>("raw.lifecycle-bind")
         data class Commit(
             val bitmap: Bitmap,
             val destination: Rect,
@@ -882,6 +1035,32 @@ class RawInkSession private constructor(
                 Result.failure(failure)
             }
         }
+
+        /** Opens a session and binds pause/resume/close to the supplied lifecycle. */
+        suspend fun attach(
+            surfaceView: SurfaceView,
+            lifecycleOwner: LifecycleOwner,
+            configuration: RawInkConfiguration = RawInkConfiguration(),
+            leasePolicy: LeasePolicy = LeasePolicy.FAIL_FAST,
+        ): Result<RawInkSession> {
+            val session = open(surfaceView, configuration, leasePolicy).getOrElse {
+                return Result.failure(it)
+            }
+            val bound = session.bindLifecycle(lifecycleOwner)
+            if (bound.isFailure) {
+                withContext(NonCancellable) { session.closeAndAwait() }
+                return Result.failure(requireNotNull(bound.exceptionOrNull()))
+            }
+            return Result.success(session)
+        }
+    }
+
+    private data class LifecycleBinding(
+        val lifecycle: Lifecycle,
+        val observer: DefaultLifecycleObserver,
+    ) {
+        fun add() = lifecycle.addObserver(observer)
+        fun remove() = lifecycle.removeObserver(observer)
     }
 }
 
@@ -931,18 +1110,6 @@ private fun List<InkPoint>.bounds(): RectF {
     drop(1).forEach { bounds.union(it.xPx, it.yPx) }
     return bounds
 }
-
-private val StrokeStyle.legacyValue: Int
-    get() = when (this) {
-        StrokeStyle.PENCIL -> TouchHelper.STROKE_STYLE_PENCIL
-        StrokeStyle.FOUNTAIN -> TouchHelper.STROKE_STYLE_FOUNTAIN
-        StrokeStyle.MARKER -> TouchHelper.STROKE_STYLE_MARKER
-        StrokeStyle.BRUSH -> TouchHelper.STROKE_STYLE_NEO_BRUSH
-        StrokeStyle.CHARCOAL -> TouchHelper.STROKE_STYLE_CHARCOAL
-        StrokeStyle.DASH -> TouchHelper.STROKE_STYLE_DASH
-        StrokeStyle.CHARCOAL_V2 -> TouchHelper.STROKE_STYLE_CHARCOAL_V2
-        StrokeStyle.SQUARE -> TouchHelper.STROKE_STYLE_SQUARE_PEN
-    }
 
 private fun noOpLegacyCallback() = object : RawInputCallback() {
     override fun onBeginRawDrawing(shortcut: Boolean, point: TouchPoint) = Unit

@@ -22,7 +22,7 @@ class ModuleRegistryTest(unittest.TestCase):
 
         self.assertEqual(1, json.loads((ROOT / REGISTRY_PATH).read_text())["schemaVersion"])
         self.assertEqual("io.github.hbmartin.onyx", registry.distribution["group"])
-        self.assertEqual(6, len(registry.published_modules))
+        self.assertEqual(7, len(registry.published_modules))
         self.assertEqual(
             Path("onyxsdk-base/support/onyxsdk-baselite/build/outputs/aar/onyxsdk-baselite-release.aar"),
             registry.module("baselite").aar_relative_path,
@@ -39,6 +39,8 @@ class ModuleRegistryTest(unittest.TestCase):
             tuple(registry.module("base").device_validation["referenceCompileJars"]),
         )
         self.assertTrue(registry.module("baselite").device_validation["commonRecovered"])
+        self.assertTrue(registry.module("pen-core").device_validation["commonRecovered"])
+        self.assertIn(("api", "pen-core"), registry.module("pen").project_dependencies)
 
     def test_rejects_duplicate_coordinates_and_unknown_dependencies(self):
         payload = json.loads((ROOT / REGISTRY_PATH).read_text(encoding="utf-8"))

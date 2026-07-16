@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 import zipfile
@@ -20,9 +21,9 @@ def class_names(jar: Path) -> list[str]:
         )
 
 
-def javap_api(jar: Path, class_name: str) -> tuple[str, tuple[tuple[str, str], ...]]:
+def javap_api(classpath: str | Path, class_name: str) -> tuple[str, tuple[tuple[str, str], ...]]:
     result = subprocess.run(
-        ["javap", "-classpath", str(jar), "-protected", "-s", class_name],
+        ["javap", "-classpath", str(classpath), "-protected", "-s", class_name],
         check=False,
         capture_output=True,
         text=True,
@@ -53,11 +54,25 @@ def javap_api(jar: Path, class_name: str) -> tuple[str, tuple[tuple[str, str], .
     return declaration, tuple(sorted(members))
 
 
+def compatibility_signature(member: tuple[str, str]) -> tuple[str, str]:
+    """Ignore modifiers whose removal only broadens binary compatibility."""
+    declaration, descriptor = member
+    normalized = declaration.replace(" abstract ", " ").replace(" final ", " ")
+    return normalized, descriptor
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--old-reference", required=True, type=Path)
     parser.add_argument("--native-reference", required=True, type=Path)
     parser.add_argument("--candidate", required=True, type=Path)
+    parser.add_argument(
+        "--candidate-dependency",
+        action="append",
+        default=[],
+        type=Path,
+        help="JAR whose classes are part of the candidate's transitive public API",
+    )
     parser.add_argument(
         "--accepted-additions",
         type=Path,
@@ -65,9 +80,16 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    for path in (args.old_reference, args.native_reference, args.candidate):
+    candidate_paths = [args.candidate, *args.candidate_dependency]
+    for path in (args.old_reference, args.native_reference, *candidate_paths):
         if not path.is_file():
             parser.error(f"missing JAR: {path}")
+    candidate_classpath = os.pathsep.join(str(path) for path in candidate_paths)
+    candidate_names = {
+        class_name
+        for candidate_path in candidate_paths
+        for class_name in class_names(candidate_path)
+    }
 
     try:
         additions_payload = json.loads(
@@ -99,16 +121,19 @@ def main() -> int:
                 continue
             checked += 1
             try:
-                actual = javap_api(args.candidate, class_name)
+                actual = javap_api(candidate_classpath, class_name)
             except RuntimeError as error:
                 failures.append(str(error))
                 continue
             expected_declaration, expected_member_tuple = expected
             actual_declaration, actual_member_tuple = actual
-            expected_members = set(expected_member_tuple)
-            actual_members = set(actual_member_tuple)
+            expected_members = {compatibility_signature(item) for item in expected_member_tuple}
+            actual_members = {compatibility_signature(item) for item in actual_member_tuple}
             extra_members = actual_members - expected_members
-            allowed_members = accepted_additions.get(class_name, set())
+            allowed_members = {
+                compatibility_signature(item)
+                for item in accepted_additions.get(class_name, set())
+            }
             unaccepted_extras = extra_members - allowed_members
             # Compatibility is one-directional: every reference member must
             # remain, while only explicitly listed additive API is allowed.
@@ -126,7 +151,11 @@ def main() -> int:
             details.extend(f"  unaccepted extra: {item}" for item in sorted(unaccepted_extras))
             failures.append("\n".join(details))
 
-    candidate_only = sorted(set(class_names(args.candidate)) - reference_names)
+    candidate_only = sorted(
+        class_name
+        for class_name in candidate_names - reference_names
+        if javap_api(candidate_classpath, class_name)[0].startswith("public ")
+    )
     unaccepted_classes = sorted(set(candidate_only) - accepted_extra_classes)
     if unaccepted_classes:
         failures.append("Unaccepted candidate-only classes: " + ", ".join(unaccepted_classes))
@@ -139,7 +168,7 @@ def main() -> int:
             f"{', '.join(candidate_only)}"
         )
     configured_additions = {
-        (class_name, item)
+        (class_name, compatibility_signature(item))
         for class_name, members in accepted_additions.items()
         for item in members
     }

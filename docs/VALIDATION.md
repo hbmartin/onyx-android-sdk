@@ -4,15 +4,15 @@
 |---|---|
 | No tracked reference SDK binaries | tracked-file scan and removed-directory assertions |
 | No bytecode/JAR injection | Gradle-script scan rejects binary inputs and custom AAR assembly |
-| Complete pen class surface | 129 expected class entries checked in the release AAR |
-| Public JVM compatibility | `verify-pen-api.py` matches 118 public classes by `javap` descriptor |
-| Kotlin migration ABI guard | `verifyJvmApiContracts` pins visible descriptors, inheritance, flags, signatures, annotations, and Kotlin metadata for all six production AARs |
+| Complete pen class surface | 129 expected class entries checked across the transitive pen and pen-core AARs |
+| Public JVM compatibility | `verify-pen-api.py` matches 118 public classes by `javap` descriptor across the candidate classpath |
+| Kotlin migration ABI guard | `verifyJvmApiContracts` pins visible descriptors, inheritance, flags, signatures, annotations, and Kotlin metadata for all seven production AARs |
 | Kotlin companion API | host tests cover immutable values and typed ink contracts; `verifyKtxPublicSurface` rejects legacy Onyx, EventBus, RxJava, Fragment, and Data Binding descriptors |
 | Base recoveries | production-class unit tests for formatting and disposal branches |
 | Base JVM compatibility | classified descriptor/flags/signature/metadata audit (`device-validation/classify_api_differences.py`) plus `RecoveredApiSurfaceRegressionTest` pinning the repaired surface without reference JARs |
 | Seven device recoveries | field-injection unit tests covering the success, failure, and null-method branches |
 | Rust quality | locked tests, rustfmt, and Clippy for both crates |
-| Four Android ABIs | cross-build and AAR entry audit for both native libraries |
+| Four Android ABIs | cross-build and AAR entry audit for both implementations and all three JNI sonames |
 | JNI consistency | 11 touch-reader and 14 neo-pen exports checked per ABI |
 | No C++ runtime bridge | ELF dependency and AAR scans reject `libc++_shared.so` |
 | New pen runtime | Android tests execute all nine pen types and lifecycle/error cases |
@@ -45,7 +45,8 @@ Reference API gate (references remain untracked):
 scripts/verify-pen-api.py \
   --old-reference /path/to/legacy/classes.jar \
   --native-reference /path/to/onyxsdk-pen-native-classes.jar \
-  --candidate onyxsdk-pen/build/intermediates/aar_main_jar/release/syncReleaseLibJars/classes.jar
+  --candidate onyxsdk-pen/build/intermediates/aar_main_jar/release/syncReleaseLibJars/classes.jar \
+  --candidate-dependency onyxsdk-pen-core/build/intermediates/aar_main_jar/release/syncReleaseLibJars/classes.jar
 ```
 
 BOOX hardware gate:

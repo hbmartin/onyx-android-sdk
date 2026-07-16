@@ -22,6 +22,7 @@ val buildRustAndroid = tasks.register<Exec>("buildRustAndroid") {
         buildScript,
     )
     outputs.dir("src/main/jniLibs")
+    outputs.dir(rootProject.layout.projectDirectory.dir("onyxsdk-pen-core/src/main/jniLibs"))
     outputs.dir("src/androidTest/jniLibs")
     inputs.property("penReferenceNeoSo", providers.gradleProperty("penReferenceNeoSo").orElse(""))
     inputs.property("penNotableNeoSo", providers.gradleProperty("penNotableNeoSo").orElse(""))
@@ -38,8 +39,23 @@ val buildRustAndroid = tasks.register<Exec>("buildRustAndroid") {
     val referenceSoPath = providers.gradleProperty("penReferenceNeoSo")
     val notableSoPath = providers.gradleProperty("penNotableNeoSo")
     val projectDir = layout.projectDirectory.asFile
+    val legacyJni = layout.projectDirectory.dir("src/main/jniLibs").asFile
     val jniArm64 = layout.projectDirectory.dir("src/main/jniLibs/arm64-v8a").asFile
+    val coreJni = rootProject.layout.projectDirectory.dir("onyxsdk-pen-core/src/main/jniLibs").asFile
     doLast {
+        legacyJni.listFiles()
+            ?.filter(File::isDirectory)
+            ?.forEach { abiDirectory ->
+                val modern = abiDirectory.resolve("libneopen_jni$sharedLibrarySuffix")
+                if (modern.isFile) {
+                    val destination = coreJni.resolve(abiDirectory.name)
+                    destination.mkdirs()
+                    modern.copyTo(
+                        destination.resolve(modern.name),
+                        overwrite = true,
+                    )
+                }
+            }
         referenceSoPath.orNull?.let { referencePath ->
             val candidate = File(referencePath)
             val reference = if (candidate.isAbsolute) candidate else projectDir.resolve(referencePath)
@@ -73,6 +89,12 @@ val buildRustAndroid = tasks.register<Exec>("buildRustAndroid") {
 android {
     namespace = "com.onyx.android.sdk.pen"
 
+    packaging {
+        jniLibs {
+            excludes += "**/libneopen_jni.so"
+        }
+    }
+
     defaultConfig {
         consumerProguardFiles("consumer-rules.pro")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -80,6 +102,7 @@ android {
 }
 
 dependencies {
+    api(project(":onyxsdk-pen-core"))
     api(project(":onyxsdk-base"))
     api(libs.kotlin.stdlib.jdk8)
     testImplementation(libs.junit4)

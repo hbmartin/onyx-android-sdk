@@ -3,10 +3,12 @@
     // restoration and evidence ordering harder to audit. Legacy return values stay erased.
     "CyclomaticComplexMethod",
     "DontForceCast",
+    "InjectDispatcher",
     "LongMethod",
     "MagicNumber",
     "MaxLineLength",
     "NoCallbacksInFunctions",
+    "ReturnFromFinally",
 )
 
 package com.onyx.android.sdk.ktx.capabilities
@@ -15,6 +17,8 @@ import android.os.Build
 import android.view.SurfaceView
 import com.onyx.android.sdk.api.device.epd.EpdController
 import com.onyx.android.sdk.api.device.epd.UpdateMode
+import com.onyx.android.sdk.device.BaseDevice
+import com.onyx.android.sdk.device.Device
 import com.onyx.android.sdk.ktx.diagnostics.FirmwareBackendKind
 import com.onyx.android.sdk.ktx.diagnostics.FirmwareDiagnosticPhase
 import com.onyx.android.sdk.ktx.diagnostics.onyxResult
@@ -25,6 +29,7 @@ import com.onyx.android.sdk.ktx.model.InkPoint
 import com.onyx.android.sdk.ktx.model.InkTool
 import com.onyx.android.sdk.ktx.model.OnyxFailure
 import com.onyx.android.sdk.ktx.model.PenKind
+import com.onyx.android.sdk.ktx.model.StrokeStyle
 import com.onyx.android.sdk.ktx.render.InkRenderer
 import com.onyx.android.sdk.utils.ReflectUtil
 import kotlinx.coroutines.Dispatchers
@@ -92,6 +97,24 @@ data class DisplayCapabilities(
     val savePenAttachedFramebuffer: Capability<Unit>,
 )
 
+enum class DisplayColorMode { MONOCHROME, COLOR, UNKNOWN }
+enum class NativeAlphaSupport { OPAQUE_ONLY, SUPPORTED, UNVERIFIED }
+
+data class RenderingCapabilities(
+    val colorMode: Capability<DisplayColorMode>,
+    val colorDepthBits: Capability<Int>,
+    val nativeAlpha: Capability<NativeAlphaSupport>,
+    val maximumHardwareStrokeWidthPx: Capability<Float>,
+    val softwareFallback: Capability<Unit>,
+)
+
+data class ControlCapabilities(
+    val sideButton: Capability<Unit>,
+    val transientUpdates: Capability<Unit>,
+    val turbo: Capability<Unit>,
+    val strokeStyles: Map<StrokeStyle, Capability<Unit>>,
+)
+
 data class RawInkCapabilities(
     val x: Capability<InputAxisRange>,
     val y: Capability<InputAxisRange>,
@@ -119,6 +142,8 @@ data class OnyxDeviceCapabilities(
     val display: DisplayCapabilities,
     val rawInk: RawInkCapabilities,
     val renderers: Map<PenKind, RendererCapability>,
+    val controls: ControlCapabilities,
+    val rendering: RenderingCapabilities,
 )
 
 @OptIn(com.onyx.android.sdk.ktx.model.ExperimentalOnyxRendererApi::class)
@@ -182,7 +207,9 @@ internal object DeviceCapabilityProbe {
 
         val width = strictQuery("GET_EPD_WIDTH") { EpdController.getStrictEpdWidthOrThrow() }
         val height = strictQuery("GET_EPD_HEIGHT") { EpdController.getStrictEpdHeightOrThrow() }
-        val color = strictQuery("GET_COLOR_TYPE") { EpdController.getStrictColorTypeOrThrow() }
+        val color = strictNonNegativeQuery("GET_COLOR_TYPE") {
+            EpdController.getStrictColorTypeOrThrow()
+        }
         val pressureMaximum = runCatching { EpdController.getStrictMaxTouchPressureOrThrow() }
             .getOrNull()
             ?.takeIf { it > 0 }
@@ -239,6 +266,26 @@ internal object DeviceCapabilityProbe {
                 )
             }
         }
+        val transientUpdates = if (probeMode == CapabilityProbeMode.ACTIVE_REVERSIBLE) {
+            probeTransientUpdates()
+        } else {
+            overriddenCapability("applyTransientUpdate", UpdateMode::class.java)
+        }
+        val sideButton = overriddenCapability(
+            "setEnablePenSideButton",
+            Boolean::class.javaPrimitiveType ?: Boolean::class.java,
+        )
+        val turbo = overriddenCapability(
+            "setEpdTurbo",
+            Int::class.javaPrimitiveType ?: Int::class.java,
+        )
+        val colorMode = color.value?.let { colorType ->
+            Capability(
+                CapabilitySupport.SUPPORTED,
+                if (colorType > 0) DisplayColorMode.COLOR else DisplayColorMode.MONOCHROME,
+                color.evidence,
+            )
+        } ?: Capability(CapabilitySupport.UNVERIFIED, DisplayColorMode.UNKNOWN, color.evidence)
 
         OnyxDeviceCapabilities(
             firmware = FirmwareIdentity(
@@ -362,6 +409,58 @@ internal object DeviceCapabilityProbe {
                     )
                 }
             },
+            controls = ControlCapabilities(
+                sideButton = sideButton,
+                transientUpdates = transientUpdates,
+                turbo = turbo,
+                strokeStyles = StrokeStyle.entries.associateWith {
+                    overriddenCapability(
+                        "setStrokeStyle",
+                        Int::class.javaPrimitiveType ?: Int::class.java,
+                    )
+                },
+            ),
+            rendering = RenderingCapabilities(
+                colorMode = colorMode,
+                colorDepthBits = Capability(
+                    CapabilitySupport.UNVERIFIED,
+                    evidence = listOf(
+                        CapabilityEvidence(
+                            CapabilityEvidenceKind.FALLBACK,
+                            "Firmware reports color type but not a stable bit-depth contract",
+                        ),
+                    ),
+                ),
+                nativeAlpha = Capability(
+                    CapabilitySupport.UNVERIFIED,
+                    NativeAlphaSupport.UNVERIFIED,
+                    listOf(
+                        CapabilityEvidence(
+                            CapabilityEvidenceKind.FALLBACK,
+                            "Native overlay alpha has no queryable firmware contract",
+                        ),
+                    ),
+                ),
+                maximumHardwareStrokeWidthPx = Capability(
+                    CapabilitySupport.UNVERIFIED,
+                    evidence = listOf(
+                        CapabilityEvidence(
+                            CapabilityEvidenceKind.FALLBACK,
+                            "No current firmware query exposes the overlay width limit",
+                        ),
+                    ),
+                ),
+                softwareFallback = Capability(
+                    CapabilitySupport.SUPPORTED,
+                    Unit,
+                    listOf(
+                        CapabilityEvidence(
+                            CapabilityEvidenceKind.FALLBACK,
+                            "Android Canvas rendering remains available when overlay rendering is unsafe",
+                        ),
+                    ),
+                ),
+            ),
         )
         }
     }
@@ -381,6 +480,102 @@ internal object DeviceCapabilityProbe {
             },
             onFailure = { Capability(CapabilitySupport.UNVERIFIED) },
         )
+
+    private fun strictNonNegativeQuery(name: String, block: () -> Int): Capability<Int> =
+        runCatching(block).fold(
+            onSuccess = { value ->
+                if (value >= 0) {
+                    Capability(
+                        CapabilitySupport.SUPPORTED,
+                        value,
+                        listOf(CapabilityEvidence(CapabilityEvidenceKind.SAFE_QUERY, name)),
+                    )
+                } else {
+                    Capability(CapabilitySupport.UNVERIFIED)
+                }
+            },
+            onFailure = {
+                Capability(
+                    CapabilitySupport.UNVERIFIED,
+                    evidence = listOf(
+                        CapabilityEvidence(
+                            CapabilityEvidenceKind.FALLBACK,
+                            "$name failed: ${it.javaClass.simpleName}",
+                        ),
+                    ),
+                )
+            },
+        )
+
+    private fun overriddenCapability(
+        methodName: String,
+        vararg parameters: Class<*>,
+    ): Capability<Unit> = runCatching {
+        Device.currentDevice().javaClass.getMethod(methodName, *parameters)
+    }.fold(
+        onSuccess = { method ->
+            if (method.declaringClass == BaseDevice::class.java) {
+                Capability(
+                    CapabilitySupport.UNSUPPORTED,
+                    evidence = listOf(
+                        CapabilityEvidence(
+                            CapabilityEvidenceKind.METHOD_RESOLVED,
+                            "$methodName resolves only to the BaseDevice no-op",
+                        ),
+                    ),
+                )
+            } else {
+                Capability(
+                    CapabilitySupport.UNVERIFIED,
+                    evidence = listOf(
+                        CapabilityEvidence(
+                            CapabilityEvidenceKind.METHOD_RESOLVED,
+                            "${method.declaringClass.simpleName}.$methodName; requires device validation",
+                        ),
+                    ),
+                )
+            }
+        },
+        onFailure = {
+            Capability(CapabilitySupport.UNSUPPORTED)
+        },
+    )
+
+    private suspend fun probeTransientUpdates(): Capability<Unit> =
+        withContext(Dispatchers.Main.immediate) {
+            runCatching {
+                val applied = EpdController.applyTransientUpdate(UpdateMode.ANIMATION_QUALITY)
+                try {
+                    applied
+                } finally {
+                    EpdController.clearTransientUpdate(true)
+                }
+            }.fold(
+                onSuccess = { applied ->
+                    Capability(
+                        if (applied) CapabilitySupport.SUPPORTED else CapabilitySupport.UNSUPPORTED,
+                        Unit.takeIf { applied },
+                        listOf(
+                            CapabilityEvidence(
+                                CapabilityEvidenceKind.ROUND_TRIP,
+                                "Animation-quality transient mode applied and was cleared",
+                            ),
+                        ),
+                    )
+                },
+                onFailure = {
+                    Capability(
+                        CapabilitySupport.UNSUPPORTED,
+                        evidence = listOf(
+                            CapabilityEvidence(
+                                CapabilityEvidenceKind.FALLBACK,
+                                "Transient update probe failed: ${it.javaClass.simpleName}",
+                            ),
+                        ),
+                    )
+                },
+            )
+        }
 
     private suspend fun probeUpdateModes(
         surfaceView: SurfaceView,

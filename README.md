@@ -1,6 +1,6 @@
 # Onyx SDK recovered source
 
-This repository is a source-only reconstruction of six independently built
+This repository is a source-only reconstruction of seven independently built
 Onyx/BOOX Android libraries, including two recovered support artifacts and an
 additive Kotlin companion. It contains no tracked original
 SDK JAR, AAR, or native library.
@@ -15,11 +15,14 @@ The public Kotlin API reference is available on
 | `onyxsdk-baselite` | 1.1.1 | separate source-built support library |
 | `onyxsdk-commons-io` | 2.5 | separate relocated Apache Commons IO library |
 | `onyxsdk-ktx` | 1.0.0 | Kotlin-first capability, refresh, raw-ink, and renderer façade |
-| `onyxsdk-pen` | 1.5.4 | complete 129-class pen surface plus two Rust JNI libraries |
+| `onyxsdk-pen-core` | 1.0.0 | minimal modern pen bindings plus the renderer JNI library |
+| `onyxsdk-pen` | 1.5.4 | compatibility pen surface, raw input, and legacy renderer JNI |
 
-The pen module includes both generations of the Java API: the 57 classes from
-the 1.5.4 SDK and the 72 classes supplied with the newer native pen API. Its
-public/protected JVM signatures are checked against all 118 public reference
+The transitive `onyxsdk-pen` API includes both generations of the Java API: the
+57 classes from the 1.5.4 SDK and the 72 classes supplied with the newer native
+pen API. Four self-contained modern bindings and their single JNI library live
+in `onyxsdk-pen-core`, which `onyxsdk-pen` exposes with an `api` dependency.
+The combined 129-class surface is checked against all 118 public reference
 classes. The base module's surface is additionally verified by a classified
 descriptor/flags/signature/metadata audit against its reference JAR and
 pinned by an in-tree regression test (see RECOVERY_NOTES.md). The references
@@ -37,8 +40,9 @@ device and support artifacts and exposes them transitively through Gradle's
 The production dependency direction is:
 
 ```text
-onyxsdk-ktx -----> onyxsdk-pen -----> onyxsdk-base
-      +-------------------------------------> onyxsdk-base
+onyxsdk-ktx -----> onyxsdk-pen -----> onyxsdk-pen-core
+      |                  |
+      +------------------+----------> onyxsdk-base
 
 onyxsdk-base ----> onyxsdk-device
              +---> onyxsdk-baselite
@@ -46,7 +50,7 @@ onyxsdk-base ----> onyxsdk-device
 ```
 
 Each arrow means "depends on". onyxsdk-ktx depends directly on both pen and
-base; pen also depends on base.
+base; pen exposes pen-core transitively and also depends on base.
 
 The modules have distinct responsibilities:
 
@@ -56,7 +60,8 @@ The modules have distinct responsibilities:
 | `onyxsdk-baselite` | Onyx-specific foundation types and helpers: `TouchPoint`, `TouchPointList`, sizes, geometry, paths, bitmap extensions, math, logging, and resource access. Pen rendering uses it heavily. |
 | `onyxsdk-commons-io` | Apache Commons IO 2.5 relocated from `org.apache.commons.io` to `com.onyx.android.sdk.commons.io`, primarily supplying `FileUtils`, `FilenameUtils`, `IOUtils`, filters, comparators, and stream wrappers. |
 | `onyxsdk-base` | The large common SDK layer: document/note/reader models, storage and file utilities, paths, Wi-Fi, calendar and firmware APIs, RxJava helpers, localized resources, and AIDL/Parcelable types. It delegates hardware-specific work to `onyxsdk-device`. |
-| `onyxsdk-pen` | Legacy and current pen APIs plus the recovered Rust JNI implementations. It uses base data/API types and Baselite geometry primitives transitively. |
+| `onyxsdk-pen-core` | Minimal modern `pennative` bindings and `libneopen_jni.so`, usable without the broad legacy SDK graph. See [`docs/PEN_CORE.md`](docs/PEN_CORE.md). |
+| `onyxsdk-pen` | Legacy and current pen APIs, raw input, and compatibility JNI sonames. It exposes pen-core and uses base data/API types and Baselite geometry primitives transitively. |
 | `onyxsdk-ktx` | Additive Kotlin-first capability, diagnostic, display, raw-ink, and renderer façade. See [`onyxsdk-ktx/README.md`](onyxsdk-ktx/README.md). |
 
 Baselite 1.1.1 and Onyx Commons IO 2.5 were separate compile dependencies in
@@ -88,7 +93,7 @@ Baselite/Commons IO classes appearing in Base.
 
 ## Distribution and licensing
 
-The six release AARs are independent Maven publications under
+The seven release AARs are independent Maven publications under
 `io.github.hbmartin.onyx`. Their artifact IDs and recovered-source versions
 are declared once in [`gradle/onyx-modules.json`](gradle/onyx-modules.json),
 which also drives Gradle project inclusion, aggregate builds, validation
@@ -101,7 +106,7 @@ License v3.0 only; see [`LICENSE.txt`](LICENSE.txt) and its incorporated
 relocated `onyxsdk-commons-io` module remains Apache-2.0 and retains its source
 headers; see [`LICENSES/Apache-2.0.txt`](LICENSES/Apache-2.0.txt). This exception
 preserves third-party provenance and does not change the license of the other
-five artifacts.
+six artifacts.
 
 Every release publication contains the unchanged source-built AAR plus Maven
 POM and Gradle module metadata, sources, and Javadoc artifacts. Generate and
@@ -122,7 +127,8 @@ configuration; tag CI already enforces that flag.
 
 ## Pen native implementation
 
-`onyxsdk-pen` builds two native libraries entirely from Rust:
+The pen artifacts build two native implementations entirely from Rust and
+package three JNI sonames:
 
 - `libonyx_pen_touch_reader.so` implements the 11 `RawInputReader` JNI calls,
   Linux input discovery/polling, pen and eraser states, pressure processing,
@@ -132,7 +138,9 @@ configuration; tag CI already enforces that flag.
   `nativeSetLogLevel` are exported only to match the reference library's
   surface — and the seven legacy `NeoPenWrapper` calls, including all nine pen
   types, prediction, texture bitmaps, handle lifecycle, and the legacy static
-  API.
+  API. This compatibility soname is packaged by `onyxsdk-pen`;
+- `libneopen_jni.so` is the modern alias of the same renderer binary and is
+  packaged alone by `onyxsdk-pen-core`.
 
 Both libraries are built for `armeabi-v7a`, `arm64-v8a`, `x86`, and `x86_64`.
 They do not depend on `libc++_shared.so`.
@@ -164,8 +172,9 @@ Prerequisites are JDK 17+, Rust stable, Android SDK platform 35, and Android NDK
 ```
 
 That gate compiles all production Java/Kotlin, tests the recovery behaviors,
-runs Rust tests and Clippy, builds eight native binaries, assembles all six
-production AARs, and verifies all JNI exports and packaged native dependencies.
+runs Rust tests and Clippy, builds the native implementations, packages all 12
+ABI/soname entries, assembles all seven production AARs, and verifies every JNI
+export and packaged native dependency.
 It deliberately runs each module's unit tests in a single variant (the Java
 bytecode is variant-identical) and leaves instrumentation and differential
 checks to the hardware gates below.
@@ -183,7 +192,8 @@ To repeat the JVM API comparison against the two untracked reference JARs:
 scripts/verify-pen-api.py \
   --old-reference /path/to/onyxsdk-pen-1.5.4/classes.jar \
   --native-reference /path/to/reference-artifacts/onyxsdk-pen-native-classes.jar \
-  --candidate onyxsdk-pen/build/intermediates/aar_main_jar/release/syncReleaseLibJars/classes.jar
+  --candidate onyxsdk-pen/build/intermediates/aar_main_jar/release/syncReleaseLibJars/classes.jar \
+  --candidate-dependency onyxsdk-pen-core/build/intermediates/aar_main_jar/release/syncReleaseLibJars/classes.jar
 ```
 
 See [RECOVERY_NOTES.md](RECOVERY_NOTES.md),

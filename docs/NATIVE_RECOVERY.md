@@ -1,7 +1,8 @@
 # Native recovery
 
-The pen AAR contains two source-built Rust libraries and no supplied native
-binary.
+The pen artifacts contain two source-built Rust implementations and no
+supplied native binary. `onyxsdk-pen` packages the raw reader and legacy
+renderer soname; `onyxsdk-pen-core` packages only the modern renderer soname.
 
 ## `libonyx_pen_touch_reader.so`
 
@@ -38,7 +39,8 @@ state.
 `armeabi-v7a`, `arm64-v8a`, `x86`, and `x86_64`. The checked-in export contracts
 under `scripts/native-contracts` contain 11 touch-reader names and 14 neo-pen
 names. `scripts/verify-recovery.sh` compares those contracts with every loose
-and packaged library and rejects `libc++_shared.so` dependencies.
+and packaged library across both pen AARs and rejects `libc++_shared.so`
+dependencies.
 
 ## Device differential
 

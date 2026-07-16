@@ -19,6 +19,16 @@ dependencies {
 }
 ```
 
+KTX itself needs no eager initialization. Applications using legacy base
+services initialize only those services explicitly:
+
+```kotlin
+OnyxSdk.initialize(
+    application,
+    OnyxInitializationOptions(legacyBaseServices = usesLegacyDocumentApis),
+).getOrThrow()
+```
+
 Coroutines Core remains an API dependency because flows are public.
 Coroutines Android is internal. The recovered base and pen libraries are
 implementation dependencies: no EventBus, RxJava, Fragment, Data Binding, or
@@ -47,6 +57,10 @@ when (awaitSupport.support) {
     CapabilitySupport.UNSUPPORTED -> disableWaitUi()
     CapabilitySupport.UNVERIFIED -> showUnverifiedWarning(awaitSupport.evidence)
 }
+
+val turbo = capabilities.controls.turbo
+val colorMode = capabilities.rendering.colorMode
+val maximumOverlayWidth = capabilities.rendering.maximumHardwareStrokeWidthPx
 ```
 
 `PASSIVE` performs safe queries and resolution only. It never refreshes or
@@ -95,11 +109,23 @@ Synchronous strict Java operations enforce their `@MainThread` or
 `@WorkerThread` contract at runtime. Legacy Java methods retain their original
 behavior.
 
+Long-lived transient modes use nesting-safe process ownership:
+
+```kotlin
+withRefreshMode(TransientUpdateMode.ANIMATION_QUALITY) {
+    animateToolbarAndCanvas()
+}.getOrThrow()
+```
+
+The first owner applies the mode and the final owner clears it. Conflicting
+nested modes fail rather than overwriting global firmware state.
+
 ## Raw ink session
 
 ```kotlin
-val opened = RawInkSession.open(
+val opened = RawInkSession.attach(
     surfaceView = drawingSurface,
+    lifecycleOwner = this,
     configuration = RawInkConfiguration(
         brush = BrushConfiguration(style = StrokeStyle.FOUNTAIN, widthPx = 3f),
         eraser = EraserConfiguration(widthPx = 24f),
@@ -110,11 +136,17 @@ val opened = RawInkSession.open(
 
 val session = opened.getOrElse { return }
 try {
+    launch { session.events.collect(::inspectRawEvent) }
     session.completedStrokes.collect { stroke -> persist(stroke) }
 } finally {
     session.closeAndAwait().getOrThrow()
 }
 ```
+
+`pause()`, `resume()`, `close()`, and `closeAndAwait()` are idempotent. A bound
+lifecycle pauses on stop, resumes on start, and closes on destroy. Manual and
+lifecycle pauses compose, so a lifecycle restart never overrides an explicit
+application pause.
 
 Only one session may own the firmware overlay in a process. `FAIL_FAST`
 returns `LeaseUnavailable`; `WAIT` is cancellable. There is no forced takeover.
@@ -133,7 +165,10 @@ normalized pressure, the axis maximum used for normalization, raw tilt axes,
 a monotonic nanosecond timestamp derived from the kernel event timestamp, a
 sequence number, and an explicit pen/side-eraser/tail-eraser tool. The raw Java
 v2 callback exposes the same immutable event. Legacy callbacks are driven from
-that event for compatibility.
+that event for compatibility. Legacy individual points are duplicated in the
+later batch and legacy mutable values must be copied before retention. The v2
+listener can dispatch through an application `Executor`; dispatch remains
+ordered and non-overlapping even on a concurrent pool.
 
 The session uses `PRESERVE_CURRENT` toggles and reapplies its full brush,
 eraser, region, and side-button configuration after every restart. The Java
@@ -204,6 +239,25 @@ state. `BrushConfiguration` maps the full modern pressure, velocity, tilt,
 brush-shape, scale, start-limit, and end-thinning configuration to native code.
 Rust JNI builds with unwind support; renderer exports catch panics and
 turn them into typed native-renderer failures. Always close a renderer.
+
+`RenderFrame.draw(canvas, transform)` honors an explicit document-to-view
+matrix without requiring callers to rewrite every point or reset the Canvas.
+`hardwareRenderingProfile()`, `toHardwareSafeColor()`, and
+`toHardwareSafeStrokeWidth()` select an evidence-backed overlay path or an
+explicit software fallback without mutating authored colors or widths.
+
+## Injection, non-Onyx fallback, and Compose
+
+`PenSession`, `PenSessionFactory`, `DisplayController`, and
+`CapabilityProvider` are injectable. `FakePenSession` provides deterministic
+events and lifecycle state for tests; `NoOpOnyxApi` returns typed
+`UnsupportedCapability` failures on non-Onyx devices instead of fabricated
+success. See [`samples/compose-pen`](../samples/compose-pen/README.md) for
+lifecycle, dispatch, state-hoisting, and refresh integration.
+
+Consumers needing only the modern native renderer can use the dependency-light
+`onyxsdk-pen-core` artifact. ABI packaging and application split guidance are
+documented in [`docs/PEN_CORE.md`](../docs/PEN_CORE.md).
 
 ## Firmware inspection
 
