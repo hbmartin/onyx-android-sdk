@@ -116,9 +116,10 @@ class RawInkSession private constructor(
 ) : PenSession {
     private val scope = CoroutineScope(SupervisorJob() + actorDispatcher)
     private val commands = Channel<Command>(Channel.UNLIMITED)
-    private val eventChannel = Channel<PenEvent>(Channel.UNLIMITED)
+    private val eventStream = CollectorBoundEventStream<PenEvent>(
+        "RawInkSession.events supports one collector at a time",
+    )
     private val strokeChannel = Channel<InkStroke>(Channel.UNLIMITED)
-    private val eventConsumer = AtomicBoolean()
     private val strokeConsumer = AtomicBoolean()
     private val closeRequested = AtomicBoolean()
     private val closeCommand = Command.Close()
@@ -142,16 +143,7 @@ class RawInkSession private constructor(
     override val state: StateFlow<RawInkSessionState> = mutableState.asStateFlow()
 
     /** Lossless and ordered while collected; events are not retained without a collector. */
-    override val events: Flow<PenEvent> = flow {
-        check(eventConsumer.compareAndSet(false, true)) {
-            "RawInkSession.events supports one collector at a time"
-        }
-        try {
-            for (event in eventChannel) emit(event)
-        } finally {
-            eventConsumer.set(false)
-        }
-    }
+    override val events: Flow<PenEvent> = eventStream.flow
 
     /** Latest-wins preview. Sequence numbers make any coalesced intermediate updates explicit. */
     override val preview: StateFlow<InkPreview?> = mutablePreview.asStateFlow()
@@ -423,7 +415,7 @@ class RawInkSession private constructor(
             mutableStrokeActive.value = false
             ProcessRawInkLease.release(leaseOwner)
             strokeChannel.close(typed)
-            eventChannel.close(typed)
+            eventStream.close(typed)
             completeFailure(command, typed)
             completeFailure(closeCommand, typed)
             commands.close(typed)
@@ -510,16 +502,14 @@ class RawInkSession private constructor(
     private suspend fun handleRawEvent(event: Command.RawEvent) {
         if (mutableState.value !is RawInkSessionState.Active) return
         val point = event.point
-        if (eventConsumer.get()) {
-            eventChannel.send(
-                PenEvent(
-                    phase = event.phase,
-                    point = point,
-                    outsideLimitRegion = event.outsideLimitRegion,
-                    forced = event.forced,
-                ),
-            )
-        }
+        eventStream.tryEmit(
+            PenEvent(
+                phase = event.phase,
+                point = point,
+                outsideLimitRegion = event.outsideLimitRegion,
+                forced = event.forced,
+            ),
+        )
         if (event.phase == PenPhase.PROXIMITY) return
         val previewPhase = when (event.phase) {
             PenPhase.DOWN -> InkPreview.Phase.DOWN
@@ -848,7 +838,7 @@ class RawInkSession private constructor(
             currentTool = null
             mutableStrokeActive.value = false
             strokeChannel.close()
-            eventChannel.close()
+            eventStream.close()
             ProcessRawInkLease.release(leaseOwner)
         }
     }
