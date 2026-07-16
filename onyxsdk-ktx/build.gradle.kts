@@ -13,6 +13,7 @@ dependencies {
     implementation(project(":onyxsdk-base"))
     implementation(project(":onyxsdk-pen"))
     api(libs.coroutines.core)
+    api(libs.androidx.lifecycle.common)
     implementation(libs.coroutines.android)
 
     testImplementation(libs.junit4)

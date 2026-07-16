@@ -2,13 +2,37 @@
   "__extraClasses__": [
     "com.onyx.android.sdk.geometry.data.BoxInfo",
     "com.onyx.android.sdk.geometry.data.TouchData",
+    "com.onyx.android.sdk.pen.NativeRendererException",
+    "com.onyx.android.sdk.pen.NativeRendererException$Code",
     "com.onyx.android.sdk.pen.NeoPenRendererOptions",
+    "com.onyx.android.sdk.pen.RawDrawingConfigurationPolicy",
+    "com.onyx.android.sdk.pen.RawDrawingConfigurationSnapshot",
+    "com.onyx.android.sdk.pen.RawDrawingConfigurationSnapshot$Evidence",
+    "com.onyx.android.sdk.pen.RawInputAxisRange",
+    "com.onyx.android.sdk.pen.RawInputCoordinateSpace",
+    "com.onyx.android.sdk.pen.RawInputDeviceInfo",
+    "com.onyx.android.sdk.pen.RawInputEventV2",
+    "com.onyx.android.sdk.pen.RawInputListenerV2",
+    "com.onyx.android.sdk.pen.RawInputListeners",
+    "com.onyx.android.sdk.pen.RawInputPhase",
+    "com.onyx.android.sdk.pen.RawInputTool",
     "com.onyx.android.sdk.pen.R",
     "com.onyx.android.sdk.pen.R$id",
     "com.onyx.android.sdk.pen.R$layout",
-    "com.onyx.android.sdk.pen.R$string"
+    "com.onyx.android.sdk.pen.R$string",
+    "com.onyx.android.sdk.pennative.NeoPenNative",
+    "com.onyx.android.sdk.pennative.PenConfig",
+    "com.onyx.android.sdk.pennative.PenConfig$Companion",
+    "com.onyx.android.sdk.pennative.PenInk",
+    "com.onyx.android.sdk.pennative.PenInk$Companion",
+    "com.onyx.android.sdk.pennative.PenInkResult",
+    "com.onyx.android.sdk.pennative.PenInkResult$Companion"
   ],
   "com.onyx.android.sdk.pen.NeoFountainPenWrapper": [
+    [
+      "public static java.util.List<com.onyx.android.sdk.data.note.TouchPoint> computeStrokePoints(java.util.List<com.onyx.android.sdk.data.note.TouchPoint>, float, float, int);",
+      "descriptor: (Ljava/util/List;FFI)Ljava/util/List;"
+    ],
     [
       "public static java.util.List<com.onyx.android.sdk.data.note.TouchPoint> computeStrokePoints(java.util.List<com.onyx.android.sdk.data.note.TouchPoint>, com.onyx.android.sdk.pen.NeoPenConfig, float);",
       "descriptor: (Ljava/util/List;Lcom/onyx/android/sdk/pen/NeoPenConfig;F)Ljava/util/List;"
@@ -20,6 +44,72 @@
     [
       "public static void drawStroke(android.graphics.Canvas, android.graphics.Paint, java.util.List<com.onyx.android.sdk.data.note.TouchPoint>, float, float, float, boolean, int);",
       "descriptor: (Landroid/graphics/Canvas;Landroid/graphics/Paint;Ljava/util/List;FFFZI)V"
+    ]
+  ],
+  "com.onyx.android.sdk.pen.RawInputManager": [
+    [
+      "public void setRawInputListenerV2(com.onyx.android.sdk.pen.RawInputListenerV2);",
+      "descriptor: (Lcom/onyx/android/sdk/pen/RawInputListenerV2;)V"
+    ]
+  ],
+  "com.onyx.android.sdk.pen.RawInputReader": [
+    [
+      "public com.onyx.android.sdk.pen.RawInputDeviceInfo getRawInputDeviceInfo();",
+      "descriptor: ()Lcom/onyx/android/sdk/pen/RawInputDeviceInfo;"
+    ],
+    [
+      "public void onRawInputDeviceInfo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, boolean);",
+      "descriptor: (IIIIIIIIIIIIIIIIIIIIIIIIIZ)V"
+    ],
+    [
+      "public void setRawInputListenerV2(com.onyx.android.sdk.pen.RawInputListenerV2);",
+      "descriptor: (Lcom/onyx/android/sdk/pen/RawInputListenerV2;)V"
+    ]
+  ],
+  "com.onyx.android.sdk.pen.TouchHelper": [
+    [
+      "public com.onyx.android.sdk.pen.RawDrawingConfigurationSnapshot captureRawDrawingConfiguration();",
+      "descriptor: ()Lcom/onyx/android/sdk/pen/RawDrawingConfigurationSnapshot;"
+    ],
+    [
+      "public com.onyx.android.sdk.pen.TouchHelper applyRawDrawingConfiguration(com.onyx.android.sdk.pen.RawDrawingConfigurationSnapshot);",
+      "descriptor: (Lcom/onyx/android/sdk/pen/RawDrawingConfigurationSnapshot;)Lcom/onyx/android/sdk/pen/TouchHelper;"
+    ],
+    [
+      "public com.onyx.android.sdk.pen.TouchHelper setRawDrawingEnabled(boolean, com.onyx.android.sdk.pen.RawDrawingConfigurationPolicy);",
+      "descriptor: (ZLcom/onyx/android/sdk/pen/RawDrawingConfigurationPolicy;)Lcom/onyx/android/sdk/pen/TouchHelper;"
+    ],
+    [
+      "public com.onyx.android.sdk.pen.TouchHelper setRawInputListenerV2(com.onyx.android.sdk.pen.RawInputListenerV2);",
+      "descriptor: (Lcom/onyx/android/sdk/pen/RawInputListenerV2;)Lcom/onyx/android/sdk/pen/TouchHelper;"
+    ],
+    [
+      "public com.onyx.android.sdk.pen.TouchHelper setRawInputListenerV2(com.onyx.android.sdk.pen.RawInputListenerV2, java.util.concurrent.Executor);",
+      "descriptor: (Lcom/onyx/android/sdk/pen/RawInputListenerV2;Ljava/util/concurrent/Executor;)Lcom/onyx/android/sdk/pen/TouchHelper;"
+    ]
+  ],
+  "com.onyx.android.sdk.pen.touch.AppTouchRender": [
+    [
+      "public void setRawInputListenerV2(com.onyx.android.sdk.pen.RawInputListenerV2);",
+      "descriptor: (Lcom/onyx/android/sdk/pen/RawInputListenerV2;)V"
+    ]
+  ],
+  "com.onyx.android.sdk.pen.touch.SFTouchRender": [
+    [
+      "public void setRawInputListenerV2(com.onyx.android.sdk.pen.RawInputListenerV2);",
+      "descriptor: (Lcom/onyx/android/sdk/pen/RawInputListenerV2;)V"
+    ]
+  ],
+  "com.onyx.android.sdk.pen.touch.TouchRender": [
+    [
+      "public default void setRawInputListenerV2(com.onyx.android.sdk.pen.RawInputListenerV2);",
+      "descriptor: (Lcom/onyx/android/sdk/pen/RawInputListenerV2;)V"
+    ]
+  ],
+  "com.onyx.android.sdk.pen.utils.FountainShapes": [
+    [
+      "public static com.onyx.android.sdk.pen.NeoPen createNeoPenV2(float, float, float, float, float, float, java.lang.Float, boolean, java.lang.Float);",
+      "descriptor: (FFFFFFLjava/lang/Float;ZLjava/lang/Float;)Lcom/onyx/android/sdk/pen/NeoPen;"
     ]
   ],
   "com.onyx.android.sdk.pen.NeoPenConfig": [

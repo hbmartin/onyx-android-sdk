@@ -1,5 +1,7 @@
 @file:Suppress(
     // Renderer lifecycle and native record decoding are intentionally stateful and iterative.
+    "AvoidFirstOrLastOnList",
+    "AvoidMutableCollections",
     "AvoidVarsExceptWithDelegate",
     "MagicNumber",
     "NestedBlockDepth",
@@ -12,6 +14,7 @@ package com.onyx.android.sdk.ktx.render
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
@@ -100,6 +103,21 @@ class RenderFrame internal constructor(
     fun draw(canvas: Canvas, includePrediction: Boolean = true) {
         committed?.draw(canvas)
         if (includePrediction) predicted?.draw(canvas)
+    }
+
+    /** Draws using an explicit document-to-view transform without mutating input points. */
+    fun draw(
+        canvas: Canvas,
+        transform: Matrix,
+        includePrediction: Boolean = true,
+    ) {
+        val checkpoint = canvas.save()
+        try {
+            canvas.concat(transform)
+            draw(canvas, includePrediction)
+        } finally {
+            canvas.restoreToCount(checkpoint)
+        }
     }
 }
 

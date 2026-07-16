@@ -115,6 +115,7 @@ tasks.named("check") {
         ":onyxsdk-base:support:onyxsdk-baselite:testDebugUnitTest",
         ":onyxsdk-device:testDebugUnitTest",
         ":onyxsdk-ktx:testDebugUnitTest",
+        ":onyxsdk-pen-core:testDebugUnitTest",
         ":onyxsdk-pen:testDebugUnitTest",
         ":recovery-tests:testDebugUnitTest",
         // Lint runs against the checked-in per-module baselines; only new
@@ -123,6 +124,7 @@ tasks.named("check") {
         ":onyxsdk-base:support:onyxsdk-baselite:lintRelease",
         ":onyxsdk-device:lintRelease",
         ":onyxsdk-ktx:lintRelease",
+        ":onyxsdk-pen-core:lintRelease",
         ":onyxsdk-pen:lintRelease",
         "nativeFormatCheck",
         "nativeTest",

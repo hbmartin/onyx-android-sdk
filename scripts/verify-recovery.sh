@@ -60,6 +60,7 @@ BASE_AAR="$(registry_aar base)"
 DEVICE_AAR="$(registry_aar device)"
 KTX_AAR="$(registry_aar ktx)"
 PEN_AAR="$(registry_aar pen)"
+PEN_CORE_AAR="$(registry_aar pen-core)"
 published_aars="$(
   python3 "$ROOT/scripts/module_registry.py" --root "$ROOT" published-aars
 )" || fail "could not resolve published AARs from the module registry"
@@ -80,6 +81,7 @@ unzip -p "$BASE_AAR" classes.jar > "$TMP/base.jar"
 unzip -p "$DEVICE_AAR" classes.jar > "$TMP/device.jar"
 unzip -p "$KTX_AAR" classes.jar > "$TMP/ktx.jar"
 unzip -p "$PEN_AAR" classes.jar > "$TMP/pen.jar"
+unzip -p "$PEN_CORE_AAR" classes.jar > "$TMP/pen-core.jar"
 jar tf "$TMP/base.jar" | rg 'com/onyx/android/sdk/utils/FileUtils.class' >/dev/null \
   || fail "base classes.jar is missing FileUtils"
 jar tf "$TMP/base.jar" | rg 'com/onyx/android/sdk/rx/RxUtils\$d.class' >/dev/null \
@@ -96,9 +98,13 @@ jar tf "$TMP/pen.jar" | rg 'com/onyx/android/sdk/pen/RawInputReader.class' >/dev
   || fail "pen classes.jar is missing RawInputReader"
 # The contract list is byte-order sorted; force the same collation here so
 # comm never sees "disorder" under a UTF-8 host locale.
-jar tf "$TMP/pen.jar" | rg '\.class$' | LC_ALL=C sort -u > "$TMP/pen-classes"
+{
+  jar tf "$TMP/pen.jar"
+  jar tf "$TMP/pen-core.jar"
+} | rg '\.class$' | LC_ALL=C sort -u > "$TMP/pen-classes"
 missing_pen_classes="$(LC_ALL=C comm -23 "$ROOT/scripts/native-contracts/pen-classes.txt" "$TMP/pen-classes")"
-test -z "$missing_pen_classes" || fail "pen AAR is missing reference classes: $missing_pen_classes"
+test -z "$missing_pen_classes" \
+  || fail "transitive pen artifacts are missing reference classes: $missing_pen_classes"
 echo "all AAR classes were compiled from recovered source"
 
 for aar in "${PRODUCTION_AARS[@]}"; do
@@ -111,11 +117,14 @@ done
 
 scan_must_be_clean "pen production source still contains invalid or unfinished code" \
   '\?\?|\*\* GOTO|void var[0-9]' \
-  "$ROOT/onyxsdk-pen/src/main/java"
+  "$ROOT/onyxsdk-pen/src/main/java" \
+  "$ROOT/onyxsdk-pen-core/src/main/java"
 
-if unzip -Z1 "$PEN_AAR" | rg 'libc\+\+_shared\.so' >/dev/null; then
-  fail "pen AAR still contains libc++_shared.so"
-fi
+for pen_aar in "$PEN_AAR" "$PEN_CORE_AAR"; do
+  if unzip -Z1 "$pen_aar" | rg 'libc\+\+_shared\.so' >/dev/null; then
+    fail "$pen_aar still contains libc++_shared.so"
+  fi
+done
 
 NDK_VERSION="${ANDROID_NDK_VERSION:-28.2.13676358}"
 SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
@@ -182,7 +191,7 @@ for abi in armeabi-v7a arm64-v8a x86 x86_64; do
   cmp -s "$ROOT/onyxsdk-pen/src/main/jniLibs/$abi/libneo_pen$shared_library_suffix" "$modern_rebuilt" \
     || fail "$abi legacy and modern pen sonames are not the same renderer binary"
   modern_packaged="$TMP/$abi.neopen-jni.aar$shared_library_suffix"
-  unzip -p "$PEN_AAR" "jni/$abi/libneopen_jni$shared_library_suffix" > "$modern_packaged"
+  unzip -p "$PEN_CORE_AAR" "jni/$abi/libneopen_jni$shared_library_suffix" > "$modern_packaged"
   test -s "$modern_packaged" || fail "$abi packaged libneopen_jni$shared_library_suffix is missing"
   cmp -s "$TMP/$abi.neo-pen.aar$shared_library_suffix" "$modern_packaged" \
     || fail "$abi packaged legacy and modern pen sonames differ"

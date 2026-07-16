@@ -34,8 +34,54 @@ sealed interface RefreshScope {
 enum class LeasePolicy { FAIL_FAST, WAIT }
 enum class RegionMode { MULTI_REGION, SINGLE_REGION }
 enum class InkTool { PEN, SIDE_ERASER, TAIL_ERASER }
-enum class StrokeStyle { PENCIL, FOUNTAIN, MARKER, BRUSH, CHARCOAL, DASH, CHARCOAL_V2, SQUARE }
+enum class StrokeStyle(internal val firmwareValue: Int) {
+    PENCIL(0),
+    FOUNTAIN(1),
+    MARKER(2),
+    BRUSH(3),
+    CHARCOAL(4),
+    DASH(5),
+    CHARCOAL_V2(6),
+    SQUARE(7),
+}
 enum class BrushShape { CIRCLE, ELLIPSE, RECTANGLE }
+enum class CoordinateSpace { VIEW_LOCAL_PHYSICAL_PIXELS }
+enum class TimestampClock { MONOTONIC_INPUT_NANOSECONDS }
+enum class TiltUnit { RAW_INPUT_AXIS }
+enum class PenPhase { DOWN, MOVE, UP, PROXIMITY }
+enum class PenState(internal val firmwareValue: Int) {
+    STOPPED(0),
+    STARTED(1),
+    DRAWING(2),
+    PAUSED(3),
+    ERASING(4),
+}
+enum class TurboMode(internal val firmwareValue: Int) { DISABLED(0), ENABLED(1) }
+
+@JvmInline
+value class EraserStyle private constructor(val firmwareValue: Int) {
+    companion object {
+        val DEFAULT = EraserStyle(5)
+
+        fun firmware(value: Int): EraserStyle {
+            require(value >= 0) { "eraser style must be non-negative" }
+            return EraserStyle(value)
+        }
+    }
+}
+
+/** Typed dash geometry retained in application configuration without exposing a float array. */
+data class DashPattern(
+    val onLengthPx: Float,
+    val offLengthPx: Float,
+    val phasePx: Float = 0f,
+) {
+    init {
+        require(onLengthPx.isFinite() && onLengthPx > 0f) { "onLengthPx must be positive" }
+        require(offLengthPx.isFinite() && offLengthPx > 0f) { "offLengthPx must be positive" }
+        require(phasePx.isFinite() && phasePx >= 0f) { "phasePx must be non-negative" }
+    }
+}
 
 @RequiresOptIn(
     level = RequiresOptIn.Level.WARNING,
@@ -97,6 +143,7 @@ data class BrushConfiguration(
     val endVelocitySensitivity: Float = 0f,
     val endThinningRate: Float = 0f,
     val ignorePressure: Float = 0f,
+    val dashPattern: DashPattern? = null,
 ) {
     init {
         require(widthPx.isFinite() && widthPx > 0f) { "widthPx must be finite and positive" }
@@ -149,12 +196,16 @@ data class BrushConfiguration(
         }
         require(endThinningRate in 0f..1f) { "endThinningRate must be in 0..1" }
         require(ignorePressure in 0f..1f) { "ignorePressure must be in 0..1" }
+        require(dashPattern == null || style == StrokeStyle.DASH) {
+            "dashPattern requires StrokeStyle.DASH"
+        }
     }
 }
 
 data class EraserConfiguration(
     val widthPx: Float = 20f,
     val sideButtonEnabled: Boolean = true,
+    val style: EraserStyle = EraserStyle.DEFAULT,
 ) {
     init {
         require(widthPx.isFinite() && widthPx > 0f) { "widthPx must be finite and positive" }
@@ -186,11 +237,32 @@ data class InkPoint(
     val sequence: Long,
     val tool: InkTool,
 ) {
+    /** All v2/KTX points use physical pixels relative to the bound host view. */
+    val coordinateSpace: CoordinateSpace
+        get() = CoordinateSpace.VIEW_LOCAL_PHYSICAL_PIXELS
+
+    val timestampClock: TimestampClock
+        get() = TimestampClock.MONOTONIC_INPUT_NANOSECONDS
+
+    val tiltUnit: TiltUnit
+        get() = TiltUnit.RAW_INPUT_AXIS
+
     init {
         require(xPx.isFinite() && yPx.isFinite()) { "Coordinates must be finite" }
         require(maxPressure > 0) { "maxPressure must be positive" }
         require(normalizedPressure in 0f..1f) { "normalizedPressure must be in 0..1" }
     }
+}
+
+/** Immutable, lossless raw event; instances may be retained after collection. */
+data class PenEvent(
+    val phase: PenPhase,
+    val point: InkPoint,
+    val outsideLimitRegion: Boolean = false,
+    val forced: Boolean = false,
+) {
+    val coordinateSpace: CoordinateSpace
+        get() = point.coordinateSpace
 }
 
 data class InkStroke(
