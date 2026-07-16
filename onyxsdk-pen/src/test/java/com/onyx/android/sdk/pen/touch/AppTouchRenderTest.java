@@ -69,8 +69,10 @@ public class AppTouchRenderTest {
                 "emitRawInput", RawInputPhase.class, TouchPoint.class,
                 boolean.class, boolean.class);
         emit.setAccessible(true);
+        CountDownLatch eventDispatchAttempted = new CountDownLatch(1);
         Thread event = new Thread(() -> {
             try {
+                eventDispatchAttempted.countDown();
                 emit.invoke(render, RawInputPhase.MOVE,
                         new TouchPoint(1f, 2f, 0.5f, 0f, 3L), false, false);
             } catch (ReflectiveOperationException failure) {
@@ -78,12 +80,24 @@ public class AppTouchRenderTest {
             }
         }, "input-event");
         event.start();
+        assertTrue(eventDispatchAttempted.await(1, TimeUnit.SECONDS));
+        assertTrue(awaitThreadState(event, Thread.State.BLOCKED, 1, TimeUnit.SECONDS));
         releaseReplay.countDown();
 
         registration.join(2_000L);
         event.join(2_000L);
         assertTrue(eventDelivered.await(1, TimeUnit.SECONDS));
         assertEquals(1, maximumActive.get());
+    }
+
+    private static boolean awaitThreadState(
+            Thread thread, Thread.State expected, long timeout, TimeUnit unit)
+            throws InterruptedException {
+        long deadline = System.nanoTime() + unit.toNanos(timeout);
+        while (thread.getState() != expected && System.nanoTime() < deadline) {
+            Thread.sleep(1L);
+        }
+        return thread.getState() == expected;
     }
 
     @Test

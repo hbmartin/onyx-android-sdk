@@ -1,11 +1,14 @@
 package com.onyx.android.sdk.pen;
 
+import android.util.Log;
 import java.util.ArrayDeque;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /** Listener adapters for controlling raw-input callback dispatch. */
 public final class RawInputListeners {
+    private static final String TAG = "RawInputListeners";
+
     private RawInputListeners() {
     }
 
@@ -35,6 +38,7 @@ public final class RawInputListeners {
         private final ArrayDeque<Runnable> tasks = new ArrayDeque<>();
         private final Executor delegate;
         private Runnable active;
+        private boolean detached;
 
         private SerialExecutor(Executor delegate) {
             this.delegate = delegate;
@@ -42,9 +46,17 @@ public final class RawInputListeners {
 
         @Override
         public synchronized void execute(Runnable command) {
+            if (detached) {
+                return;
+            }
             tasks.add(() -> {
                 try {
                     command.run();
+                } catch (ThreadDeath | VirtualMachineError fatal) {
+                    throw fatal;
+                } catch (Throwable failure) {
+                    detach();
+                    Log.e(TAG, "RawInputListenerV2 callback failed; listener detached", failure);
                 } finally {
                     scheduleNext();
                 }
@@ -55,6 +67,11 @@ public final class RawInputListeners {
         }
 
         private synchronized void scheduleNext() {
+            if (detached) {
+                active = null;
+                tasks.clear();
+                return;
+            }
             active = tasks.poll();
             if (active != null) {
                 try {
@@ -65,6 +82,12 @@ public final class RawInputListeners {
                     throw failure;
                 }
             }
+        }
+
+        private synchronized void detach() {
+            detached = true;
+            active = null;
+            tasks.clear();
         }
     }
 }

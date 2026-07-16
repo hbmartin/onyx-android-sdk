@@ -237,12 +237,13 @@ class RawInkSession private constructor(
 
     init {
         scope.launch {
-            for (command in commands) {
+            while (true) {
+                val command = commands.receiveCatching().getOrNull() ?: break
                 try {
                     process(command)
                 } catch (failure: Throwable) {
                     abortActor(command, failure)
-                    break
+                    return@launch
                 }
             }
         }

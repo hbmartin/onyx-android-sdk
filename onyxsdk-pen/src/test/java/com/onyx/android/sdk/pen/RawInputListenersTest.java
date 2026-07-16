@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -72,6 +73,29 @@ public class RawInputListenersTest {
 
         assertEquals(2, attempts.get());
         assertEquals(1, delivered.get());
+    }
+
+    @Test
+    public void delegateFailureDetachesAndDropsQueuedAndSubsequentCallbacks() {
+        ArrayDeque<Runnable> scheduled = new ArrayDeque<>();
+        AtomicInteger attempts = new AtomicInteger();
+        RawInputListenerV2 listener = RawInputListeners.dispatching(
+                scheduled::add,
+                event -> {
+                    attempts.incrementAndGet();
+                    throw new IllegalStateException("callback failed");
+                });
+
+        listener.onRawInputEvent(event(1));
+        listener.onRawInputEvent(event(2));
+        assertEquals(1, scheduled.size());
+
+        scheduled.remove().run();
+
+        assertEquals(1, attempts.get());
+        assertTrue(scheduled.isEmpty());
+        listener.onRawInputEvent(event(3));
+        assertTrue(scheduled.isEmpty());
     }
 
     private static RawInputEventV2 event(long sequence) {
