@@ -43,14 +43,23 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
+/** Boundary used to decide that an E Ink refresh is complete. */
 enum class RefreshCompletionEvidence {
     FIRMWARE_WAIT_RETURNED,
     FIRMWARE_DISPATCHED,
     ESTIMATED_DELAY,
 }
 
+/** Recoverable limitation encountered while waiting for a refresh. */
 enum class RefreshWarning { WAIT_BACKEND_UNAVAILABLE, WAIT_BACKEND_TIMED_OUT }
 
+/**
+ * Result of waiting for an E Ink refresh.
+ *
+ * @property evidence Boundary that established completion.
+ * @property elapsedNanos Monotonic elapsed time for dispatch and completion.
+ * @property warnings Recoverable limitations encountered during the wait.
+ */
 data class RefreshReceipt(
     val evidence: RefreshCompletionEvidence,
     val elapsedNanos: Long,
@@ -221,6 +230,11 @@ private object FirmwareWaiter {
     }
 }
 
+/**
+ * Waits until the firmware reports that the current E Ink update is complete.
+ *
+ * A bounded estimated delay is used when the precise firmware wait is unavailable or times out.
+ */
 suspend fun awaitEpdIdle(
     timeout: Duration = 2.seconds,
     fallbackDelay: Duration = 500.milliseconds,
@@ -255,6 +269,7 @@ suspend fun awaitEpdIdle(
     return firmware
 }
 
+/** Dispatches an E Ink refresh for this view and waits for its completion boundary. */
 suspend fun View.refreshAndAwait(
     mode: EpdUpdateMode,
     scope: RefreshScope = RefreshScope.FullView,

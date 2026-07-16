@@ -22,11 +22,34 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
+/** Firmware integration boundary that handled an operation. */
 enum class FirmwareBackendKind { SURFACE_FLINGER_BINDER, FRAMEWORK_REFLECTION, NATIVE_INPUT, NATIVE_RENDERER, FALLBACK }
+
+/** Stage at which a firmware diagnostic was recorded. */
 enum class FirmwareDiagnosticPhase { RESOLUTION, DISPATCH, REPLY, CLEANUP, VALIDATION }
+
+/** Outcome recorded for a firmware operation. */
 enum class FirmwareDiagnosticStatus { SUCCEEDED, REJECTED, UNAVAILABLE, TIMED_OUT, FAILED }
+
+/** Controls how much information [OnyxDiagnostics] emits. */
 enum class DiagnosticsLevel { FAILURES, VERBOSE }
 
+/**
+ * Immutable diagnostic record for one firmware operation.
+ *
+ * @property id Process-local monotonically increasing identifier.
+ * @property operation Stable name of the firmware operation.
+ * @property backend Integration boundary that handled the operation.
+ * @property phase Stage at which the result was recorded.
+ * @property status Recorded outcome.
+ * @property durationNanos Elapsed monotonic time for the operation.
+ * @property threadName Name of the thread that recorded the result.
+ * @property firmwareFingerprint Android build fingerprint at the time of the operation.
+ * @property firmwareDisplay Android display build identifier.
+ * @property board Android board identifier.
+ * @property causeClass Fully qualified failure class, or `null` on success.
+ * @property causeMessage Failure message, or `null` when unavailable.
+ */
 data class FirmwareDiagnostic(
     val id: Long,
     val operation: String,
@@ -53,11 +76,14 @@ object OnyxDiagnostics {
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
 
+    /** Amount of diagnostic information retained and emitted. */
     @Volatile
     var level: DiagnosticsLevel = DiagnosticsLevel.FAILURES
 
+    /** Live stream of diagnostics produced after collection begins. */
     val events: SharedFlow<FirmwareDiagnostic> = mutableEvents.asSharedFlow()
 
+    /** Returns a point-in-time copy of the bounded diagnostic history. */
     @Synchronized
     fun snapshot(): List<FirmwareDiagnostic> = history.toList()
 

@@ -83,18 +83,27 @@ class RenderLayer internal constructor(
     private val immutableBounds = RectF(bounds)
     private val immutablePaint = Paint(paint)
 
+    /** Defensive copy of the layer's document-space bounds. */
     val bounds: RectF
         get() = RectF(immutableBounds)
 
+    /** Draws the immutable native-renderer output onto [canvas]. */
     fun draw(canvas: Canvas) {
         drawCommands.forEach { it(canvas, immutablePaint) }
     }
 }
 
+/**
+ * Output of one native-renderer operation.
+ *
+ * @property committed Stable output that can be retained in the document.
+ * @property predicted Speculative output that should be replaced by the next frame.
+ */
 class RenderFrame internal constructor(
     val committed: RenderLayer?,
     val predicted: RenderLayer?,
 ) {
+    /** Union of committed and predicted layer bounds. */
     val bounds: RectF
         get() = when {
             committed == null -> predicted?.bounds ?: RectF()
@@ -102,6 +111,7 @@ class RenderFrame internal constructor(
             else -> committed.bounds.apply { union(predicted.bounds) }
         }
 
+    /** Draws committed output and, when requested, predicted output onto [canvas]. */
     fun draw(canvas: Canvas, includePrediction: Boolean = true) {
         committed?.draw(canvas)
         if (includePrediction) predicted?.draw(canvas)
@@ -141,6 +151,7 @@ class InkRenderer private constructor(
     private val lock = Any()
     private var state: State = State.Idle
 
+    /** Begins a stroke with [point] and returns the first native-renderer frame. */
     fun begin(point: InkPoint): Result<RenderFrame> = rendererResult("renderer.begin") {
         synchronized(lock) {
             requireState(State.Idle, "begin")
@@ -154,6 +165,7 @@ class InkRenderer private constructor(
         }
     }
 
+    /** Appends ordered [points], optionally including a speculative [prediction]. */
     fun append(
         points: List<InkPoint>,
         prediction: InkPoint? = null,
@@ -173,6 +185,7 @@ class InkRenderer private constructor(
         }
     }
 
+    /** Ends the active stroke at [point] and returns its final frame. */
     fun end(point: InkPoint): Result<RenderFrame> = rendererResult("renderer.end") {
         synchronized(lock) {
             requireState(State.Drawing, "end")
@@ -213,6 +226,7 @@ class InkRenderer private constructor(
         }
     }
 
+    /** Releases the native renderer handle; repeated calls are safe. */
     override fun close() {
         synchronized(lock) {
             if (state == State.Closed) return
@@ -226,9 +240,11 @@ class InkRenderer private constructor(
         check(state == expected) { "$operation requires $expected, actual state is $state" }
     }
 
+    /** Creates independently owned native renderer instances. */
     companion object {
         private const val NATIVE_POINT_CHUNK = 1_024
 
+        /** Creates an independently owned renderer for [kind] and [configuration]. */
         fun create(
             kind: PenKind,
             configuration: BrushConfiguration = BrushConfiguration(),

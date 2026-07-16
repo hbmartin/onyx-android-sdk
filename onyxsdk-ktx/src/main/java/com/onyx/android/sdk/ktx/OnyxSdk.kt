@@ -22,24 +22,33 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+/** Host-supplied hook that enables the minimum hidden-API exemptions needed by the SDK. */
 fun interface HiddenApiExemptionProvider {
     /** Enables only the hidden APIs required by the host application. */
     fun enable()
 }
 
+/** Options for the explicit, idempotent [OnyxSdk.initialize] bootstrap. */
 data class OnyxInitializationOptions(
     /** Initializes compatibility-only resource and Rx services used by the legacy base artifact. */
     val legacyBaseServices: Boolean = false,
+    /** Optional exemption hook installed before the first capability discovery. */
     val hiddenApiExemptionProvider: HiddenApiExemptionProvider? = null,
 )
 
+/** SDK modules that were initialized by [OnyxSdk.initialize]. */
 enum class InitializedModule { KTX, LEGACY_BASE_SERVICES }
 
+/** Result of a successful [OnyxSdk.initialize] call. */
 data class OnyxInitializationReceipt(
+    /** Modules available after initialization. */
     val modules: Set<InitializedModule>,
+
+    /** Whether the same [Application] had already initialized the SDK. */
     val reusedApplication: Boolean,
 )
 
+/** Process-wide entry point for SDK bootstrap, capability discovery, and diagnostics. */
 object OnyxSdk {
     private val bootstrapLock = Any()
     // Atomics keep the properties immutable for static analysis; bootstrapLock still owns every
@@ -51,6 +60,7 @@ object OnyxSdk {
     private val initializedApplication = AtomicReference<Application?>()
     private val legacyBaseInitialized = AtomicBoolean()
 
+    /** Process-local firmware diagnostic stream and bounded history. */
     val diagnostics: OnyxDiagnostics
         get() = OnyxDiagnostics
 
@@ -124,6 +134,12 @@ object OnyxSdk {
             }
         }
 
+    /**
+     * Discovers the capabilities of the current device and optional [surfaceView].
+     *
+     * Active reversible probing requires an owned surface and may temporarily exercise firmware
+     * controls; passive probing performs queries only.
+     */
     suspend fun capabilities(
         surfaceView: SurfaceView? = null,
         probeMode: CapabilityProbeMode = CapabilityProbeMode.PASSIVE,

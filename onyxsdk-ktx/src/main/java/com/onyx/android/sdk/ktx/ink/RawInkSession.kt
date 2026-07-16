@@ -140,6 +140,7 @@ class RawInkSession private constructor(
     @Volatile
     private var closed = false
 
+    /** Current lifecycle state of this session. */
     override val state: StateFlow<RawInkSessionState> = mutableState.asStateFlow()
 
     /** Lossless and ordered while collected; events are not retained without a collector. */
@@ -247,6 +248,7 @@ class RawInkSession private constructor(
         }
     }
 
+    /** Posts a bitmap beneath the overlay and restores raw-ink rendering afterward. */
     override suspend fun commit(
         bitmap: Bitmap,
         destination: Rect,
@@ -288,6 +290,7 @@ class RawInkSession private constructor(
         return request(Command.Commit(bitmap, Rect(destination), Rect(dirtyRegion), options))
     }
 
+    /** Closes the session and waits for all firmware cleanup to finish. */
     override suspend fun closeAndAwait(): Result<Unit> {
         if (closed) return closeCommand.reply.await()
         if (closeRequested.compareAndSet(false, true)) {
@@ -304,6 +307,7 @@ class RawInkSession private constructor(
         return closeCommand.reply.await()
     }
 
+    /** Pauses raw input and firmware overlay rendering. */
     override suspend fun pause(): Result<Unit> {
         if (closed) {
             val failure = (mutableState.value as? RawInkSessionState.Failed)?.failure
@@ -312,6 +316,7 @@ class RawInkSession private constructor(
         return request(Command.SetPaused(SuspensionReason.REQUESTED, true))
     }
 
+    /** Resumes raw input and overlay rendering when the surface is available. */
     override suspend fun resume(): Result<Unit> {
         if (closed) {
             return Result.failure(OnyxFailure.InvalidState("raw.resume", null, "Session is closed"))
@@ -319,6 +324,7 @@ class RawInkSession private constructor(
         return request(Command.SetPaused(SuspensionReason.REQUESTED, false))
     }
 
+    /** Requests asynchronous session cleanup. */
     override fun close() {
         if (closed) return
         if (closeRequested.compareAndSet(false, true)) {
@@ -994,7 +1000,9 @@ class RawInkSession private constructor(
         val reply = CompletableDeferred<Result<T>>()
     }
 
+    /** Factory methods for exclusive raw-ink sessions. */
     companion object {
+        /** Opens an exclusive raw-ink session for [surfaceView]. */
         suspend fun open(
             surfaceView: SurfaceView,
             configuration: RawInkConfiguration = RawInkConfiguration(),
@@ -1083,6 +1091,7 @@ internal suspend fun probeRawInput(
     }
 }
 
+/** Opens a session, runs [block], and waits for cleanup before returning. */
 suspend fun <T> withRawInkSession(
     surfaceView: SurfaceView,
     configuration: RawInkConfiguration = RawInkConfiguration(),

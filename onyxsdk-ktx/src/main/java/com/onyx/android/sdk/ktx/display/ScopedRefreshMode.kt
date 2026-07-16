@@ -26,13 +26,22 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 
+/** Firmware transient update mode owned by a scoped token. */
 enum class TransientUpdateMode(internal val legacy: UpdateMode) {
     ANIMATION(UpdateMode.ANIMATION),
     ANIMATION_QUALITY(UpdateMode.ANIMATION_QUALITY),
 }
 
+/** Ownership boundary of a transient refresh mode. */
 enum class RefreshModeScope { PROCESS }
 
+/**
+ * Describes an acquired transient refresh-mode lease.
+ *
+ * @property mode Active transient mode.
+ * @property scope Ownership boundary of the lease.
+ * @property nestingDepth Number of compatible leases active after this acquisition.
+ */
 data class RefreshModeReceipt(
     val mode: TransientUpdateMode,
     val scope: RefreshModeScope,
@@ -41,6 +50,7 @@ data class RefreshModeReceipt(
 
 /** Nesting-safe ownership token for the process-global firmware transient mode. */
 class RefreshModeToken internal constructor(
+    /** Description of the acquired lease. */
     val receipt: RefreshModeReceipt,
     private val tokenId: Long,
     private val owner: ScopedRefreshModeOwner,
@@ -48,6 +58,7 @@ class RefreshModeToken internal constructor(
     private val releaseStarted = AtomicBoolean()
     private val released = CompletableDeferred<Result<Unit>>()
 
+    /** Releases the lease and waits for any required firmware cleanup. */
     suspend fun closeAndAwait(): Result<Unit> {
         if (releaseStarted.compareAndSet(false, true)) {
             val outcome = withContext(NonCancellable) { owner.release(tokenId) }
@@ -56,6 +67,7 @@ class RefreshModeToken internal constructor(
         return released.await()
     }
 
+    /** Begins asynchronous release of the lease. */
     override fun close() {
         if (releaseStarted.compareAndSet(false, true)) {
             owner.releaseAsync(tokenId, released)
@@ -63,6 +75,7 @@ class RefreshModeToken internal constructor(
     }
 }
 
+/** Process-wide controller for nesting-safe transient refresh modes. */
 object RefreshModeController {
     private val owner = ScopedRefreshModeOwner(
         applyMode = { mode ->
@@ -94,11 +107,13 @@ object RefreshModeController {
         },
     )
 
+    /** Acquires a process-wide lease for [mode]. */
     suspend fun acquire(
         mode: TransientUpdateMode = TransientUpdateMode.ANIMATION_QUALITY,
     ): Result<RefreshModeToken> = owner.acquire(mode)
 }
 
+/** Runs [block] while [mode] is leased, then waits for the lease to be released. */
 suspend fun <T> withRefreshMode(
     mode: TransientUpdateMode = TransientUpdateMode.ANIMATION_QUALITY,
     block: suspend () -> T,
