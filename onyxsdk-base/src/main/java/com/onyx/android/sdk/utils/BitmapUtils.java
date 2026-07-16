@@ -965,7 +965,7 @@ public class BitmapUtils
         final Bitmap bitmap2 = Bitmap.createBitmap(targetWidth, targetHeight, Bitmap.Config.ARGB_8888);
         final Canvas canvas = new Canvas(bitmap2);
         final Bitmap bitmap3 = bitmap;
-        final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        final Paint paint = new Paint();
         final Rect rect = new Rect(0, 0, targetWidth, targetHeight);
         canvas.drawRoundRect(new RectF(rect), radius, radius, paint);
         paint.setXfermode((Xfermode)new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));

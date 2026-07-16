@@ -1,10 +1,11 @@
 package com.onyx.android.sdk.utils;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import com.onyx.android.sdk.extension.BitmapKt;
 import java.util.Locale;
 import org.junit.After;
 import org.junit.Before;
@@ -59,17 +60,26 @@ public class RecoveredRenderingAndStorageTest {
     }
 
     @Test
-    public void roundedBitmapDrawsIntoReturnedBitmap() {
-        Bitmap source = Bitmap.createBitmap(5, 5, Bitmap.Config.ARGB_8888);
+    public void roundedBitmapMatchesOriginalKotlinImplementation() {
+        Bitmap source = Bitmap.createBitmap(17, 17, Bitmap.Config.ARGB_8888);
         source.eraseColor(Color.BLUE);
-        Bitmap rounded = BitmapUtils.roundCornerBitmap(source, 5, 5, 2.0f);
+        Bitmap rounded = BitmapUtils.roundCornerBitmap(source, 17, 17, 5.0f);
+        Bitmap original = BitmapKt.roundCorner(source, 17, 17, 5.0f);
         try {
-            assertEquals(Color.BLUE, rounded.getPixel(2, 2));
-            assertTrue(Color.alpha(rounded.getPixel(0, 0)) < 255);
+            assertEquals(Color.BLUE, rounded.getPixel(8, 8));
+            assertArrayEquals(pixels(original), pixels(rounded));
         }
         finally {
             source.recycle();
             rounded.recycle();
+            original.recycle();
         }
+    }
+
+    private static int[] pixels(Bitmap bitmap) {
+        int[] pixels = new int[bitmap.getWidth() * bitmap.getHeight()];
+        bitmap.getPixels(pixels, 0, bitmap.getWidth(), 0, 0,
+                bitmap.getWidth(), bitmap.getHeight());
+        return pixels;
     }
 }
