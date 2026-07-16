@@ -42,11 +42,19 @@ class FakePenSession(
     private val strokeChannel = Channel<InkStroke>(Channel.UNLIMITED)
     private val closed = AtomicBoolean()
 
+    /** Mutable test state exposed as the production session contract. */
     override val state: StateFlow<RawInkSessionState> = mutableState.asStateFlow()
+
+    /** Events injected through [emit]. */
     override val events: Flow<PenEvent> = eventChannel.receiveAsFlow()
+
+    /** Latest preview derived from injected pen events. */
     override val preview: StateFlow<InkPreview?> = mutablePreview.asStateFlow()
+
+    /** Strokes injected through [emit]. */
     override val completedStrokes: Flow<InkStroke> = strokeChannel.receiveAsFlow()
 
+    /** Injects [event] into the fake session when it is active. */
     suspend fun emit(event: PenEvent) {
         check(!closed.get()) { "FakePenSession is closed" }
         if (mutableState.value !is RawInkSessionState.Active) return
@@ -54,12 +62,14 @@ class FakePenSession(
         event.toPreview()?.let { mutablePreview.value = it }
     }
 
+    /** Injects a completed [stroke] into the fake session when it is active. */
     suspend fun emit(stroke: InkStroke) {
         check(!closed.get()) { "FakePenSession is closed" }
         if (mutableState.value !is RawInkSessionState.Active) return
         strokeChannel.send(stroke)
     }
 
+    /** Moves the fake session to its requested-suspension state. */
     override suspend fun pause(): Result<Unit> {
         if (!closed.get()) {
             mutableState.value = RawInkSessionState.Suspended(1, SuspensionReason.REQUESTED)
@@ -68,6 +78,7 @@ class FakePenSession(
         return Result.success(Unit)
     }
 
+    /** Moves an open fake session back to its active state. */
     override suspend fun resume(): Result<Unit> = if (closed.get()) {
         Result.failure(OnyxFailure.InvalidState("fake.resume", null, "FakePenSession is closed"))
     } else {
@@ -75,6 +86,7 @@ class FakePenSession(
         Result.success(Unit)
     }
 
+    /** Delegates a commit to the handler supplied at construction time. */
     override suspend fun commit(
         bitmap: Bitmap,
         destination: Rect,
@@ -82,11 +94,13 @@ class FakePenSession(
         options: CommitOptions,
     ): Result<CommitReceipt> = commitHandler(bitmap, destination, dirtyRegion, options)
 
+    /** Closes the fake synchronously and returns success. */
     override suspend fun closeAndAwait(): Result<Unit> {
         close()
         return Result.success(Unit)
     }
 
+    /** Closes all fake streams and updates [state]. */
     override fun close() {
         if (closed.compareAndSet(false, true)) {
             mutableState.value = RawInkSessionState.Closed

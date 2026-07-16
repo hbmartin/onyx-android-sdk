@@ -21,11 +21,13 @@ import kotlin.time.Duration
 
 /** Explicit non-Onyx fallback that never pretends a firmware operation succeeded. */
 object NoOpOnyxApi : CapabilityProvider, DisplayController, PenSessionFactory {
+    /** Returns an unsupported-capability failure without probing firmware. */
     override suspend fun capabilities(
         surfaceView: SurfaceView?,
         probeMode: CapabilityProbeMode,
     ): Result<OnyxDeviceCapabilities> = unsupported("capabilities")
 
+    /** Returns an unsupported-capability failure without dispatching a refresh. */
     override suspend fun refresh(
         view: View,
         mode: EpdUpdateMode,
@@ -33,10 +35,12 @@ object NoOpOnyxApi : CapabilityProvider, DisplayController, PenSessionFactory {
         timeout: Duration,
     ): Result<RefreshReceipt> = unsupported("refresh")
 
+    /** Returns an unsupported-capability failure without acquiring firmware state. */
     override suspend fun acquireTransientMode(
         mode: TransientUpdateMode,
     ): Result<RefreshModeToken> = unsupported("transient-mode")
 
+    /** Returns an unsupported-capability failure without opening a pen session. */
     override suspend fun attach(
         surfaceView: SurfaceView,
         lifecycleOwner: LifecycleOwner,

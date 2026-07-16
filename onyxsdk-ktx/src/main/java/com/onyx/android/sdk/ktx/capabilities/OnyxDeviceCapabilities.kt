@@ -36,9 +36,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.seconds
 
+/** Controls whether discovery is query-only or may run reversible firmware round trips. */
 enum class CapabilityProbeMode { PASSIVE, ACTIVE_REVERSIBLE }
+
+/** Confidence state assigned to an individual capability. */
 enum class CapabilitySupport { SUPPORTED, UNSUPPORTED, UNVERIFIED }
+
+/** Result of resolving the hidden APIs required by the recovered firmware backend. */
 enum class HiddenApiStatus { NOT_ATTEMPTED, NOT_REQUIRED, EXEMPTIONS_APPLIED, ACCESS_DENIED }
+
+/** Kind of observation that supports a capability conclusion. */
 enum class CapabilityEvidenceKind {
     METHOD_RESOLVED,
     BINDER_CODE_RESOLVED,
@@ -50,17 +57,41 @@ enum class CapabilityEvidenceKind {
     FALLBACK,
 }
 
+/**
+ * Human-readable evidence supporting a capability conclusion.
+ *
+ * @property kind category of observation
+ * @property detail concise description of the observation
+ */
 data class CapabilityEvidence(
     val kind: CapabilityEvidenceKind,
     val detail: String,
 )
 
+/**
+ * Support conclusion, optional discovered [value], and the evidence behind it.
+ *
+ * @property support confidence assigned to the capability
+ * @property value discovered value when the capability exposes one
+ * @property evidence ordered observations used to reach the conclusion
+ */
 data class Capability<T>(
     val support: CapabilitySupport,
     val value: T? = null,
     val evidence: List<CapabilityEvidence> = emptyList(),
 )
 
+/**
+ * Stable Android build identity captured during capability discovery.
+ *
+ * @property manufacturer value of `Build.MANUFACTURER`
+ * @property model value of `Build.MODEL`
+ * @property device value of `Build.DEVICE`
+ * @property board value of `Build.BOARD`
+ * @property sdkInt Android API level
+ * @property fingerprint full build fingerprint
+ * @property displayBuild user-visible build identifier
+ */
 data class FirmwareIdentity(
     val manufacturer: String,
     val model: String,
@@ -71,6 +102,16 @@ data class FirmwareIdentity(
     val displayBuild: String,
 )
 
+/**
+ * Native input-axis metadata reported by the raw pen reader.
+ *
+ * @property minimum smallest raw axis value
+ * @property maximum largest raw axis value
+ * @property fuzz noise tolerance when reported by the device
+ * @property flat center dead zone when reported by the device
+ * @property resolution axis resolution when reported by the device
+ * @property source evidence describing where the range came from
+ */
 data class InputAxisRange(
     val minimum: Int,
     val maximum: Int,
@@ -80,6 +121,14 @@ data class InputAxisRange(
     val source: String,
 )
 
+/**
+ * Resolved firmware command transport.
+ *
+ * @property backend backend implementation name
+ * @property serviceName Binder or framework service name
+ * @property interfaceToken Binder interface descriptor when applicable
+ * @property transactionCodes resolved operation-to-code mapping
+ */
 data class FirmwareTransport(
     val backend: String,
     val serviceName: String,
@@ -87,6 +136,17 @@ data class FirmwareTransport(
     val transactionCodes: Map<String, Int>,
 )
 
+/**
+ * Display geometry, refresh, and framebuffer capabilities.
+ *
+ * @property widthPx physical display width in pixels
+ * @property heightPx physical display height in pixels
+ * @property colorType firmware display color-type value
+ * @property updateModes support conclusion for each update mode
+ * @property awaitUpdate support for precise firmware completion waits
+ * @property handwritingRepaint support for handwriting repaint dispatch
+ * @property savePenAttachedFramebuffer support for framebuffer capture with pen layers
+ */
 data class DisplayCapabilities(
     val widthPx: Capability<Int>,
     val heightPx: Capability<Int>,
@@ -97,9 +157,21 @@ data class DisplayCapabilities(
     val savePenAttachedFramebuffer: Capability<Unit>,
 )
 
+/** Coarse rendering color model derived from the device color type. */
 enum class DisplayColorMode { MONOCHROME, COLOR, UNKNOWN }
+
+/** Native renderer support for non-opaque alpha values. */
 enum class NativeAlphaSupport { OPAQUE_ONLY, SUPPORTED, UNVERIFIED }
 
+/**
+ * Hardware rendering limits and fallback availability.
+ *
+ * @property colorMode derived display color model
+ * @property colorDepthBits effective hardware color depth
+ * @property nativeAlpha native renderer alpha behavior
+ * @property maximumHardwareStrokeWidthPx largest recommended hardware stroke width
+ * @property softwareFallback availability of Android Canvas fallback rendering
+ */
 data class RenderingCapabilities(
     val colorMode: Capability<DisplayColorMode>,
     val colorDepthBits: Capability<Int>,
@@ -108,6 +180,14 @@ data class RenderingCapabilities(
     val softwareFallback: Capability<Unit>,
 )
 
+/**
+ * Support conclusions for firmware pen and display controls.
+ *
+ * @property sideButton support for side-button eraser control
+ * @property transientUpdates support for process-global transient update modes
+ * @property turbo support for raw-drawing turbo mode
+ * @property strokeStyles support conclusion for every public stroke style
+ */
 data class ControlCapabilities(
     val sideButton: Capability<Unit>,
     val transientUpdates: Capability<Unit>,
@@ -115,6 +195,21 @@ data class ControlCapabilities(
     val strokeStyles: Map<StrokeStyle, Capability<Unit>>,
 )
 
+/**
+ * Raw pen coordinate, timing, tool, and region capabilities.
+ *
+ * @property x horizontal raw input range
+ * @property y vertical raw input range
+ * @property pressure pressure input range
+ * @property tiltX horizontal tilt range
+ * @property tiltY vertical tilt range
+ * @property viewLocalCoordinates whether emitted coordinates are mapped into the host view
+ * @property monotonicTimestamps whether events use a monotonic clock
+ * @property tilt whether tilt samples are available
+ * @property sideEraser whether side-button erasing is distinguished
+ * @property tailEraser whether tail erasing is distinguished
+ * @property regionLimits whether include and exclude regions are enforceable
+ */
 data class RawInkCapabilities(
     val x: Capability<InputAxisRange>,
     val y: Capability<InputAxisRange>,
@@ -129,12 +224,31 @@ data class RawInkCapabilities(
     val regionLimits: Capability<Unit>,
 )
 
+/**
+ * Support conclusion for one renderer kind.
+ *
+ * @property support renderer availability
+ * @property experimental whether using the renderer requires experimental API opt-in
+ * @property evidence observations supporting the conclusion
+ */
 data class RendererCapability(
     val support: CapabilitySupport,
     val experimental: Boolean,
     val evidence: List<CapabilityEvidence>,
 )
 
+/**
+ * Immutable snapshot of all capabilities discovered for the current device.
+ *
+ * @property firmware Android firmware identity
+ * @property transport recovered firmware transport
+ * @property hiddenApi hidden-API access state
+ * @property display display and refresh capabilities
+ * @property rawInk raw pen input capabilities
+ * @property renderers renderer support keyed by public pen kind
+ * @property controls firmware control capabilities
+ * @property rendering rendering limits and fallback support
+ */
 data class OnyxDeviceCapabilities(
     val firmware: FirmwareIdentity,
     val transport: Capability<FirmwareTransport>,

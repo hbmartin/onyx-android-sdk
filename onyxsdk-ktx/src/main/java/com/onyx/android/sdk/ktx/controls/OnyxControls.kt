@@ -16,13 +16,24 @@ import com.onyx.android.sdk.ktx.model.TurboMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+/** Firmware behavior assigned to the pen's side button. */
 enum class SideButtonMode(internal val firmwareEnabled: Boolean) {
+    /** Ignore presses of the side button. */
     DISABLED(false),
+
+    /** Treat the side button as an eraser modifier. */
     ERASER(true),
 }
 
+/** Evidence that a control operation reached its synchronous completion boundary. */
 enum class ControlDispatchEvidence { FIRMWARE_CALL_RETURNED }
 
+/**
+ * Confirmation that a firmware control call returned without throwing.
+ *
+ * @property operation Stable name of the dispatched operation.
+ * @property evidence Completion boundary observed by the wrapper.
+ */
 data class ControlReceipt(
     val operation: String,
     val evidence: ControlDispatchEvidence = ControlDispatchEvidence.FIRMWARE_CALL_RETURNED,
@@ -30,6 +41,7 @@ data class ControlReceipt(
 
 /** Stable typed entry points for firmware controls that historically required reflection. */
 object OnyxControls {
+    /** Enables or disables firmware turbo rendering. */
     suspend fun setTurboMode(
         mode: TurboMode,
         capability: Capability<Unit>? = null,
@@ -37,6 +49,7 @@ object OnyxControls {
         EpdController.setEpdTurbo(mode.firmwareValue)
     }
 
+    /** Assigns [mode] to the pen's side button. */
     suspend fun setSideButtonMode(
         mode: SideButtonMode,
         capability: Capability<Unit>? = null,
@@ -44,11 +57,13 @@ object OnyxControls {
         EpdController.setEnablePenSideButton(mode.firmwareEnabled)
     }
 
+    /** Updates the handwriting pen [state] associated with [view]. */
     suspend fun setPenState(view: View, state: PenState): Result<ControlReceipt> =
         dispatch("controls.pen-state", null) {
             EpdController.setScreenHandWritingPenState(view, state.firmwareValue)
         }
 
+    /** Configures the firmware dash stroke lengths and phase. */
     suspend fun setDashPattern(
         pattern: DashPattern,
     ): Result<ControlReceipt> = dispatch("controls.dash-pattern", null) {

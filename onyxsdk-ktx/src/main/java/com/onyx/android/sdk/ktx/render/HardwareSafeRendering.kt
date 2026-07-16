@@ -7,8 +7,13 @@ import com.onyx.android.sdk.ktx.capabilities.OnyxDeviceCapabilities
 import com.onyx.android.sdk.ktx.model.InkPoint
 import kotlin.math.roundToInt
 
+/** Rendering implementation selected after capability validation. */
 enum class RenderingPath { HARDWARE_OVERLAY, SOFTWARE_CANVAS }
+
+/** Behavior used when a color has alpha that the hardware overlay may not preserve. */
 enum class AlphaPolicy { COMPOSITE_FOR_HARDWARE, PRESERVE_USING_SOFTWARE }
+
+/** Recoverable reason a rendering value was transformed or moved to software. */
 enum class RenderingWarning {
     COLOR_CAPABILITY_UNVERIFIED,
     COLOR_CONVERTED_TO_GRAYSCALE,
@@ -18,6 +23,14 @@ enum class RenderingWarning {
     STROKE_WIDTH_REQUIRES_SOFTWARE,
 }
 
+/**
+ * Device constraints relevant to hardware-overlay rendering.
+ *
+ * @property colorMode Display color capability.
+ * @property colorDepthBits Supported color depth, or `null` when unverified.
+ * @property nativeAlpha Whether the hardware overlay preserves alpha.
+ * @property maximumHardwareStrokeWidthPx Evidence-backed hardware width limit, if known.
+ */
 data class HardwareRenderingProfile(
     val colorMode: DisplayColorMode,
     val colorDepthBits: Int?,
@@ -25,12 +38,27 @@ data class HardwareRenderingProfile(
     val maximumHardwareStrokeWidthPx: Float?,
 )
 
+/**
+ * Hardware-safe interpretation of an authored color.
+ *
+ * @property color Packed ARGB color to render on [path].
+ * @property path Rendering implementation required to preserve the selected policy.
+ * @property warnings Transformations or capability limitations affecting the result.
+ */
 data class SafeColorResult(
     val color: Int,
     val path: RenderingPath,
     val warnings: Set<RenderingWarning>,
 )
 
+/**
+ * Hardware-safe interpretation of an authored stroke width.
+ *
+ * @property requestedWidthPx Original width in physical pixels.
+ * @property hardwareWidthPx Usable hardware width, or `null` when no limit is verified.
+ * @property path Rendering implementation required for the requested width.
+ * @property warnings Capability limitations affecting the result.
+ */
 data class SafeStrokeWidthResult(
     val requestedWidthPx: Float,
     val hardwareWidthPx: Float?,
@@ -38,6 +66,7 @@ data class SafeStrokeWidthResult(
     val warnings: Set<RenderingWarning>,
 )
 
+/** Extracts hardware-rendering constraints from this capability snapshot. */
 fun OnyxDeviceCapabilities.hardwareRenderingProfile(): HardwareRenderingProfile =
     HardwareRenderingProfile(
         colorMode = rendering.colorMode.value ?: DisplayColorMode.UNKNOWN,
