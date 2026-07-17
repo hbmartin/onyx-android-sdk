@@ -13,10 +13,13 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
@@ -36,6 +39,65 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [35])
 class RawInkSessionActorTest {
+    @Test
+    fun cancellationIsTerminalReleasesLeaseAndDrainsRequests() = runBlocking {
+        val uncaughtActorFailure = AtomicReference<Throwable?>()
+        val executor: ExecutorService = Executors.newSingleThreadExecutor { runnable ->
+            Thread(runnable, "raw-ink-session-cancellation-test").apply {
+                uncaughtExceptionHandler = Thread.UncaughtExceptionHandler { _, failure ->
+                    uncaughtActorFailure.compareAndSet(null, failure)
+                }
+            }
+        }
+        val dispatcher = executor.asCoroutineDispatcher()
+        try {
+            val releases = AtomicInteger()
+            val session = createSession(dispatcher) { releases.incrementAndGet() }
+            val state = RawInkSession::class.java.getDeclaredField("mutableState").run {
+                isAccessible = true
+                @Suppress("UNCHECKED_CAST")
+                get(session) as kotlinx.coroutines.flow.MutableStateFlow<RawInkSessionState>
+            }
+            state.value = RawInkSessionState.Active(1)
+            val actorScope = RawInkSession::class.java.getDeclaredField("scope").run {
+                isAccessible = true
+                get(session) as CoroutineScope
+            }
+            val manuallyPaused = RawInkSession::class.java.getDeclaredField("manuallyPaused").apply {
+                isAccessible = true
+            }
+
+            val current = async(start = CoroutineStart.UNDISPATCHED) { session.pause() }
+            withTimeout(5_000) {
+                while (!manuallyPaused.getBoolean(session)) delay(10)
+            }
+            val queued = async(start = CoroutineStart.UNDISPATCHED) { session.resume() }
+            actorScope.cancel(CancellationException("Cancel actor during request processing"))
+
+            val failed = withTimeout(5_000) {
+                var terminal: RawInkSessionState.Failed? = null
+                while (terminal == null) {
+                    shadowOf(Looper.getMainLooper()).idle()
+                    terminal = session.state.value as? RawInkSessionState.Failed
+                    if (terminal == null) delay(10)
+                }
+                terminal
+            }
+            val currentFailure = withTimeout(5_000) { current.await().exceptionOrNull() }
+            val queuedFailure = withTimeout(5_000) { queued.await().exceptionOrNull() }
+
+            assertTrue(failed.failure is OnyxFailure.FirmwareRejected)
+            assertSame(failed.failure, currentFailure)
+            assertSame(failed.failure, queuedFailure)
+            assertSame(failed.failure, session.closeAndAwait().exceptionOrNull())
+            assertEquals(1, releases.get())
+            assertTrue(executor.awaitTermination(5, TimeUnit.SECONDS))
+            assertNull(uncaughtActorFailure.get())
+        } finally {
+            dispatcher.close()
+        }
+    }
+
     @Test
     fun overflowIsTerminalReleasesLeaseAndClosesCollectorsWithCause() = runBlocking {
         val uncaughtActorFailure = AtomicReference<Throwable?>()

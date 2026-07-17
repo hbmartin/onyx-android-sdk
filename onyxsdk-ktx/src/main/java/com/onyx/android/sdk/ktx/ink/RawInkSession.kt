@@ -242,6 +242,9 @@ class RawInkSession private constructor(
                 try {
                     process(command)
                 } catch (cancelled: CancellationException) {
+                    withContext(NonCancellable) {
+                        abortActor(command, cancelled)
+                    }
                     throw cancelled
                 } catch (failure: Throwable) {
                     abortActor(command, failure)

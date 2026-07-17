@@ -958,19 +958,26 @@ public class BitmapUtils
         return roundCornerBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), radius);
     }
     
-    public static Bitmap roundCornerBitmap(Bitmap bitmap, final int targetWidth, final int targetHeight, final float radius) {
-        if (bitmap.getWidth() != targetWidth || bitmap.getHeight() != targetHeight) {
-            bitmap = createScaledBitmap(bitmap, targetWidth, targetHeight);
+    public static Bitmap roundCornerBitmap(final Bitmap bitmap, final int targetWidth, final int targetHeight, final float radius) {
+        final boolean recycleSource = bitmap.getWidth() != targetWidth || bitmap.getHeight() != targetHeight;
+        final Bitmap source = recycleSource
+                ? createScaledBitmap(bitmap, targetWidth, targetHeight)
+                : bitmap;
+        try {
+            final Bitmap bitmap2 = Bitmap.createBitmap(targetWidth, targetHeight, Bitmap.Config.ARGB_8888);
+            final Canvas canvas = new Canvas(bitmap2);
+            final Paint paint = new Paint();
+            final Rect rect = new Rect(0, 0, targetWidth, targetHeight);
+            canvas.drawRoundRect(new RectF(rect), radius, radius, paint);
+            paint.setXfermode((Xfermode)new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+            canvas.drawBitmap(source, rect, rect, paint);
+            return bitmap2;
         }
-        final Bitmap bitmap2 = Bitmap.createBitmap(targetWidth, targetHeight, Bitmap.Config.ARGB_8888);
-        final Canvas canvas = new Canvas(bitmap2);
-        final Bitmap bitmap3 = bitmap;
-        final Paint paint = new Paint();
-        final Rect rect = new Rect(0, 0, targetWidth, targetHeight);
-        canvas.drawRoundRect(new RectF(rect), radius, radius, paint);
-        paint.setXfermode((Xfermode)new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-        canvas.drawBitmap(bitmap3, rect, rect, paint);
-        return bitmap2;
+        finally {
+            if (recycleSource) {
+                source.recycle();
+            }
+        }
     }
     
     public static void drawCenterBitmap(final Canvas canvas, final Bitmap bitmap, final Rect rect, final Paint paint) {
