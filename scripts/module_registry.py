@@ -34,13 +34,17 @@ class Module:
     project_dependencies: tuple[tuple[str, str], ...]
     owned_packages: tuple[str, ...]
     legacy_owned_types: tuple[str, ...]
+    artifact_type: str = "aar"
 
     @property
     def release_task(self) -> str:
-        return f"{self.project_path}:assembleRelease"
+        task = "assembleRelease" if self.artifact_type == "aar" else "assemble"
+        return f"{self.project_path}:{task}"
 
     @property
     def aar_relative_path(self) -> Path:
+        if self.artifact_type != "aar":
+            raise RegistryError(f"{self.id} is not an AAR publication")
         return Path(self.project_dir) / "build" / "outputs" / "aar" / f"{self.artifact_id}-release.aar"
 
 
@@ -135,6 +139,9 @@ def _parse_module(raw: Any, index: int, default_license: str) -> Module:
     published = raw.get("published")
     if not isinstance(published, bool):
         raise RegistryError(f"{context}.published must be a boolean")
+    artifact_type = raw.get("artifactType", "aar")
+    if artifact_type not in {"aar", "platform"}:
+        raise RegistryError(f"{context}.artifactType must be aar or platform")
     license_id = raw.get("license", default_license)
     if not isinstance(license_id, str) or not license_id:
         raise RegistryError(f"{context}.license must be a non-empty string")
@@ -147,6 +154,7 @@ def _parse_module(raw: Any, index: int, default_license: str) -> Module:
         name=_require_string(raw, "name", context),
         description=_require_string(raw, "description", context),
         published=published,
+        artifact_type=artifact_type,
         license=license_id,
         device_validation=validation,
         project_dependencies=tuple(parsed_dependencies),
@@ -298,7 +306,8 @@ def main() -> int:
         return 0
     if args.command == "published-aars":
         for published_module in registry.published_modules:
-            print(registry.root / published_module.aar_relative_path)
+            if published_module.artifact_type == "aar":
+                print(registry.root / published_module.aar_relative_path)
         return 0
     module = registry.module(args.module_id)
     if args.command == "aar":
