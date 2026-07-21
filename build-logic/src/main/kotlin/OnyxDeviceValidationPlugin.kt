@@ -110,7 +110,12 @@ class OnyxDeviceValidationPlugin : Plugin<Project> {
     }
 
     private fun OnyxRegistry.validationModules(): ValidationModules = ValidationModules(
-        common = publishedModules.filter { it.deviceValidation.commonRecovered },
-        compared = publishedModules.filter { it.deviceValidation.referenceCompileJars.isNotEmpty() },
+        common = publishedModules.filter {
+            it.artifactType == OnyxArtifactType.AAR && it.deviceValidation.commonRecovered
+        },
+        compared = publishedModules.filter {
+            it.artifactType == OnyxArtifactType.AAR &&
+                it.deviceValidation.referenceCompileJars.isNotEmpty()
+        },
     )
 }
