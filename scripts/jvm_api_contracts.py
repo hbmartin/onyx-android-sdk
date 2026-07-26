@@ -150,6 +150,8 @@ def main() -> int:
     with tempfile.TemporaryDirectory() as temporary:
         temp = Path(temporary)
         for module_metadata in registry.published_modules:
+            if module_metadata.artifact_type != "aar":
+                continue
             module = module_metadata.artifact_id
             try:
                 jar = extract_classes(root / module_metadata.aar_relative_path, temp)
