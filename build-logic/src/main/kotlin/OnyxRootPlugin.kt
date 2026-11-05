@@ -218,7 +218,9 @@ class OnyxRootPlugin : Plugin<Project> {
             description = "Stages versioned standalone AARs and license metadata for GitHub Releases."
             dependsOn(releaseTasks)
             into(layout.buildDirectory.dir("distributions/github"))
-            registry.publishedModules.forEach { module ->
+            registry.publishedModules
+                .filter { it.artifactType == OnyxArtifactType.AAR }
+                .forEach { module ->
                 from(layout.projectDirectory.file(module.aarRelativePath)) {
                     rename { "${module.artifactId}-${module.version}.aar" }
                 }

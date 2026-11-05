@@ -40,13 +40,22 @@ def sha256(path: Path) -> str:
 
 def artifact_paths(registry: Registry, module: Module) -> dict[str, Path]:
     build = registry.root / module.project_dir / "build"
-    return {
-        "aar": registry.root / module.aar_relative_path,
-        "sources": build / "intermediates/source_jar/release/release-sources.jar",
-        "javadoc": build / "intermediates/java_doc_jar/release/release-javadoc.jar",
+    artifacts = {
         "pom": build / "publications/release/pom-default.xml",
         "module": build / "publications/release/module.json",
     }
+    if module.artifact_type == "platform":
+        artifacts.update({
+            "sources": build / "distributions" / f"{module.artifact_id}-{module.version}-sources.jar",
+            "javadoc": build / "distributions" / f"{module.artifact_id}-{module.version}-javadoc.jar",
+        })
+    else:
+        artifacts.update({
+            "aar": registry.root / module.aar_relative_path,
+            "sources": build / "intermediates/source_jar/release/release-sources.jar",
+            "javadoc": build / "intermediates/java_doc_jar/release/release-javadoc.jar",
+        })
+    return artifacts
 
 
 def verify_pom(registry: Registry, module: Module, pom_path: Path) -> None:
@@ -57,7 +66,7 @@ def verify_pom(registry: Registry, module: Module, pom_path: Path) -> None:
         "groupId": distribution["group"],
         "artifactId": module.artifact_id,
         "version": module.version,
-        "packaging": "aar",
+        "packaging": "pom" if module.artifact_type == "platform" else "aar",
         "name": module.name,
         "description": module.description,
         "url": distribution["projectUrl"],
@@ -94,8 +103,39 @@ def verify_pom(registry: Registry, module: Module, pom_path: Path) -> None:
     }
     require_equal(f"{module.id} POM project dependencies", actual_projects, expected_projects)
 
+    if module.artifact_type == "platform":
+        actual_constraints = {
+            (
+                text(dependency, "m:artifactId"),
+                text(dependency, "m:version"),
+            )
+            for dependency in root.findall(
+                "m:dependencyManagement/m:dependencies/m:dependency",
+                MAVEN,
+            )
+            if text(dependency, "m:groupId") == distribution["group"]
+        }
+        expected_constraints = {
+            (candidate.artifact_id, candidate.version)
+            for candidate in registry.published_modules
+            if (
+                candidate.artifact_type == "aar"
+                and candidate.artifact_id.startswith("onyxsdk-recognition")
+            )
+        }
+        require_equal(
+            f"{module.id} POM lockstep constraints",
+            actual_constraints,
+            expected_constraints,
+        )
 
-def verify_module_metadata(registry: Registry, module: Module, path: Path, aar: Path) -> None:
+
+def verify_module_metadata(
+        registry: Registry,
+        module: Module,
+        path: Path,
+        aar: Path | None,
+) -> None:
     payload = json.loads(path.read_text(encoding="utf-8"))
     require_equal(
         f"{module.id} module group",
@@ -104,11 +144,46 @@ def verify_module_metadata(registry: Registry, module: Module, path: Path, aar: 
     )
     require_equal(f"{module.id} module name", payload["component"]["module"], module.artifact_id)
     require_equal(f"{module.id} module version", payload["component"]["version"], module.version)
+    if module.artifact_type == "platform":
+        expected_constraints = {
+            (
+                candidate.artifact_id,
+                candidate.version,
+            )
+            for candidate in registry.published_modules
+            if (
+                candidate.artifact_type == "aar"
+                and candidate.artifact_id.startswith("onyxsdk-recognition")
+            )
+        }
+        variants = [
+            variant for variant in payload["variants"]
+            if variant["name"] in {"apiElements", "runtimeElements"}
+        ]
+        require_equal(f"{module.id} platform variant count", len(variants), 2)
+        for variant in variants:
+            actual_constraints = {
+                (
+                    constraint["module"],
+                    constraint["version"]["requires"],
+                )
+                for constraint in variant.get("dependencyConstraints", [])
+                if constraint["group"] == registry.distribution["group"]
+            }
+            require_equal(
+                f"{module.id} {variant['name']} lockstep constraints",
+                actual_constraints,
+                expected_constraints,
+            )
+        return
+
     files = [item for variant in payload["variants"] for item in variant.get("files", [])]
     primary_name = f"{module.artifact_id}-{module.version}.aar"
     primary = next((item for item in files if item.get("name") == primary_name), None)
     if primary is None:
         raise PublicationError(f"{module.id} Gradle metadata has no primary AAR")
+    if aar is None:
+        raise PublicationError(f"{module.id} AAR path is unavailable")
     require_equal(f"{module.id} unchanged AAR SHA-256", primary.get("sha256"), sha256(aar))
     names = {item.get("name") for item in files}
     for classifier in ("sources", "javadoc"):
@@ -123,7 +198,7 @@ def verify_module(registry: Registry, module: Module) -> None:
     if missing:
         raise PublicationError(f"{module.id} publication output missing: {', '.join(missing)}")
     verify_pom(registry, module, paths["pom"])
-    verify_module_metadata(registry, module, paths["module"], paths["aar"])
+    verify_module_metadata(registry, module, paths["module"], paths.get("aar"))
 
 
 def main() -> int:

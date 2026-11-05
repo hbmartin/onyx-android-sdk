@@ -53,6 +53,8 @@ def verify_sources(registry: Registry) -> dict[str, int]:
     failures: list[str] = []
 
     for module in registry.published_modules:
+        if module.artifact_type != "aar":
+            continue
         files = source_files(registry.root, module)
         counts[module.id] = len(files)
         for path in files:
@@ -120,6 +122,8 @@ def verify_aars(registry: Registry) -> dict[str, int]:
     owners: dict[str, list[str]] = defaultdict(list)
     entries_by_module: dict[str, set[str]] = {}
     for module in registry.published_modules:
+        if module.artifact_type != "aar":
+            continue
         entries = class_entries(registry.root / module.aar_relative_path)
         entries_by_module[module.id] = entries
         for entry in entries:

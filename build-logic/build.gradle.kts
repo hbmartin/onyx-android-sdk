@@ -67,6 +67,10 @@ gradlePlugin {
             id = "onyx.android-library"
             implementationClass = "OnyxAndroidLibraryPlugin"
         }
+        register("onyxJavaPlatform") {
+            id = "onyx.java-platform"
+            implementationClass = "OnyxJavaPlatformPlugin"
+        }
         register("onyxDeviceValidation") {
             id = "onyx.device-validation"
             implementationClass = "OnyxDeviceValidationPlugin"

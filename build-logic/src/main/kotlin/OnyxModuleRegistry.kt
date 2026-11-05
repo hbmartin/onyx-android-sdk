@@ -39,6 +39,11 @@ data class OnyxProjectDependency(
     val target: String,
 )
 
+enum class OnyxArtifactType(val registryValue: String) {
+    AAR("aar"),
+    PLATFORM("platform"),
+}
+
 data class OnyxModule(
     val id: String,
     val projectPath: String,
@@ -48,6 +53,7 @@ data class OnyxModule(
     val name: String,
     val description: String,
     val published: Boolean,
+    val artifactType: OnyxArtifactType,
     val license: String,
     val deviceValidation: OnyxDeviceValidation,
     val projectDependencies: List<OnyxProjectDependency>,
@@ -55,10 +61,18 @@ data class OnyxModule(
     val legacyOwnedTypes: List<String>,
 ) {
     val releaseTask: String
-        get() = "$projectPath:assembleRelease"
+        get() = when (artifactType) {
+            OnyxArtifactType.AAR -> "$projectPath:assembleRelease"
+            OnyxArtifactType.PLATFORM -> "$projectPath:assemble"
+        }
 
     val aarRelativePath: String
-        get() = "$projectDir/build/outputs/aar/$artifactId-release.aar"
+        get() {
+            require(artifactType == OnyxArtifactType.AAR) {
+                "$id is not an AAR publication"
+            }
+            return "$projectDir/build/outputs/aar/$artifactId-release.aar"
+        }
 }
 
 data class OnyxRegistry(
@@ -290,6 +304,7 @@ private class RegistryLoader(
             name = module.requiredString("name", context),
             description = module.requiredString("description", context),
             published = module.requiredBoolean("published", context),
+            artifactType = parseArtifactType(module, context),
             license = module.optionalString("license", context) ?: defaultLicense,
             deviceValidation = OnyxDeviceValidation(
                 commonRecovered = validation.optionalBoolean("commonRecovered", "$context.deviceValidation"),
@@ -301,6 +316,15 @@ private class RegistryLoader(
             ownedPackages = module.stringList("ownedPackages", context),
             legacyOwnedTypes = module.stringList("legacyOwnedTypes", context),
         )
+    }
+
+    private fun parseArtifactType(module: Map<*, *>, context: String): OnyxArtifactType {
+        val value = module.optionalString("artifactType", context) ?: OnyxArtifactType.AAR.registryValue
+        return OnyxArtifactType.entries.singleOrNull { it.registryValue == value }
+            ?: throw GradleException(
+                "Invalid Onyx module registry: $context.artifactType must be one of " +
+                    OnyxArtifactType.entries.joinToString { it.registryValue },
+            )
     }
 
     private fun requireTarget(

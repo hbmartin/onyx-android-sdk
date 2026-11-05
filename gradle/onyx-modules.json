@@ -274,6 +274,244 @@
       "legacyOwnedTypes": []
     },
     {
+      "id": "recognition-native-runtime",
+      "projectPath": ":onyxsdk-recognition-native-runtime",
+      "projectDir": "onyxsdk-recognition-native-runtime",
+      "artifactId": "onyxsdk-recognition-native-runtime",
+      "version": "0.1.0",
+      "name": "Onyx SDK Recognition Native Runtime",
+      "description": "Pinned ARM64 native-runtime boundary shared by local recognition engines.",
+      "published": true,
+      "license": "Apache-2.0",
+      "deviceValidation": {},
+      "projectDependencies": [],
+      "ownedPackages": [
+        "com.onyx.android.sdk.recognition.nativecore"
+      ],
+      "legacyOwnedTypes": []
+    },
+    {
+      "id": "recognition-hwr-core",
+      "projectPath": ":onyxsdk-recognition-hwr-core",
+      "projectDir": "onyxsdk-recognition-hwr-core",
+      "artifactId": "onyxsdk-recognition-hwr-core",
+      "version": "0.1.0",
+      "name": "Onyx SDK Recognition HWR Core",
+      "description": "Native-isolated handwriting runtime boundaries for local recognition providers.",
+      "published": true,
+      "license": "Apache-2.0",
+      "deviceValidation": {},
+      "projectDependencies": [
+        {"configuration": "api", "target": "recognition-native-runtime"}
+      ],
+      "ownedPackages": [
+        "com.onyx.android.sdk.recognition.hwr.core"
+      ],
+      "legacyOwnedTypes": []
+    },
+    {
+      "id": "recognition-ocr-core",
+      "projectPath": ":onyxsdk-recognition-ocr-core",
+      "projectDir": "onyxsdk-recognition-ocr-core",
+      "artifactId": "onyxsdk-recognition-ocr-core",
+      "version": "0.1.0",
+      "name": "Onyx SDK Recognition OCR Core",
+      "description": "Native-isolated OCR runtime, preprocessing, tiling, and geometry boundaries.",
+      "published": true,
+      "license": "Apache-2.0",
+      "deviceValidation": {},
+      "projectDependencies": [
+        {"configuration": "api", "target": "recognition-native-runtime"}
+      ],
+      "ownedPackages": [
+        "com.onyx.android.sdk.recognition.ocr.core"
+      ],
+      "legacyOwnedTypes": []
+    },
+    {
+      "id": "recognition-speech-core",
+      "projectPath": ":onyxsdk-recognition-speech-core",
+      "projectDir": "onyxsdk-recognition-speech-core",
+      "artifactId": "onyxsdk-recognition-speech-core",
+      "version": "0.1.0",
+      "name": "Onyx SDK Recognition Speech Core",
+      "description": "Android on-device speech and injected-audio runtime boundary.",
+      "published": true,
+      "license": "Apache-2.0",
+      "deviceValidation": {},
+      "projectDependencies": [
+        {"configuration": "api", "target": "recognition-native-runtime"}
+      ],
+      "ownedPackages": [
+        "com.onyx.android.sdk.recognition.speech.core"
+      ],
+      "legacyOwnedTypes": []
+    },
+    {
+      "id": "recognition",
+      "projectPath": ":onyxsdk-recognition",
+      "projectDir": "onyxsdk-recognition",
+      "artifactId": "onyxsdk-recognition",
+      "version": "0.1.0",
+      "name": "Onyx SDK Recognition",
+      "description": "Idiomatic Kotlin facade for local handwriting, OCR, and speech recognition.",
+      "published": true,
+      "license": "Apache-2.0",
+      "deviceValidation": {},
+      "projectDependencies": [
+        {"configuration": "api", "target": "ktx"},
+        {"configuration": "implementation", "target": "recognition-hwr-core"},
+        {"configuration": "implementation", "target": "recognition-ocr-core"},
+        {"configuration": "implementation", "target": "recognition-speech-core"}
+      ],
+      "ownedPackages": [
+        "com.onyx.android.sdk.recognition",
+        "com.onyx.android.sdk.recognition.diagnostics",
+        "com.onyx.android.sdk.recognition.hwr",
+        "com.onyx.android.sdk.recognition.internal",
+        "com.onyx.android.sdk.recognition.model",
+        "com.onyx.android.sdk.recognition.ocr",
+        "com.onyx.android.sdk.recognition.provider",
+        "com.onyx.android.sdk.recognition.resources",
+        "com.onyx.android.sdk.recognition.speech"
+      ],
+      "legacyOwnedTypes": []
+    },
+    {
+      "id": "recognition-paddle-v3",
+      "projectPath": ":onyxsdk-recognition-paddle-v3",
+      "projectDir": "onyxsdk-recognition-paddle-v3",
+      "artifactId": "onyxsdk-recognition-paddle-v3",
+      "version": "0.1.0",
+      "name": "Onyx SDK Recognition Paddle v3",
+      "description": "Optional PP-OCRv3 provider profile and resource declarations.",
+      "published": true,
+      "license": "Apache-2.0",
+      "deviceValidation": {},
+      "projectDependencies": [
+        {"configuration": "api", "target": "recognition"},
+        {"configuration": "implementation", "target": "recognition-ocr-core"}
+      ],
+      "ownedPackages": [
+        "com.onyx.android.sdk.recognition.ocr.paddlev3"
+      ],
+      "legacyOwnedTypes": []
+    },
+    {
+      "id": "recognition-myscript-editor",
+      "projectPath": ":onyxsdk-recognition-myscript-editor",
+      "projectDir": "onyxsdk-recognition-myscript-editor",
+      "artifactId": "onyxsdk-recognition-myscript-editor",
+      "version": "0.1.0",
+      "name": "Onyx SDK Recognition MyScript Editor",
+      "description": "Optional editing sessions and commands for MyScript integrations.",
+      "published": true,
+      "license": "Apache-2.0",
+      "deviceValidation": {},
+      "projectDependencies": [
+        {"configuration": "api", "target": "recognition"},
+        {"configuration": "implementation", "target": "recognition-hwr-core"}
+      ],
+      "ownedPackages": [
+        "com.onyx.android.sdk.recognition.hwr.editor"
+      ],
+      "legacyOwnedTypes": []
+    },
+    {
+      "id": "recognition-myscript-jiix",
+      "projectPath": ":onyxsdk-recognition-myscript-jiix",
+      "projectDir": "onyxsdk-recognition-myscript-jiix",
+      "artifactId": "onyxsdk-recognition-myscript-jiix",
+      "version": "0.1.0",
+      "name": "Onyx SDK Recognition MyScript JIIX",
+      "description": "Lossless validated immutable JIIX interchange support.",
+      "published": true,
+      "license": "Apache-2.0",
+      "deviceValidation": {},
+      "projectDependencies": [
+        {"configuration": "api", "target": "recognition-myscript-editor"}
+      ],
+      "ownedPackages": [
+        "com.onyx.android.sdk.recognition.hwr.jiix"
+      ],
+      "legacyOwnedTypes": []
+    },
+    {
+      "id": "recognition-digital-ink-preparation",
+      "projectPath": ":onyxsdk-recognition-digital-ink-preparation",
+      "projectDir": "onyxsdk-recognition-digital-ink-preparation",
+      "artifactId": "onyxsdk-recognition-digital-ink-preparation",
+      "version": "0.1.0",
+      "name": "Onyx SDK Recognition Digital Ink Preparation",
+      "description": "Explicit Google Digital Ink model preparation integration.",
+      "published": true,
+      "license": "Apache-2.0",
+      "deviceValidation": {},
+      "projectDependencies": [
+        {"configuration": "api", "target": "recognition"},
+        {"configuration": "implementation", "target": "recognition-hwr-core"}
+      ],
+      "ownedPackages": [
+        "com.onyx.android.sdk.recognition.hwr.digitalink"
+      ],
+      "legacyOwnedTypes": []
+    },
+    {
+      "id": "recognition-soda-preparation",
+      "projectPath": ":onyxsdk-recognition-soda-preparation",
+      "projectDir": "onyxsdk-recognition-soda-preparation",
+      "artifactId": "onyxsdk-recognition-soda-preparation",
+      "version": "0.1.0",
+      "name": "Onyx SDK Recognition SODA Preparation",
+      "description": "Explicit on-device speech language-model preparation integration.",
+      "published": true,
+      "license": "Apache-2.0",
+      "deviceValidation": {},
+      "projectDependencies": [
+        {"configuration": "api", "target": "recognition"},
+        {"configuration": "implementation", "target": "recognition-speech-core"}
+      ],
+      "ownedPackages": [
+        "com.onyx.android.sdk.recognition.speech.soda"
+      ],
+      "legacyOwnedTypes": []
+    },
+    {
+      "id": "recognition-testing",
+      "projectPath": ":onyxsdk-recognition-testing",
+      "projectDir": "onyxsdk-recognition-testing",
+      "artifactId": "onyxsdk-recognition-testing",
+      "version": "0.1.0",
+      "name": "Onyx SDK Recognition Testing",
+      "description": "Fake providers, deterministic fixtures, and reusable recognition SPI conformance suites.",
+      "published": true,
+      "license": "Apache-2.0",
+      "deviceValidation": {},
+      "projectDependencies": [
+        {"configuration": "api", "target": "recognition"}
+      ],
+      "ownedPackages": [
+        "com.onyx.android.sdk.recognition.testing"
+      ],
+      "legacyOwnedTypes": []
+    },
+    {
+      "id": "recognition-bom",
+      "projectPath": ":onyxsdk-recognition-bom",
+      "projectDir": "onyxsdk-recognition-bom",
+      "artifactId": "onyxsdk-recognition-bom",
+      "version": "0.1.0",
+      "name": "Onyx SDK Recognition BOM",
+      "description": "Lockstep version constraints for every Onyx recognition artifact.",
+      "published": true,
+      "artifactType": "platform",
+      "license": "Apache-2.0",
+      "deviceValidation": {},
+      "projectDependencies": [],
+      "ownedPackages": [],
+      "legacyOwnedTypes": []
+    },
+    {
       "id": "recovery-tests",
       "projectPath": ":recovery-tests",
       "projectDir": "recovery-tests",

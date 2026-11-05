@@ -198,9 +198,20 @@ scripts/verify-pen-api.py \
 
 See [RECOVERY_NOTES.md](RECOVERY_NOTES.md),
 [docs/VALIDATION.md](docs/VALIDATION.md), and
-[docs/NATIVE_RECOVERY.md](docs/NATIVE_RECOVERY.md). The constraints and gates
-for the planned Java-to-Kotlin conversion are documented in
+[docs/NATIVE_RECOVERY.md](docs/NATIVE_RECOVERY.md). The Note Air4 C 4.2 firmware
+download, integrity, extraction, and reverse-engineering evidence is recorded in
+[docs/FIRMWARE_NOTEAIR4C_4_2.md](docs/FIRMWARE_NOTEAIR4C_4_2.md). The constraints
+and gates for the planned Java-to-Kotlin conversion are documented in
 [docs/KOTLIN_MIGRATION.md](docs/KOTLIN_MIGRATION.md).
+
+The future local-recognition platform is specified by the authoritative
+[recognition implementation plan](docs/RECOGNITION_MODULE_IMPLEMENTATION_PLAN.md).
+Its domain language is defined in [CONTEXT.md](CONTEXT.md), the firmware engine
+inventory is in
+[docs/RECOGNITION_FIRMWARE_EVIDENCE.md](docs/RECOGNITION_FIRMWARE_EVIDENCE.md),
+and durable decisions are under [docs/adr/](docs/adr/). The superseded proposal
+is retained as
+[RECOGNITION_MODULE_IMPLEMENTATION_PLAN_LEGACY.md](RECOGNITION_MODULE_IMPLEMENTATION_PLAN_LEGACY.md).
 
 ## Demo and test app
 
